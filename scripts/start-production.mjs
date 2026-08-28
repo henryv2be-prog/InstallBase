@@ -1,8 +1,28 @@
 import { spawn, spawnSync } from "node:child_process";
 import { setupUploadVolume } from "./setup-volume.mjs";
 
+const databaseUrl = process.env.DATABASE_URL?.trim();
+if (!databaseUrl) {
+  console.error("\n❌ DATABASE_URL is not set.\n");
+  process.exit(1);
+}
+
+if (!databaseUrl.startsWith("postgresql://") && !databaseUrl.startsWith("postgres://")) {
+  console.error("\n❌ DATABASE_URL is invalid.");
+  console.error(`   Current value starts with: ${databaseUrl.slice(0, 40)}...`);
+  console.error("   It must start with postgresql://");
+  console.error("   On Railway: Variables → DATABASE_URL → Reference → Postgres → DATABASE_URL\n");
+  process.exit(1);
+}
+
+if (process.env.NODE_ENV === "production" && databaseUrl.includes("localhost")) {
+  console.error("\n❌ DATABASE_URL points to localhost — that won't work on Railway.");
+  console.error("   Remove your manual DATABASE_URL and reference the Postgres plugin instead:");
+  console.error("   ${{Postgres.DATABASE_URL}}\n");
+  process.exit(1);
+}
+
 const required = [
-  { name: "DATABASE_URL", hint: "Reference Postgres: ${{Postgres.DATABASE_URL}}" },
   { name: "AUTH_SECRET", hint: "Generate with: openssl rand -base64 32" },
 ];
 
