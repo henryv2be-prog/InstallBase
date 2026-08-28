@@ -2,8 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getProject } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { MediaImage } from "@/components/ui/media-image";
+import { MediaGallery } from "@/components/ui/media-gallery";
 import { getInitials } from "@/lib/utils";
 import { MapPin } from "lucide-react";
 
@@ -25,9 +24,15 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   return (
     <div className="mx-auto max-w-3xl animate-fade-in">
       <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-        {project.media[0] && (
-          <div className="relative aspect-[21/9] bg-gray-100 dark:bg-gray-800">
-            <MediaImage src={project.media[0].url} alt={project.title} fill className="object-cover" sizes="800px" />
+        {project.media.length > 0 && (
+          <div className="p-4 pb-0">
+            <MediaGallery
+              items={project.media.map((m) => ({
+                url: m.url,
+                type: m.type,
+                caption: m.caption,
+              }))}
+            />
           </div>
         )}
         <div className="p-6">
@@ -64,19 +69,6 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
                   </li>
                 ))}
               </ul>
-            </section>
-          )}
-
-          {project.media.length > 1 && (
-            <section className="mt-6">
-              <h2 className="text-lg font-bold">Installation</h2>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                {project.media.map((media) => (
-                  <div key={media.id} className="relative aspect-video overflow-hidden rounded-xl">
-                    <MediaImage src={media.url} alt={media.caption ?? ""} fill className="object-cover" sizes="400px" />
-                  </div>
-                ))}
-              </div>
             </section>
           )}
 

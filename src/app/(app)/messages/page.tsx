@@ -1,15 +1,32 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { getConversations } from "@/lib/queries";
+import { getConversations, getProfileByUsername, getOrCreateConversation } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
+import { notFound, redirect } from "next/navigation";
 
 export const metadata = { title: "Messages" };
 
-export default async function MessagesPage() {
+interface MessagesPageProps {
+  searchParams: Promise<{ user?: string }>;
+}
+
+export default async function MessagesPage({ searchParams }: MessagesPageProps) {
   const session = await auth();
-  const conversations = await getConversations(session!.user!.id);
+  const userId = session!.user!.id;
+  const { user: username } = await searchParams;
+
+  if (username) {
+    const profile = await getProfileByUsername(username);
+    if (!profile) notFound();
+    if (profile.userId === userId) redirect("/messages");
+
+    const conversation = await getOrCreateConversation(userId, profile.userId);
+    redirect(`/messages/${conversation.id}`);
+  }
+
+  const conversations = await getConversations(userId);
 
   return (
     <div className="mx-auto max-w-2xl animate-fade-in">
@@ -26,7 +43,7 @@ export default async function MessagesPage() {
         <div className="space-y-2">
           {conversations.map(({ conversation }) => {
             const other = conversation.participants.find(
-              (p) => p.userId !== session!.user!.id
+              (p) => p.userId !== userId
             )?.user;
             const lastMessage = conversation.messages[0];
 

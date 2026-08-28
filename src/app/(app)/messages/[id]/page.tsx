@@ -29,6 +29,15 @@ export default async function MessageThreadPage({ params }: MessageThreadPagePro
   );
   if (!isParticipant) notFound();
 
+  await prisma.message.updateMany({
+    where: {
+      conversationId: id,
+      senderId: { not: session!.user!.id },
+      read: false,
+    },
+    data: { read: true },
+  });
+
   const other = conversation.participants.find(
     (p) => p.userId !== session!.user!.id
   )?.user;

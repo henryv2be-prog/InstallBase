@@ -7,6 +7,7 @@ import { sendMessage } from "@/lib/actions";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -32,31 +33,50 @@ export function MessageThread({
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setMessages(initialMessages);
+  }, [initialMessages]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSend = () => {
-    if (!content.trim()) return;
+    const text = content.trim();
+    if (!text) return;
+
     startTransition(async () => {
-      await sendMessage(conversationId, content);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          content,
-          createdAt: new Date(),
-          senderId: currentUserId,
-          sender: { name: "You", image: null },
-        },
-      ]);
-      setContent("");
-      router.refresh();
+      try {
+        const result = await sendMessage(conversationId, text);
+        if (result?.error) {
+          toast.error(result.error);
+          return;
+        }
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            content: text,
+            createdAt: new Date(),
+            senderId: currentUserId,
+            sender: { name: "You", image: null },
+          },
+        ]);
+        setContent("");
+        router.refresh();
+      } catch {
+        toast.error("Failed to send message");
+      }
     });
   };
 
   return (
     <div className="flex h-[calc(100vh-12rem)] flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {messages.length === 0 && (
+          <p className="py-8 text-center text-sm text-gray-500">
+            No messages yet. Say hello!
+          </p>
+        )}
         {messages.map((msg) => {
           const isOwn = msg.senderId === currentUserId;
           return (
@@ -86,9 +106,10 @@ export function MessageThread({
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Type a message..."
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+          disabled={pending}
         />
-        <Button onClick={handleSend} disabled={pending}>
+        <Button onClick={handleSend} disabled={pending || !content.trim()}>
           Send
         </Button>
       </div>

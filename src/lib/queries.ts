@@ -251,6 +251,38 @@ export async function getConversations(userId: string) {
   });
 }
 
+export async function findConversationBetweenUsers(userIdA: string, userIdB: string) {
+  const memberships = await prisma.conversationParticipant.findMany({
+    where: { userId: userIdA },
+    include: {
+      conversation: {
+        include: { participants: { select: { userId: true } } },
+      },
+    },
+  });
+
+  for (const { conversation } of memberships) {
+    const userIds = conversation.participants.map((p) => p.userId);
+    if (userIds.length === 2 && userIds.includes(userIdB)) {
+      return conversation;
+    }
+  }
+  return null;
+}
+
+export async function getOrCreateConversation(userIdA: string, userIdB: string) {
+  const existing = await findConversationBetweenUsers(userIdA, userIdB);
+  if (existing) return existing;
+
+  return prisma.conversation.create({
+    data: {
+      participants: {
+        create: [{ userId: userIdA }, { userId: userIdB }],
+      },
+    },
+  });
+}
+
 export async function getAdminStats() {
   const [
     users,

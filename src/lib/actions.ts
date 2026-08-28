@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth, signIn } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
 import { getUploadDir, uploadPublicPath } from "@/lib/uploads";
+import { getOrCreateConversation } from "@/lib/queries";
 import type { PostType, ExperienceLevel } from "@/generated/prisma/client";
 
 async function getCurrentUserId() {
@@ -348,30 +349,63 @@ export async function markHelpful(answerId: string) {
 
 export async function sendMessage(conversationId: string, content: string) {
   const userId = await getCurrentUserId();
+  const text = content.trim();
+  if (!text) return { error: "Message cannot be empty" };
+
+  const participant = await prisma.conversationParticipant.findUnique({
+    where: { conversationId_userId: { conversationId, userId } },
+  });
+  if (!participant) return { error: "You are not part of this conversation" };
+
   await prisma.message.create({
-    data: { conversationId, senderId: userId, content },
+    data: { conversationId, senderId: userId, content: text },
   });
   await prisma.conversation.update({
     where: { id: conversationId },
     data: { updatedAt: new Date() },
   });
+
+  const recipients = await prisma.conversationParticipant.findMany({
+    where: { conversationId, userId: { not: userId } },
+    select: { userId: true },
+  });
+  for (const { userId: recipientId } of recipients) {
+    await prisma.notification.create({
+      data: {
+        userId: recipientId,
+        actorId: userId,
+        type: "MESSAGE",
+        message: "sent you a message",
+        link: `/messages/${conversationId}`,
+      },
+    });
+  }
+
   revalidatePath("/messages");
+  revalidatePath(`/messages/${conversationId}`);
+  revalidatePath("/notifications");
   return { success: true };
 }
 
 export async function startConversation(targetUserId: string, content: string) {
   const userId = await getCurrentUserId();
-  const conversation = await prisma.conversation.create({
-    data: {
-      participants: {
-        create: [{ userId }, { userId: targetUserId }],
-      },
-      messages: {
-        create: { senderId: userId, content },
-      },
-    },
+  if (userId === targetUserId) return { error: "You cannot message yourself" };
+
+  const text = content.trim();
+  if (!text) return { error: "Message cannot be empty" };
+
+  const conversation = await getOrCreateConversation(userId, targetUserId);
+
+  await prisma.message.create({
+    data: { conversationId: conversation.id, senderId: userId, content: text },
   });
+  await prisma.conversation.update({
+    where: { id: conversation.id },
+    data: { updatedAt: new Date() },
+  });
+
   revalidatePath("/messages");
+  revalidatePath(`/messages/${conversation.id}`);
   return { conversationId: conversation.id };
 }
 

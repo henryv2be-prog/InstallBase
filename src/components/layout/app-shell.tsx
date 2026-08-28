@@ -33,7 +33,7 @@ const navItems = [
 
 const mobileNavItems = [
   { href: "/feed", label: "Home", icon: Home },
-  { href: "/discover", label: "Discover", icon: Compass },
+  { href: "/messages", label: "Messages", icon: MessageCircle },
   { href: "/create", label: "Create", icon: Plus, highlight: true },
   { href: "/notifications", label: "Alerts", icon: Bell },
   { href: "/profile", label: "Profile", icon: null },
