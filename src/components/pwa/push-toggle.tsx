@@ -38,6 +38,7 @@ function subscriptionPayload(sub: PushSubscription) {
 }
 
 export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: string }) {
+  const [checked, setChecked] = useState(false);
   const [supported, setSupported] = useState(false);
   const [needsIosInstall, setNeedsIosInstall] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>("default");
@@ -48,13 +49,22 @@ export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: str
     const ok = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
     setSupported(ok);
     setNeedsIosInstall(isIosDevice() && !isStandaloneDisplay());
-    if (!ok) return;
+    if (!ok) {
+      setChecked(true);
+      return;
+    }
     setPermission(Notification.permission);
-    navigator.serviceWorker.ready
-      .then((reg) => reg.pushManager.getSubscription())
+    navigator.serviceWorker
+      .getRegistration()
+      .then((reg) => (reg ? reg.pushManager.getSubscription() : null))
       .then((sub) => setSubscribed(Boolean(sub)))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setChecked(true));
   }, []);
+
+  if (!checked) {
+    return <p className="text-sm text-muted">Checking whether this device can receive alerts…</p>;
+  }
 
   if (needsIosInstall) {
     return (
