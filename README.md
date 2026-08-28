@@ -74,8 +74,11 @@ On the **web service** (not Postgres), set:
 | `AUTH_URL` | `https://${{RAILWAY_PUBLIC_DOMAIN}}` |
 | `AUTH_TRUST_HOST` | `true` |
 | `PRISMA_HIDE_UPDATE_MESSAGE` | `true` |
+| `UPLOAD_DIR` | `/data/uploads` (if you mounted a volume at `/data`) |
 
 Link the Postgres plugin to the web service so `DATABASE_URL` resolves at runtime.
+
+**About persistence:** Your PostgreSQL data is stored by the **Postgres plugin** (already persistent on Railway). The `/data` volume on the web service is for **uploaded images**, not the database — set `UPLOAD_DIR=/data/uploads` so post images survive redeploys.
 
 ### 3. Deploy
 

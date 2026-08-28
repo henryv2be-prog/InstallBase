@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { auth, signIn } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
+import { getUploadDir, uploadPublicPath } from "@/lib/uploads";
 import type { PostType, ExperienceLevel } from "@/generated/prisma/client";
 
 async function getCurrentUserId() {
@@ -432,8 +433,8 @@ export async function uploadImage(formData: FormData) {
   const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "")}`;
   const fs = await import("fs/promises");
   const path = await import("path");
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
+  const uploadDir = getUploadDir();
   await fs.mkdir(uploadDir, { recursive: true });
   await fs.writeFile(path.join(uploadDir, filename), buffer);
-  return { url: `/uploads/${filename}` };
+  return { url: uploadPublicPath(filename) };
 }
