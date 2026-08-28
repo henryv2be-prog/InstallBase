@@ -8,7 +8,6 @@ import {
   Bookmark,
   Trophy,
   MapPin,
-  MoreHorizontal,
 } from "lucide-react";
 import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { cn, getInitials, getReputationLabel } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { MediaGallery } from "@/components/ui/media-gallery";
+import { PostOptionsMenu } from "@/components/feed/post-options-menu";
 import {
   toggleLike,
   toggleBookmark,
@@ -98,9 +98,11 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
               </div>
             </div>
           </Link>
-          <Button variant="ghost" size="icon" className="shrink-0">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
+          <PostOptionsMenu
+            postId={post.id}
+            authorId={post.authorId}
+            currentUserId={currentUserId}
+          />
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
