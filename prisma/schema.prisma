@@ -1,0 +1,498 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum ExperienceLevel {
+  APPRENTICE
+  ONE_TO_THREE
+  THREE_TO_FIVE
+  FIVE_TO_TEN
+  TEN_PLUS
+}
+
+enum ReputationLevel {
+  APPRENTICE
+  INSTALLER
+  EXPERIENCED
+  PRO
+  EXPERT
+  MASTER
+}
+
+enum PostType {
+  POST
+  BRAG
+  QUESTION
+  PROJECT
+  VIDEO
+}
+
+enum ReportReason {
+  SPAM
+  FAKE_ACCOUNT
+  OFFENSIVE
+  UNSAFE_ADVICE
+  ADVERTISING
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  MENTION
+  ANSWER
+  SOLUTION
+  BRAG_RANKING
+  PROJECT_COMMENT
+  MESSAGE
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  name          String?
+  image         String?
+  role          UserRole  @default(USER)
+  suspended     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  profile       Profile?
+  posts         Post[]
+  comments      Comment[]
+  likes         Like[]
+  bookmarks     Bookmark[]
+  bragPoints    BragPoint[]
+  answers       Answer[]
+  followers     Follow[]  @relation("Following")
+  following     Follow[]  @relation("Follower")
+  notifications Notification[] @relation("Recipient")
+  actorNotifications Notification[] @relation("Actor")
+  sentMessages  Message[] @relation("Sender")
+  conversations ConversationParticipant[]
+  reports       Report[]  @relation("Reporter")
+  reportedUsers Report[]  @relation("ReportedUser")
+  projects      Project[]
+  reputation    Reputation?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Profile {
+  id              String            @id @default(cuid())
+  userId          String            @unique
+  username        String            @unique
+  bio             String?
+  city            String?
+  country         String?
+  specialties     String[]
+  experienceLevel ExperienceLevel   @default(APPRENTICE)
+  reputationScore Int               @default(0)
+  reputationLevel ReputationLevel   @default(APPRENTICE)
+  verified        Boolean           @default(false)
+  bragCount       Int               @default(0)
+  helpfulAnswers  Int               @default(0)
+  coverImage      String?
+  website         String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([username])
+  @@index([city, country])
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  parentId    String?
+  parent      Category? @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  posts       PostCategory[]
+  brands      Brand[]
+  createdAt   DateTime @default(now())
+}
+
+model Brand {
+  id         String    @id @default(cuid())
+  name       String    @unique
+  slug       String    @unique
+  logo       String?
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  products   Product[]
+  createdAt  DateTime  @default(now())
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  brandId     String?
+  brand       Brand?   @relation(fields: [brandId], references: [id])
+  image       String?
+  model       String?
+  postProducts PostProduct[]
+  createdAt   DateTime @default(now())
+
+  @@index([name])
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String @unique
+  slug  String @unique
+  posts PostTag[]
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  authorId    String
+  type        PostType  @default(POST)
+  title       String?
+  content     String
+  location    String?
+  solved      Boolean   @default(false)
+  featured    Boolean   @default(false)
+  bragScore   Int       @default(0)
+  bragDetails Json?
+  viewCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  media       PostMedia[]
+  comments    Comment[]
+  likes       Like[]
+  bookmarks   Bookmark[]
+  bragPoints  BragPoint[]
+  answers     Answer[]
+  tags        PostTag[]
+  products    PostProduct[]
+  categories  PostCategory[]
+  reports     Report[]
+
+  @@index([authorId])
+  @@index([type, createdAt])
+  @@index([createdAt])
+}
+
+model PostMedia {
+  id        String   @id @default(cuid())
+  postId    String
+  url       String
+  type      String   @default("image")
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model PostTag {
+  postId String
+  tagId  String
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+}
+
+model PostProduct {
+  postId    String
+  productId String
+  post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([postId, productId])
+}
+
+model PostCategory {
+  postId     String
+  categoryId String
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model BragPoint {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  postId     String
+  authorId   String
+  content    String
+  helpful    Int      @default(0)
+  isSolution Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  authorId    String
+  title       String
+  slug        String   @unique
+  description String
+  location    String?
+  equipment   String[]
+  challenges  String?
+  solution    String?
+  featured    Boolean  @default(false)
+  likeCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  media  ProjectMedia[]
+
+  @@index([authorId])
+}
+
+model ProjectMedia {
+  id        String   @id @default(cuid())
+  projectId String
+  url       String
+  type      String   @default("image")
+  caption   String?
+  order     Int      @default(0)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  actorId   String?
+  type      NotificationType
+  message   String
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user  User  @relation("Recipient", fields: [userId], references: [id], onDelete: Cascade)
+  actor User? @relation("Actor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([userId, read])
+}
+
+model Conversation {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  joinedAt       DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  read           Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+model Report {
+  id             String       @id @default(cuid())
+  reporterId     String
+  reportedUserId String?
+  postId         String?
+  reason         ReportReason
+  description    String?
+  status         ReportStatus @default(PENDING)
+  createdAt      DateTime     @default(now())
+
+  reporter     User  @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser User? @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: SetNull)
+  post         Post? @relation(fields: [postId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+}
+
+model Reputation {
+  id              String          @id @default(cuid())
+  userId          String          @unique
+  score           Int             @default(0)
+  level           ReputationLevel @default(APPRENTICE)
+  helpfulAnswers  Int             @default(0)
+  solvedQuestions Int             @default(0)
+  bragEngagement  Int             @default(0)
+  likesReceived   Int             @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String
+  category    String?
+  requirements String?
+  salary      String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active, createdAt])
+}
+
+model BragOfWeek {
+  id         String   @id @default(cuid())
+  postId     String
+  category   String
+  weekStart  DateTime
+  featured   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  @@unique([category, weekStart])
+}

@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #F5F7FA;
+  --foreground: #111827;
+  --card: #FFFFFF;
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --brag: #F97316;
+  --success: #10B981;
+  --border: #E5E7EB;
+  --muted: #6B7280;
+}
+
+.dark {
+  --background: #030712;
+  --foreground: #F9FAFB;
+  --card: #111827;
+  --border: #1F2937;
+  --muted: #9CA3AF;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-brag: var(--brag);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
