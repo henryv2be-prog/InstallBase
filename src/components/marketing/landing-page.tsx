@@ -1,15 +1,87 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Camera, Users, Trophy, Wrench, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  Camera,
+  Fingerprint,
+  Cable,
+  Sun,
+  Trophy,
+  Users,
+  Wrench,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { INSTALLER_IMAGES } from "@/lib/constants";
+import { LANDING_GALLERY, LANDING_HERO, SPECIALTIES } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+
+function InstallShot({
+  src,
+  alt,
+  label,
+  className,
+  sizes,
+  priority,
+}: {
+  src: string;
+  alt: string;
+  label: string;
+  className?: string;
+  sizes: string;
+  priority?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "group relative overflow-hidden rounded-2xl bg-slate-900 ring-1 ring-white/10",
+        className
+      )}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        priority={priority}
+        sizes={sizes}
+        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+      <span className="absolute bottom-3 left-3 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-white drop-shadow-md">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+const TRADES = [
+  {
+    icon: Camera,
+    title: "CCTV",
+    desc: "Cameras hung, cables dressed, NVR commissioned.",
+  },
+  {
+    icon: Fingerprint,
+    title: "Access Control",
+    desc: "Readers, locks, controllers. Doors that actually report.",
+  },
+  {
+    icon: Cable,
+    title: "Networking",
+    desc: "Racks you would photograph. Patching you would defend.",
+  },
+  {
+    icon: Sun,
+    title: "Solar",
+    desc: "Arrays, inverters, and the sparkies who commission them.",
+  },
+];
 
 export function LandingPage() {
   return (
     <div className="relative min-h-screen tech-bg">
-      <header className="relative z-10 border-b border-border bg-card/60 backdrop-blur-xl">
+      <header className="sticky top-0 z-20 border-b border-border bg-card/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-6">
           <Link href="/">
             <Logo size="md" />
@@ -30,8 +102,8 @@ export function LandingPage() {
         <div className="pointer-events-none absolute -left-32 top-20 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl animate-pulse-glow" />
         <div className="pointer-events-none absolute -right-32 top-40 h-64 w-64 rounded-full bg-cyan-500/15 blur-3xl animate-pulse-glow" />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-4 py-16 lg:px-6 lg:py-24">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 lg:px-6 lg:py-20">
+          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
             <div>
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 font-mono text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-cyan-400">
                 <Zap className="h-3.5 w-3.5" />
@@ -42,8 +114,8 @@ export function LandingPage() {
                 <span className="text-gradient">Share What They Build</span>
               </h1>
               <p className="mt-6 text-lg text-muted">
-                Connect with installers. Show off your work. Solve technical problems.
-                Discover better ways to install.
+                Show the install you&apos;re proud of. Ask the question that would take
+                three WhatsApp groups. Find people who still care about a clean rack.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link href="/signup">
@@ -58,38 +130,92 @@ export function LandingPage() {
                   </Button>
                 </Link>
               </div>
-              <p className="mt-4 font-mono text-xs text-muted">
-                CCTV · Access Control · Alarms · Networking · Low Voltage
-              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {SPECIALTIES.filter((s) => s !== "Other").map((trade) => (
+                  <span
+                    key={trade}
+                    className="rounded-full border border-border bg-card/60 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-muted"
+                  >
+                    {trade}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {INSTALLER_IMAGES.map((src, i) => (
-                <div
-                  key={i}
-                  className={`glass-card glow-border relative overflow-hidden ${
-                    i === 0 ? "col-span-2 aspect-[2/1]" : "aspect-square"
-                  }`}
-                >
-                  <Image src={src} alt="Installation showcase" fill className="object-cover" sizes="400px" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              {LANDING_HERO.map((shot) => (
+                <InstallShot key={shot.label + shot.src} {...shot} />
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 border-t border-border py-20">
+      <section className="relative z-10 border-t border-border py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 lg:px-6">
+          <div className="mb-10 max-w-2xl">
+            <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-cyan-400">
+              The work
+            </p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+              Photos installers would actually post
+            </h2>
+            <p className="mt-3 text-muted">
+              CCTV, access, networking, solar — finished jobs, not stock offices.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-3">
+            {LANDING_GALLERY.map((shot) => (
+              <InstallShot key={shot.alt} {...shot} />
+            ))}
+          </div>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {TRADES.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex gap-3 rounded-2xl border border-border bg-card/50 p-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 text-blue-600 dark:text-cyan-400">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">{title}</h3>
+                  <p className="mt-0.5 text-sm text-muted">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 border-t border-border py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 lg:px-6">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {[
-              { icon: Camera, title: "Show Your Work", desc: "Turn your installations into your portfolio." },
-              { icon: Wrench, title: "Learn From Installers", desc: "Real-world solutions from people doing the work every day." },
-              { icon: Trophy, title: "Build Your Reputation", desc: "Get recognized for great installations and helpful advice." },
-              { icon: Users, title: "Find Your Community", desc: "Connect with installers who work with the same technology." },
+              {
+                icon: Camera,
+                title: "Show Your Work",
+                desc: "Turn installations into a portfolio — cameras, racks, readers, arrays.",
+              },
+              {
+                icon: Wrench,
+                title: "Learn From Installers",
+                desc: "Cable tricks, device programming, and site fixes you will not find in a datasheet.",
+              },
+              {
+                icon: Trophy,
+                title: "Build Your Reputation",
+                desc: "Get recognized for clean installs and answers that actually help on site.",
+              },
+              {
+                icon: Users,
+                title: "Find Your Community",
+                desc: "Connect with people who work the same trades, brands, and problems.",
+              },
             ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="glass-card glow-border rounded-2xl p-6 transition-transform hover:-translate-y-1">
+              <div
+                key={title}
+                className="glass-card glow-border rounded-2xl p-6 transition-transform hover:-translate-y-1"
+              >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 text-blue-600 dark:text-cyan-400">
                   <Icon className="h-6 w-6" />
                 </div>
@@ -101,14 +227,12 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="relative z-10 py-20">
+      <section className="relative z-10 py-16 lg:py-20">
         <div className="mx-auto max-w-3xl px-4 text-center lg:px-6">
-          <h2 className="text-3xl font-bold">
-            Ready to show off your next install?
-          </h2>
+          <h2 className="text-3xl font-bold">Ready to show off your next install?</h2>
           <p className="mt-4 text-muted">
-            Join thousands of installers sharing knowledge, bragging about their best work,
-            and solving real technical problems together.
+            Join installers sharing CCTV, access control, networking, solar, and the
+            jobs in between.
           </p>
           <Link href="/signup" className="mt-8 inline-block">
             <Button size="lg">Get Started — It&apos;s Free</Button>
@@ -120,6 +244,9 @@ export function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 text-center text-sm text-muted lg:px-6">
           <Logo size="sm" className="justify-center" />
           <p className="mt-2">Where installers share what they build.</p>
+          <p className="mt-1 font-mono text-[11px] uppercase tracking-wider">
+            CCTV · Access Control · Alarms · Networking · Solar
+          </p>
         </div>
       </footer>
     </div>
