@@ -12,10 +12,10 @@ export function applyTheme(theme: Theme) {
 }
 
 export function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "dark";
   const stored = localStorage.getItem("installbase-theme") as Theme | null;
   if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "dark";
 }
 
 /** Applies saved theme before paint — no inline script needed (React 19 safe). */

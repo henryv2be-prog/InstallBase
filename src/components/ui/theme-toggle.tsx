@@ -9,7 +9,7 @@ import type { Theme } from "@/components/providers/theme-init";
 export type { Theme };
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
   useLayoutEffect(() => {
@@ -28,7 +28,7 @@ export function ThemeToggle() {
   if (!mounted) {
     return (
       <Button variant="ghost" size="icon" aria-label="Toggle theme" disabled>
-        <Sun className="h-5 w-5 opacity-0" />
+        <Moon className="h-5 w-5 opacity-0" />
       </Button>
     );
   }
