@@ -77,7 +77,7 @@ On the **web service** (not Postgres), set:
 | `UPLOAD_DIR` | `/data/uploads` (if you mounted a volume at `/data`) |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Public key from `npx web-push generate-vapid-keys` |
 | `VAPID_PRIVATE_KEY` | Private key from the same command |
-| `VAPID_SUBJECT` | `mailto:you@yourdomain.com` (optional) |
+| `VAPID_SUBJECT` | `mailto:you@yourdomain.com` (a bare email also works) |
 
 Link the Postgres plugin to the web service so `DATABASE_URL` resolves at runtime.
 
