@@ -12,6 +12,8 @@ if (!databaseUrl) {
   process.exit(1);
 }
 
+// validate-env.mjs already checks AUTH_SECRET; keep migrate guard for direct db:deploy runs.
+
 console.log("Running database migrations...");
 
 const result = spawnSync("npx", ["prisma", "migrate", "deploy"], {

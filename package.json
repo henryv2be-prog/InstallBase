@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
     "build": "prisma generate && next build",
-    "start": "node scripts/setup-volume.mjs && node scripts/migrate-deploy.mjs && next start -p ${PORT:-3000}",
-    "start:server": "next start -p ${PORT:-3000}",
+    "start": "node scripts/validate-env.mjs && node scripts/setup-volume.mjs && node scripts/migrate-deploy.mjs && next start -H 0.0.0.0 -p ${PORT:-3000}",
+    "start:server": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "eslint",
     "db:seed": "npx tsx prisma/seed.ts",
     "db:fix-images": "npx tsx prisma/fix-images.ts",
