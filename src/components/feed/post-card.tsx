@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import {
   Heart,
   MessageCircle,
@@ -16,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn, getInitials, getReputationLabel } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
+import { MediaImage } from "@/components/ui/media-image";
 import {
   toggleLike,
   toggleBookmark,
@@ -151,7 +151,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
                 key={media.id}
                 className="relative aspect-video overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800"
               >
-                <Image
+                <MediaImage
                   src={media.url}
                   alt={media.caption ?? "Installation photo"}
                   fill

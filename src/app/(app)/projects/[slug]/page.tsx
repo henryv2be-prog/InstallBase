@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { getProject } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { MediaImage } from "@/components/ui/media-image";
 import { getInitials } from "@/lib/utils";
 import { MapPin } from "lucide-react";
 
@@ -27,7 +27,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
       <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
         {project.media[0] && (
           <div className="relative aspect-[21/9] bg-gray-100 dark:bg-gray-800">
-            <Image src={project.media[0].url} alt={project.title} fill className="object-cover" sizes="800px" />
+            <MediaImage src={project.media[0].url} alt={project.title} fill className="object-cover" sizes="800px" />
           </div>
         )}
         <div className="p-6">
@@ -73,7 +73,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 {project.media.map((media) => (
                   <div key={media.id} className="relative aspect-video overflow-hidden rounded-xl">
-                    <Image src={media.url} alt={media.caption ?? ""} fill className="object-cover" sizes="400px" />
+                    <MediaImage src={media.url} alt={media.caption ?? ""} fill className="object-cover" sizes="400px" />
                   </div>
                 ))}
               </div>

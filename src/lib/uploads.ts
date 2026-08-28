@@ -10,3 +10,7 @@ export function getUploadDir(): string {
 export function uploadPublicPath(filename: string): string {
   return `/uploads/${filename}`;
 }
+
+export function isLocalUpload(url: string): boolean {
+  return url.startsWith("/uploads/") || url.startsWith("/api/uploads/");
+}
