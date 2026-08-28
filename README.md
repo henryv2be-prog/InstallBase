@@ -69,19 +69,22 @@ On the **web service** (not Postgres), set:
 
 | Variable | Value |
 |----------|-------|
+| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (reference from Postgres plugin) |
 | `AUTH_SECRET` | Random secret — run `openssl rand -base64 32` |
 | `AUTH_URL` | `https://${{RAILWAY_PUBLIC_DOMAIN}}` |
 | `AUTH_TRUST_HOST` | `true` |
+| `PRISMA_HIDE_UPDATE_MESSAGE` | `true` |
 
-`DATABASE_URL` is injected automatically when you link the Postgres plugin to the web service.
+Link the Postgres plugin to the web service so `DATABASE_URL` resolves at runtime.
 
 ### 3. Deploy
 
 Railway reads `railway.toml` and will:
 
 1. **Build** — `prisma generate` + `next build`
-2. **Pre-deploy** — `prisma migrate deploy` (runs when the DB is reachable)
-3. **Start** — `next start` on Railway's `$PORT`
+2. **Start** — run migrations, then `next start` on Railway's `$PORT`
+
+If deploy fails, check deploy logs for `DATABASE_URL is not set` — that means Postgres isn't linked to the web service yet.
 
 Generate a public domain under **Settings → Networking → Generate Domain**.
 

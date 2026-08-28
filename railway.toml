@@ -2,7 +2,6 @@
 buildCommand = "npm run build"
 
 [deploy]
-preDeployCommand = ["npm run db:deploy"]
 startCommand = "npm run start"
 healthcheckPath = "/login"
 healthcheckTimeout = 300
