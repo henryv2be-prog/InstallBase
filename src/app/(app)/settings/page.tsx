@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { PushNotificationToggle } from "@/components/pwa/push-toggle";
 import { getExperienceLabel } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -80,6 +81,15 @@ export default async function SettingsPage() {
           <Link href={`/profile/${profile.username}`}>
             <Button variant="outline">View public profile</Button>
           </Link>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Notifications</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PushNotificationToggle />
         </CardContent>
       </Card>
 

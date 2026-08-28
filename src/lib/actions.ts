@@ -7,6 +7,7 @@ import { auth, signIn } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
 import { getUploadDir, uploadPublicPath } from "@/lib/uploads";
 import { getOrCreateConversation } from "@/lib/queries";
+import { notifyUser } from "@/lib/notify";
 import type { PostType, ExperienceLevel } from "@/generated/prisma/client";
 
 async function getCurrentUserId() {
@@ -151,14 +152,12 @@ export async function toggleLike(postId: string) {
     await prisma.like.create({ data: { postId, userId } });
     const post = await prisma.post.findUnique({ where: { id: postId } });
     if (post && post.authorId !== userId) {
-      await prisma.notification.create({
-        data: {
-          userId: post.authorId,
-          actorId: userId,
-          type: "LIKE",
-          message: "liked your post",
-          link: `/post/${postId}`,
-        },
+      await notifyUser({
+        userId: post.authorId,
+        actorId: userId,
+        type: "LIKE",
+        message: "liked your post",
+        link: `/post/${postId}`,
       });
       await prisma.reputation.update({
         where: { userId: post.authorId },
@@ -220,14 +219,12 @@ export async function addComment(postId: string, content: string) {
 
   const post = await prisma.post.findUnique({ where: { id: postId } });
   if (post && post.authorId !== userId) {
-    await prisma.notification.create({
-      data: {
-        userId: post.authorId,
-        actorId: userId,
-        type: "COMMENT",
-        message: "commented on your post",
-        link: `/post/${postId}`,
-      },
+    await notifyUser({
+      userId: post.authorId,
+      actorId: userId,
+      type: "COMMENT",
+      message: "commented on your post",
+      link: `/post/${postId}`,
     });
   }
 
@@ -262,14 +259,12 @@ export async function toggleFollow(userId: string) {
     await prisma.follow.create({
       data: { followerId: currentUserId, followingId: userId },
     });
-    await prisma.notification.create({
-      data: {
-        userId,
-        actorId: currentUserId,
-        type: "FOLLOW",
-        message: "started following you",
-        link: me?.profile?.username ? `/profile/${me.profile.username}` : "/feed",
-      },
+    await notifyUser({
+      userId,
+      actorId: currentUserId,
+      type: "FOLLOW",
+      message: "started following you",
+      link: me?.profile?.username ? `/profile/${me.profile.username}` : "/feed",
     });
   }
 
@@ -296,14 +291,12 @@ export async function addAnswer(postId: string, content: string) {
 
   const post = await prisma.post.findUnique({ where: { id: postId } });
   if (post && post.authorId !== userId) {
-    await prisma.notification.create({
-      data: {
-        userId: post.authorId,
-        actorId: userId,
-        type: "ANSWER",
-        message: "answered your question",
-        link: `/post/${postId}`,
-      },
+    await notifyUser({
+      userId: post.authorId,
+      actorId: userId,
+      type: "ANSWER",
+      message: "answered your question",
+      link: `/post/${postId}`,
     });
   }
 
@@ -347,14 +340,12 @@ export async function markSolution(answerId: string, postId: string) {
         ),
       },
     });
-    await prisma.notification.create({
-      data: {
-        userId: answer.authorId,
-        actorId: userId,
-        type: "SOLUTION",
-        message: "marked your answer as the solution",
-        link: `/post/${postId}`,
-      },
+    await notifyUser({
+      userId: answer.authorId,
+      actorId: userId,
+      type: "SOLUTION",
+      message: "marked your answer as the solution",
+      link: `/post/${postId}`,
     });
   }
 
@@ -393,14 +384,14 @@ export async function sendMessage(conversationId: string, content: string) {
     select: { userId: true },
   });
   for (const { userId: recipientId } of recipients) {
-    await prisma.notification.create({
-      data: {
-        userId: recipientId,
-        actorId: userId,
-        type: "MESSAGE",
-        message: "sent you a message",
-        link: `/messages/${conversationId}`,
-      },
+    await notifyUser({
+      userId: recipientId,
+      actorId: userId,
+      type: "MESSAGE",
+      message: "sent you a message",
+      link: `/messages/${conversationId}`,
+      pushTitle: "New message",
+      pushBody: text.length > 80 ? `${text.slice(0, 80)}…` : text,
     });
   }
 
@@ -504,4 +495,40 @@ export async function uploadImage(formData: FormData) {
   await fs.writeFile(path.join(uploadDir, filename), buffer);
   const isVideo = file.type.startsWith("video/");
   return { url: uploadPublicPath(filename), type: isVideo ? "video" : "image" };
+}
+
+export async function savePushSubscription(input: {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+}) {
+  const userId = await getCurrentUserId();
+  if (!input.endpoint || !input.keys?.p256dh || !input.keys?.auth) {
+    return { error: "Invalid subscription" };
+  }
+
+  await prisma.pushSubscription.upsert({
+    where: { endpoint: input.endpoint },
+    create: {
+      userId,
+      endpoint: input.endpoint,
+      p256dh: input.keys.p256dh,
+      auth: input.keys.auth,
+      userAgent: undefined,
+    },
+    update: {
+      userId,
+      p256dh: input.keys.p256dh,
+      auth: input.keys.auth,
+    },
+  });
+
+  return { success: true };
+}
+
+export async function deletePushSubscription(endpoint: string) {
+  const userId = await getCurrentUserId();
+  await prisma.pushSubscription.deleteMany({
+    where: { userId, endpoint },
+  });
+  return { success: true };
 }

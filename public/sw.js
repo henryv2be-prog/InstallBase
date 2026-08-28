@@ -1,4 +1,4 @@
-const CACHE = "installbase-v1";
+const CACHE = "installbase-v2";
 const PRECACHE = ["/login", "/icons/192", "/icons/512"];
 
 self.addEventListener("install", (event) => {
@@ -63,5 +63,17 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const url = event.notification.data?.url || "/feed";
-  event.waitUntil(self.clients.openWindow(url));
+  event.waitUntil(
+    (async () => {
+      const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of all) {
+        if ("focus" in client) {
+          await client.focus();
+          if ("navigate" in client) await client.navigate(url);
+          return;
+        }
+      }
+      await self.clients.openWindow(url);
+    })()
+  );
 });
