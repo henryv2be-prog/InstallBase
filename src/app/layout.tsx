@@ -40,15 +40,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f0f4f8" },
-    { media: "(prefers-color-scheme: dark)", color: "#050810" },
-  ],
+  themeColor: "#050810",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrains.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`dark ${inter.variable} ${jetbrains.variable}`}>
       <body className="min-h-dvh font-sans text-foreground antialiased">
         <ThemeInit />
         <SessionProvider>
