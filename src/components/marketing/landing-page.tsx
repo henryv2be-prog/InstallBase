@@ -165,7 +165,7 @@ export function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-3 lg:grid-flow-dense">
             {LANDING_GALLERY.map((shot) => (
               <InstallShot key={shot.alt} {...shot} />
             ))}

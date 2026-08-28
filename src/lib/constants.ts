@@ -90,19 +90,18 @@ export const LANDING_HERO = [
 
 export const LANDING_GALLERY = [
   {
-    src: TRADE_PHOTOS.cctvOutdoor,
-    label: "CCTV",
-    alt: "Two outdoor bullet cameras on a building corner under a clear sky",
-    className:
-      "aspect-[3/4] min-h-[220px] lg:col-start-3 lg:row-span-2 lg:aspect-auto lg:min-h-[28rem]",
-    sizes: "(max-width: 1024px) 50vw, 33vw",
-  },
-  {
     src: TRADE_PHOTOS.networkRack,
     label: "Networking",
     alt: "Server racks with dressed fibre and ethernet and active status lights",
     className: "col-span-2 aspect-[16/9] min-h-[180px]",
     sizes: "(max-width: 1024px) 100vw, 66vw",
+  },
+  {
+    src: TRADE_PHOTOS.cctvOutdoor,
+    label: "CCTV",
+    alt: "Two outdoor bullet cameras on a building corner under a clear sky",
+    className: "aspect-[4/3] min-h-[180px] sm:aspect-[3/4]",
+    sizes: "(max-width: 1024px) 50vw, 33vw",
   },
   {
     src: TRADE_PHOTOS.electrician,
@@ -115,8 +114,8 @@ export const LANDING_GALLERY = [
     src: TRADE_PHOTOS.solarField,
     label: "Solar",
     alt: "Ground-mount solar arrays stretching across an open field",
-    className: "col-span-2 aspect-[16/9] min-h-[180px] lg:col-span-1 lg:aspect-[4/3]",
-    sizes: "(max-width: 1024px) 100vw, 33vw",
+    className: "aspect-[4/3] min-h-[180px]",
+    sizes: "(max-width: 1024px) 50vw, 33vw",
   },
   {
     src: TRADE_PHOTOS.cctvCommercial,
@@ -136,8 +135,8 @@ export const LANDING_GALLERY = [
     src: TRADE_PHOTOS.solarRoof,
     label: "Solar",
     alt: "Neat rows of rooftop solar panels on a corrugated roof",
-    className: "col-span-2 aspect-[16/9] min-h-[180px] lg:col-span-1 lg:aspect-[4/3]",
-    sizes: "(max-width: 1024px) 100vw, 33vw",
+    className: "col-span-2 aspect-[16/9] min-h-[180px]",
+    sizes: "(max-width: 1024px) 100vw, 66vw",
   },
 ] as const;
 
