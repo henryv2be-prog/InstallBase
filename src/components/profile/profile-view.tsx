@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { MapPin, MessageCircle, UserPlus } from "lucide-react";
+import { MapPin, MessageCircle } from "lucide-react";
 import { getProfileByUsername } from "@/lib/queries";
 import { auth } from "@/lib/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,6 +26,12 @@ export async function ProfileView({ username }: ProfilePageProps) {
   const questionPosts = user.posts.filter((p) => p.type === "QUESTION");
   const normalPosts = user.posts.filter((p) => p.type === "POST" || p.type === "VIDEO");
   const isOwnProfile = session?.user?.id === user.id;
+  const alreadyFollowing = session?.user?.id
+    ? user.followers.some((f) => f.followerId === session.user!.id)
+    : false;
+  const followsYou = session?.user?.id
+    ? user.following.some((f) => f.followingId === session.user!.id)
+    : false;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -58,7 +64,11 @@ export async function ProfileView({ username }: ProfilePageProps) {
             <div className="flex gap-2">
               {!isOwnProfile && session?.user && (
                 <>
-                  <FollowButton userId={user.id} />
+                  <FollowButton
+                    userId={user.id}
+                    initialFollowing={alreadyFollowing}
+                    followsYou={followsYou}
+                  />
                   <Link href={`/messages?user=${profile.username}`}>
                     <Button variant="outline" size="sm">
                       <MessageCircle className="h-4 w-4" />
@@ -79,7 +89,16 @@ export async function ProfileView({ username }: ProfilePageProps) {
             <ReputationBadge score={profile.reputationScore} level={profile.reputationLevel} />
             <Badge variant="secondary">🏆 {profile.bragCount} Brags</Badge>
             <Badge variant="success">✓ {profile.helpfulAnswers} Helpful Answers</Badge>
-            <Badge variant="outline">👥 {user.followers.length} Followers</Badge>
+            <Link href={`/profile/${profile.username}/follows?list=followers`}>
+              <Badge variant="outline" className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                👥 {user.followers.length} Followers
+              </Badge>
+            </Link>
+            <Link href={`/profile/${profile.username}/follows?list=following`}>
+              <Badge variant="outline" className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                {user.following.length} Following
+              </Badge>
+            </Link>
           </div>
 
           <p className="mt-2 text-sm font-medium text-blue-600">

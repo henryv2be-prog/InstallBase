@@ -1,12 +1,15 @@
 import Link from "next/link";
-import { searchAll } from "@/lib/queries";
+import { searchAll, getFollowingIds } from "@/lib/queries";
 import { PostCard } from "@/components/feed/post-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { auth } from "@/lib/auth";
+import { FollowButton } from "@/components/profile/follow-button";
 
 export async function SearchResults({ query }: { query: string }) {
   const [results, session] = await Promise.all([searchAll(query), auth()]);
+  const followingIds = session?.user?.id ? await getFollowingIds(session.user.id) : [];
+  const followingSet = new Set(followingIds);
 
   const total =
     results.users.length +
@@ -29,20 +32,27 @@ export async function SearchResults({ query }: { query: string }) {
           <h2 className="mb-3 font-bold">Installers</h2>
           <div className="space-y-2">
             {results.users.map((user) => (
-              <Link
+              <div
                 key={user.id}
-                href={`/profile/${user.username}`}
-                className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
               >
-                <Avatar>
-                  <AvatarImage src={user.user.image ?? undefined} />
-                  <AvatarFallback>{getInitials(user.user.name ?? "U")}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold">{user.user.name}</p>
-                  <p className="text-sm text-gray-500">@{user.username}</p>
-                </div>
-              </Link>
+                <Link href={`/profile/${user.username}`} className="flex min-w-0 flex-1 items-center gap-3">
+                  <Avatar>
+                    <AvatarImage src={user.user.image ?? undefined} />
+                    <AvatarFallback>{getInitials(user.user.name ?? "U")}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold">{user.user.name}</p>
+                    <p className="truncate text-sm text-gray-500">@{user.username}</p>
+                  </div>
+                </Link>
+                {session?.user?.id && session.user.id !== user.userId && (
+                  <FollowButton
+                    userId={user.userId}
+                    initialFollowing={followingSet.has(user.userId)}
+                  />
+                )}
+              </div>
             ))}
           </div>
         </section>

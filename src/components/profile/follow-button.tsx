@@ -1,22 +1,39 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toggleFollow } from "@/lib/actions";
 import { toast } from "sonner";
 import { UserPlus, UserCheck } from "lucide-react";
-import { useState } from "react";
 
-export function FollowButton({ userId, initialFollowing = false }: { userId: string; initialFollowing?: boolean }) {
+interface FollowButtonProps {
+  userId: string;
+  initialFollowing?: boolean;
+  followsYou?: boolean;
+}
+
+export function FollowButton({
+  userId,
+  initialFollowing = false,
+  followsYou = false,
+}: FollowButtonProps) {
   const [following, setFollowing] = useState(initialFollowing);
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
 
-  const handleFollow = () => {
+  const handleFollow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     startTransition(async () => {
+      const previous = following;
+      setFollowing(!previous);
       try {
         const result = await toggleFollow(userId);
-        setFollowing(result.following ?? false);
+        setFollowing(result.following ?? !previous);
+        router.refresh();
       } catch {
+        setFollowing(previous);
         toast.error("Failed to update follow");
       }
     });
@@ -37,7 +54,7 @@ export function FollowButton({ userId, initialFollowing = false }: { userId: str
       ) : (
         <>
           <UserPlus className="h-4 w-4" />
-          Follow
+          {followsYou ? "Follow back" : "Follow"}
         </>
       )}
     </Button>

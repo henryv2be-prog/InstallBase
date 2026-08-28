@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/lib/auth";
-import { getDiscoverData } from "@/lib/queries";
+import { getDiscoverData, getFollowingIds } from "@/lib/queries";
+import { FollowButton } from "@/components/profile/follow-button";
 import { PostCard } from "@/components/feed/post-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +13,12 @@ export const metadata = { title: "Discover" };
 
 export default async function DiscoverPage() {
   const session = await auth();
-  const { trendingBrags, trendingQuestions, topInstallers, products, jobs } =
-    await getDiscoverData();
+  const [{ trendingBrags, trendingQuestions, topInstallers, products, jobs }, followingIds] =
+    await Promise.all([
+      getDiscoverData(),
+      session?.user?.id ? getFollowingIds(session.user.id) : Promise.resolve([] as string[]),
+    ]);
+  const followingSet = new Set(followingIds);
 
   return (
     <div className="space-y-10 animate-fade-in">
@@ -38,23 +43,30 @@ export default async function DiscoverPage() {
         <h2 className="mb-4 text-xl font-bold">Trending Installers</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {topInstallers.map((installer) => (
-            <Link
+            <div
               key={installer.id}
-              href={`/profile/${installer.username}`}
-              className="rounded-2xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-900"
+              className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
             >
-              <div className="flex items-center gap-3">
+              <Link href={`/profile/${installer.username}`} className="flex items-center gap-3">
                 <Avatar>
                   <AvatarImage src={installer.user.image ?? undefined} />
                   <AvatarFallback>{getInitials(installer.user.name ?? "U")}</AvatarFallback>
                 </Avatar>
-                <div>
-                  <p className="font-semibold">{installer.user.name}</p>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">{installer.user.name}</p>
                   <p className="text-sm text-gray-500">@{installer.username}</p>
                 </div>
-              </div>
+              </Link>
               <p className="mt-2 text-sm text-blue-600">⭐ {formatNumber(installer.reputationScore)}</p>
-            </Link>
+              {session?.user?.id && session.user.id !== installer.userId && (
+                <div className="mt-3">
+                  <FollowButton
+                    userId={installer.userId}
+                    initialFollowing={followingSet.has(installer.userId)}
+                  />
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </section>

@@ -240,9 +240,21 @@ export async function toggleFollow(userId: string) {
   const currentUserId = await getCurrentUserId();
   if (currentUserId === userId) throw new Error("Cannot follow yourself");
 
-  const existing = await prisma.follow.findUnique({
-    where: { followerId_followingId: { followerId: currentUserId, followingId: userId } },
-  });
+  const [existing, target, me] = await Promise.all([
+    prisma.follow.findUnique({
+      where: { followerId_followingId: { followerId: currentUserId, followingId: userId } },
+    }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      include: { profile: { select: { username: true } } },
+    }),
+    prisma.user.findUnique({
+      where: { id: currentUserId },
+      include: { profile: { select: { username: true } } },
+    }),
+  ]);
+
+  if (!target) throw new Error("User not found");
 
   if (existing) {
     await prisma.follow.delete({ where: { id: existing.id } });
@@ -256,12 +268,23 @@ export async function toggleFollow(userId: string) {
         actorId: currentUserId,
         type: "FOLLOW",
         message: "started following you",
-        link: `/profile/${currentUserId}`,
+        link: me?.profile?.username ? `/profile/${me.profile.username}` : "/feed",
       },
     });
   }
 
   revalidatePath("/feed");
+  revalidatePath("/discover");
+  revalidatePath("/notifications");
+  if (target.profile?.username) {
+    revalidatePath(`/profile/${target.profile.username}`);
+    revalidatePath(`/profile/${target.profile.username}/follows`);
+  }
+  if (me?.profile?.username) {
+    revalidatePath(`/profile/${me.profile.username}`);
+    revalidatePath(`/profile/${me.profile.username}/follows`);
+  }
+
   return { success: true, following: !existing };
 }
 

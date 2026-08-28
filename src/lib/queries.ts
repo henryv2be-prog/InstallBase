@@ -16,17 +16,59 @@ export const postInclude = {
   products: { include: { product: { include: { brand: true } } } },
 };
 
+export async function getFollowingIds(userId: string) {
+  const follows = await prisma.follow.findMany({
+    where: { followerId: userId },
+    select: { followingId: true },
+  });
+  return follows.map((f) => f.followingId);
+}
+
+export async function isFollowing(followerId: string, followingId: string) {
+  const row = await prisma.follow.findUnique({
+    where: { followerId_followingId: { followerId, followingId } },
+    select: { id: true },
+  });
+  return Boolean(row);
+}
+
+export async function getFollowersOf(userId: string) {
+  return prisma.follow.findMany({
+    where: { followingId: userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      follower: { include: { profile: true } },
+    },
+  });
+}
+
+export async function getFollowingOf(userId: string) {
+  return prisma.follow.findMany({
+    where: { followerId: userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      following: { include: { profile: true } },
+    },
+  });
+}
+
+export async function getFollowingFeedPosts(userId: string, limit = 30) {
+  const followingIds = await getFollowingIds(userId);
+  if (followingIds.length === 0) return [];
+
+  return prisma.post.findMany({
+    where: { authorId: { in: followingIds } },
+    take: limit,
+    include: postInclude,
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function getFeedPosts(userId?: string, limit = 20) {
   let followingIds: string[] = [];
-  let userSpecialties: string[] = [];
 
   if (userId) {
-    const [follows, profile] = await Promise.all([
-      prisma.follow.findMany({ where: { followerId: userId }, select: { followingId: true } }),
-      prisma.profile.findUnique({ where: { userId }, select: { specialties: true, city: true } }),
-    ]);
-    followingIds = follows.map((f) => f.followingId);
-    userSpecialties = profile?.specialties ?? [];
+    followingIds = await getFollowingIds(userId);
   }
 
   const posts = await prisma.post.findMany({
