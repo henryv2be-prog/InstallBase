@@ -85,6 +85,18 @@ export default async function SettingsPage() {
 
       <Card>
         <CardHeader>
+          <CardTitle>Install app</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-muted">
+          <p>
+            InstallBase can run like a native app. On iPhone, tap Share → Add to Home Screen.
+            On Android, use the browser menu → Install app / Add to Home screen.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Account</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -42,6 +42,21 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
   const hasBragged = currentUserId ? post.bragPoints.some((b) => b.userId === currentUserId) : false;
   const bragDetails = post.bragDetails as Record<string, unknown> | null;
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}/post/${post.id}`;
+    const title = post.title || `${post.author.name} on InstallBase`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, text: post.content.slice(0, 140), url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied");
+      }
+    } catch (error) {
+      if ((error as Error).name !== "AbortError") toast.error("Could not share");
+    }
+  };
+
   const handleAction = (action: () => Promise<unknown>) => {
     if (!currentUserId) {
       toast.error("Sign in to interact");
@@ -211,7 +226,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
                 {post.bragScore}
               </Button>
             )}
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={handleShare} aria-label="Share post">
               <Share2 className="h-4 w-4" />
             </Button>
           </div>

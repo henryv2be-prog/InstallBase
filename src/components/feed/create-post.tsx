@@ -35,16 +35,27 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [bragStats, setBragStats] = useState({ cameras: "", nvrs: "", fibre: "", storage: "" });
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    for (const file of Array.from(files)) {
-      const formData = new FormData();
-      formData.append("file", file);
-      const result = await uploadImage(formData);
-      if (result.url) setMediaUrls((prev) => [...prev, result.url!]);
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const result = await uploadImage(formData);
+        if (result.error) {
+          toast.error(result.error);
+        } else if (result.url) {
+          setMediaUrls((prev) => [...prev, result.url!]);
+        }
+      }
+    } finally {
+      setUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -155,13 +166,19 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
               </Button>
             ))}
             <label className="cursor-pointer">
-              <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
+              <input
+                type="file"
+                accept="image/*,video/mp4,video/webm,video/quicktime"
+                multiple
+                className="hidden"
+                onChange={handleFileUpload}
+              />
               <Button variant="ghost" size="sm" asChild>
-                <span>📸 Upload</span>
+                <span>{uploading ? "Uploading..." : type === "VIDEO" ? "🎥 Video" : "📸 Upload"}</span>
               </Button>
             </label>
           </div>
-          <Button onClick={handleSubmit} disabled={pending}>
+          <Button onClick={handleSubmit} disabled={pending || uploading}>
             {pending ? "Posting..." : "Post"}
           </Button>
         </div>

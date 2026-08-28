@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { ThemeInit } from "@/components/providers/theme-init";
+import { PwaInstallBanner } from "@/components/pwa/install-banner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,15 +23,36 @@ export const metadata: Metadata = {
   },
   description:
     "Social network for technical installers. Show your work, share knowledge, and connect with CCTV, security, and low-voltage professionals.",
+  applicationName: "InstallBase",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "InstallBase",
+  },
+  formatDetection: { telephone: false },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f0f4f8" },
+    { media: "(prefers-color-scheme: dark)", color: "#050810" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrains.variable}`}>
-      <body className="min-h-screen font-sans text-foreground antialiased">
+      <body className="min-h-dvh font-sans text-foreground antialiased">
         <ThemeInit />
         <SessionProvider>
           {children}
+          <PwaInstallBanner />
           <ToastProvider />
         </SessionProvider>
       </body>

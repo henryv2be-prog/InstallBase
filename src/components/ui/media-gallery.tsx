@@ -23,13 +23,18 @@ export function MediaGallery({ items, className, limit }: MediaGalleryProps) {
 
   useEffect(() => {
     if (activeIndex === null) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setActiveIndex(null);
       if (e.key === "ArrowRight") setActiveIndex((i) => (i !== null ? Math.min(i + 1, items.length - 1) : i));
       if (e.key === "ArrowLeft") setActiveIndex((i) => (i !== null ? Math.max(i - 1, 0) : i));
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [activeIndex, items.length]);
 
   if (visible.length === 0) return null;
@@ -78,7 +83,7 @@ export function MediaGallery({ items, className, limit }: MediaGalleryProps) {
 
       {active && activeIndex !== null && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
           onClick={() => setActiveIndex(null)}
         >
           <button

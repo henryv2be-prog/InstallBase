@@ -107,7 +107,7 @@ export async function createPost(formData: FormData) {
         create: mediaUrls.filter(Boolean).map((url, i) => ({
           url,
           order: i,
-          type: url.includes("video") ? "video" : "image",
+          type: /\.(mp4|webm|mov)(\?|$)/i.test(url) ? "video" : "image",
         })),
       },
       products: {
@@ -462,6 +462,15 @@ export async function uploadImage(formData: FormData) {
   const file = formData.get("file") as File;
   if (!file) return { error: "No file provided" };
 
+  const allowed = /^(image\/(jpeg|jpg|png|gif|webp)|video\/(mp4|webm|quicktime))$/i;
+  if (!allowed.test(file.type)) {
+    return { error: "Please upload a photo (JPG, PNG, WebP) or video (MP4, WebM)" };
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    return { error: "File must be 10MB or smaller" };
+  }
+
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
   const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "")}`;
@@ -470,5 +479,6 @@ export async function uploadImage(formData: FormData) {
   const uploadDir = getUploadDir();
   await fs.mkdir(uploadDir, { recursive: true });
   await fs.writeFile(path.join(uploadDir, filename), buffer);
-  return { url: uploadPublicPath(filename) };
+  const isVideo = file.type.startsWith("video/");
+  return { url: uploadPublicPath(filename), type: isVideo ? "video" : "image" };
 }

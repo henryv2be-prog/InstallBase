@@ -53,10 +53,10 @@ export function AppShell({ children, user }: AppShellProps) {
   const pathname = usePathname();
 
   return (
-    <div className="relative min-h-screen tech-bg">
-      <header className="sticky top-0 z-50 border-b border-border bg-card/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-6">
-          <Link href="/feed">
+    <div className="relative min-h-dvh tech-bg">
+      <header className="sticky top-0 z-50 border-b border-border bg-card/70 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:h-16 sm:px-4 lg:px-6">
+          <Link href="/feed" className="min-w-0 shrink">
             <Logo size="md" />
           </Link>
 
@@ -82,21 +82,21 @@ export function AppShell({ children, user }: AppShellProps) {
             })}
           </nav>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1">
             <ThemeToggle />
-            <Link href="/search" className="hidden sm:block">
+            <Link href="/search">
               <Button variant="ghost" size="icon" aria-label="Search">
                 <Search className="h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/messages">
+              <Button variant="ghost" size="icon" aria-label="Messages">
+                <MessageCircle className="h-5 w-5" />
               </Button>
             </Link>
             <Link href="/notifications" className="hidden sm:block">
               <Button variant="ghost" size="icon" aria-label="Notifications">
                 <Bell className="h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/messages" className="hidden sm:block">
-              <Button variant="ghost" size="icon" aria-label="Messages">
-                <MessageCircle className="h-5 w-5" />
               </Button>
             </Link>
             <Link href="/create" className="hidden sm:block">
@@ -112,7 +112,7 @@ export function AppShell({ children, user }: AppShellProps) {
                 </Button>
               </Link>
             )}
-            <Link href={user?.username ? `/profile/${user.username}` : "/profile"}>
+            <Link href={user?.username ? `/profile/${user.username}` : "/profile"} className="hidden sm:block">
               <Avatar className="h-9 w-9 ring-2 ring-transparent transition-all hover:ring-blue-500/50">
                 <AvatarImage src={user?.image ?? undefined} />
                 <AvatarFallback>{getInitials(user?.name ?? "U")}</AvatarFallback>
@@ -125,19 +125,19 @@ export function AppShell({ children, user }: AppShellProps) {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-24 pt-6 lg:px-6 md:pb-8">
+      <main className="relative z-10 mx-auto max-w-7xl px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:px-4 lg:px-6 md:pb-8 md:pt-6">
         {children}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 backdrop-blur-xl md:hidden">
-        <div className="flex items-center justify-around px-2 py-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
+        <div className="flex items-center justify-around px-1 py-1.5">
           {mobileNavItems.map((item) => {
             if (item.href === "/profile") {
               return (
                 <Link
                   key={item.href}
                   href={user?.username ? `/profile/${user.username}` : "/profile"}
-                  className="flex flex-col items-center gap-1 p-2"
+                  className="flex min-w-[3.25rem] flex-col items-center gap-0.5 p-2"
                 >
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={user?.image ?? undefined} />
@@ -168,7 +168,7 @@ export function AppShell({ children, user }: AppShellProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 p-2 transition-colors",
+                  "flex min-w-[3.25rem] flex-col items-center gap-0.5 p-2 transition-colors",
                   active ? "text-blue-600 dark:text-cyan-400" : "text-muted"
                 )}
               >

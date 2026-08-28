@@ -70,7 +70,7 @@ export function MessageThread({
   };
 
   return (
-    <div className="flex h-[calc(100vh-12rem)] flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+    <div className="flex h-[calc(100dvh-11rem-env(safe-area-inset-bottom))] flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 && (
           <p className="py-8 text-center text-sm text-gray-500">
@@ -101,7 +101,7 @@ export function MessageThread({
         })}
         <div ref={bottomRef} />
       </div>
-      <div className="flex gap-2 border-t border-gray-200 p-4 dark:border-gray-800">
+      <div className="flex gap-2 border-t border-gray-200 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:border-gray-800">
         <Input
           value={content}
           onChange={(e) => setContent(e.target.value)}

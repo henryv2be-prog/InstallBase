@@ -25,7 +25,7 @@ export function Logo({ size = "md", showText = true, className }: LogoProps) {
         <span className="relative z-10 font-mono">IB</span>
       </div>
       {showText && (
-        <span className={cn("font-bold tracking-tight", s.text)}>
+        <span className={cn("hidden font-bold tracking-tight min-[380px]:inline", s.text)}>
           Install<span className="text-gradient">Base</span>
         </span>
       )}
