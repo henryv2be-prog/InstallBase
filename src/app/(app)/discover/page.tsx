@@ -5,7 +5,7 @@ import { getDiscoverData } from "@/lib/queries";
 import { PostCard } from "@/components/feed/post-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { getInitials } from "@/lib/utils";
+import { getInitials, formatNumber } from "@/lib/utils";
 import { MapPin, TrendingUp } from "lucide-react";
 
 export const metadata = { title: "Discover" };
@@ -53,7 +53,7 @@ export default async function DiscoverPage() {
                   <p className="text-sm text-gray-500">@{installer.username}</p>
                 </div>
               </div>
-              <p className="mt-2 text-sm text-blue-600">⭐ {installer.reputationScore.toLocaleString()}</p>
+              <p className="mt-2 text-sm text-blue-600">⭐ {formatNumber(installer.reputationScore)}</p>
             </Link>
           ))}
         </div>

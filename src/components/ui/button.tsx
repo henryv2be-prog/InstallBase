@@ -4,17 +4,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm",
-        destructive: "bg-red-600 text-white hover:bg-red-700",
-        outline: "border border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800",
-        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100",
-        ghost: "hover:bg-gray-100 dark:hover:bg-gray-800",
-        link: "text-blue-600 underline-offset-4 hover:underline",
-        brag: "bg-orange-500 text-white hover:bg-orange-600 shadow-sm",
+        default:
+          "bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-500 hover:to-blue-400 btn-glow shadow-lg shadow-blue-500/20",
+        destructive: "bg-red-600 text-white hover:bg-red-500 shadow-lg shadow-red-500/20",
+        outline:
+          "border border-border bg-card/50 backdrop-blur-sm hover:bg-card hover:border-blue-500/40 dark:hover:border-cyan-500/30",
+        secondary:
+          "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-100 dark:hover:bg-slate-700/80",
+        ghost: "hover:bg-slate-100/80 dark:hover:bg-slate-800/60",
+        link: "text-blue-600 underline-offset-4 hover:underline dark:text-cyan-400",
+        brag: "bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:from-orange-400 hover:to-amber-400 shadow-lg shadow-orange-500/25",
       },
       size: {
         default: "h-10 px-4 py-2",

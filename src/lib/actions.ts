@@ -23,14 +23,26 @@ function calculateReputationLevel(score: number) {
 }
 
 export async function registerUser(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const name = formData.get("name") as string;
-  const username = (formData.get("username") as string).toLowerCase();
-  const city = formData.get("city") as string;
-  const country = formData.get("country") as string;
-  const experience = formData.get("experience") as ExperienceLevel;
+  const email = (formData.get("email") as string | null)?.trim();
+  const password = formData.get("password") as string | null;
+  const name = (formData.get("name") as string | null)?.trim();
+  const username = (formData.get("username") as string | null)?.trim().toLowerCase();
+  const city = (formData.get("city") as string | null)?.trim();
+  const country = (formData.get("country") as string | null)?.trim();
+  const experience = formData.get("experience") as ExperienceLevel | null;
   const specialties = formData.getAll("specialties") as string[];
+
+  if (!email || !password || !name || !username || !city || !country || !experience) {
+    return { error: "Please fill in all required fields" };
+  }
+
+  if (password.length < 8) {
+    return { error: "Password must be at least 8 characters" };
+  }
+
+  if (!/^[a-z0-9_]+$/.test(username)) {
+    return { error: "Username can only contain lowercase letters, numbers, and underscores" };
+  }
 
   const existing = await prisma.user.findFirst({
     where: { OR: [{ email }, { profile: { username } }] },

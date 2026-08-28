@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { adminSuspendUser, adminDeletePost, adminResolveReport } from "@/lib/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { formatNumber } from "@/lib/utils";
 
 interface AdminDashboardProps {
   data: {
@@ -71,7 +72,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
             className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900"
           >
             <p className="text-sm text-gray-500">{stat.label}</p>
-            <p className="mt-1 text-3xl font-bold">{stat.value.toLocaleString()}</p>
+            <p className="mt-1 text-3xl font-bold">{formatNumber(stat.value)}</p>
           </div>
         ))}
       </div>

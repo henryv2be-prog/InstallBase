@@ -55,6 +55,44 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
+## Deploy to Railway
+
+### 1. Create the project
+
+1. Push this repo to GitHub (if not already).
+2. In [Railway](https://railway.com), create a new project → **Deploy from GitHub repo** → select this repository.
+3. Add a **PostgreSQL** plugin to the project.
+
+### 2. Configure environment variables
+
+On the **web service** (not Postgres), set:
+
+| Variable | Value |
+|----------|-------|
+| `AUTH_SECRET` | Random secret — run `openssl rand -base64 32` |
+| `AUTH_URL` | `https://${{RAILWAY_PUBLIC_DOMAIN}}` |
+| `AUTH_TRUST_HOST` | `true` |
+
+`DATABASE_URL` is injected automatically when you link the Postgres plugin to the web service.
+
+### 3. Deploy
+
+Railway reads `railway.toml` and will:
+
+1. **Build** — `prisma generate` + `next build`
+2. **Pre-deploy** — `prisma migrate deploy` (runs when the DB is reachable)
+3. **Start** — `next start` on Railway's `$PORT`
+
+Generate a public domain under **Settings → Networking → Generate Domain**.
+
+### 4. Seed demo data (optional, one time)
+
+```bash
+railway run -e ALLOW_SEED=true npm run db:seed
+```
+
+This wipes and re-seeds the database. Only run once on a fresh deploy.
+
 ### Demo Accounts
 
 | Email | Password | Role |

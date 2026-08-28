@@ -2,7 +2,8 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getNotifications } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatRelativeTime, getInitials } from "@/lib/utils";
+import { getInitials } from "@/lib/utils";
+import { RelativeTime } from "@/components/ui/relative-time";
 import { MarkReadButton } from "@/components/notifications/mark-read-button";
 
 export const metadata = { title: "Notifications" };
@@ -52,7 +53,7 @@ export default async function NotificationsPage() {
                   {notification.message}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {formatRelativeTime(notification.createdAt)}
+                  <RelativeTime date={notification.createdAt} />
                 </p>
               </div>
             </Link>

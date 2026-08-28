@@ -2,7 +2,8 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getConversations } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatRelativeTime, getInitials } from "@/lib/utils";
+import { getInitials } from "@/lib/utils";
+import { RelativeTime } from "@/components/ui/relative-time";
 
 export const metadata = { title: "Messages" };
 
@@ -47,7 +48,7 @@ export default async function MessagesPage() {
                 </div>
                 {lastMessage && (
                   <span className="text-xs text-gray-400">
-                    {formatRelativeTime(lastMessage.createdAt)}
+                    <RelativeTime date={lastMessage.createdAt} />
                   </span>
                 )}
               </Link>

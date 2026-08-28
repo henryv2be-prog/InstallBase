@@ -14,7 +14,8 @@ import {
 import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { cn, formatRelativeTime, getInitials, getReputationLabel } from "@/lib/utils";
+import { cn, getInitials, getReputationLabel } from "@/lib/utils";
+import { RelativeTime } from "@/components/ui/relative-time";
 import {
   toggleLike,
   toggleBookmark,
@@ -66,14 +67,12 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
   return (
     <article
       className={cn(
-        "overflow-hidden rounded-2xl border bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-gray-900",
-        post.type === "BRAG"
-          ? "border-orange-200 dark:border-orange-900/50"
-          : "border-gray-200 dark:border-gray-800"
+        "glass-card glow-border overflow-hidden transition-all duration-200 hover:shadow-lg",
+        post.type === "BRAG" && "border-orange-500/30 dark:border-orange-500/20"
       )}
     >
       {post.type === "BRAG" && (
-        <div className="bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-2 text-sm font-bold text-white">
+        <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 px-5 py-2 text-sm font-bold tracking-wide text-white shadow-lg shadow-orange-500/20">
           🏆 BRAG
         </div>
       )}
@@ -92,10 +91,10 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
                 </span>
                 {profile?.verified && <VerifiedBadge />}
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2 text-sm text-muted">
                 <span>@{profile?.username}</span>
                 <span>·</span>
-                <span>{formatRelativeTime(post.createdAt)}</span>
+                <span><RelativeTime date={post.createdAt} /></span>
               </div>
             </div>
           </Link>
@@ -116,7 +115,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
           <h3 className="mt-3 text-lg font-bold text-gray-900 dark:text-white">{post.title}</h3>
         )}
 
-        <p className={cn("mt-2 text-gray-700 dark:text-gray-300", !showFull && "line-clamp-4")}>
+        <p className={cn("mt-2 text-foreground/80 dark:text-slate-300", !showFull && "line-clamp-4")}>
           {post.content}
         </p>
 
@@ -191,7 +190,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
           </div>
         )}
 
-        <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800">
+        <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"

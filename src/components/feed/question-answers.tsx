@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { addAnswer, markSolution, markHelpful } from "@/lib/actions";
-import { formatRelativeTime, getInitials } from "@/lib/utils";
+import { getInitials } from "@/lib/utils";
+import { RelativeTime } from "@/components/ui/relative-time";
 import { toast } from "sonner";
 import type { Prisma } from "@/generated/prisma/client";
 import { postInclude } from "@/lib/queries";
@@ -87,7 +88,7 @@ export function QuestionAnswers({
                   </Link>
                   <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{answer.content}</p>
                   <p className="mt-1 text-xs text-gray-500">
-                    {formatRelativeTime(answer.createdAt)}
+                    <RelativeTime date={answer.createdAt} />
                   </p>
                 </div>
               </div>

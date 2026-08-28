@@ -3,21 +3,13 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import bcrypt from "bcryptjs";
+import { DEMO_IMAGES } from "../src/lib/constants";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-const IMAGES = {
-  cctv: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
-  rack: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80",
-  cable: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80",
-  camera: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80",
-  install: "https://images.unsplash.com/photo-1518432031352-6bfc06f6f9b2?w=800&q=80",
-  security: "https://images.unsplash.com/photo-1558002038-1051097dfe05?w=800&q=80",
-  network: "https://images.unsplash.com/photo-1597852078576-b6717843a0d8?w=800&q=80",
-  access: "https://images.unsplash.com/photo-1557597774-711272814770?w=800&q=80",
-};
+const IMAGES = DEMO_IMAGES;
 
 const installers = [
   { name: "Mike van der Merwe", username: "mike_security", city: "Johannesburg", country: "South Africa", specialties: ["CCTV", "Access Control"], experience: "TEN_PLUS", verified: true, reputation: 4820, brags: 36, helpful: 128, bio: "CCTV & access control installer. 15 years in the industry. Hikvision / Dahua / Ubiquiti specialist." },
@@ -43,6 +35,11 @@ const installers = [
 ];
 
 async function main() {
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_SEED !== "true") {
+    console.error("Refusing to seed production database. Set ALLOW_SEED=true to override.");
+    process.exit(1);
+  }
+
   console.log("🌱 Seeding InstallBase...");
 
   await prisma.bragOfWeek.deleteMany();

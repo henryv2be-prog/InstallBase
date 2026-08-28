@@ -5,7 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { addComment } from "@/lib/actions";
-import { formatRelativeTime, getInitials } from "@/lib/utils";
+import { getInitials } from "@/lib/utils";
+import { RelativeTime } from "@/components/ui/relative-time";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -84,7 +85,7 @@ export function CommentSection({
                   {comment.author.name}
                 </Link>
                 <span className="text-xs text-gray-500">
-                  {formatRelativeTime(comment.createdAt)}
+                  <RelativeTime date={comment.createdAt} />
                 </span>
               </div>
               <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{comment.content}</p>

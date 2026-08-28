@@ -23,6 +23,19 @@ export function SignupForm() {
   const [step, setStep] = useState(1);
   const [pending, startTransition] = useTransition();
   const [specialties, setSpecialties] = useState<string[]>([]);
+  const [form, setForm] = useState({
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+    experience: "THREE_TO_FIVE",
+    country: "South Africa",
+    city: "",
+  });
+
+  const update = (field: keyof typeof form, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
 
   const toggleSpecialty = (s: string) => {
     setSpecialties((prev) =>
@@ -30,9 +43,27 @@ export function SignupForm() {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const canContinueStep1 =
+    form.name.trim() &&
+    form.username.trim() &&
+    form.email.trim() &&
+    form.password.length >= 8;
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    if (!form.city.trim()) {
+      toast.error("Please enter your city");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", form.name.trim());
+    formData.append("username", form.username.trim().toLowerCase());
+    formData.append("email", form.email.trim());
+    formData.append("password", form.password);
+    formData.append("experience", form.experience);
+    formData.append("country", form.country.trim());
+    formData.append("city", form.city.trim());
     specialties.forEach((s) => formData.append("specialties", s));
 
     startTransition(async () => {
@@ -66,21 +97,50 @@ export function SignupForm() {
             <div className="space-y-4">
               <div>
                 <label className="mb-1 block text-sm font-medium">Full name</label>
-                <Input name="name" required placeholder="John Smith" />
+                <Input
+                  value={form.name}
+                  onChange={(e) => update("name", e.target.value)}
+                  required
+                  placeholder="John Smith"
+                />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Username</label>
-                <Input name="username" required placeholder="johnsecurity" pattern="[a-z0-9_]+" />
+                <Input
+                  value={form.username}
+                  onChange={(e) => update("username", e.target.value.toLowerCase())}
+                  required
+                  placeholder="johnsecurity"
+                  pattern="[a-z0-9_]+"
+                />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Email</label>
-                <Input name="email" type="email" required placeholder="you@company.com" />
+                <Input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => update("email", e.target.value)}
+                  required
+                  placeholder="you@company.com"
+                />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Password</label>
-                <Input name="password" type="password" required minLength={8} placeholder="Min 8 characters" />
+                <Input
+                  type="password"
+                  value={form.password}
+                  onChange={(e) => update("password", e.target.value)}
+                  required
+                  minLength={8}
+                  placeholder="Min 8 characters"
+                />
               </div>
-              <Button type="button" className="w-full" onClick={() => setStep(2)}>
+              <Button
+                type="button"
+                className="w-full"
+                disabled={!canContinueStep1}
+                onClick={() => setStep(2)}
+              >
                 Continue
               </Button>
             </div>
@@ -114,10 +174,10 @@ export function SignupForm() {
               <div>
                 <label className="mb-1 block text-sm font-medium">How experienced are you?</label>
                 <select
-                  name="experience"
+                  value={form.experience}
+                  onChange={(e) => update("experience", e.target.value)}
                   required
                   className="flex h-10 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm dark:border-gray-700 dark:bg-gray-900"
-                  defaultValue="THREE_TO_FIVE"
                 >
                   {experienceLevels.map((l) => (
                     <option key={l.value} value={l.value}>
@@ -141,11 +201,21 @@ export function SignupForm() {
             <div className="space-y-4">
               <div>
                 <label className="mb-1 block text-sm font-medium">Country</label>
-                <Input name="country" required placeholder="South Africa" defaultValue="South Africa" />
+                <Input
+                  value={form.country}
+                  onChange={(e) => update("country", e.target.value)}
+                  required
+                  placeholder="South Africa"
+                />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">City</label>
-                <Input name="city" required placeholder="Johannesburg" />
+                <Input
+                  value={form.city}
+                  onChange={(e) => update("city", e.target.value)}
+                  required
+                  placeholder="Johannesburg"
+                />
               </div>
               <div className="flex gap-2">
                 <Button type="button" variant="outline" onClick={() => setStep(2)}>

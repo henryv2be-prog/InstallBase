@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getJobs } from "@/lib/queries";
 import { MapPin, Clock } from "lucide-react";
-import { formatRelativeTime } from "@/lib/utils";
+import { RelativeTime } from "@/components/ui/relative-time";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = { title: "Jobs" };
@@ -37,7 +37,7 @@ export default async function JobsPage() {
                     <MapPin className="h-3.5 w-3.5" /> {job.location}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" /> {formatRelativeTime(job.createdAt)}
+                    <Clock className="h-3.5 w-3.5" /> <RelativeTime date={job.createdAt} />
                   </span>
                 </div>
               </div>

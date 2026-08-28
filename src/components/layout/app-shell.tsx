@@ -18,6 +18,9 @@ import {
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/ui/logo";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LogoutButton } from "@/components/auth/logout-button";
 import { getInitials } from "@/lib/utils";
 
 const navItems = [
@@ -50,16 +53,11 @@ export function AppShell({ children, user }: AppShellProps) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] dark:bg-gray-950">
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/90">
+    <div className="relative min-h-screen tech-bg">
+      <header className="sticky top-0 z-50 border-b border-border bg-card/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-6">
-          <Link href="/feed" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white font-bold text-sm">
-              IB
-            </div>
-            <span className="hidden font-bold text-gray-900 dark:text-white sm:block">
-              InstallBase
-            </span>
+          <Link href="/feed">
+            <Logo size="md" />
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -71,10 +69,10 @@ export function AppShell({ children, user }: AppShellProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors",
+                    "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200",
                     active
-                      ? "bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
+                      ? "bg-blue-500/10 text-blue-600 shadow-inner dark:bg-cyan-500/10 dark:text-cyan-400"
+                      : "text-muted hover:bg-card hover:text-foreground"
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -84,7 +82,8 @@ export function AppShell({ children, user }: AppShellProps) {
             })}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
             <Link href="/search" className="hidden sm:block">
               <Button variant="ghost" size="icon" aria-label="Search">
                 <Search className="h-5 w-5" />
@@ -114,18 +113,23 @@ export function AppShell({ children, user }: AppShellProps) {
               </Link>
             )}
             <Link href={user?.username ? `/profile/${user.username}` : "/profile"}>
-              <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-transparent hover:ring-blue-500 transition-all">
+              <Avatar className="h-9 w-9 ring-2 ring-transparent transition-all hover:ring-blue-500/50">
                 <AvatarImage src={user?.image ?? undefined} />
                 <AvatarFallback>{getInitials(user?.name ?? "U")}</AvatarFallback>
               </Avatar>
             </Link>
+            <div className="hidden sm:block">
+              <LogoutButton compact />
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 pb-24 pt-6 lg:px-6 md:pb-8">{children}</main>
+      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-24 pt-6 lg:px-6 md:pb-8">
+        {children}
+      </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur-md md:hidden dark:border-gray-800 dark:bg-gray-950/95">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 backdrop-blur-xl md:hidden">
         <div className="flex items-center justify-around px-2 py-2">
           {mobileNavItems.map((item) => {
             if (item.href === "/profile") {
@@ -141,7 +145,7 @@ export function AppShell({ children, user }: AppShellProps) {
                       {getInitials(user?.name ?? "U")}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-[10px] font-medium text-gray-600">{item.label}</span>
+                  <span className="text-[10px] font-medium text-muted">{item.label}</span>
                 </Link>
               );
             }
@@ -152,7 +156,7 @@ export function AppShell({ children, user }: AppShellProps) {
             if (item.highlight) {
               return (
                 <Link key={item.href} href={item.href} className="flex flex-col items-center -mt-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg btn-glow">
                     <Icon className="h-6 w-6" />
                   </div>
                 </Link>
@@ -164,8 +168,8 @@ export function AppShell({ children, user }: AppShellProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 p-2",
-                  active ? "text-blue-600" : "text-gray-500"
+                  "flex flex-col items-center gap-1 p-2 transition-colors",
+                  active ? "text-blue-600 dark:text-cyan-400" : "text-muted"
                 )}
               >
                 <Icon className="h-5 w-5" />
@@ -183,7 +187,7 @@ export function JobsLink() {
   return (
     <Link
       href="/jobs"
-      className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+      className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-muted hover:bg-card hover:text-foreground"
     >
       <Briefcase className="h-4 w-4" />
       Jobs
