@@ -2,17 +2,7 @@
 
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { savePushSubscription } from "@/lib/actions";
-
-function subscriptionPayload(sub: PushSubscription) {
-  const json = sub.toJSON();
-  if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) return null;
-  return {
-    endpoint: json.endpoint,
-    keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
-    userAgent: navigator.userAgent,
-  };
-}
+import { syncLocalPushSubscription } from "@/components/pwa/push-utils";
 
 export function ServiceWorkerRegistrar() {
   const { status } = useSession();
@@ -30,12 +20,9 @@ export function ServiceWorkerRegistrar() {
 
     let cancelled = false;
     (async () => {
-      const registration = await navigator.serviceWorker.ready;
-      const sub = await registration.pushManager.getSubscription();
-      if (!sub || cancelled) return;
-      const payload = subscriptionPayload(sub);
-      if (!payload) return;
-      await savePushSubscription(payload);
+      await navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => undefined);
+      if (cancelled) return;
+      await syncLocalPushSubscription();
     })().catch((error) => {
       console.error("Push subscription sync failed:", error);
     });

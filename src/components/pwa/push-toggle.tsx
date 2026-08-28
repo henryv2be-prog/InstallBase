@@ -5,15 +5,7 @@ import { Bell, BellOff, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { savePushSubscription, deletePushSubscription, sendTestPush } from "@/lib/actions";
 import { toast } from "sonner";
-
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const raw = window.atob(base64);
-  const output = new Uint8Array(raw.length);
-  for (let i = 0; i < raw.length; i++) output[i] = raw.charCodeAt(i);
-  return output;
-}
+import { subscriptionPayload, syncLocalPushSubscription, urlBase64ToUint8Array } from "@/components/pwa/push-utils";
 
 function isIosDevice() {
   const ua = navigator.userAgent;
@@ -27,16 +19,6 @@ function isStandaloneDisplay() {
   );
 }
 
-function subscriptionPayload(sub: PushSubscription) {
-  const json = sub.toJSON();
-  if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) return null;
-  return {
-    endpoint: json.endpoint,
-    keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
-    userAgent: navigator.userAgent,
-  };
-}
-
 export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: string }) {
   const [checked, setChecked] = useState(false);
   const [supported, setSupported] = useState(false);
@@ -46,20 +28,27 @@ export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: str
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const ok = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
-    setSupported(ok);
-    setNeedsIosInstall(isIosDevice() && !isStandaloneDisplay());
-    if (!ok) {
-      setChecked(true);
-      return;
-    }
-    setPermission(Notification.permission);
-    navigator.serviceWorker
-      .getRegistration()
-      .then((reg) => (reg ? reg.pushManager.getSubscription() : null))
-      .then((sub) => setSubscribed(Boolean(sub)))
-      .catch(() => {})
-      .finally(() => setChecked(true));
+    let cancelled = false;
+    (async () => {
+      const ok = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+      setSupported(ok);
+      setNeedsIosInstall(isIosDevice() && !isStandaloneDisplay());
+      if (!ok) {
+        if (!cancelled) setChecked(true);
+        return;
+      }
+      setPermission(Notification.permission);
+      const saved = await syncLocalPushSubscription();
+      if (!cancelled) {
+        setSubscribed(saved);
+        setChecked(true);
+      }
+    })().catch(() => {
+      if (!cancelled) setChecked(true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (!checked) {
@@ -142,6 +131,12 @@ export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: str
   const test = async () => {
     setBusy(true);
     try {
+      const synced = await syncLocalPushSubscription();
+      if (!synced) {
+        setSubscribed(false);
+        toast.error("No device is registered yet. Enable alerts first.");
+        return;
+      }
       const result = await sendTestPush();
       if (result && "error" in result && result.error) {
         toast.error(result.error);
