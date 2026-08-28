@@ -163,22 +163,34 @@ export async function getTrendingBrags(limit = 10) {
   return getHotBrags(limit);
 }
 
+export async function getBragLeaderboard(limit = 5) {
+  return prisma.profile.findMany({
+    where: { bragCount: { gt: 0 } },
+    take: limit,
+    orderBy: [{ bragCount: "desc" }, { reputationScore: "desc" }],
+    include: { user: true },
+  });
+}
+
 export async function getBragOfWeek() {
   const weekStart = startOfWeek();
 
   const featured = await prisma.bragOfWeek.findMany({
     where: { weekStart, featured: true },
-    orderBy: { category: "asc" },
   });
 
-  const posts = await Promise.all(
-    featured.map(async (f) => ({
-      category: f.category,
-      post: await prisma.post.findUnique({ where: { id: f.postId }, include: postInclude }),
-    }))
-  );
+  const featuredRows = (
+    await Promise.all(
+      featured.map(async (f) => ({
+        category: f.category,
+        post: await prisma.post.findUnique({ where: { id: f.postId }, include: postInclude }),
+      }))
+    )
+  ).filter((row) => row.post?.type === "BRAG");
 
-  if (posts.length === 0) {
+  featuredRows.sort((a, b) => (b.post?.bragScore ?? 0) - (a.post?.bragScore ?? 0));
+
+  if (featuredRows.length === 0) {
     const thisWeek = await prisma.post.findMany({
       where: { type: "BRAG", createdAt: { gte: weekStart } },
       take: 24,
@@ -196,17 +208,19 @@ export async function getBragOfWeek() {
       }
     }
 
+    picked.sort((a, b) => b.bragScore - a.bragScore);
+
     return picked.slice(0, 8).map((post, i) => ({
       category: BRAG_CATEGORIES[i % BRAG_CATEGORIES.length],
       post,
     }));
   }
 
-  return posts;
+  return featuredRows;
 }
 
 export async function getDiscoverData() {
-  const [trendingBrags, trendingQuestions, topInstallers, products, jobs] = await Promise.all([
+  const [trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products, jobs] = await Promise.all([
     getTrendingBrags(6),
     prisma.post.findMany({
       where: { type: "QUESTION" },
@@ -219,6 +233,7 @@ export async function getDiscoverData() {
       orderBy: { reputationScore: "desc" },
       include: { user: true },
     }),
+    getBragLeaderboard(5),
     prisma.product.findMany({
       take: 8,
       include: { brand: true, postProducts: true },
@@ -227,7 +242,7 @@ export async function getDiscoverData() {
     prisma.job.findMany({ where: { active: true }, take: 4, orderBy: { createdAt: "desc" } }),
   ]);
 
-  return { trendingBrags, trendingQuestions, topInstallers, products, jobs };
+  return { trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products, jobs };
 }
 
 export async function searchAll(query: string) {

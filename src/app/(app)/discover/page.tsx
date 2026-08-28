@@ -13,7 +13,7 @@ export const metadata = { title: "Discover" };
 
 export default async function DiscoverPage() {
   const session = await auth();
-  const [{ trendingBrags, trendingQuestions, topInstallers, products, jobs }, followingIds] =
+  const [{ trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products, jobs }, followingIds] =
     await Promise.all([
       getDiscoverData(),
       session?.user?.id ? getFollowingIds(session.user.id) : Promise.resolve([] as string[]),
@@ -102,7 +102,7 @@ export default async function DiscoverPage() {
       <section>
         <h2 className="mb-4 text-xl font-bold">🏆 Brag Leaderboard</h2>
         <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-          {topInstallers.slice(0, 5).map((installer, i) => (
+          {bragLeaderboard.map((installer, i) => (
             <Link
               key={installer.id}
               href={`/profile/${installer.username}`}
