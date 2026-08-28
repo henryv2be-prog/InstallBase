@@ -80,10 +80,13 @@ export async function registerUser(formData: FormData) {
 export async function createPost(formData: FormData) {
   const userId = await getCurrentUserId();
   const type = formData.get("type") as PostType;
-  const content = formData.get("content") as string;
+  const content = ((formData.get("content") as string) || "").trim();
   const title = formData.get("title") as string | null;
   const location = formData.get("location") as string | null;
   const mediaUrls = formData.getAll("mediaUrls") as string[];
+  if (!content && mediaUrls.filter(Boolean).length === 0) {
+    return { error: "Add a photo or write something first" };
+  }
   const tagNames = formData.getAll("tags") as string[];
   const productIds = formData.getAll("productIds") as string[];
   const bragDetailsRaw = formData.get("bragDetails") as string | null;
@@ -486,6 +489,9 @@ export async function uploadImage(formData: FormData) {
   if (!file) return { error: "No file provided" };
 
   const allowed = /^(image\/(jpeg|jpg|png|gif|webp)|video\/(mp4|webm|quicktime))$/i;
+  if (/heic|heif/i.test(file.type) || /\.hei[cf]$/i.test(file.name || "")) {
+    return { error: "This iPhone photo needs to be converted. Add it again from the composer." };
+  }
   if (!allowed.test(file.type)) {
     return { error: "Please upload a photo (JPG, PNG, WebP) or video (MP4, WebM)" };
   }
@@ -496,7 +502,8 @@ export async function uploadImage(formData: FormData) {
 
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
-  const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "")}`;
+  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "") || "upload";
+  const filename = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}-${safeName}`;
   const fs = await import("fs/promises");
   const path = await import("path");
   const uploadDir = getUploadDir();
