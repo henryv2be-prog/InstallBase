@@ -132,6 +132,9 @@ export async function ProfileView({ username }: ProfilePageProps) {
           <PostFeed posts={normalPosts} currentUserId={session?.user?.id} />
         </TabsContent>
         <TabsContent value="brags">
+          {bragPosts.length > 0 && (
+            <p className="mb-3 text-sm text-muted">Brags on a profile never expire.</p>
+          )}
           <PostFeed posts={bragPosts} currentUserId={session?.user?.id} />
         </TabsContent>
         <TabsContent value="projects">

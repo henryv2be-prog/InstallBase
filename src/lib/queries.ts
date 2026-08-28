@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { PostType } from "@/generated/prisma/client";
+import { BRAG_CATEGORIES } from "@/lib/constants";
+import { bragHotScore, recencyMultiplier, startOfWeek } from "@/lib/ranking";
 
 export const postInclude = {
   author: { include: { profile: true, reputation: true } },
@@ -83,9 +85,9 @@ export async function getFeedPosts(userId?: string, limit = 20) {
     score += Math.max(0, 100 - ageHours * 2);
     score += post.likes.length * 3;
     score += post.comments.length * 5;
-    score += post.bragScore * 2;
+    score += post.bragScore * 2 * recencyMultiplier(post.createdAt);
     if (followingIds.includes(post.authorId)) score += 50;
-    if (post.type === "BRAG") score += 10;
+    if (post.type === "BRAG") score += 10 * recencyMultiplier(post.createdAt);
     if (post.type === "QUESTION" && !post.solved) score += 15;
     return { post, score };
   });
@@ -95,11 +97,37 @@ export async function getFeedPosts(userId?: string, limit = 20) {
 }
 
 export async function getPostsByType(type: PostType, limit = 20) {
+  if (type === "BRAG") return getHotBrags(limit);
+
   return prisma.post.findMany({
     where: { type },
     take: limit,
     include: postInclude,
-    orderBy: type === "BRAG" ? { bragScore: "desc" } : { createdAt: "desc" },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function getHotBrags(limit = 20) {
+  const posts = await prisma.post.findMany({
+    where: { type: "BRAG" },
+    take: Math.max(limit * 5, 80),
+    include: postInclude,
+    orderBy: { createdAt: "desc" },
+  });
+
+  return posts
+    .map((post) => ({ post, score: bragHotScore(post.bragScore, post.createdAt) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((row) => row.post);
+}
+
+export async function getAllTimeBrags(limit = 4) {
+  return prisma.post.findMany({
+    where: { type: "BRAG", bragScore: { gt: 0 } },
+    take: limit,
+    include: postInclude,
+    orderBy: [{ bragScore: "desc" }, { createdAt: "desc" }],
   });
 }
 
@@ -132,18 +160,11 @@ export async function getProfileByUsername(username: string) {
 }
 
 export async function getTrendingBrags(limit = 10) {
-  return prisma.post.findMany({
-    where: { type: "BRAG" },
-    take: limit,
-    include: postInclude,
-    orderBy: { bragScore: "desc" },
-  });
+  return getHotBrags(limit);
 }
 
 export async function getBragOfWeek() {
-  const weekStart = new Date();
-  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-  weekStart.setHours(0, 0, 0, 0);
+  const weekStart = startOfWeek();
 
   const featured = await prisma.bragOfWeek.findMany({
     where: { weekStart, featured: true },
@@ -158,18 +179,25 @@ export async function getBragOfWeek() {
   );
 
   if (posts.length === 0) {
-    const topBrags = await getTrendingBrags(8);
-    return topBrags.map((post, i) => ({
-      category: [
-        "Best CCTV Installation",
-        "Best Access Control",
-        "Best Cable Management",
-        "Best Rack",
-        "Biggest Installation",
-        "Most Creative Solution",
-        "Best Before & After",
-        "Best Small Installation",
-      ][i % 8],
+    const thisWeek = await prisma.post.findMany({
+      where: { type: "BRAG", createdAt: { gte: weekStart } },
+      take: 24,
+      include: postInclude,
+      orderBy: [{ bragScore: "desc" }, { createdAt: "desc" }],
+    });
+
+    const picked = [...thisWeek];
+    if (picked.length < 8) {
+      const extra = await getHotBrags(8);
+      const seen = new Set(picked.map((post) => post.id));
+      for (const post of extra) {
+        if (picked.length >= 8) break;
+        if (!seen.has(post.id)) picked.push(post);
+      }
+    }
+
+    return picked.slice(0, 8).map((post, i) => ({
+      category: BRAG_CATEGORIES[i % BRAG_CATEGORIES.length],
       post,
     }));
   }
