@@ -8,6 +8,7 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PushNotificationToggle } from "@/components/pwa/push-toggle";
 import { getExperienceLabel } from "@/lib/utils";
+import { getVapidPublicKey } from "@/lib/vapid";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = { title: "Settings" };
@@ -89,7 +90,7 @@ export default async function SettingsPage() {
           <CardTitle>Notifications</CardTitle>
         </CardHeader>
         <CardContent>
-          <PushNotificationToggle />
+          <PushNotificationToggle vapidPublicKey={getVapidPublicKey()} />
         </CardContent>
       </Card>
 

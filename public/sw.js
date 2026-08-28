@@ -1,4 +1,4 @@
-const CACHE = "installbase-v2";
+const CACHE = "installbase-v3";
 const PRECACHE = ["/login", "/icons/192", "/icons/512"];
 
 self.addEventListener("install", (event) => {
@@ -48,28 +48,54 @@ self.addEventListener("fetch", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  if (!event.data) return;
-  const data = event.data.json();
   event.waitUntil(
-    self.registration.showNotification(data.title || "InstallBase", {
-      body: data.body,
-      icon: "/icons/192",
-      badge: "/icons/192",
-      data: { url: data.url || "/feed" },
-    })
+    (async () => {
+      let data = {
+        title: "InstallBase",
+        body: "You have a new notification",
+        url: "/notifications",
+        icon: "/icons/192",
+      };
+      try {
+        if (event.data) {
+          data = { ...data, ...event.data.json() };
+        }
+      } catch {
+        try {
+          const text = event.data && event.data.text();
+          if (text) data.body = text;
+        } catch {
+          /* keep defaults */
+        }
+      }
+
+      await self.registration.showNotification(data.title || "InstallBase", {
+        body: data.body,
+        icon: data.icon || "/icons/192",
+        badge: "/icons/192",
+        data: { url: data.url || "/notifications" },
+      });
+    })()
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = event.notification.data?.url || "/feed";
+  const raw = event.notification.data?.url || "/notifications";
+  const url = new URL(raw, self.location.origin).href;
   event.waitUntil(
     (async () => {
       const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
       for (const client of all) {
-        if ("focus" in client) {
+        if (client.url.startsWith(self.location.origin) && "focus" in client) {
           await client.focus();
-          if ("navigate" in client) await client.navigate(url);
+          if ("navigate" in client) {
+            try {
+              await client.navigate(url);
+            } catch {
+              /* iOS may reject navigate; focusing is enough */
+            }
+          }
           return;
         }
       }

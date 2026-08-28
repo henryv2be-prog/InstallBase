@@ -8,6 +8,8 @@ import { slugify } from "@/lib/utils";
 import { getUploadDir, uploadPublicPath } from "@/lib/uploads";
 import { getOrCreateConversation } from "@/lib/queries";
 import { notifyUser } from "@/lib/notify";
+import { sendPushToUser } from "@/lib/push";
+import { isPushConfigured } from "@/lib/vapid";
 import type { PostType, ExperienceLevel } from "@/generated/prisma/client";
 
 async function getCurrentUserId() {
@@ -361,6 +363,24 @@ export async function markHelpful(answerId: string) {
   return { success: true };
 }
 
+async function notifyMessageRecipients(conversationId: string, senderId: string, text: string) {
+  const recipients = await prisma.conversationParticipant.findMany({
+    where: { conversationId, userId: { not: senderId } },
+    select: { userId: true },
+  });
+  for (const { userId: recipientId } of recipients) {
+    await notifyUser({
+      userId: recipientId,
+      actorId: senderId,
+      type: "MESSAGE",
+      message: "sent you a message",
+      link: `/messages/${conversationId}`,
+      pushTitle: "New message",
+      pushBody: text.length > 80 ? `${text.slice(0, 80)}…` : text,
+    });
+  }
+}
+
 export async function sendMessage(conversationId: string, content: string) {
   const userId = await getCurrentUserId();
   const text = content.trim();
@@ -379,21 +399,7 @@ export async function sendMessage(conversationId: string, content: string) {
     data: { updatedAt: new Date() },
   });
 
-  const recipients = await prisma.conversationParticipant.findMany({
-    where: { conversationId, userId: { not: userId } },
-    select: { userId: true },
-  });
-  for (const { userId: recipientId } of recipients) {
-    await notifyUser({
-      userId: recipientId,
-      actorId: userId,
-      type: "MESSAGE",
-      message: "sent you a message",
-      link: `/messages/${conversationId}`,
-      pushTitle: "New message",
-      pushBody: text.length > 80 ? `${text.slice(0, 80)}…` : text,
-    });
-  }
+  await notifyMessageRecipients(conversationId, userId, text);
 
   revalidatePath("/messages");
   revalidatePath(`/messages/${conversationId}`);
@@ -418,8 +424,11 @@ export async function startConversation(targetUserId: string, content: string) {
     data: { updatedAt: new Date() },
   });
 
+  await notifyMessageRecipients(conversation.id, userId, text);
+
   revalidatePath("/messages");
   revalidatePath(`/messages/${conversation.id}`);
+  revalidatePath("/notifications");
   return { conversationId: conversation.id };
 }
 
@@ -500,11 +509,14 @@ export async function uploadImage(formData: FormData) {
 export async function savePushSubscription(input: {
   endpoint: string;
   keys: { p256dh: string; auth: string };
+  userAgent?: string;
 }) {
   const userId = await getCurrentUserId();
   if (!input.endpoint || !input.keys?.p256dh || !input.keys?.auth) {
     return { error: "Invalid subscription" };
   }
+
+  const userAgent = input.userAgent?.slice(0, 500);
 
   await prisma.pushSubscription.upsert({
     where: { endpoint: input.endpoint },
@@ -513,12 +525,13 @@ export async function savePushSubscription(input: {
       endpoint: input.endpoint,
       p256dh: input.keys.p256dh,
       auth: input.keys.auth,
-      userAgent: undefined,
+      userAgent,
     },
     update: {
       userId,
       p256dh: input.keys.p256dh,
       auth: input.keys.auth,
+      userAgent,
     },
   });
 
@@ -531,4 +544,30 @@ export async function deletePushSubscription(endpoint: string) {
     where: { userId, endpoint },
   });
   return { success: true };
+}
+
+export async function sendTestPush() {
+  const userId = await getCurrentUserId();
+
+  if (!isPushConfigured()) {
+    return { error: "Push is not configured on the server. Add VAPID keys and redeploy." };
+  }
+
+  const count = await prisma.pushSubscription.count({ where: { userId } });
+  if (count === 0) {
+    return { error: "No device is registered yet. Enable alerts first." };
+  }
+
+  const sent = await sendPushToUser(userId, {
+    title: "InstallBase",
+    body: "Alerts are working on this device.",
+    url: "/settings",
+    urgency: "high",
+  });
+
+  if (!sent) {
+    return { error: "Could not deliver a test alert. Try disabling and enabling alerts again." };
+  }
+
+  return { success: true, sent };
 }

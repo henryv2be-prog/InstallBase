@@ -75,7 +75,7 @@ On the **web service** (not Postgres), set:
 | `AUTH_TRUST_HOST` | `true` |
 | `PRISMA_HIDE_UPDATE_MESSAGE` | `true` |
 | `UPLOAD_DIR` | `/data/uploads` (if you mounted a volume at `/data`) |
-| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Public key from `npx web-push generate-vapid-keys` |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Public key from `npx web-push generate-vapid-keys` (also accepts `VAPID_PUBLIC_KEY`) |
 | `VAPID_PRIVATE_KEY` | Private key from the same command |
 | `VAPID_SUBJECT` | `mailto:you@yourdomain.com` (a bare email also works) |
 

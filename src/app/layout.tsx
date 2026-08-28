@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/providers/toast-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { ThemeInit } from "@/components/providers/theme-init";
 import { PwaInstallBanner } from "@/components/pwa/install-banner";
+import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker-registrar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-dvh font-sans text-foreground antialiased">
         <ThemeInit />
         <SessionProvider>
+          <ServiceWorkerRegistrar />
           {children}
           <PwaInstallBanner />
           <ToastProvider />

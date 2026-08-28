@@ -1,35 +1,27 @@
+import "server-only";
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
-
-function vapidConfigured() {
-  return Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY);
-}
-
-function vapidSubject() {
-  const raw = process.env.VAPID_SUBJECT?.trim() || "mailto:hello@installbase.io";
-  if (/^(mailto|https):/i.test(raw)) return raw;
-  if (raw.includes("@")) return `mailto:${raw}`;
-  return `https://${raw}`;
-}
+import { getVapidPrivateKey, getVapidPublicKey, getVapidSubject, isPushConfigured } from "@/lib/vapid";
 
 function configureVapid() {
-  if (!vapidConfigured()) return false;
-  webpush.setVapidDetails(
-    vapidSubject(),
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-    process.env.VAPID_PRIVATE_KEY!
-  );
-  return true;
+  if (!isPushConfigured()) return false;
+  try {
+    webpush.setVapidDetails(getVapidSubject(), getVapidPublicKey(), getVapidPrivateKey());
+    return true;
+  } catch (error) {
+    console.error("Invalid VAPID configuration:", error);
+    return false;
+  }
 }
 
 export async function sendPushToUser(
   userId: string,
-  payload: { title: string; body: string; url?: string }
+  payload: { title: string; body: string; url?: string; urgency?: "normal" | "high" }
 ) {
-  if (!configureVapid()) return;
+  if (!configureVapid()) return 0;
 
   const subs = await prisma.pushSubscription.findMany({ where: { userId } });
-  if (subs.length === 0) return;
+  if (subs.length === 0) return 0;
 
   const body = JSON.stringify({
     title: payload.title,
@@ -38,7 +30,7 @@ export async function sendPushToUser(
     icon: "/icons/192",
   });
 
-  await Promise.all(
+  const results = await Promise.all(
     subs.map(async (sub) => {
       try {
         await webpush.sendNotification(
@@ -46,14 +38,25 @@ export async function sendPushToUser(
             endpoint: sub.endpoint,
             keys: { p256dh: sub.p256dh, auth: sub.auth },
           },
-          body
+          body,
+          {
+            TTL: 60 * 60 * 24,
+            urgency: payload.urgency ?? "normal",
+            timeout: 10_000,
+          }
         );
+        return true;
       } catch (error) {
         const status = (error as { statusCode?: number }).statusCode;
         if (status === 404 || status === 410) {
           await prisma.pushSubscription.delete({ where: { id: sub.id } }).catch(() => undefined);
+          return false;
         }
+        console.error("Web Push delivery failed:", status ?? "", (error as Error).message);
+        return false;
       }
     })
   );
+
+  return results.filter(Boolean).length;
 }

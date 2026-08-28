@@ -27,10 +27,6 @@ export function PwaInstallBanner() {
     setStandalone(installed);
     setDismissed(localStorage.getItem(DISMISS_KEY) === "1");
 
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
-    }
-
     const onPrompt = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BeforeInstallPromptEvent);
