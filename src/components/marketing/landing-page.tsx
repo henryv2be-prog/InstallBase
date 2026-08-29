@@ -13,46 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { LANDING_GALLERY, LANDING_HERO, SPECIALTIES } from "@/lib/constants";
-import { cn } from "@/lib/utils";
-
-function InstallShot({
-  src,
-  alt,
-  label,
-  className,
-  priority,
-}: {
-  src: string;
-  alt: string;
-  label: string;
-  className?: string;
-  sizes?: string;
-  priority?: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "group relative overflow-hidden rounded-2xl bg-slate-900 ring-1 ring-white/10",
-        className
-      )}
-    >
-      {/* Load Unsplash in the browser — do not proxy through /_next/image on Railway */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={alt}
-        fetchPriority={priority ? "high" : "low"}
-        decoding="async"
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-      />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
-      <span className="absolute bottom-3 left-3 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-white drop-shadow-md">
-        {label}
-      </span>
-    </div>
-  );
-}
+import { LandingSlideshow } from "@/components/marketing/landing-slideshow";
+import { SPECIALTIES } from "@/lib/constants";
 
 const TRADES = [
   {
@@ -141,36 +103,14 @@ export function LandingPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
-              {LANDING_HERO.map((shot) => (
-                <InstallShot key={shot.label + shot.src} {...shot} />
-              ))}
-            </div>
+            <LandingSlideshow />
           </div>
         </div>
       </section>
 
       <section className="relative z-10 border-t border-border py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 lg:px-6">
-          <div className="mb-10 max-w-2xl">
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-cyan-400">
-              The work
-            </p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-              Photos installers would actually post
-            </h2>
-            <p className="mt-3 text-muted">
-              CCTV, access, networking, solar — finished jobs, not stock offices.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-3 lg:grid-flow-dense">
-            {LANDING_GALLERY.map((shot) => (
-              <InstallShot key={shot.alt} {...shot} />
-            ))}
-          </div>
-
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {TRADES.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex gap-3 rounded-2xl border border-border bg-card/50 p-4">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 text-blue-600 dark:text-cyan-400">
