@@ -54,89 +54,61 @@ export const DEMO_IMAGES = {
   access: TRADE_PHOTOS.accessReader,
 } as const;
 
-export const LANDING_HERO = [
+export const LANDING_SLIDES = [
   {
     src: TRADE_PHOTOS.cctvBosch,
     label: "CCTV",
     alt: "Rows of Bosch bullet cameras mounted on a commercial wall",
-    className: "col-span-2 aspect-[2/1] min-h-[200px] sm:min-h-[240px]",
-    sizes: "(max-width: 1024px) 100vw, 50vw",
-    priority: true,
   },
   {
     src: TRADE_PHOTOS.accessReader,
     label: "Access Control",
     alt: "Access card reader installed on a concrete stairwell wall",
-    className: "aspect-[4/3]",
-    sizes: "(max-width: 1024px) 50vw, 25vw",
-    priority: true,
   },
   {
     src: TRADE_PHOTOS.networkPatch,
     label: "Networking",
     alt: "Color-coded ethernet bundles dressed into a rack-mounted switch",
-    className: "aspect-[4/3]",
-    sizes: "(max-width: 1024px) 50vw, 25vw",
-    priority: true,
   },
   {
     src: TRADE_PHOTOS.solarSunset,
     label: "Solar",
     alt: "Commercial rooftop solar array photographed at sunset",
-    className: "col-span-2 aspect-[2/1] min-h-[180px]",
-    sizes: "(max-width: 1024px) 100vw, 50vw",
   },
-] as const;
-
-export const LANDING_GALLERY = [
   {
     src: TRADE_PHOTOS.networkRack,
     label: "Networking",
     alt: "Server racks with dressed fibre and ethernet and active status lights",
-    className: "col-span-2 aspect-[16/9] min-h-[180px]",
-    sizes: "(max-width: 1024px) 100vw, 66vw",
   },
   {
     src: TRADE_PHOTOS.cctvOutdoor,
     label: "CCTV",
     alt: "Two outdoor bullet cameras on a building corner under a clear sky",
-    className: "aspect-[4/3] min-h-[180px] sm:aspect-[3/4]",
-    sizes: "(max-width: 1024px) 50vw, 33vw",
   },
   {
     src: TRADE_PHOTOS.electrician,
     label: "Electrician",
     alt: "Electrician working a wall-mounted electrical enclosure",
-    className: "aspect-[4/3] min-h-[180px]",
-    sizes: "(max-width: 1024px) 50vw, 33vw",
   },
   {
     src: TRADE_PHOTOS.solarField,
     label: "Solar",
     alt: "Ground-mount solar arrays stretching across an open field",
-    className: "aspect-[4/3] min-h-[180px]",
-    sizes: "(max-width: 1024px) 50vw, 33vw",
   },
   {
     src: TRADE_PHOTOS.cctvCommercial,
     label: "CCTV",
     alt: "Commercial box camera on a ceiling pole mount",
-    className: "aspect-[4/3] min-h-[180px]",
-    sizes: "(max-width: 1024px) 50vw, 33vw",
   },
   {
     src: TRADE_PHOTOS.cctvIndustrial,
     label: "CCTV",
     alt: "Outdoor camera housing mounted on a rail-side pole against a blue sky",
-    className: "aspect-[4/3] min-h-[180px]",
-    sizes: "(max-width: 1024px) 50vw, 33vw",
   },
   {
     src: TRADE_PHOTOS.solarRoof,
     label: "Solar",
     alt: "Neat rows of rooftop solar panels on a corrugated roof",
-    className: "col-span-2 aspect-[16/9] min-h-[180px]",
-    sizes: "(max-width: 1024px) 100vw, 66vw",
   },
 ] as const;
 
