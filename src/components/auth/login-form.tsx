@@ -110,9 +110,6 @@ export function LoginForm() {
             Sign up
           </Link>
         </div>
-        <p className="mt-4 rounded-xl bg-card/60 p-3 font-mono text-xs text-muted">
-          Demo: demo@installbase.io / InstallBase123!
-        </p>
       </CardContent>
     </Card>
   );

@@ -21,8 +21,6 @@ export const BRAG_CATEGORIES = [
   "Best Small Installation",
 ] as const;
 
-export const DEMO_PASSWORD = "InstallBase123!";
-
 function unsplash(id: string, w = 900) {
   return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
 }
