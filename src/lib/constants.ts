@@ -23,8 +23,8 @@ export const BRAG_CATEGORIES = [
 
 export const DEMO_PASSWORD = "InstallBase123!";
 
-function unsplash(id: string, w = 1400) {
-  return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+function unsplash(id: string, w = 900) {
+  return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
 }
 
 /** Verified Unsplash installs — CCTV, access, racks, solar, sparkies */
