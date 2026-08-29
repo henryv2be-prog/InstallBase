@@ -102,13 +102,6 @@ railway run -e ALLOW_SEED=true npm run db:seed
 
 This wipes and re-seeds the database. Only run once on a fresh deploy.
 
-### Demo Accounts
-
-| Email | Password | Role |
-|-------|----------|------|
-| demo@installbase.io | InstallBase123! | User |
-| admin@installbase.io | InstallBase123! | Admin |
-
 ## Project Structure
 
 ```
