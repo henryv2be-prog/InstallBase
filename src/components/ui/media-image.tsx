@@ -11,9 +11,12 @@ interface MediaImageProps {
 }
 
 export function MediaImage({ src, alt, fill, className, sizes }: MediaImageProps) {
-  if (isLocalUpload(src)) {
+  const skipOptimizer =
+    isLocalUpload(src) || src.startsWith("https://images.unsplash.com/");
+
+  if (skipOptimizer) {
     return (
-      // User uploads are served from /data via route handler — skip next/image optimization
+      // User uploads and Unsplash are served directly — skip next/image (Railway OOM)
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={src}

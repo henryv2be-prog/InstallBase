@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowRight,
   Camera,
@@ -22,14 +21,13 @@ function InstallShot({
   alt,
   label,
   className,
-  sizes,
   priority,
 }: {
   src: string;
   alt: string;
   label: string;
   className?: string;
-  sizes: string;
+  sizes?: string;
   priority?: boolean;
 }) {
   return (
@@ -39,13 +37,14 @@ function InstallShot({
         className
       )}
     >
-      <Image
+      {/* Load Unsplash in the browser — do not proxy through /_next/image on Railway */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src={src}
         alt={alt}
-        fill
-        priority={priority}
-        sizes={sizes}
-        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+        fetchPriority={priority ? "high" : "low"}
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
       <span className="absolute bottom-3 left-3 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-white drop-shadow-md">
