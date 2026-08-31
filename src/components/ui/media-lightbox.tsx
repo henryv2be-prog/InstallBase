@@ -13,8 +13,20 @@ const MIN_SCALE = 1;
 const MAX_SCALE = 4;
 const SWIPE_PX = 56;
 const VERTICAL_CLOSE_PX = 110;
+const APP_VIEWPORT = "width=device-width, initial-scale=1, viewport-fit=cover";
 const LOCKED_VIEWPORT =
   "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover";
+
+let restoreViewportTimer = 0;
+
+function appViewportContent(meta: Element | null) {
+  const stored = document.documentElement.dataset.appViewport;
+  if (stored) return stored;
+  const current = meta?.getAttribute("content") || APP_VIEWPORT;
+  const value = current.includes("user-scalable=no") ? APP_VIEWPORT : current;
+  document.documentElement.dataset.appViewport = value;
+  return value;
+}
 
 function isVideo(type?: string, url?: string) {
   return type === "video" || Boolean(url?.match(/\.(mp4|webm|mov)(\?|$)/i));
@@ -40,8 +52,18 @@ function useLockPageZoom() {
     body.style.overflow = "hidden";
 
     const meta = document.querySelector('meta[name="viewport"]');
-    const prevViewport = meta?.getAttribute("content") ?? "";
+    const restoreTo = appViewportContent(meta);
+    window.clearTimeout(restoreViewportTimer);
     meta?.setAttribute("content", LOCKED_VIEWPORT);
+
+    const observer = meta
+      ? new MutationObserver(() => {
+          if (meta.getAttribute("content") !== LOCKED_VIEWPORT) {
+            meta.setAttribute("content", LOCKED_VIEWPORT);
+          }
+        })
+      : null;
+    if (meta && observer) observer.observe(meta, { attributes: true, attributeFilter: ["content"] });
 
     const prevent = (event: Event) => event.preventDefault();
     document.addEventListener("gesturestart", prevent, { capture: true });
@@ -54,6 +76,7 @@ function useLockPageZoom() {
     document.addEventListener("touchmove", preventPinch, { passive: false, capture: true });
 
     return () => {
+      observer?.disconnect();
       html.style.touchAction = prevHtmlTouch;
       body.style.touchAction = prevBodyTouch;
       body.style.overflow = prevOverflow;
@@ -63,14 +86,10 @@ function useLockPageZoom() {
       document.removeEventListener("touchmove", preventPinch, { capture: true });
       if (!meta) return;
       meta.setAttribute("content", LOCKED_VIEWPORT);
-      const y = window.scrollY;
-      window.scrollTo(0, y);
-      requestAnimationFrame(() => {
-        meta.setAttribute(
-          "content",
-          prevViewport || "width=device-width, initial-scale=1, viewport-fit=cover"
-        );
-      });
+      window.scrollTo(0, window.scrollY);
+      restoreViewportTimer = window.setTimeout(() => {
+        meta.setAttribute("content", restoreTo);
+      }, 50);
     };
   }, []);
 }
@@ -339,7 +358,7 @@ export function MediaLightbox({ items, index, onClose, onIndexChange }: MediaLig
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[100] touch-none overscroll-none"
+      className="fixed inset-0 z-[200] touch-none overscroll-none"
       style={{ backgroundColor: `rgba(0,0,0,${0.95 * opacity})` }}
       role="dialog"
       aria-modal="true"
