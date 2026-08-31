@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { Download, Share, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  NOTIFY_PROMPT_DISMISS_KEY,
+  isIosDevice,
+  isStandaloneDisplay,
+} from "@/components/pwa/device";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -12,20 +18,25 @@ interface BeforeInstallPromptEvent extends Event {
 const DISMISS_KEY = "ib-install-dismissed";
 
 export function PwaInstallBanner() {
+  const { status } = useSession();
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [standalone, setStandalone] = useState(true);
   const [dismissed, setDismissed] = useState(true);
+  const [deferForNotify, setDeferForNotify] = useState(false);
 
   useEffect(() => {
-    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const installed =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      ("standalone" in navigator && Boolean((navigator as Navigator & { standalone?: boolean }).standalone));
+    const ios = isIosDevice();
+    const installed = isStandaloneDisplay();
 
     setIsIOS(ios);
     setStandalone(installed);
     setDismissed(localStorage.getItem(DISMISS_KEY) === "1");
+    const notifyDismissed = localStorage.getItem(NOTIFY_PROMPT_DISMISS_KEY) === "1";
+    const permission = "Notification" in window ? Notification.permission : "denied";
+    setDeferForNotify(
+      status === "authenticated" && !ios && permission === "default" && !notifyDismissed
+    );
 
     const onPrompt = (e: Event) => {
       e.preventDefault();
@@ -33,9 +44,9 @@ export function PwaInstallBanner() {
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
     return () => window.removeEventListener("beforeinstallprompt", onPrompt);
-  }, []);
+  }, [status]);
 
-  if (standalone || dismissed) return null;
+  if (standalone || dismissed || deferForNotify) return null;
   if (!deferred && !isIOS) return null;
 
   const dismiss = () => {

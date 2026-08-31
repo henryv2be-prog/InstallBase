@@ -5,6 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { MarkReadButton } from "@/components/notifications/mark-read-button";
+import { EnableAlertsCta } from "@/components/pwa/enable-alerts-cta";
+import { getVapidPublicKey } from "@/lib/vapid";
 import { redirect } from "next/navigation";
 
 export const metadata = { title: "Notifications" };
@@ -32,6 +34,8 @@ export default async function NotificationsPage() {
         {notifications.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-gray-300 p-12 text-center dark:border-gray-700">
             <p className="text-gray-500">No notifications yet</p>
+            <p className="mt-1 text-sm text-muted">Turn on alerts so you see messages and comments on your phone.</p>
+            <EnableAlertsCta vapidPublicKey={getVapidPublicKey()} />
           </div>
         ) : (
           notifications.map((notification) => (
