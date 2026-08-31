@@ -578,3 +578,18 @@ export async function sendTestPush() {
 
   return { success: true, sent };
 }
+
+export async function pingPresence() {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+
+  const cutoff = new Date(Date.now() - 20_000);
+  await prisma.user.updateMany({
+    where: {
+      id: userId,
+      OR: [{ lastSeenAt: null }, { lastSeenAt: { lt: cutoff } }],
+    },
+    data: { lastSeenAt: new Date() },
+  });
+}

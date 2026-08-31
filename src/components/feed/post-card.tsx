@@ -10,9 +10,9 @@ import {
   MapPin,
 } from "lucide-react";
 import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { Button } from "@/components/ui/button";
-import { cn, getInitials, getReputationLabel } from "@/lib/utils";
+import { cn, getReputationLabel } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { MediaGallery } from "@/components/ui/media-gallery";
 import { PostOptionsMenu } from "@/components/feed/post-options-menu";
@@ -95,10 +95,12 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
           <Link href={`/profile/${profile?.username}`} className="flex items-center gap-3 group">
-            <Avatar className="h-11 w-11">
-              <AvatarImage src={post.author.image ?? undefined} />
-              <AvatarFallback>{getInitials(post.author.name ?? "U")}</AvatarFallback>
-            </Avatar>
+            <PresenceAvatar
+              src={post.author.image}
+              name={post.author.name}
+              lastSeenAt={post.author.lastSeenAt}
+              className="h-11 w-11"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-semibold group-hover:text-blue-600 transition-colors">

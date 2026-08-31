@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getConversations, getProfileByUsername, getOrCreateConversation } from "@/lib/queries";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
+import { PresenceAvatar, PresenceLabel } from "@/components/presence/presence-avatar";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { notFound, redirect } from "next/navigation";
 
@@ -54,15 +53,17 @@ export default async function MessagesPage({ searchParams }: MessagesPageProps) 
                 href={`/messages/${conversation.id}`}
                 className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900"
               >
-                <Avatar>
-                  <AvatarImage src={other?.image ?? undefined} />
-                  <AvatarFallback>{getInitials(other?.name ?? "U")}</AvatarFallback>
-                </Avatar>
+                <PresenceAvatar
+                  src={other?.image}
+                  name={other?.name}
+                  lastSeenAt={other?.lastSeenAt}
+                />
                 <div className="flex-1 overflow-hidden">
                   <p className="font-semibold">{other?.name}</p>
                   <p className="truncate text-sm text-gray-500">
                     {lastMessage?.content ?? "No messages yet"}
                   </p>
+                  <PresenceLabel lastSeenAt={other?.lastSeenAt} className="text-xs" />
                 </div>
                 {lastMessage && (
                   <span className="text-xs text-gray-400">

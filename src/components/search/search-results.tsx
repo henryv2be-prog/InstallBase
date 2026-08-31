@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { searchAll, getFollowingIds } from "@/lib/queries";
 import { PostCard } from "@/components/feed/post-card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
+import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { auth } from "@/lib/auth";
 import { FollowButton } from "@/components/profile/follow-button";
 
@@ -37,10 +36,11 @@ export async function SearchResults({ query }: { query: string }) {
                 className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
               >
                 <Link href={`/profile/${user.username}`} className="flex min-w-0 flex-1 items-center gap-3">
-                  <Avatar>
-                    <AvatarImage src={user.user.image ?? undefined} />
-                    <AvatarFallback>{getInitials(user.user.name ?? "U")}</AvatarFallback>
-                  </Avatar>
+                  <PresenceAvatar
+                    src={user.user.image}
+                    name={user.user.name}
+                    lastSeenAt={user.user.lastSeenAt}
+                  />
                   <div className="min-w-0">
                     <p className="truncate font-semibold">{user.user.name}</p>
                     <p className="truncate text-sm text-gray-500">@{user.username}</p>

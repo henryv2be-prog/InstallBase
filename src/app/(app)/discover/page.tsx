@@ -4,9 +4,9 @@ import { auth } from "@/lib/auth";
 import { getDiscoverData, getFollowingIds } from "@/lib/queries";
 import { FollowButton } from "@/components/profile/follow-button";
 import { PostCard } from "@/components/feed/post-card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { Badge } from "@/components/ui/badge";
-import { getInitials, formatNumber } from "@/lib/utils";
+import { formatNumber } from "@/lib/utils";
 import { MapPin, TrendingUp } from "lucide-react";
 
 export const metadata = { title: "Discover" };
@@ -48,10 +48,11 @@ export default async function DiscoverPage() {
               className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
             >
               <Link href={`/profile/${installer.username}`} className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarImage src={installer.user.image ?? undefined} />
-                  <AvatarFallback>{getInitials(installer.user.name ?? "U")}</AvatarFallback>
-                </Avatar>
+                <PresenceAvatar
+                  src={installer.user.image}
+                  name={installer.user.name}
+                  lastSeenAt={installer.user.lastSeenAt}
+                />
                 <div className="min-w-0">
                   <p className="truncate font-semibold">{installer.user.name}</p>
                   <p className="text-sm text-gray-500">@{installer.username}</p>
@@ -109,10 +110,12 @@ export default async function DiscoverPage() {
               className="flex items-center gap-4 border-b border-gray-100 p-4 last:border-0 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
             >
               <span className="w-8 text-lg font-bold text-gray-400">#{i + 1}</span>
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={installer.user.image ?? undefined} />
-                <AvatarFallback>{getInitials(installer.user.name ?? "U")}</AvatarFallback>
-              </Avatar>
+              <PresenceAvatar
+                src={installer.user.image}
+                name={installer.user.name}
+                lastSeenAt={installer.user.lastSeenAt}
+                className="h-10 w-10"
+              />
               <div className="flex-1">
                 <p className="font-semibold">{installer.user.name}</p>
                 <p className="text-sm text-gray-500">🏆 {installer.bragCount} brags</p>
