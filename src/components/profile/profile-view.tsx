@@ -4,12 +4,12 @@ import Image from "next/image";
 import { MapPin, MessageCircle } from "lucide-react";
 import { getProfileByUsername } from "@/lib/queries";
 import { auth } from "@/lib/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PresenceAvatar, PresenceLabel } from "@/components/presence/presence-avatar";
 import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PostFeed } from "@/components/feed/post-card";
-import { getInitials, getReputationLabel, getExperienceLabel } from "@/lib/utils";
+import { getReputationLabel, getExperienceLabel } from "@/lib/utils";
 import { FollowButton } from "@/components/profile/follow-button";
 
 interface ProfilePageProps {
@@ -42,10 +42,16 @@ export async function ProfileView({ username }: ProfilePageProps) {
           )}
         </div>
         <div className="relative px-5 pb-5">
-          <Avatar className="-mt-12 h-24 w-24 border-4 border-white dark:border-gray-900">
-            <AvatarImage src={user.image ?? undefined} />
-            <AvatarFallback className="text-2xl">{getInitials(user.name ?? "U")}</AvatarFallback>
-          </Avatar>
+          <PresenceAvatar
+            src={user.image}
+            name={user.name}
+            lastSeenAt={user.lastSeenAt}
+            size="lg"
+            wrapperClassName="-mt-12"
+            className="h-24 w-24 border-4 border-white dark:border-gray-900"
+            fallbackClassName="text-2xl"
+            ringClassName="bottom-1 right-1 border-white dark:border-gray-900"
+          />
 
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -54,6 +60,7 @@ export async function ProfileView({ username }: ProfilePageProps) {
                 {profile.verified && <VerifiedBadge />}
               </div>
               <p className="text-gray-500">@{profile.username}</p>
+              <PresenceLabel lastSeenAt={user.lastSeenAt} className="mt-1 block text-sm" />
               {(profile.city || profile.country) && (
                 <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
                   <MapPin className="h-3.5 w-3.5" />

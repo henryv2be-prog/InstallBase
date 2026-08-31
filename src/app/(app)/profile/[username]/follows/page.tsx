@@ -82,6 +82,7 @@ export default async function FollowsPage({ params, searchParams }: FollowsPageP
               name={row.following.name}
               username={row.following.profile?.username}
               image={row.following.image}
+              lastSeenAt={row.following.lastSeenAt}
               currentUserId={currentUserId}
               isFollowing={myFollowing.has(row.following.id)}
               followsYou={peopleWhoFollowMe.has(row.following.id)}
@@ -95,6 +96,7 @@ export default async function FollowsPage({ params, searchParams }: FollowsPageP
               name={row.follower.name}
               username={row.follower.profile?.username}
               image={row.follower.image}
+              lastSeenAt={row.follower.lastSeenAt}
               currentUserId={currentUserId}
               isFollowing={myFollowing.has(row.follower.id)}
               followsYou={peopleWhoFollowMe.has(row.follower.id)}
