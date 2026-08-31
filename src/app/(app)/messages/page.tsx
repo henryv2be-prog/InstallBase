@@ -14,7 +14,8 @@ interface MessagesPageProps {
 
 export default async function MessagesPage({ searchParams }: MessagesPageProps) {
   const session = await auth();
-  const userId = session!.user!.id;
+  const userId = session?.user?.id;
+  if (!userId) redirect("/login");
   const { user: username } = await searchParams;
 
   if (username) {
