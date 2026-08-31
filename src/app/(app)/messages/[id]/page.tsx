@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { MessageThread } from "@/components/messages/message-thread";
 
 interface MessageThreadPageProps {
@@ -10,6 +10,8 @@ interface MessageThreadPageProps {
 export default async function MessageThreadPage({ params }: MessageThreadPageProps) {
   const { id } = await params;
   const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) redirect("/login");
 
   const conversation = await prisma.conversation.findUnique({
     where: { id },
@@ -24,23 +26,19 @@ export default async function MessageThreadPage({ params }: MessageThreadPagePro
 
   if (!conversation) notFound();
 
-  const isParticipant = conversation.participants.some(
-    (p) => p.userId === session!.user!.id
-  );
+  const isParticipant = conversation.participants.some((p) => p.userId === userId);
   if (!isParticipant) notFound();
 
   await prisma.message.updateMany({
     where: {
       conversationId: id,
-      senderId: { not: session!.user!.id },
+      senderId: { not: userId },
       read: false,
     },
     data: { read: true },
   });
 
-  const other = conversation.participants.find(
-    (p) => p.userId !== session!.user!.id
-  )?.user;
+  const other = conversation.participants.find((p) => p.userId !== userId)?.user;
 
   return (
     <div className="mx-auto max-w-2xl animate-fade-in">
@@ -48,7 +46,7 @@ export default async function MessageThreadPage({ params }: MessageThreadPagePro
       <MessageThread
         conversationId={conversation.id}
         messages={conversation.messages}
-        currentUserId={session!.user!.id}
+        currentUserId={userId}
       />
     </div>
   );

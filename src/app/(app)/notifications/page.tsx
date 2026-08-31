@@ -5,12 +5,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { MarkReadButton } from "@/components/notifications/mark-read-button";
+import { redirect } from "next/navigation";
 
 export const metadata = { title: "Notifications" };
 
 export default async function NotificationsPage() {
   const session = await auth();
-  const notifications = await getNotifications(session!.user!.id);
+  const userId = session?.user?.id;
+  if (!userId) redirect("/login");
+  const notifications = await getNotifications(userId);
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
