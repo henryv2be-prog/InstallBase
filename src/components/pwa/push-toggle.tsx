@@ -3,21 +3,11 @@
 import { useEffect, useState } from "react";
 import { Bell, BellOff, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { savePushSubscription, deletePushSubscription, sendTestPush } from "@/lib/actions";
+import { deletePushSubscription, sendTestPush } from "@/lib/actions";
 import { toast } from "sonner";
-import { subscriptionPayload, syncLocalPushSubscription, urlBase64ToUint8Array } from "@/components/pwa/push-utils";
-
-function isIosDevice() {
-  const ua = navigator.userAgent;
-  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-}
-
-function isStandaloneDisplay() {
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    Boolean((navigator as Navigator & { standalone?: boolean }).standalone)
-  );
-}
+import { isPushApiAvailable, needsIosInstallForPush } from "@/components/pwa/device";
+import { enablePushNotifications } from "@/components/pwa/enable-push";
+import { syncLocalPushSubscription } from "@/components/pwa/push-utils";
 
 export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: string }) {
   const [checked, setChecked] = useState(false);
@@ -30,9 +20,9 @@ export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: str
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const ok = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+      const ok = isPushApiAvailable();
       setSupported(ok);
-      setNeedsIosInstall(isIosDevice() && !isStandaloneDisplay());
+      setNeedsIosInstall(needsIosInstallForPush());
       if (!ok) {
         if (!cancelled) setChecked(true);
         return;
@@ -82,24 +72,12 @@ export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: str
   const enable = async () => {
     setBusy(true);
     try {
-      const permissionResult = await Notification.requestPermission();
-      setPermission(permissionResult);
-      if (permissionResult !== "granted") {
-        toast.error("Notifications were blocked");
+      const result = await enablePushNotifications(vapidPublicKey);
+      setPermission(result.permission);
+      if (!result.ok) {
+        toast.error(result.error);
         return;
       }
-      await navigator.serviceWorker.register("/sw.js", { scope: "/" });
-      const registration = await navigator.serviceWorker.ready;
-      const existing = await registration.pushManager.getSubscription();
-      if (existing) await existing.unsubscribe();
-      const sub = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-      });
-      const payload = subscriptionPayload(sub);
-      if (!payload) throw new Error("Incomplete subscription");
-      const result = await savePushSubscription(payload);
-      if (result && "error" in result && result.error) throw new Error(result.error);
       setSubscribed(true);
       toast.success("Alerts enabled on this device");
     } catch (error) {
