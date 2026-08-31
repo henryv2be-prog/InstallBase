@@ -8,7 +8,7 @@ const BLUE_GRADIENT = "linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)";
  * canvas itself stays blue with no dark inset/border.
  */
 export function renderAppIcon(size: number, maskable = false) {
-  const fontSize = Math.round(size * (maskable ? 0.34 : 0.4));
+  const fontSize = Math.round(size * (size < 64 ? 0.54 : maskable ? 0.34 : 0.4));
 
   return new ImageResponse(
     (
