@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 import { MediaImage } from "@/components/ui/media-image";
+import { MediaLightbox } from "@/components/ui/media-lightbox";
 import { cn } from "@/lib/utils";
 
 export interface MediaItem {
@@ -17,31 +17,15 @@ interface MediaGalleryProps {
   limit?: number;
 }
 
+function isVideo(type?: string, url?: string) {
+  return type === "video" || Boolean(url?.match(/\.(mp4|webm|mov)(\?|$)/i));
+}
+
 export function MediaGallery({ items, className, limit }: MediaGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const visible = limit ? items.slice(0, limit) : items;
 
-  useEffect(() => {
-    if (activeIndex === null) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActiveIndex(null);
-      if (e.key === "ArrowRight") setActiveIndex((i) => (i !== null ? Math.min(i + 1, items.length - 1) : i));
-      if (e.key === "ArrowLeft") setActiveIndex((i) => (i !== null ? Math.max(i - 1, 0) : i));
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [activeIndex, items.length]);
-
   if (visible.length === 0) return null;
-
-  const active = activeIndex !== null ? items[activeIndex] : null;
-  const isVideo = (type?: string, url?: string) =>
-    type === "video" || url?.match(/\.(mp4|webm|mov)(\?|$)/i);
 
   return (
     <>
@@ -81,69 +65,13 @@ export function MediaGallery({ items, className, limit }: MediaGalleryProps) {
         ))}
       </div>
 
-      {active && activeIndex !== null && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
-          onClick={() => setActiveIndex(null)}
-        >
-          <button
-            type="button"
-            onClick={() => setActiveIndex(null)}
-            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-            aria-label="Close"
-          >
-            <X className="h-6 w-6" />
-          </button>
-
-          {items.length > 1 && activeIndex > 0 && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveIndex(activeIndex - 1);
-              }}
-              className="absolute left-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-              aria-label="Previous"
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </button>
-          )}
-
-          {items.length > 1 && activeIndex < items.length - 1 && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveIndex(activeIndex + 1);
-              }}
-              className="absolute right-4 top-16 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-              aria-label="Next"
-            >
-              <ChevronRight className="h-6 w-6" />
-            </button>
-          )}
-
-          <div className="max-h-[90vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
-            {isVideo(active.type, active.url) ? (
-              <video
-                src={active.url}
-                controls
-                autoPlay
-                className="max-h-[85vh] max-w-[90vw] rounded-lg"
-              />
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={active.url}
-                alt={active.caption ?? "Installation photo"}
-                className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain"
-              />
-            )}
-            {active.caption && (
-              <p className="mt-3 text-center text-sm text-white/80">{active.caption}</p>
-            )}
-          </div>
-        </div>
+      {activeIndex !== null && items[activeIndex] && (
+        <MediaLightbox
+          items={items}
+          index={activeIndex}
+          onClose={() => setActiveIndex(null)}
+          onIndexChange={setActiveIndex}
+        />
       )}
     </>
   );
