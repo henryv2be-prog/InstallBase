@@ -1,5 +1,5 @@
-const CACHE = "installbase-v3";
-const PRECACHE = ["/login", "/icons/192", "/icons/512"];
+const CACHE = "installbase-v4";
+const PRECACHE = ["/login", "/icons/192", "/icons/512", "/icons/badge"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -55,6 +55,7 @@ self.addEventListener("push", (event) => {
         body: "You have a new notification",
         url: "/notifications",
         icon: "/icons/192",
+        badge: "/icons/badge",
       };
       try {
         if (event.data) {
@@ -72,7 +73,7 @@ self.addEventListener("push", (event) => {
       await self.registration.showNotification(data.title || "InstallBase", {
         body: data.body,
         icon: data.icon || "/icons/192",
-        badge: "/icons/192",
+        badge: data.badge || "/icons/badge",
         data: { url: data.url || "/notifications" },
       });
     })()

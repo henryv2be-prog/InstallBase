@@ -28,6 +28,7 @@ export async function sendPushToUser(
     body: payload.body,
     url: payload.url || "/notifications",
     icon: "/icons/192",
+    badge: "/icons/badge",
   });
 
   const results = await Promise.all(
