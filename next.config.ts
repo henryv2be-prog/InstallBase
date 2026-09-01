@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["web-push"],
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb",
+      bodySizeLimit: "200mb",
     },
   },
   images: {

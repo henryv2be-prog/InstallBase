@@ -18,7 +18,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createPost, uploadImage } from "@/lib/actions";
-import { MAX_POST_MEDIA, MAX_UPLOAD_BYTES, prepareMediaFile } from "@/lib/prepare-media";
+import { MAX_POST_MEDIA, prepareMediaFile } from "@/lib/prepare-media";
+import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { PostType } from "@/generated/prisma/client";
@@ -154,8 +155,13 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   const uploadFile = async (id: string, file: File) => {
     try {
       const prepared = await prepareMediaFile(file);
-      if (prepared.size > MAX_UPLOAD_BYTES) {
-        throw new Error(prepared.type.startsWith("video/") ? "Video must be 10MB or smaller" : "Photo is still too large after compression");
+      const limit = maxBytesForUpload(prepared);
+      if (prepared.size > limit) {
+        throw new Error(
+          prepared.type.startsWith("video/")
+            ? `Video must be ${formatUploadLimit(limit)} or smaller`
+            : "Photo is still too large after compression"
+        );
       }
       const formData = new FormData();
       formData.append("file", prepared);
