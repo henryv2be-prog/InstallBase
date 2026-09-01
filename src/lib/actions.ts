@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth, signIn } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
 import { getUploadDir, uploadPublicPath } from "@/lib/uploads";
+import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
 import { getOrCreateConversation } from "@/lib/queries";
 import { notifyUser } from "@/lib/notify";
 import { sendPushToUser } from "@/lib/push";
@@ -496,8 +497,10 @@ export async function uploadImage(formData: FormData) {
     return { error: "Please upload a photo (JPG, PNG, WebP) or video (MP4, WebM)" };
   }
 
-  if (file.size > 10 * 1024 * 1024) {
-    return { error: "File must be 10MB or smaller" };
+  const limit = maxBytesForUpload(file);
+  if (file.size > limit) {
+    const kind = file.type.startsWith("video/") ? "Video" : "Photo";
+    return { error: `${kind} must be ${formatUploadLimit(limit)} or smaller` };
   }
 
   const bytes = await file.arrayBuffer();

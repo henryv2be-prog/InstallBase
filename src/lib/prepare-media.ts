@@ -1,7 +1,7 @@
 const MAX_EDGE = 1920;
 const JPEG_QUALITY = 0.86;
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
-export const MAX_POST_MEDIA = 10;
+
+export { MAX_POST_MEDIA, MAX_IMAGE_BYTES, MAX_VIDEO_BYTES } from "@/lib/upload-limits";
 
 function isHeic(file: File) {
   return /heic|heif/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
