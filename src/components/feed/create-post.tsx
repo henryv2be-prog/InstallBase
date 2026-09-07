@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Camera,
-  Video,
   Trophy,
   HelpCircle,
   FolderKanban,
@@ -25,13 +24,6 @@ import { cn } from "@/lib/utils";
 import type { PostType } from "@/generated/prisma/client";
 
 const DRAFT_KEY = "ib-create-draft-v1";
-
-const postTypes: { type: PostType; label: string; icon: React.ReactNode; color: string }[] = [
-  { type: "POST", label: "Photo", icon: <Camera className="h-4 w-4" />, color: "text-blue-600" },
-  { type: "VIDEO", label: "Video", icon: <Video className="h-4 w-4" />, color: "text-purple-600" },
-  { type: "QUESTION", label: "Ask", icon: <HelpCircle className="h-4 w-4" />, color: "text-green-600" },
-  { type: "PROJECT", label: "Project", icon: <FolderKanban className="h-4 w-4" />, color: "text-indigo-600" },
-];
 
 type BragStats = { cameras: string; nvrs: string; fibre: string; storage: string };
 
@@ -318,12 +310,9 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
           <p className="text-gray-500">
             What&apos;s happening on your install, {userName?.split(" ")[0] ?? "installer"}?
           </p>
-          <div className="mt-3 flex gap-2">
-            {postTypes.map((pt) => (
-              <span key={pt.type} className={`flex items-center gap-1 text-sm ${pt.color}`}>
-                {pt.icon} {pt.label}
-              </span>
-            ))}
+          <div className="mt-3 flex gap-3 text-sm text-muted">
+            <span className="flex items-center gap-1 text-blue-600"><Camera className="h-4 w-4" /> Photo</span>
+            <span className="flex items-center gap-1"><HelpCircle className="h-4 w-4" /> Ask</span>
           </div>
         </CardContent>
       </Card>
@@ -338,20 +327,36 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
           What&apos;s happening on your install?
         </h2>
 
-        <div className="mb-3 flex flex-wrap gap-1">
-          {postTypes.map((pt) => (
-            <Button
-              key={pt.type}
-              type="button"
-              variant={type === pt.type ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setType(pt.type)}
-              className={type === pt.type ? pt.color : ""}
-            >
-              {pt.icon}
-              {pt.label}
-            </Button>
-          ))}
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant={type === "POST" || type === "VIDEO" ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setType("POST")}
+          >
+            <Camera className="h-4 w-4" />
+            Photo / Video
+          </Button>
+          <Button
+            type="button"
+            variant={type === "QUESTION" ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setType("QUESTION")}
+            className={type === "QUESTION" ? "text-green-600" : ""}
+          >
+            <HelpCircle className="h-4 w-4" />
+            Ask a question
+          </Button>
+          <Button
+            type="button"
+            variant={type === "PROJECT" ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setType("PROJECT")}
+            className={type === "PROJECT" ? "text-indigo-600" : ""}
+          >
+            <FolderKanban className="h-4 w-4" />
+            Project
+          </Button>
         </div>
 
         <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-4">

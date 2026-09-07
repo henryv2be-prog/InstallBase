@@ -474,6 +474,31 @@ export async function getNotifications(userId: string) {
   });
 }
 
+export async function getActivityCounts(userId: string) {
+  const [notifications, messages] = await Promise.all([
+    prisma.notification.count({ where: { userId, read: false } }),
+    prisma.message.count({
+      where: {
+        read: false,
+        senderId: { not: userId },
+        conversation: { participants: { some: { userId } } },
+      },
+    }),
+  ]);
+  return { notifications, messages, total: notifications + messages };
+}
+
+export async function getBookmarkedPosts(userId: string, limit = 30) {
+  const bookmarks = await prisma.bookmark.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: { post: { include: postCardInclude } },
+  });
+  const posts = bookmarks.map((b) => b.post);
+  return withViewerState(posts, userId);
+}
+
 export async function getConversations(userId: string) {
   return prisma.conversationParticipant.findMany({
     where: { userId },

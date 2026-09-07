@@ -4,13 +4,12 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LogoutButton } from "@/components/auth/logout-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PushNotificationToggle } from "@/components/pwa/push-toggle";
-import { getExperienceLabel } from "@/lib/utils";
+import { ProfileSettingsForm } from "@/components/settings/profile-settings-form";
 import { getVapidPublicKey } from "@/lib/vapid";
-import { Badge } from "@/components/ui/badge";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 export const metadata = { title: "Settings" };
 
@@ -37,6 +36,7 @@ export default async function SettingsPage() {
   if (!user?.profile) redirect("/login");
 
   const profile = user.profile;
+  const vapidPublicKey = getVapidPublicKey();
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 animate-fade-in">
@@ -52,48 +52,23 @@ export default async function SettingsPage() {
         <CardHeader>
           <CardTitle>Profile</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p className="text-sm text-gray-500">Name</p>
-            <p className="font-medium">{user.name}</p>
+        <CardContent>
+          <ProfileSettingsForm
+            name={user.name ?? ""}
+            username={profile.username}
+            email={user.email}
+            bio={profile.bio}
+            city={profile.city}
+            country={profile.country}
+            experience={profile.experienceLevel}
+            specialties={profile.specialties}
+            website={profile.website}
+          />
+          <div className="mt-4">
+            <Link href={`/profile/${profile.username}`}>
+              <Button variant="outline">View public profile</Button>
+            </Link>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">Username</p>
-            <p className="font-medium">@{profile.username}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Email</p>
-            <p className="font-medium">{user.email}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Location</p>
-            <p className="font-medium">
-              {[profile.city, profile.country].filter(Boolean).join(", ") || "Not set"}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Experience</p>
-            <p className="font-medium">{getExperienceLabel(profile.experienceLevel)}</p>
-          </div>
-          {profile.bio && (
-            <div>
-              <p className="text-sm text-gray-500">Bio</p>
-              <p className="font-medium">{profile.bio}</p>
-            </div>
-          )}
-          {profile.specialties.length > 0 && (
-            <div>
-              <p className="mb-2 text-sm text-gray-500">Specialties</p>
-              <div className="flex flex-wrap gap-2">
-                {profile.specialties.map((s) => (
-                  <Badge key={s} variant="outline">{s}</Badge>
-                ))}
-              </div>
-            </div>
-          )}
-          <Link href={`/profile/${profile.username}`}>
-            <Button variant="outline">View public profile</Button>
-          </Link>
         </CardContent>
       </Card>
 
@@ -102,7 +77,11 @@ export default async function SettingsPage() {
           <CardTitle>Notifications</CardTitle>
         </CardHeader>
         <CardContent>
-          <PushNotificationToggle vapidPublicKey={getVapidPublicKey()} />
+          {vapidPublicKey ? (
+            <PushNotificationToggle vapidPublicKey={vapidPublicKey} />
+          ) : (
+            <p className="text-sm text-muted">Push notifications are not configured on this server.</p>
+          )}
         </CardContent>
       </Card>
 
@@ -123,9 +102,7 @@ export default async function SettingsPage() {
           <CardTitle>Account</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-gray-500">
-            Sign out of InstallBase on this device.
-          </p>
+          <p className="text-sm text-muted">Sign out of InstallBase on this device.</p>
           <LogoutButton />
         </CardContent>
       </Card>
