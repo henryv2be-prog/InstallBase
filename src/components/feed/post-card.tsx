@@ -26,6 +26,7 @@ import { useTransition } from "react";
 import type { Prisma } from "@/generated/prisma/client";
 import { postInclude } from "@/lib/queries";
 import { compactBragDetails, isBraggableType } from "@/lib/brag";
+import { promptJoin } from "@/components/auth/guest-cta";
 
 type PostWithRelations = Prisma.PostGetPayload<{ include: typeof postInclude }>;
 
@@ -61,7 +62,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
 
   const handleAction = (action: () => Promise<unknown>) => {
     if (!currentUserId) {
-      toast.error("Sign in to interact");
+      promptJoin("like, brag, and save posts");
       return;
     }
     startTransition(async () => {

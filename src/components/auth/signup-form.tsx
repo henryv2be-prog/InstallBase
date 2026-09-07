@@ -18,7 +18,7 @@ const experienceLevels = [
   { value: "TEN_PLUS", label: "10+ years" },
 ];
 
-export function SignupForm() {
+export function SignupForm({ next = "/feed" }: { next?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [pending, startTransition] = useTransition();
@@ -72,7 +72,7 @@ export function SignupForm() {
         toast.error(result.error);
       } else {
         toast.success("Welcome to InstallBase!");
-        router.push("/feed");
+        router.push(next);
       }
     });
   };
@@ -230,7 +230,7 @@ export function SignupForm() {
         </form>
         <div className="mt-4 text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <Link href="/login" className="font-semibold text-blue-600 hover:underline">
+          <Link href={`/login?next=${encodeURIComponent(next)}`} className="font-semibold text-blue-600 hover:underline">
             Log in
           </Link>
         </div>

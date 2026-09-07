@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { getConversations, getProfileByUsername, getOrCreateConversation } from "@/lib/queries";
 import { PresenceAvatar, PresenceLabel } from "@/components/presence/presence-avatar";
 import { RelativeTime } from "@/components/ui/relative-time";
+import { GuestJoinCard } from "@/components/auth/guest-cta";
 import { notFound, redirect } from "next/navigation";
 
 export const metadata = { title: "Messages" };
@@ -14,7 +15,18 @@ interface MessagesPageProps {
 export default async function MessagesPage({ searchParams }: MessagesPageProps) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) redirect("/login");
+  if (!userId) {
+    return (
+      <div className="mx-auto max-w-lg animate-fade-in">
+        <h1 className="mb-4 text-2xl font-bold">Messages</h1>
+        <GuestJoinCard
+          title="Messaging is for members"
+          body="Guests can browse installs and profiles. Join free to message other installers."
+          next="/messages"
+        />
+      </div>
+    );
+  }
   const { user: username } = await searchParams;
 
   if (username) {

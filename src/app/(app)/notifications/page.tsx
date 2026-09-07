@@ -7,14 +7,25 @@ import { RelativeTime } from "@/components/ui/relative-time";
 import { MarkReadButton } from "@/components/notifications/mark-read-button";
 import { EnableAlertsCta } from "@/components/pwa/enable-alerts-cta";
 import { getVapidPublicKey } from "@/lib/vapid";
-import { redirect } from "next/navigation";
+import { GuestJoinCard } from "@/components/auth/guest-cta";
 
 export const metadata = { title: "Notifications" };
 
 export default async function NotificationsPage() {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) redirect("/login");
+  if (!userId) {
+    return (
+      <div className="mx-auto max-w-lg animate-fade-in">
+        <h1 className="mb-4 text-2xl font-bold">Notifications</h1>
+        <GuestJoinCard
+          title="Alerts are for members"
+          body="Join free to get notified when someone likes, comments, or messages you."
+          next="/notifications"
+        />
+      </div>
+    );
+  }
   const notifications = await getNotifications(userId);
   const unreadCount = notifications.filter((n) => !n.read).length;
 

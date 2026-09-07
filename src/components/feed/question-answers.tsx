@@ -12,6 +12,7 @@ import { RelativeTime } from "@/components/ui/relative-time";
 import { toast } from "sonner";
 import type { Prisma } from "@/generated/prisma/client";
 import { postInclude } from "@/lib/queries";
+import { GuestInlineCta } from "@/components/auth/guest-cta";
 
 type PostWithAnswers = Prisma.PostGetPayload<{ include: typeof postInclude }>;
 
@@ -29,7 +30,7 @@ export function QuestionAnswers({
 
   const handleAnswer = () => {
     if (!content.trim() || !currentUserId) {
-      toast.error("Sign in to answer");
+      toast.error("Join to answer");
       return;
     }
     startTransition(async () => {
@@ -47,7 +48,7 @@ export function QuestionAnswers({
     <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
       <h3 className="mb-4 font-bold">{post.answers.length} Answers</h3>
 
-      {currentUserId && (
+      {currentUserId ? (
         <div className="mb-6 flex gap-3">
           <Textarea
             placeholder="Share your solution or advice..."
@@ -59,6 +60,8 @@ export function QuestionAnswers({
             Answer
           </Button>
         </div>
+      ) : (
+        <GuestInlineCta action="answer this question" next={`/post/${post.id}`} />
       )}
 
       <div className="space-y-4">

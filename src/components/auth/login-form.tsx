@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
-export function LoginForm() {
+export function LoginForm({ next = "/feed" }: { next?: string }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -41,7 +41,7 @@ export function LoginForm() {
 
         if (result?.ok) {
           // Full page navigation is more reliable on mobile browsers for session cookies
-          window.location.href = "/feed";
+          window.location.href = next;
           return;
         }
 
@@ -106,7 +106,7 @@ export function LoginForm() {
         </form>
         <div className="mt-4 text-center text-sm text-muted">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-semibold text-blue-600 hover:underline dark:text-cyan-400">
+          <Link href={`/signup?next=${encodeURIComponent(next)}`} className="font-semibold text-blue-600 hover:underline dark:text-cyan-400">
             Sign up
           </Link>
         </div>

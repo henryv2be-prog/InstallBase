@@ -9,6 +9,7 @@ import { getInitials } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { toast } from "sonner";
 import Link from "next/link";
+import { GuestInlineCta } from "@/components/auth/guest-cta";
 
 interface Comment {
   id: string;
@@ -36,7 +37,7 @@ export function CommentSection({
   const handleSubmit = () => {
     if (!content.trim()) return;
     if (!currentUserId) {
-      toast.error("Sign in to comment");
+      toast.error("Join to comment");
       return;
     }
     startTransition(async () => {
@@ -53,7 +54,7 @@ export function CommentSection({
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
       <h3 className="mb-4 font-bold">Comments ({comments.length})</h3>
-      {currentUserId && (
+      {currentUserId ? (
         <div className="mb-4 flex gap-3">
           <Textarea
             placeholder="Add a comment..."
@@ -66,6 +67,8 @@ export function CommentSection({
             Post
           </Button>
         </div>
+      ) : (
+        <GuestInlineCta action="comment on this install" next={`/post/${postId}`} />
       )}
       <div className="space-y-4">
         {comments.map((comment) => (

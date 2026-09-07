@@ -1,8 +1,9 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { MessageThread } from "@/components/messages/message-thread";
 import { PresenceAvatar, LivePresenceLabel } from "@/components/presence/presence-avatar";
+import { GuestJoinCard } from "@/components/auth/guest-cta";
 import Link from "next/link";
 
 interface MessageThreadPageProps {
@@ -13,7 +14,18 @@ export default async function MessageThreadPage({ params }: MessageThreadPagePro
   const { id } = await params;
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) redirect("/login");
+  if (!userId) {
+    return (
+      <div className="mx-auto max-w-lg animate-fade-in">
+        <h1 className="mb-4 text-2xl font-bold">Messages</h1>
+        <GuestJoinCard
+          title="Messaging is for members"
+          body="Join free to start a conversation with other installers."
+          next="/messages"
+        />
+      </div>
+    );
+  }
 
   const conversation = await prisma.conversation.findUnique({
     where: { id },

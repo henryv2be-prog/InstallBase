@@ -46,9 +46,10 @@ export async function SearchResults({ query }: { query: string }) {
                     <p className="truncate text-sm text-gray-500">@{user.username}</p>
                   </div>
                 </Link>
-                {session?.user?.id && session.user.id !== user.userId && (
+                {session?.user?.id !== user.userId && (
                   <FollowButton
                     userId={user.userId}
+                    currentUserId={session?.user?.id}
                     initialFollowing={followingSet.has(user.userId)}
                   />
                 )}
