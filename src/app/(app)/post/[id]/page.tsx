@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getPost } from "@/lib/queries";
-import { markNotificationsReadForUser, revalidateActivityPaths } from "@/lib/notification-read";
+import { markNotificationsReadForUser } from "@/lib/notification-read";
 import { PostCard } from "@/components/feed/post-card";
 import { QuestionAnswers } from "@/components/feed/question-answers";
 import { CommentSection } from "@/components/feed/comment-section";
@@ -29,7 +29,6 @@ export default async function PostDetailPage({ params, searchParams }: PostPageP
 
   if (session?.user?.id) {
     await markNotificationsReadForUser(session.user.id, { link: `/post/${id}` });
-    revalidateActivityPaths();
   }
 
   return (

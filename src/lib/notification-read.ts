@@ -35,5 +35,4 @@ export async function markConversationMessagesRead(conversationId: string, userI
     data: { read: true },
   });
   await markNotificationsReadForUser(userId, { link: `/messages/${conversationId}` });
-  revalidateActivityPaths();
 }
