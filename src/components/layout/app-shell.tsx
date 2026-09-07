@@ -14,6 +14,7 @@ import {
   Plus,
   Briefcase,
   Shield,
+  LogIn,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,12 +32,20 @@ const navItems = [
   { href: "/projects", label: "Projects", icon: FolderKanban },
 ];
 
-const mobileNavItems = [
+const memberMobileNav = [
   { href: "/feed", label: "Home", icon: Home },
   { href: "/discover", label: "Discover", icon: Compass },
   { href: "/create", label: "Create", icon: Plus, highlight: true },
   { href: "/notifications", label: "Alerts", icon: Bell },
   { href: "/profile", label: "Profile", icon: null },
+];
+
+const guestMobileNav = [
+  { href: "/feed", label: "Home", icon: Home },
+  { href: "/discover", label: "Discover", icon: Compass },
+  { href: "/signup", label: "Join", icon: Plus, highlight: true },
+  { href: "/brags", label: "Brags", icon: Trophy },
+  { href: "/login", label: "Log in", icon: LogIn },
 ];
 
 interface AppShellProps {
@@ -51,6 +60,8 @@ interface AppShellProps {
 
 export function AppShell({ children, user }: AppShellProps) {
   const pathname = usePathname();
+  const signedIn = Boolean(user);
+  const mobileNavItems = signedIn ? memberMobileNav : guestMobileNav;
 
   return (
     <div className="relative min-h-dvh tech-bg">
@@ -89,40 +100,67 @@ export function AppShell({ children, user }: AppShellProps) {
                 <Search className="h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/messages">
-              <Button variant="ghost" size="icon" aria-label="Messages">
-                <MessageCircle className="h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/notifications" className="hidden sm:block">
-              <Button variant="ghost" size="icon" aria-label="Notifications">
-                <Bell className="h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/create" className="hidden sm:block">
-              <Button size="sm">
-                <Plus className="h-4 w-4" />
-                Create
-              </Button>
-            </Link>
-            {user?.role === "ADMIN" && (
-              <Link href="/admin" className="hidden sm:block">
-                <Button variant="ghost" size="icon" aria-label="Admin">
-                  <Shield className="h-5 w-5" />
-                </Button>
-              </Link>
+            {signedIn ? (
+              <>
+                <Link href="/messages">
+                  <Button variant="ghost" size="icon" aria-label="Messages">
+                    <MessageCircle className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link href="/notifications" className="hidden sm:block">
+                  <Button variant="ghost" size="icon" aria-label="Notifications">
+                    <Bell className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link href="/create" className="hidden sm:block">
+                  <Button size="sm">
+                    <Plus className="h-4 w-4" />
+                    Create
+                  </Button>
+                </Link>
+                {user?.role === "ADMIN" && (
+                  <Link href="/admin" className="hidden sm:block">
+                    <Button variant="ghost" size="icon" aria-label="Admin">
+                      <Shield className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                )}
+                <Link href={user?.username ? `/profile/${user.username}` : "/profile"} className="hidden sm:block">
+                  <Avatar className="h-9 w-9 ring-2 ring-transparent transition-all hover:ring-blue-500/50">
+                    <AvatarImage src={user?.image ?? undefined} />
+                    <AvatarFallback>{getInitials(user?.name ?? "U")}</AvatarFallback>
+                  </Avatar>
+                </Link>
+                <div className="hidden sm:block">
+                  <LogoutButton compact />
+                </div>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="hidden sm:block">
+                  <Button variant="ghost" size="sm">
+                    Log in
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button size="sm">Join</Button>
+                </Link>
+              </>
             )}
-            <Link href={user?.username ? `/profile/${user.username}` : "/profile"} className="hidden sm:block">
-              <Avatar className="h-9 w-9 ring-2 ring-transparent transition-all hover:ring-blue-500/50">
-                <AvatarImage src={user?.image ?? undefined} />
-                <AvatarFallback>{getInitials(user?.name ?? "U")}</AvatarFallback>
-              </Avatar>
-            </Link>
-            <div className="hidden sm:block">
-              <LogoutButton compact />
-            </div>
           </div>
         </div>
+        {!signedIn && (
+          <div className="border-t border-blue-500/15 bg-blue-500/10 px-3 py-2 text-center text-xs sm:text-sm">
+            <span className="text-foreground/80">Browsing as a guest. Join to post, follow, and message.</span>
+            <Link href="/signup" className="ml-2 font-semibold text-blue-600 dark:text-cyan-400">
+              Join free
+            </Link>
+            <span className="mx-1.5 text-muted">·</span>
+            <Link href="/login" className="font-semibold hover:underline">
+              Log in
+            </Link>
+          </div>
+        )}
       </header>
 
       <main className="relative z-10 mx-auto max-w-7xl px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:px-4 lg:px-6 md:pb-8 md:pt-6">

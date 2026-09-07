@@ -34,8 +34,13 @@ export function InstallerRow({
           {username && <p className="truncate text-sm text-gray-500">@{username}</p>}
         </div>
       </Link>
-      {!isSelf && currentUserId && (
-        <FollowButton userId={userId} initialFollowing={isFollowing} followsYou={followsYou} />
+      {!isSelf && (
+        <FollowButton
+          userId={userId}
+          currentUserId={currentUserId}
+          initialFollowing={isFollowing}
+          followsYou={followsYou}
+        />
       )}
     </div>
   );

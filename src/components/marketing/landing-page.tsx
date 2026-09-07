@@ -49,6 +49,9 @@ export function LandingPage() {
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Link href="/feed" className="hidden sm:block">
+              <Button variant="ghost">Explore</Button>
+            </Link>
             <Link href="/login">
               <Button variant="ghost">Log in</Button>
             </Link>
@@ -85,9 +88,9 @@ export function LandingPage() {
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <Link href="/login">
+                <Link href="/feed">
                   <Button size="lg" variant="outline">
-                    Explore Installations
+                    Explore the live site
                   </Button>
                 </Link>
               </div>
@@ -173,9 +176,16 @@ export function LandingPage() {
             Join installers sharing CCTV, access control, networking, solar, and the
             jobs in between.
           </p>
-          <Link href="/signup" className="mt-8 inline-block">
-            <Button size="lg">Get Started — It&apos;s Free</Button>
-          </Link>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href="/signup">
+              <Button size="lg">Get Started — It&apos;s Free</Button>
+            </Link>
+            <Link href="/feed">
+              <Button size="lg" variant="outline">
+                Browse as a guest
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 

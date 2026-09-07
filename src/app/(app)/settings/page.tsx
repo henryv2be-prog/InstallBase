@@ -10,12 +10,24 @@ import { PushNotificationToggle } from "@/components/pwa/push-toggle";
 import { getExperienceLabel } from "@/lib/utils";
 import { getVapidPublicKey } from "@/lib/vapid";
 import { Badge } from "@/components/ui/badge";
+import { GuestJoinCard } from "@/components/auth/guest-cta";
 
 export const metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
   const session = await auth();
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) {
+    return (
+      <div className="mx-auto max-w-lg animate-fade-in">
+        <h1 className="mb-4 text-2xl font-bold">Settings</h1>
+        <GuestJoinCard
+          title="Settings are for members"
+          body="Join free to create a profile and manage your account."
+          next="/settings"
+        />
+      </div>
+    );
+  }
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },

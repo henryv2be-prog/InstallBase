@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PostFeed } from "@/components/feed/post-card";
 import { getReputationLabel, getExperienceLabel } from "@/lib/utils";
 import { FollowButton } from "@/components/profile/follow-button";
+import { signupHref } from "@/lib/auth-urls";
 
 interface ProfilePageProps {
   username: string;
@@ -71,19 +72,29 @@ export async function ProfileView({ username }: ProfilePageProps) {
               )}
             </div>
             <div className="flex gap-2">
-              {!isOwnProfile && session?.user && (
+              {!isOwnProfile && (
                 <>
                   <FollowButton
                     userId={user.id}
+                    currentUserId={session?.user?.id}
                     initialFollowing={alreadyFollowing}
                     followsYou={followsYou}
                   />
-                  <Link href={`/messages?user=${profile.username}`}>
-                    <Button variant="outline" size="sm">
-                      <MessageCircle className="h-4 w-4" />
-                      Message
+                  {session?.user ? (
+                    <Link href={`/messages?user=${profile.username}`}>
+                      <Button variant="outline" size="sm">
+                        <MessageCircle className="h-4 w-4" />
+                        Message
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={signupHref(`/profile/${profile.username}`)}>
+                        <MessageCircle className="h-4 w-4" />
+                        Message
+                      </Link>
                     </Button>
-                  </Link>
+                  )}
                 </>
               )}
               {isOwnProfile && (

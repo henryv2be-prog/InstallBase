@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { getFeedPosts, getFollowingFeedPosts } from "@/lib/queries";
 import { CreatePostCard } from "@/components/feed/create-post";
 import { PostFeed } from "@/components/feed/post-card";
+import { GuestJoinCard } from "@/components/auth/guest-cta";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -23,11 +24,19 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 animate-fade-in">
-      <CreatePostCard
-        userName={session?.user?.name}
-        userImage={session?.user?.image}
-        compact
-      />
+      {userId ? (
+        <CreatePostCard
+          userName={session?.user?.name}
+          userImage={session?.user?.image}
+          compact
+        />
+      ) : (
+        <GuestJoinCard
+          title="See what installers are building"
+          body="Browse the live feed as a guest. Join free to post photos, give brag points, and message people."
+          next="/feed"
+        />
+      )}
 
       <div className="flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
         <Link
@@ -54,7 +63,13 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         </Link>
       </div>
 
-      {followingTab && posts.length === 0 ? (
+      {followingTab && !userId ? (
+        <GuestJoinCard
+          title="Follow installers to build this feed"
+          body="Join or log in to follow people and see their installs here."
+          next="/feed?tab=following"
+        />
+      ) : followingTab && posts.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-gray-300 p-12 text-center dark:border-gray-700">
           <p className="text-lg font-semibold">No posts from people you follow</p>
           <p className="mt-2 text-gray-500">

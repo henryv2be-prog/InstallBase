@@ -59,10 +59,11 @@ export default async function DiscoverPage() {
                 </div>
               </Link>
               <p className="mt-2 text-sm text-blue-600">⭐ {formatNumber(installer.reputationScore)}</p>
-              {session?.user?.id && session.user.id !== installer.userId && (
+              {session?.user?.id !== installer.userId && (
                 <div className="mt-3">
                   <FollowButton
                     userId={installer.userId}
+                    currentUserId={session?.user?.id}
                     initialFollowing={followingSet.has(installer.userId)}
                   />
                 </div>
