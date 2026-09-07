@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { auth } from "@/lib/auth";
 import "./globals.css";
@@ -51,9 +50,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" suppressHydrationWarning className={`dark ${inter.variable} ${jetbrains.variable}`}>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
-        <Script id="ib-theme" strategy="beforeInteractive">
-          {`(function(){try{var t=localStorage.getItem("installbase-theme");if(t==="light"||t==="dark"){var r=document.documentElement;r.classList.remove("light","dark");r.classList.add(t);}}catch(e){}})();`}
-        </Script>
         <ThemeInit />
         <SessionProvider session={session}>
           <ServiceWorkerRegistrar />
