@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   Heart,
@@ -47,12 +48,19 @@ export function PostCard({
   feedContext,
   followingIds,
 }: PostCardProps) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [commentsOpen, setCommentsOpen] = useState(false);
   const profile = post.author.profile;
-  const isLiked = currentUserId ? post.likes.some((l) => l.userId === currentUserId) : false;
+  const [liked, setLiked] = useState(
+    currentUserId ? post.likes.some((l) => l.userId === currentUserId) : false
+  );
+  const [likeCount, setLikeCount] = useState(post._count.likes);
+  const [bragged, setBragged] = useState(
+    currentUserId ? post.bragPoints.some((b) => b.userId === currentUserId) : false
+  );
+  const [bragScore, setBragScore] = useState(post.bragScore);
   const isSaved = currentUserId ? post.bookmarks.some((b) => b.userId === currentUserId) : false;
-  const hasBragged = currentUserId ? post.bragPoints.some((b) => b.userId === currentUserId) : false;
   const bragDetails = compactBragDetails(post.bragDetails);
   const canBrag = isBraggableType(post.type);
   const commentCount = post.type === "QUESTION" ? post._count.answers : post._count.comments;
@@ -71,6 +79,56 @@ export function PostCard({
     } catch (error) {
       if ((error as Error).name !== "AbortError") toast.error("Could not share");
     }
+  };
+
+  const handleLike = () => {
+    if (!currentUserId) {
+      promptJoin("like posts");
+      return;
+    }
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikeCount((count) => (wasLiked ? count - 1 : count + 1));
+    startTransition(async () => {
+      try {
+        const result = await toggleLike(post.id);
+        if (result.likeCount !== undefined) setLikeCount(result.likeCount);
+        if (result.liked !== undefined) setLiked(result.liked);
+        router.refresh();
+      } catch {
+        setLiked(wasLiked);
+        setLikeCount((count) => (wasLiked ? count + 1 : count - 1));
+        toast.error("Could not update like");
+      }
+    });
+  };
+
+  const handleBrag = () => {
+    if (!currentUserId) {
+      promptJoin("give brag points");
+      return;
+    }
+    const wasBragged = bragged;
+    setBragged(!wasBragged);
+    setBragScore((score) => (wasBragged ? score - 1 : score + 1));
+    startTransition(async () => {
+      try {
+        const result = await toggleBragPoint(post.id);
+        if (result.error) {
+          setBragged(wasBragged);
+          setBragScore((score) => (wasBragged ? score + 1 : score - 1));
+          toast.error(result.error);
+          return;
+        }
+        if (result.bragScore !== undefined) setBragScore(result.bragScore);
+        if (result.bragged !== undefined) setBragged(result.bragged);
+        router.refresh();
+      } catch {
+        setBragged(wasBragged);
+        setBragScore((score) => (wasBragged ? score + 1 : score - 1));
+        toast.error("Could not update brag points");
+      }
+    });
   };
 
   const handleAction = (action: () => Promise<unknown>) => {
@@ -123,7 +181,7 @@ export function PostCard({
     <article
       className={cn(
         "glass-card glow-border overflow-hidden transition-all duration-200 hover:shadow-lg",
-        post.bragScore > 0 && "border-orange-500/30 dark:border-orange-500/20"
+        bragScore > 0 && "border-orange-500/30 dark:border-orange-500/20"
       )}
     >
       <div className="p-5">
@@ -235,13 +293,13 @@ export function PostCard({
               variant="ghost"
               size="sm"
               disabled={pending}
-              onClick={() => handleAction(() => toggleLike(post.id))}
-              className={cn(isLiked && "text-red-500")}
+              onClick={handleLike}
+              className={cn(liked && "text-red-500")}
               aria-label="Like"
               title={currentUserId ? "Like" : "Join to like posts"}
             >
-              <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
-              {post._count.likes}
+              <Heart className={cn("h-4 w-4", liked && "fill-current")} />
+              {likeCount}
             </Button>
 
             {showInlineComments ? (
@@ -268,13 +326,13 @@ export function PostCard({
                 variant="ghost"
                 size="sm"
                 disabled={pending}
-                onClick={() => handleAction(() => toggleBragPoint(post.id))}
-                className={cn(hasBragged && "text-orange-500")}
+                onClick={handleBrag}
+                className={cn(bragged && "text-orange-500")}
                 aria-label="Give brag points"
                 title={currentUserId ? "Give brag points" : "Join to give brag points"}
               >
-                <Trophy className={cn("h-4 w-4", hasBragged && "fill-current")} />
-                {post.bragScore}
+                <Trophy className={cn("h-4 w-4", bragged && "fill-current")} />
+                {bragScore}
               </Button>
             )}
           </div>
@@ -310,9 +368,9 @@ export function PostCard({
           </DropdownMenu.Root>
         </div>
 
-        {canBrag && post.bragScore > 0 && (
+        {canBrag && bragScore > 0 && (
           <div className="mt-2 text-center text-sm font-semibold text-orange-600">
-            🏆 {post.bragScore} Brag Points
+            🏆 {bragScore} Brag Points
           </div>
         )}
 

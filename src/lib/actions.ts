@@ -12,21 +12,18 @@ import { notifyUser } from "@/lib/notify";
 import { sendPushToUser } from "@/lib/push";
 import { isPushConfigured } from "@/lib/vapid";
 import { compactBragDetails, isBraggableType, normalizeComposerType } from "@/lib/brag";
+import {
+  applyReputationDelta,
+  calculateReputationLevel,
+  REPUTATION_POINTS,
+  syncPostBragScore,
+} from "@/lib/reputation";
 import type { ExperienceLevel } from "@/generated/prisma/client";
 
 async function getCurrentUserId() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
   return session.user.id;
-}
-
-function calculateReputationLevel(score: number) {
-  if (score >= 5000) return "MASTER";
-  if (score >= 3000) return "EXPERT";
-  if (score >= 1500) return "PRO";
-  if (score >= 500) return "EXPERIENCED";
-  if (score >= 100) return "INSTALLER";
-  return "APPRENTICE";
 }
 
 export async function registerUser(formData: FormData) {
@@ -152,16 +149,34 @@ export async function createPost(formData: FormData) {
 
 export async function toggleLike(postId: string) {
   const userId = await getCurrentUserId();
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { authorId: true },
+  });
+  if (!post) throw new Error("Post not found");
+
   const existing = await prisma.like.findUnique({
     where: { postId_userId: { postId, userId } },
   });
 
+  let liked = false;
   if (existing) {
     await prisma.like.delete({ where: { id: existing.id } });
+    liked = false;
+    if (post.authorId !== userId) {
+      await applyReputationDelta(post.authorId, {
+        score: -REPUTATION_POINTS.LIKE_RECEIVED,
+        likesReceived: -1,
+      });
+    }
   } else {
     await prisma.like.create({ data: { postId, userId } });
-    const post = await prisma.post.findUnique({ where: { id: postId } });
-    if (post && post.authorId !== userId) {
+    liked = true;
+    if (post.authorId !== userId) {
+      await applyReputationDelta(post.authorId, {
+        score: REPUTATION_POINTS.LIKE_RECEIVED,
+        likesReceived: 1,
+      });
       await notifyUser({
         userId: post.authorId,
         actorId: userId,
@@ -169,15 +184,15 @@ export async function toggleLike(postId: string) {
         message: "liked your post",
         link: `/post/${postId}`,
       });
-      await prisma.reputation.update({
-        where: { userId: post.authorId },
-        data: { likesReceived: { increment: 1 }, score: { increment: 2 } },
-      });
     }
   }
 
+  const likeCount = await prisma.like.count({ where: { postId } });
+
   revalidatePath("/feed");
-  return { success: true };
+  revalidatePath(`/post/${postId}`);
+  revalidatePath(`/profile`);
+  return { success: true, liked, likeCount };
 }
 
 export async function toggleBookmark(postId: string) {
@@ -202,7 +217,10 @@ export async function toggleBookmark(postId: string) {
 
 export async function toggleBragPoint(postId: string) {
   const userId = await getCurrentUserId();
-  const post = await prisma.post.findUnique({ where: { id: postId }, select: { type: true } });
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { type: true, authorId: true },
+  });
   if (!post || !isBraggableType(post.type)) {
     return { error: "Brag points are for installation posts" };
   }
@@ -211,23 +229,42 @@ export async function toggleBragPoint(postId: string) {
     where: { postId_userId: { postId, userId } },
   });
 
+  let bragged = false;
   if (existing) {
     await prisma.bragPoint.delete({ where: { id: existing.id } });
-    await prisma.post.update({
-      where: { id: postId },
-      data: { bragScore: { decrement: 1 } },
-    });
+    bragged = false;
+    if (post.authorId !== userId) {
+      await applyReputationDelta(post.authorId, {
+        score: -REPUTATION_POINTS.BRAG_RECEIVED,
+        bragEngagement: -1,
+      });
+    }
   } else {
     await prisma.bragPoint.create({ data: { postId, userId } });
-    await prisma.post.update({
-      where: { id: postId },
-      data: { bragScore: { increment: 1 } },
-    });
+    bragged = true;
+    if (post.authorId !== userId) {
+      await applyReputationDelta(post.authorId, {
+        score: REPUTATION_POINTS.BRAG_RECEIVED,
+        bragEngagement: 1,
+      });
+      await notifyUser({
+        userId: post.authorId,
+        actorId: userId,
+        type: "BRAG_RANKING",
+        message: "gave brag points to your install",
+        link: `/post/${postId}`,
+      });
+    }
   }
+
+  const updated = await syncPostBragScore(postId);
 
   revalidatePath("/feed");
   revalidatePath("/brags");
-  return { success: true };
+  revalidatePath("/discover");
+  revalidatePath(`/post/${postId}`);
+  revalidatePath(`/profile`);
+  return { success: true, bragged, bragScore: updated.bragScore };
 }
 
 export async function addComment(postId: string, content: string) {
@@ -348,20 +385,10 @@ export async function markSolution(answerId: string, postId: string) {
 
   const answer = await prisma.answer.findUnique({ where: { id: answerId } });
   if (answer) {
-    await prisma.profile.update({
-      where: { userId: answer.authorId },
-      data: { helpfulAnswers: { increment: 1 } },
-    });
-    await prisma.reputation.update({
-      where: { userId: answer.authorId },
-      data: {
-        helpfulAnswers: { increment: 1 },
-        solvedQuestions: { increment: 1 },
-        score: { increment: 25 },
-        level: calculateReputationLevel(
-          (await prisma.reputation.findUnique({ where: { userId: answer.authorId } }))?.score ?? 0 + 25
-        ),
-      },
+    await applyReputationDelta(answer.authorId, {
+      score: REPUTATION_POINTS.SOLUTION,
+      helpfulAnswers: 1,
+      solvedQuestions: 1,
     });
     await notifyUser({
       userId: answer.authorId,
