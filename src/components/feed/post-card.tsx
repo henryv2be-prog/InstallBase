@@ -131,20 +131,6 @@ export function PostCard({
     });
   };
 
-  const handleAction = (action: () => Promise<unknown>) => {
-    if (!currentUserId) {
-      promptJoin("like, brag, and save posts");
-      return;
-    }
-    startTransition(async () => {
-      try {
-        await action();
-      } catch {
-        toast.error("Something went wrong");
-      }
-    });
-  };
-
   const handleBookmark = () => {
     if (!currentUserId) {
       promptJoin("save posts");
