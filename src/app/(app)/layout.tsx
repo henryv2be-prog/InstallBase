@@ -7,6 +7,8 @@ import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { getVapidPublicKey } from "@/lib/vapid";
 import { getActivityCounts } from "@/lib/queries";
 
+export const dynamic = "force-dynamic";
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <Suspense
