@@ -132,7 +132,7 @@ async function main() {
           : `${installer.username}@installbase.io`,
         name: installer.name,
         passwordHash,
-        role: installer.username === "admin" ? "ADMIN" : "USER",
+        role: "USER",
         image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${installer.username}`,
         profile: {
           create: {
@@ -464,7 +464,7 @@ async function main() {
   console.log(`   ${posts.length} posts`);
   console.log(`   ${products.length} products`);
   console.log(`   Demo login: demo@installbase.io / InstallBase123!`);
-  console.log(`   Admin login: admin@installbase.io / InstallBase123!`);
+  console.log(`   Admin login: admin@installbase.io / InstallBase123! (set ADMIN_EMAILS=admin@installbase.io)`);
 }
 
 main()

@@ -5,6 +5,7 @@ import type { Provider } from "next-auth/providers";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { roleForEmail } from "@/lib/admin-access";
 
 const providers: Provider[] = [
   Credentials({
@@ -34,7 +35,7 @@ const providers: Provider[] = [
           name: user.name,
           image: user.image,
           username: user.profile?.username,
-          role: user.role,
+          role: roleForEmail(user.email),
         };
       },
     }),
@@ -63,7 +64,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id;
         token.username = (user as { username?: string }).username;
-        token.role = (user as { role?: string }).role;
+        if (user.email) token.email = user.email;
+      }
+      if (token.email) {
+        token.role = roleForEmail(token.email as string);
       }
       return token;
     },
@@ -74,6 +78,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = token.role as string | undefined;
       }
       return session;
+    },
+  },
+  events: {
+    async signIn({ user }) {
+      if (!user.id || !user.email) return;
+      const role = roleForEmail(user.email);
+      await prisma.user
+        .update({
+          where: { id: user.id },
+          data: { role },
+        })
+        .catch(() => undefined);
     },
   },
 });

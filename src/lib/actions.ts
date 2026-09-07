@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { auth, signIn } from "@/lib/auth";
+import { roleForEmail } from "@/lib/admin-access";
 import { slugify } from "@/lib/utils";
 import { getUploadDir, uploadPublicPath } from "@/lib/uploads";
 import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
@@ -60,6 +61,7 @@ export async function registerUser(formData: FormData) {
       email,
       name,
       passwordHash,
+      role: roleForEmail(email),
       profile: {
         create: {
           username,
