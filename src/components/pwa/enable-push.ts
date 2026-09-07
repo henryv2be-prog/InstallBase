@@ -7,7 +7,7 @@ export async function enablePushNotifications(vapidPublicKey: string) {
     return { ok: false as const, permission, error: "Notifications were blocked" };
   }
 
-  await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+  await navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" });
   const registration = await navigator.serviceWorker.ready;
   const existing = await registration.pushManager.getSubscription();
   if (existing) await existing.unsubscribe();
