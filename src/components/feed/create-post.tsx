@@ -29,7 +29,6 @@ const DRAFT_KEY = "ib-create-draft-v1";
 const postTypes: { type: PostType; label: string; icon: React.ReactNode; color: string }[] = [
   { type: "POST", label: "Photo", icon: <Camera className="h-4 w-4" />, color: "text-blue-600" },
   { type: "VIDEO", label: "Video", icon: <Video className="h-4 w-4" />, color: "text-purple-600" },
-  { type: "BRAG", label: "Brag", icon: <Trophy className="h-4 w-4" />, color: "text-orange-600" },
   { type: "QUESTION", label: "Ask", icon: <HelpCircle className="h-4 w-4" />, color: "text-green-600" },
   { type: "PROJECT", label: "Project", icon: <FolderKanban className="h-4 w-4" />, color: "text-indigo-600" },
 ];
@@ -107,7 +106,7 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   useEffect(() => {
     const draft = readDraft();
     if (draft) {
-      setType(draft.type);
+      setType(draft.type === "BRAG" ? "POST" : draft.type);
       setContent(draft.content);
       setTitle(draft.title);
       setLocation(draft.location);
@@ -276,8 +275,11 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       if (title) formData.append("title", title);
       if (location) formData.append("location", location);
       readyUrls.forEach((url) => formData.append("mediaUrls", url));
-      if (type === "BRAG") {
-        formData.append("bragDetails", JSON.stringify(bragStats));
+      const details = Object.fromEntries(
+        Object.entries(bragStats).filter(([, value]) => value.trim())
+      );
+      if (type !== "QUESTION" && Object.keys(details).length > 0) {
+        formData.append("bragDetails", JSON.stringify(details));
       }
       try {
         const result = await createPost(formData);
@@ -411,7 +413,7 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
           rows={3}
           className="mb-3"
         />
-        {(type === "BRAG" || type === "QUESTION" || type === "PROJECT") && (
+        {(type === "QUESTION" || type === "PROJECT") && (
           <Input
             placeholder="Title (optional)"
             value={title}
@@ -425,12 +427,18 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
           onChange={(e) => setLocation(e.target.value)}
           className="mb-3"
         />
-        {type === "BRAG" && (
-          <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Input placeholder="Cameras" value={bragStats.cameras} onChange={(e) => setBragStats({ ...bragStats, cameras: e.target.value })} />
-            <Input placeholder="NVRs" value={bragStats.nvrs} onChange={(e) => setBragStats({ ...bragStats, nvrs: e.target.value })} />
-            <Input placeholder="Fibre" value={bragStats.fibre} onChange={(e) => setBragStats({ ...bragStats, fibre: e.target.value })} />
-            <Input placeholder="Storage" value={bragStats.storage} onChange={(e) => setBragStats({ ...bragStats, storage: e.target.value })} />
+        {type !== "QUESTION" && (
+          <div className="mb-3">
+            <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-orange-600">
+              <Trophy className="h-3.5 w-3.5" />
+              Job stats (optional) — every install can get brag points
+            </p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <Input placeholder="Cameras" value={bragStats.cameras} onChange={(e) => setBragStats({ ...bragStats, cameras: e.target.value })} />
+              <Input placeholder="NVRs" value={bragStats.nvrs} onChange={(e) => setBragStats({ ...bragStats, nvrs: e.target.value })} />
+              <Input placeholder="Fibre" value={bragStats.fibre} onChange={(e) => setBragStats({ ...bragStats, fibre: e.target.value })} />
+              <Input placeholder="Storage" value={bragStats.storage} onChange={(e) => setBragStats({ ...bragStats, storage: e.target.value })} />
+            </div>
           </div>
         )}
 

@@ -18,7 +18,7 @@ export default async function BragsPage() {
       <div>
         <h1 className="text-2xl font-bold">🏆 Brags</h1>
         <p className="text-gray-500">
-          The best installations from the community. Brags stay on your profile — this page shows what&apos;s hot right now.
+          The best installations from the community. Give brag points on any photo or video — this page shows what&apos;s hot right now.
         </p>
       </div>
 

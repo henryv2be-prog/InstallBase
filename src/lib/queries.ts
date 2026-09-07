@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import type { PostType } from "@/generated/prisma/client";
 import { BRAG_CATEGORIES } from "@/lib/constants";
 import { bragHotScore, recencyMultiplier, startOfWeek } from "@/lib/ranking";
+import { braggablePostWhere, isBraggableType } from "@/lib/brag";
 
 export const postInclude = {
   author: { include: { profile: true, reputation: true } },
@@ -87,7 +88,6 @@ export async function getFeedPosts(userId?: string, limit = 20) {
     score += post.comments.length * 5;
     score += post.bragScore * 2 * recencyMultiplier(post.createdAt);
     if (followingIds.includes(post.authorId)) score += 50;
-    if (post.type === "BRAG") score += 10 * recencyMultiplier(post.createdAt);
     if (post.type === "QUESTION" && !post.solved) score += 15;
     return { post, score };
   });
@@ -109,7 +109,7 @@ export async function getPostsByType(type: PostType, limit = 20) {
 
 export async function getHotBrags(limit = 20) {
   const posts = await prisma.post.findMany({
-    where: { type: "BRAG" },
+    where: braggablePostWhere,
     take: Math.max(limit * 5, 80),
     include: postInclude,
     orderBy: { createdAt: "desc" },
@@ -124,7 +124,7 @@ export async function getHotBrags(limit = 20) {
 
 export async function getAllTimeBrags(limit = 4) {
   return prisma.post.findMany({
-    where: { type: "BRAG", bragScore: { gt: 0 } },
+    where: { ...braggablePostWhere, bragScore: { gt: 0 } },
     take: limit,
     include: postInclude,
     orderBy: [{ bragScore: "desc" }, { createdAt: "desc" }],
@@ -186,13 +186,13 @@ export async function getBragOfWeek() {
         post: await prisma.post.findUnique({ where: { id: f.postId }, include: postInclude }),
       }))
     )
-  ).filter((row) => row.post?.type === "BRAG");
+  ).filter((row) => row.post && isBraggableType(row.post.type));
 
   featuredRows.sort((a, b) => (b.post?.bragScore ?? 0) - (a.post?.bragScore ?? 0));
 
   if (featuredRows.length === 0) {
     const thisWeek = await prisma.post.findMany({
-      where: { type: "BRAG", createdAt: { gte: weekStart } },
+      where: { ...braggablePostWhere, createdAt: { gte: weekStart } },
       take: 24,
       include: postInclude,
       orderBy: [{ bragScore: "desc" }, { createdAt: "desc" }],
@@ -382,7 +382,9 @@ export async function getAdminStats() {
     prisma.user.count(),
     prisma.user.count({ where: { posts: { some: {} } } }),
     prisma.post.count(),
-    prisma.post.count({ where: { type: "BRAG" } }),
+    prisma.post.count({
+      where: { ...braggablePostWhere, media: { some: {} } },
+    }),
     prisma.post.count({ where: { type: "QUESTION" } }),
     prisma.comment.count(),
     prisma.report.count({ where: { status: "PENDING" } }),

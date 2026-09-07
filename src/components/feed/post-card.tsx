@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { useTransition } from "react";
 import type { Prisma } from "@/generated/prisma/client";
 import { postInclude } from "@/lib/queries";
+import { compactBragDetails, isBraggableType } from "@/lib/brag";
 
 type PostWithRelations = Prisma.PostGetPayload<{ include: typeof postInclude }>;
 
@@ -40,7 +41,8 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
   const isLiked = currentUserId ? post.likes.some((l) => l.userId === currentUserId) : false;
   const isSaved = currentUserId ? post.bookmarks.some((b) => b.userId === currentUserId) : false;
   const hasBragged = currentUserId ? post.bragPoints.some((b) => b.userId === currentUserId) : false;
-  const bragDetails = post.bragDetails as Record<string, unknown> | null;
+  const bragDetails = compactBragDetails(post.bragDetails);
+  const canBrag = isBraggableType(post.type);
 
   const handleShare = async () => {
     const url = `${window.location.origin}/post/${post.id}`;
@@ -72,7 +74,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
   };
 
   const typeBadge = {
-    BRAG: { label: "🏆 BRAG", variant: "brag" as const },
+    BRAG: { label: null, variant: "brag" as const },
     QUESTION: { label: "❓ Question", variant: "question" as const },
     PROJECT: { label: "📋 Project", variant: "default" as const },
     VIDEO: { label: "🎥 How I Did It", variant: "secondary" as const },
@@ -83,15 +85,9 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
     <article
       className={cn(
         "glass-card glow-border overflow-hidden transition-all duration-200 hover:shadow-lg",
-        post.type === "BRAG" && "border-orange-500/30 dark:border-orange-500/20"
+        post.bragScore > 0 && "border-orange-500/30 dark:border-orange-500/20"
       )}
     >
-      {post.type === "BRAG" && (
-        <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 px-5 py-2 text-sm font-bold tracking-wide text-white shadow-lg shadow-orange-500/20">
-          🏆 BRAG
-        </div>
-      )}
-
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
           <Link href={`/profile/${profile?.username}`} className="flex items-center gap-3 group">
@@ -138,7 +134,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
           {post.content}
         </p>
 
-        {post.type === "BRAG" && bragDetails && (
+        {bragDetails && (
           <ul className="mt-3 space-y-1 rounded-xl bg-orange-50 p-4 text-sm dark:bg-orange-950/30">
             {Object.entries(bragDetails).map(([key, value]) => (
               <li key={key} className="flex gap-2">
@@ -216,13 +212,14 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
                 {post.type === "QUESTION" ? post.answers.length : post.comments.length}
               </Button>
             </Link>
-            {post.type === "BRAG" && (
+            {canBrag && (
               <Button
                 variant="ghost"
                 size="sm"
                 disabled={pending}
                 onClick={() => handleAction(() => toggleBragPoint(post.id))}
                 className={cn(hasBragged && "text-orange-500")}
+                aria-label="Give brag points"
               >
                 <Trophy className={cn("h-4 w-4", hasBragged && "fill-current")} />
                 {post.bragScore}
@@ -243,7 +240,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
           </Button>
         </div>
 
-        {post.type === "BRAG" && (
+        {canBrag && post.bragScore > 0 && (
           <div className="mt-2 text-center text-sm font-semibold text-orange-600">
             🏆 {post.bragScore} Brag Points
           </div>
