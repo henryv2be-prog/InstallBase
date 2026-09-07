@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { MapPin, MessageCircle } from "lucide-react";
 import { getProfileByUsername, getBookmarkedPosts } from "@/lib/queries";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
+import type { Session } from "next-auth";
 import { PresenceAvatar, PresenceLabel } from "@/components/presence/presence-avatar";
 import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,10 +19,11 @@ import { FolderKanban, Bookmark } from "lucide-react";
 
 interface ProfilePageProps {
   username: string;
+  session?: Session | null;
 }
 
-export async function ProfileView({ username }: ProfilePageProps) {
-  const session = await auth();
+export async function ProfileView({ username, session: sessionProp }: ProfilePageProps) {
+  const session = sessionProp ?? await getSession();
   const profile = await getProfileByUsername(username, session?.user?.id);
   if (!profile) notFound();
 

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
 import { markNotificationRead } from "@/lib/actions";
 import { withFromActivity } from "@/lib/navigation";
 
@@ -24,24 +23,20 @@ export function NotificationItem({
   fromActivity = true,
 }: NotificationItemProps) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
   const destination = fromActivity ? withFromActivity(href) : href;
 
   const handleClick = (e: React.MouseEvent) => {
     if (read || href === "#") return;
     e.preventDefault();
-    startTransition(async () => {
-      await markNotificationRead(id);
-      router.push(destination);
-      router.refresh();
-    });
+    router.push(destination);
+    void markNotificationRead(id);
   };
 
   return (
     <Link
       href={destination}
       onClick={handleClick}
-      className={`${className}${pending ? " opacity-70" : ""}`}
+      className={className}
     >
       {children}
     </Link>

@@ -1,15 +1,19 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import {
-  getDiscoverData,
   getFollowingIds,
   getPostsByType,
   getProjects,
   getHotBrags,
   getAllTimeBrags,
   getBragOfWeek,
+  getTrendingBrags,
+  getTopInstallers,
+  getPopularProducts,
+  getBragLeaderboard,
+  getPopularQuestions,
 } from "@/lib/queries";
 import { FollowButton } from "@/components/profile/follow-button";
 import { PostCard, PostFeed } from "@/components/feed/post-card";
@@ -28,24 +32,46 @@ interface DiscoverPageProps {
 }
 
 export default async function DiscoverPage({ searchParams }: DiscoverPageProps) {
-  const session = await auth();
+  const session = await getSession();
   const { tab = "trending" } = await searchParams;
   const userId = session?.user?.id;
 
-  const [{ trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products }, followingIds] =
-    await Promise.all([
-      getDiscoverData(userId),
-      userId ? getFollowingIds(userId) : Promise.resolve([] as string[]),
-    ]);
-  const followingSet = new Set(followingIds);
+  const isTrending = tab === "trending" || !tab;
+  const isPeople = tab === "people";
+  const isProducts = tab === "products";
+  const isQuestions = tab === "questions";
+  const isProjects = tab === "projects";
+  const isLeaderboard = tab === "leaderboard";
 
-  const [questions, projects, hotBrags, bragOfWeek, allTime] = await Promise.all([
-    tab === "questions" ? getPostsByType("QUESTION", 30, userId) : Promise.resolve([]),
-    tab === "projects" ? getProjects() : Promise.resolve([]),
-    tab === "leaderboard" ? getHotBrags(20, userId) : Promise.resolve([]),
-    tab === "leaderboard" ? getBragOfWeek(userId) : Promise.resolve([]),
-    tab === "leaderboard" ? getAllTimeBrags(4, userId) : Promise.resolve([]),
+  const [
+    trendingBrags,
+    trendingQuestions,
+    topInstallers,
+    bragLeaderboard,
+    products,
+    followingIds,
+    questions,
+    projects,
+    hotBrags,
+    bragOfWeek,
+    allTime,
+  ] = await Promise.all([
+    isTrending ? getTrendingBrags(6, userId) : Promise.resolve([]),
+    isTrending
+      ? getPopularQuestions(4, userId)
+      : Promise.resolve([]),
+    isTrending || isPeople ? getTopInstallers() : Promise.resolve([]),
+    isTrending ? getBragLeaderboard(5) : Promise.resolve([]),
+    isTrending || isProducts ? getPopularProducts() : Promise.resolve([]),
+    userId && (isTrending || isPeople) ? getFollowingIds(userId) : Promise.resolve([] as string[]),
+    isQuestions ? getPostsByType("QUESTION", 30, userId) : Promise.resolve([]),
+    isProjects ? getProjects() : Promise.resolve([]),
+    isLeaderboard ? getHotBrags(20, userId) : Promise.resolve([]),
+    isLeaderboard ? getBragOfWeek(userId) : Promise.resolve([]),
+    isLeaderboard ? getAllTimeBrags(4, userId) : Promise.resolve([]),
   ]);
+
+  const followingSet = new Set(followingIds);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -58,7 +84,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
         <DiscoverTabs />
       </Suspense>
 
-      {(tab === "trending" || !tab) && (
+      {isTrending && (
         <>
           <section>
             <h2 className="mb-4 flex items-center gap-2 text-xl font-bold">
@@ -75,7 +101,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
           <section>
             <h2 className="mb-4 text-xl font-bold">Popular Questions</h2>
             <div className="mx-auto max-w-2xl">
-              <PostFeed posts={trendingQuestions.slice(0, 4)} currentUserId={userId} />
+              <PostFeed posts={trendingQuestions} currentUserId={userId} />
             </div>
             <Link href="/discover?tab=questions" className="mt-3 inline-block text-sm font-semibold text-primary hover:underline">
               View all questions →
@@ -84,7 +110,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
         </>
       )}
 
-      {tab === "questions" && (
+      {isQuestions && (
         <section>
           <h2 className="mb-4 text-xl font-bold">Questions</h2>
           <div className="mx-auto max-w-2xl">
@@ -102,7 +128,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
         </section>
       )}
 
-      {tab === "projects" && (
+      {isProjects && (
         <section>
           <h2 className="mb-4 text-xl font-bold">Projects</h2>
           {projects.length === 0 ? (
@@ -141,7 +167,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
         </section>
       )}
 
-      {(tab === "trending" || tab === "people") && (
+      {(isTrending || isPeople) && (
         <section>
           <h2 className="mb-4 text-xl font-bold">Trending Installers</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -178,7 +204,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
         </section>
       )}
 
-      {(tab === "trending" || tab === "products") && (
+      {(isTrending || isProducts) && (
         <section>
           <h2 className="mb-4 text-xl font-bold">Popular Products</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -197,10 +223,10 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
         </section>
       )}
 
-      {(tab === "trending" || tab === "leaderboard") && (
+      {(isTrending || isLeaderboard) && (
         <section>
           <h2 className="mb-4 text-xl font-bold">🏆 Brag Leaderboard</h2>
-          {tab === "leaderboard" && (
+          {isLeaderboard && (
             <>
               <p className="mb-4 text-sm text-muted">Resets every Sunday. Give brag points to lift this week&apos;s installs.</p>
               <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -241,7 +267,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
               </div>
             </>
           )}
-          {tab === "trending" && (
+          {isTrending && (
             <div className="glass-card rounded-2xl">
               {bragLeaderboard.map((installer, i) => (
                 <Link
@@ -260,7 +286,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
               ))}
             </div>
           )}
-          {tab === "trending" && (
+          {isTrending && (
             <Link href="/discover?tab=leaderboard" className="mt-3 inline-block text-sm font-semibold text-primary hover:underline">
               View full leaderboard →
             </Link>

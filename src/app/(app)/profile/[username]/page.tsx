@@ -1,6 +1,6 @@
 import { ProfileView } from "@/components/profile/profile-view";
-import { auth } from "@/lib/auth";
-import { markNotificationsReadForUser } from "@/lib/notification-read";
+import { getSession } from "@/lib/session";
+import { deferMarkNotificationsReadForUser } from "@/lib/notification-read";
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
@@ -13,9 +13,9 @@ export async function generateMetadata({ params }: ProfilePageProps) {
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { username } = await params;
-  const session = await auth();
+  const session = await getSession();
   if (session?.user?.id) {
-    await markNotificationsReadForUser(session.user.id, { link: `/profile/${username}` });
+    deferMarkNotificationsReadForUser(session.user.id, { link: `/profile/${username}` });
   }
-  return <ProfileView username={username} />;
+  return <ProfileView username={username} session={session} />;
 }

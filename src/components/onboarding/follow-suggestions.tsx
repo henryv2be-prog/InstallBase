@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { getDiscoverData, getFollowingIds } from "@/lib/queries";
+import { getTopInstallers, getFollowingIds } from "@/lib/queries";
 import { FollowButton } from "@/components/profile/follow-button";
 import { PresenceAvatar } from "@/components/presence/presence-avatar";
 
 export async function FollowSuggestions({ userId }: { userId: string }) {
-  const [{ topInstallers }, followingIds] = await Promise.all([
-    getDiscoverData(userId),
+  const [topInstallers, followingIds] = await Promise.all([
+    getTopInstallers(),
     getFollowingIds(userId),
   ]);
   const followingSet = new Set(followingIds);

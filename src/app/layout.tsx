@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import "./globals.css";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
@@ -45,7 +45,7 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+  const session = await getSession();
 
   return (
     <html lang="en" suppressHydrationWarning className={`dark ${inter.variable} ${jetbrains.variable}`}>

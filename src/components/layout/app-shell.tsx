@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
-import { CountBadge } from "@/components/ui/count-badge";
+import { ActivityCountBadge } from "@/components/layout/activity-count-badge";
 import { getInitials } from "@/lib/utils";
 
 const desktopNav = [
@@ -46,10 +46,9 @@ interface AppShellProps {
     username?: string;
     role?: string;
   } | null;
-  activityCount?: number;
 }
 
-export function AppShell({ children, user, activityCount = 0 }: AppShellProps) {
+export function AppShell({ children, user }: AppShellProps) {
   const pathname = usePathname();
   const signedIn = Boolean(user);
   const mobileNavItems = signedIn ? memberMobileNav : guestMobileNav;
@@ -99,7 +98,7 @@ export function AppShell({ children, user, activityCount = 0 }: AppShellProps) {
                   <Button variant="ghost" size="icon" aria-label="Activity">
                     <Bell className="h-5 w-5" />
                   </Button>
-                  <CountBadge count={activityCount} />
+                  <ActivityCountBadge />
                 </Link>
                 <Link href="/create" className="hidden sm:block">
                   <Button size="sm">
@@ -192,7 +191,7 @@ export function AppShell({ children, user, activityCount = 0 }: AppShellProps) {
                 )}
               >
                 <Icon className="h-5 w-5" />
-                {"badge" in item && item.badge && <CountBadge count={activityCount} />}
+                {"badge" in item && item.badge && <ActivityCountBadge />}
                 <span className="text-[10px] font-medium">{item.label}</span>
               </Link>
             );

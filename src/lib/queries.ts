@@ -88,13 +88,13 @@ async function loadPostCards(
   return withViewerState(posts, userId);
 }
 
-export async function getFollowingIds(userId: string) {
+export const getFollowingIds = cache(async function getFollowingIds(userId: string) {
   const follows = await prisma.follow.findMany({
     where: { followerId: userId },
     select: { followingId: true },
   });
   return follows.map((f) => f.followingId);
-}
+});
 
 export async function isFollowing(followerId: string, followingId: string) {
   const row = await prisma.follow.findUnique({
@@ -183,6 +183,18 @@ export async function getPostsByType(type: PostType, limit = 20, userId?: string
   );
 }
 
+export async function getPopularQuestions(limit = 6, userId?: string) {
+  return loadPostCards(
+    {
+      where: { type: "QUESTION" },
+      take: limit,
+      orderBy: { comments: { _count: "desc" } },
+    },
+    userId,
+    ["questions-popular", String(limit)]
+  );
+}
+
 export async function getHotBrags(limit = 20, userId?: string) {
   const candidateTake = Math.min(Math.max(limit * 3, 24), 40);
   const candidates = await cachedRows(
@@ -250,7 +262,7 @@ export async function getProfileByUsername(username: string, viewerId?: string) 
               posts: {
                 include: postCardInclude,
                 orderBy: { createdAt: "desc" },
-                take: 20,
+                take: 12,
               },
               projects: { include: { media: true }, orderBy: { createdAt: "desc" } },
               _count: { select: { followers: true, following: true } },
@@ -350,44 +362,48 @@ export async function getBragOfWeek(userId?: string) {
 export async function getDiscoverData(userId?: string) {
   const [trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products, jobs] = await Promise.all([
     getTrendingBrags(6, userId),
-    loadPostCards(
-      {
-        where: { type: "QUESTION" },
-        take: 6,
-        orderBy: { comments: { _count: "desc" } },
-      },
-      userId,
-      ["questions-popular", "6"]
-    ),
-    cachedRows(
-      ["discover-installers"],
-      () =>
-        prisma.profile.findMany({
-          take: 8,
-          orderBy: { reputationScore: "desc" },
-          include: { user: true },
-        }),
-      60
-    ),
+    getPopularQuestions(6, userId),
+    getTopInstallers(),
     getBragLeaderboard(5),
-    cachedRows(
-      ["discover-products"],
-      () =>
-        prisma.product.findMany({
-          take: 8,
-          include: { brand: true, _count: { select: { postProducts: true } } },
-          orderBy: { postProducts: { _count: "desc" } },
-        }),
-      60
-    ),
-    cachedRows(
-      ["discover-jobs"],
-      () => prisma.job.findMany({ where: { active: true }, take: 4, orderBy: { createdAt: "desc" } }),
-      60
-    ),
+    getPopularProducts(),
+    getActiveJobs(),
   ]);
 
   return { trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products, jobs };
+}
+
+export async function getTopInstallers() {
+  return cachedRows(
+    ["discover-installers"],
+    () =>
+      prisma.profile.findMany({
+        take: 8,
+        orderBy: { reputationScore: "desc" },
+        include: { user: true },
+      }),
+    60
+  );
+}
+
+export async function getPopularProducts() {
+  return cachedRows(
+    ["discover-products"],
+    () =>
+      prisma.product.findMany({
+        take: 8,
+        include: { brand: true, _count: { select: { postProducts: true } } },
+        orderBy: { postProducts: { _count: "desc" } },
+      }),
+    60
+  );
+}
+
+export async function getActiveJobs() {
+  return cachedRows(
+    ["discover-jobs"],
+    () => prisma.job.findMany({ where: { active: true }, take: 4, orderBy: { createdAt: "desc" } }),
+    60
+  );
 }
 
 export async function searchAll(query: string, userId?: string) {
@@ -474,7 +490,7 @@ export async function getNotifications(userId: string) {
   });
 }
 
-export async function getActivityCounts(userId: string) {
+export const getActivityCounts = cache(async function getActivityCounts(userId: string) {
   const [notifications, messages] = await Promise.all([
     prisma.notification.count({ where: { userId, read: false } }),
     prisma.message.count({
@@ -486,7 +502,7 @@ export async function getActivityCounts(userId: string) {
     }),
   ]);
   return { notifications, messages, total: notifications + messages };
-}
+});
 
 export async function getBookmarkedPosts(userId: string, limit = 30) {
   const bookmarks = await prisma.bookmark.findMany({

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { getPost } from "@/lib/queries";
-import { markNotificationsReadForUser } from "@/lib/notification-read";
+import { deferMarkNotificationsReadForUser } from "@/lib/notification-read";
 import { PostCard } from "@/components/feed/post-card";
 import { QuestionAnswers } from "@/components/feed/question-answers";
 import { CommentSection } from "@/components/feed/comment-section";
@@ -23,12 +23,12 @@ export async function generateMetadata({ params }: PostPageProps) {
 export default async function PostDetailPage({ params, searchParams }: PostPageProps) {
   const { id } = await params;
   const { from } = await searchParams;
-  const session = await auth();
+  const session = await getSession();
   const post = await getPost(id, session?.user?.id);
   if (!post) notFound();
 
   if (session?.user?.id) {
-    await markNotificationsReadForUser(session.user.id, { link: `/post/${id}` });
+    deferMarkNotificationsReadForUser(session.user.id, { link: `/post/${id}` });
   }
 
   return (

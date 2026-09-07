@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { isToday } from "date-fns";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { getNotifications, getConversations, getProfileByUsername, getOrCreateConversation } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
@@ -26,7 +26,7 @@ interface ActivityPageProps {
 }
 
 export default async function ActivityPage({ searchParams }: ActivityPageProps) {
-  const session = await auth();
+  const session = await getSession();
   const userId = session?.user?.id;
   const { tab = "notifications", user: username } = await searchParams;
 

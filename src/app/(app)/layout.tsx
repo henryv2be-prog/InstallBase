@@ -1,11 +1,10 @@
 import { Suspense } from "react";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { AppShell, AppShellFallback } from "@/components/layout/app-shell";
 import { AppPageSkeleton } from "@/components/layout/app-page-skeleton";
 import { NotificationPrompt } from "@/components/pwa/notification-prompt";
 import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { getVapidPublicKey } from "@/lib/vapid";
-import { getActivityCounts } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -24,14 +23,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 }
 
 async function AppLayoutSession({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+  const session = await getSession();
   const user = session?.user ?? null;
   const vapidPublicKey = getVapidPublicKey();
-  const activityCount = user?.id ? (await getActivityCounts(user.id)).total : 0;
 
   return (
     <>
-      <AppShell user={user} activityCount={activityCount}>{children}</AppShell>
+      <AppShell user={user}>{children}</AppShell>
       {user ? <PresenceHeartbeat /> : null}
       {user && vapidPublicKey ? <NotificationPrompt vapidPublicKey={vapidPublicKey} /> : null}
     </>

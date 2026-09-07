@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
@@ -23,6 +24,14 @@ export async function markNotificationsReadForUser(
     },
     data: { read: true },
   });
+}
+
+/** Mark notifications read after the response is sent so navigation stays snappy. */
+export function deferMarkNotificationsReadForUser(
+  userId: string,
+  filter: { id?: string; link?: string }
+) {
+  after(() => markNotificationsReadForUser(userId, filter));
 }
 
 export async function markConversationMessagesRead(conversationId: string, userId: string) {

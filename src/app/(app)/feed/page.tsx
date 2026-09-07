@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { getFeedPosts, getFollowingFeedPosts, getFollowingIds } from "@/lib/queries";
 import { CreatePostCard } from "@/components/feed/create-post";
 import { PostFeed } from "@/components/feed/post-card";
@@ -20,16 +20,21 @@ interface FeedPageProps {
 }
 
 export default async function FeedPage({ searchParams }: FeedPageProps) {
-  const session = await auth();
+  const session = await getSession();
   const { tab } = await searchParams;
   const userId = session?.user?.id;
 
-  const followingPosts = userId ? await getFollowingFeedPosts(userId) : [];
-  const followingIds = userId ? new Set(await getFollowingIds(userId)) : undefined;
+  const followingIds = userId ? await getFollowingIds(userId) : [];
+  const followingSet = userId ? new Set(followingIds) : undefined;
   const followingTab =
-    tab === "following" || (tab !== "popular" && !!userId && followingPosts.length > 0);
+    tab === "following" || (tab !== "popular" && !!userId && followingIds.length > 0);
 
-  const posts = followingTab && userId ? followingPosts : await getFeedPosts(userId);
+  const posts =
+    followingTab && userId
+      ? await getFollowingFeedPosts(userId)
+      : await getFeedPosts(userId);
+
+  const showFollowSuggestions = userId && followingIds.length === 0;
 
   return (
     <PullToRefresh>
@@ -51,7 +56,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           />
         )}
 
-        {userId && followingPosts.length === 0 ? <FollowSuggestions userId={userId} /> : null}
+        {showFollowSuggestions ? <FollowSuggestions userId={userId} /> : null}
 
         <div>
           <div className="flex rounded-xl bg-card/60 p-1 border border-border">
@@ -113,7 +118,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             currentUserId={userId}
             showInlineComments
             feedContext={followingTab ? "following" : "popular"}
-            followingIds={followingIds}
+            followingIds={followingSet}
           />
         )}
       </div>
