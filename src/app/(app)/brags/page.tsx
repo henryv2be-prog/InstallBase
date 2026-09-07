@@ -8,9 +8,9 @@ export const metadata = { title: "Brags" };
 export default async function BragsPage() {
   const session = await auth();
   const [hotBrags, bragOfWeek, allTime] = await Promise.all([
-    getHotBrags(20),
-    getBragOfWeek(),
-    getAllTimeBrags(4),
+    getHotBrags(20, session?.user?.id),
+    getBragOfWeek(session?.user?.id),
+    getAllTimeBrags(4, session?.user?.id),
   ]);
 
   return (

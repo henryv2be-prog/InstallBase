@@ -18,10 +18,10 @@ interface ProfilePageProps {
 }
 
 export async function ProfileView({ username }: ProfilePageProps) {
-  const profile = await getProfileByUsername(username);
+  const session = await auth();
+  const profile = await getProfileByUsername(username, session?.user?.id);
   if (!profile) notFound();
 
-  const session = await auth();
   const user = profile.user;
   const bragPosts = user.posts.filter(
     (p) => p.type === "BRAG" || (p.type !== "QUESTION" && p.media.length > 0)
@@ -29,12 +29,8 @@ export async function ProfileView({ username }: ProfilePageProps) {
   const questionPosts = user.posts.filter((p) => p.type === "QUESTION");
   const normalPosts = user.posts.filter((p) => p.type === "POST" || p.type === "VIDEO");
   const isOwnProfile = session?.user?.id === user.id;
-  const alreadyFollowing = session?.user?.id
-    ? user.followers.some((f) => f.followerId === session.user!.id)
-    : false;
-  const followsYou = session?.user?.id
-    ? user.following.some((f) => f.followingId === session.user!.id)
-    : false;
+  const alreadyFollowing = profile.alreadyFollowing;
+  const followsYou = profile.followsYou;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -111,12 +107,12 @@ export async function ProfileView({ username }: ProfilePageProps) {
             <Badge variant="success">✓ {profile.helpfulAnswers} Helpful Answers</Badge>
             <Link href={`/profile/${profile.username}/follows?list=followers`}>
               <Badge variant="outline" className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
-                👥 {user.followers.length} Followers
+                👥 {user._count.followers} Followers
               </Badge>
             </Link>
             <Link href={`/profile/${profile.username}/follows?list=following`}>
               <Badge variant="outline" className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
-                {user.following.length} Following
+                {user._count.following} Following
               </Badge>
             </Link>
           </div>

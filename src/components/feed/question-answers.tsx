@@ -10,18 +10,15 @@ import { addAnswer, markSolution, markHelpful } from "@/lib/actions";
 import { getInitials } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { toast } from "sonner";
-import type { Prisma } from "@/generated/prisma/client";
-import { postInclude } from "@/lib/queries";
+import type { PostDetailData } from "@/lib/queries";
 import { GuestInlineCta } from "@/components/auth/guest-cta";
-
-type PostWithAnswers = Prisma.PostGetPayload<{ include: typeof postInclude }>;
 
 export function QuestionAnswers({
   post,
   currentUserId,
   isAuthor,
 }: {
-  post: PostWithAnswers;
+  post: PostDetailData;
   currentUserId?: string;
   isAuthor: boolean;
 }) {

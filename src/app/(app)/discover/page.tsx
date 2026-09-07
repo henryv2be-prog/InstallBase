@@ -15,7 +15,7 @@ export default async function DiscoverPage() {
   const session = await auth();
   const [{ trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products, jobs }, followingIds] =
     await Promise.all([
-      getDiscoverData(),
+      getDiscoverData(session?.user?.id),
       session?.user?.id ? getFollowingIds(session.user.id) : Promise.resolve([] as string[]),
     ]);
   const followingSet = new Set(followingIds);
@@ -94,7 +94,7 @@ export default async function DiscoverPage() {
               <p className="font-semibold">{product.name}</p>
               <p className="text-sm text-gray-500">{product.brand?.name}</p>
               <Badge variant="secondary" className="mt-2">
-                {product.postProducts.length} posts
+                {product._count.postProducts} posts
               </Badge>
             </Link>
           ))}
