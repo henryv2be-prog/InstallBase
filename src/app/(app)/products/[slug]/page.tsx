@@ -16,7 +16,8 @@ export async function generateMetadata({ params }: ProductPageProps) {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const [product, session] = await Promise.all([getProduct(slug), auth()]);
+  const session = await auth();
+  const product = await getProduct(slug, session?.user?.id);
   if (!product) notFound();
 
   const posts = product.postProducts.map((pp) => pp.post);

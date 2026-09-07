@@ -6,8 +6,12 @@ import { auth } from "@/lib/auth";
 import { FollowButton } from "@/components/profile/follow-button";
 
 export async function SearchResults({ query }: { query: string }) {
-  const [results, session] = await Promise.all([searchAll(query), auth()]);
-  const followingIds = session?.user?.id ? await getFollowingIds(session.user.id) : [];
+  const session = await auth();
+  const userId = session?.user?.id;
+  const [results, followingIds] = await Promise.all([
+    searchAll(query, userId),
+    userId ? getFollowingIds(userId) : Promise.resolve([] as string[]),
+  ]);
   const followingSet = new Set(followingIds);
 
   const total =

@@ -17,7 +17,8 @@ export async function generateMetadata({ params }: PostPageProps) {
 
 export default async function PostDetailPage({ params }: PostPageProps) {
   const { id } = await params;
-  const [post, session] = await Promise.all([getPost(id), auth()]);
+  const session = await auth();
+  const post = await getPost(id, session?.user?.id);
   if (!post) notFound();
 
   return (

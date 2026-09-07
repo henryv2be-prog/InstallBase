@@ -6,7 +6,7 @@ export const metadata = { title: "Questions" };
 
 export default async function QuestionsPage() {
   const session = await auth();
-  const questions = await getPostsByType("QUESTION", 30);
+  const questions = await getPostsByType("QUESTION", 30, session?.user?.id);
 
   return (
     <div className="mx-auto max-w-2xl animate-fade-in">

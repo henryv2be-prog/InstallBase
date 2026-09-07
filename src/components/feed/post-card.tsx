@@ -23,15 +23,12 @@ import {
 } from "@/lib/actions";
 import { toast } from "sonner";
 import { useTransition } from "react";
-import type { Prisma } from "@/generated/prisma/client";
-import { postInclude } from "@/lib/queries";
+import type { PostCardData } from "@/lib/queries";
 import { compactBragDetails, isBraggableType } from "@/lib/brag";
 import { promptJoin } from "@/components/auth/guest-cta";
 
-type PostWithRelations = Prisma.PostGetPayload<{ include: typeof postInclude }>;
-
 interface PostCardProps {
-  post: PostWithRelations;
+  post: PostCardData;
   currentUserId?: string;
   showFull?: boolean;
 }
@@ -205,12 +202,12 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
               className={cn(isLiked && "text-red-500")}
             >
               <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
-              {post.likes.length}
+              {post._count.likes}
             </Button>
             <Link href={`/post/${post.id}`}>
               <Button variant="ghost" size="sm">
                 <MessageCircle className="h-4 w-4" />
-                {post.type === "QUESTION" ? post.answers.length : post.comments.length}
+                {post.type === "QUESTION" ? post._count.answers : post._count.comments}
               </Button>
             </Link>
             {canBrag && (
@@ -251,7 +248,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
   );
 }
 
-export function PostFeed({ posts, currentUserId }: { posts: PostWithRelations[]; currentUserId?: string }) {
+export function PostFeed({ posts, currentUserId }: { posts: PostCardData[]; currentUserId?: string }) {
   if (posts.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-900">
