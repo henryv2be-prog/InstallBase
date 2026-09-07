@@ -78,10 +78,9 @@ interface CreatePostCardProps {
   userName?: string | null;
   userImage?: string | null;
   compact?: boolean;
-  autoOpenFile?: boolean;
 }
 
-export function CreatePostCard({ userName, compact, autoOpenFile }: CreatePostCardProps) {
+export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, startTransition] = useTransition();
@@ -139,12 +138,6 @@ export function CreatePostCard({ userName, compact, autoOpenFile }: CreatePostCa
       }
     };
   }, []);
-
-  useEffect(() => {
-    if (autoOpenFile && hydrated && media.length === 0) {
-      fileRef.current?.click();
-    }
-  }, [autoOpenFile, hydrated, media.length]);
 
   const uploading = media.some((item) => item.status === "uploading");
   const readyUrls = media.filter((item) => item.status === "ready" && item.serverUrl).map((item) => item.serverUrl!);
@@ -310,11 +303,10 @@ export function CreatePostCard({ userName, compact, autoOpenFile }: CreatePostCa
   );
 
   if (compact && !expanded) {
-    const openPhoto = (e: React.MouseEvent) => {
+    const openMedia = (e: React.MouseEvent) => {
       e.stopPropagation();
       setType("POST");
       setExpanded(true);
-      requestAnimationFrame(() => fileRef.current?.click());
     };
     const openQuestion = (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -332,11 +324,11 @@ export function CreatePostCard({ userName, compact, autoOpenFile }: CreatePostCa
           <div className="mt-3 flex gap-2">
             <button
               type="button"
-              onClick={openPhoto}
+              onClick={openMedia}
               className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border bg-card/60 px-3 py-2 text-sm font-medium text-primary hover:bg-card"
             >
               <Camera className="h-4 w-4" />
-              Photo
+              Photo or Video
             </button>
             <button
               type="button"
@@ -439,7 +431,7 @@ export function CreatePostCard({ userName, compact, autoOpenFile }: CreatePostCa
               className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border bg-card/40 text-muted hover:border-blue-500/50 hover:text-foreground"
             >
               <ImagePlus className="h-6 w-6" />
-              <span className="text-[11px] font-medium">{media.length === 0 ? "Add photos" : "Add more"}</span>
+              <span className="text-[11px] font-medium">{media.length === 0 ? "Add photo or video" : "Add more"}</span>
             </button>
           )}
         </div>
