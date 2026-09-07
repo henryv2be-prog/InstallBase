@@ -21,6 +21,12 @@ function isVideo(type?: string, url?: string) {
   return type === "video" || Boolean(url?.match(/\.(mp4|webm|mov)(\?|$)/i));
 }
 
+/** Safari often needs a media fragment to paint the first frame without playing. */
+function videoPreviewSrc(url: string) {
+  if (url.includes("#t=")) return url;
+  return `${url}#t=0.1`;
+}
+
 export function MediaGallery({ items, className, limit }: MediaGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const visible = limit ? items.slice(0, limit) : items;
@@ -46,11 +52,11 @@ export function MediaGallery({ items, className, limit }: MediaGalleryProps) {
             {isVideo(media.type, media.url) ? (
               <>
                 <video
-                  src={media.url}
+                  src={videoPreviewSrc(media.url)}
                   className="h-full w-full object-cover"
                   muted
                   playsInline
-                  preload="none"
+                  preload="metadata"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 text-white">
