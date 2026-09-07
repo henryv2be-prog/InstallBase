@@ -28,7 +28,7 @@ import {
 } from "@/lib/actions";
 import { toast } from "sonner";
 import type { PostCardData } from "@/lib/queries";
-import { compactBragDetails, isBraggableType } from "@/lib/brag";
+import { isBraggableType } from "@/lib/brag";
 import { promptJoin } from "@/components/auth/guest-cta";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Camera } from "lucide-react";
@@ -63,7 +63,6 @@ export function PostCard({
   );
   const [bragScore, setBragScore] = useState(post.bragScore);
   const isSaved = currentUserId ? post.bookmarks.some((b) => b.userId === currentUserId) : false;
-  const bragDetails = compactBragDetails(post.bragDetails);
   const canBrag = isBraggableType(post.type);
   const commentCount = post.type === "QUESTION" ? post._count.answers : post._count.comments;
   const reasonLabel = feedContext ? getFeedReasonLabel(post, feedContext, followingIds) : null;
@@ -216,19 +215,6 @@ export function PostCard({
         <p className={cn("mt-2 text-foreground/80 dark:text-slate-300", !showFull && "line-clamp-4")}>
           {post.content}
         </p>
-
-        {bragDetails && (
-          <ul className="mt-3 space-y-1 rounded-xl bg-orange-50 p-4 text-sm dark:bg-orange-950/30">
-            {Object.entries(bragDetails).map(([key, value]) => (
-              <li key={key} className="flex gap-2">
-                <span className="text-orange-600">•</span>
-                <span>
-                  <strong className="capitalize">{key.replace(/_/g, " ")}:</strong> {String(value)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
 
         {post.location && (
           <div className="mt-2 flex items-center gap-1 text-sm text-gray-500">

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Camera,
-  Trophy,
   HelpCircle,
   FolderKanban,
   ImagePlus,
@@ -23,9 +22,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { PostType } from "@/generated/prisma/client";
 
-const DRAFT_KEY = "ib-create-draft-v1";
-
-type BragStats = { cameras: string; nvrs: string; fibre: string; storage: string };
+const DRAFT_KEY = "ib-create-draft-v2";
 
 type MediaItem = {
   id: string;
@@ -41,7 +38,6 @@ type Draft = {
   content: string;
   title: string;
   location: string;
-  bragStats: BragStats;
   media: { url: string; kind: "image" | "video" }[];
 };
 
@@ -89,7 +85,6 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
-  const [bragStats, setBragStats] = useState<BragStats>({ cameras: "", nvrs: "", fibre: "", storage: "" });
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const mediaRef = useRef(media);
@@ -102,7 +97,6 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       setContent(draft.content);
       setTitle(draft.title);
       setLocation(draft.location);
-      setBragStats(draft.bragStats);
       setMedia(
         draft.media.map((item) => ({
           id: crypto.randomUUID(),
@@ -124,12 +118,11 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       content,
       title,
       location,
-      bragStats,
       media: media
         .filter((item) => item.status === "ready" && item.serverUrl)
         .map((item) => ({ url: item.serverUrl!, kind: item.kind })),
     });
-  }, [hydrated, type, content, title, location, bragStats, media]);
+  }, [hydrated, type, content, title, location, media]);
 
   useEffect(() => {
     return () => {
@@ -244,7 +237,6 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
     setTitle("");
     setLocation("");
     setMedia([]);
-    setBragStats({ cameras: "", nvrs: "", fibre: "", storage: "" });
     setType("POST");
     clearDraft();
     if (compact) setExpanded(false);
@@ -267,12 +259,6 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       if (title) formData.append("title", title);
       if (location) formData.append("location", location);
       readyUrls.forEach((url) => formData.append("mediaUrls", url));
-      const details = Object.fromEntries(
-        Object.entries(bragStats).filter(([, value]) => value.trim())
-      );
-      if (type !== "QUESTION" && Object.keys(details).length > 0) {
-        formData.append("bragDetails", JSON.stringify(details));
-      }
       try {
         const result = await createPost(formData);
         if (result && "error" in result && result.error) {
@@ -457,20 +443,6 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
           onChange={(e) => setLocation(e.target.value)}
           className="mb-3"
         />
-        {type !== "QUESTION" && (
-          <div className="mb-3">
-            <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-orange-600">
-              <Trophy className="h-3.5 w-3.5" />
-              Job stats (optional) — every install can get brag points
-            </p>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <Input placeholder="Cameras" value={bragStats.cameras} onChange={(e) => setBragStats({ ...bragStats, cameras: e.target.value })} />
-              <Input placeholder="NVRs" value={bragStats.nvrs} onChange={(e) => setBragStats({ ...bragStats, nvrs: e.target.value })} />
-              <Input placeholder="Fibre" value={bragStats.fibre} onChange={(e) => setBragStats({ ...bragStats, fibre: e.target.value })} />
-              <Input placeholder="Storage" value={bragStats.storage} onChange={(e) => setBragStats({ ...bragStats, storage: e.target.value })} />
-            </div>
-          </div>
-        )}
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">

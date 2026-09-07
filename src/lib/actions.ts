@@ -12,7 +12,7 @@ import { notifyUser } from "@/lib/notify";
 import { revalidateActivityPaths, markNotificationsReadForUser } from "@/lib/notification-read";
 import { sendPushToUser } from "@/lib/push";
 import { isPushConfigured } from "@/lib/vapid";
-import { compactBragDetails, isBraggableType, normalizeComposerType } from "@/lib/brag";
+import { isBraggableType, normalizeComposerType } from "@/lib/brag";
 import {
   applyReputationDelta,
   calculateReputationLevel,
@@ -89,16 +89,6 @@ export async function createPost(formData: FormData) {
   }
   const tagNames = formData.getAll("tags") as string[];
   const productIds = formData.getAll("productIds") as string[];
-  const bragDetailsRaw = formData.get("bragDetails") as string | null;
-
-  let bragDetails = null;
-  if (bragDetailsRaw) {
-    try {
-      bragDetails = compactBragDetails(JSON.parse(bragDetailsRaw));
-    } catch {
-      bragDetails = null;
-    }
-  }
 
   const hasMedia = mediaUrls.filter(Boolean).length > 0;
 
@@ -109,7 +99,6 @@ export async function createPost(formData: FormData) {
       content,
       title: title || undefined,
       location: location || undefined,
-      bragDetails: bragDetails ?? undefined,
       bragScore: 0,
       media: {
         create: mediaUrls.filter(Boolean).map((url, i) => ({
