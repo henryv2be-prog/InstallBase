@@ -4,9 +4,10 @@ import { AppShell, AppShellFallback } from "@/components/layout/app-shell";
 import { AppPageSkeleton } from "@/components/layout/app-page-skeleton";
 import { NotificationPrompt } from "@/components/pwa/notification-prompt";
 import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
-import { SessionProvider } from "@/components/providers/session-provider";
 import { getVapidPublicKey } from "@/lib/vapid";
 import { getActivityCounts } from "@/lib/queries";
+
+export const dynamic = "force-dynamic";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -29,10 +30,10 @@ async function AppLayoutSession({ children }: { children: React.ReactNode }) {
   const activityCount = user?.id ? (await getActivityCounts(user.id)).total : 0;
 
   return (
-    <SessionProvider session={session}>
+    <>
       <AppShell user={user} activityCount={activityCount}>{children}</AppShell>
       {user ? <PresenceHeartbeat /> : null}
       {user && vapidPublicKey ? <NotificationPrompt vapidPublicKey={vapidPublicKey} /> : null}
-    </SessionProvider>
+    </>
   );
 }

@@ -20,6 +20,7 @@ import { TrendingUp } from "lucide-react";
 import { DiscoverTabs } from "@/components/discover/discover-tabs";
 
 export const metadata = { title: "Explore" };
+export const dynamic = "force-dynamic";
 
 interface DiscoverPageProps {
   searchParams: Promise<{ tab?: string }>;
@@ -145,11 +146,12 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                 <p className="mt-2 text-sm text-blue-600">⭐ {formatNumber(installer.reputationScore)}</p>
                 {userId !== installer.userId && (
                   <div className="mt-3">
-                    <FollowButton
-                      userId={installer.userId}
-                      currentUserId={userId}
-                      initialFollowing={followingSet.has(installer.userId)}
-                    />
+                  <FollowButton
+                    userId={installer.userId}
+                    currentUserId={userId}
+                    initialFollowing={followingSet.has(installer.userId)}
+                    targetName={installer.user.name ?? undefined}
+                  />
                   </div>
                 )}
               </div>

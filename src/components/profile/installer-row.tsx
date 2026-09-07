@@ -40,6 +40,7 @@ export function InstallerRow({
           currentUserId={currentUserId}
           initialFollowing={isFollowing}
           followsYou={followsYou}
+          targetName={name ?? undefined}
         />
       )}
     </div>

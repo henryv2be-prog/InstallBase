@@ -78,9 +78,10 @@ interface CreatePostCardProps {
   userName?: string | null;
   userImage?: string | null;
   compact?: boolean;
+  autoOpenFile?: boolean;
 }
 
-export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
+export function CreatePostCard({ userName, compact, autoOpenFile }: CreatePostCardProps) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, startTransition] = useTransition();
@@ -138,6 +139,12 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (autoOpenFile && hydrated && media.length === 0) {
+      fileRef.current?.click();
+    }
+  }, [autoOpenFile, hydrated, media.length]);
 
   const uploading = media.some((item) => item.status === "uploading");
   const readyUrls = media.filter((item) => item.status === "ready" && item.serverUrl).map((item) => item.serverUrl!);

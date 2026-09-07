@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { addComment } from "@/lib/actions";
+import { addComment, getCommentPreview } from "@/lib/actions";
 import { getInitials } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { toast } from "sonner";
 import { GuestInlineCta } from "@/components/auth/guest-cta";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 
 interface Comment {
   id: string;
@@ -26,17 +26,34 @@ interface Comment {
 export function InlineComments({
   postId,
   commentCount,
-  comments,
+  initialComments = [],
   currentUserId,
+  defaultOpen = false,
 }: {
   postId: string;
   commentCount: number;
-  comments: Comment[];
+  initialComments?: Comment[];
   currentUserId?: string;
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [content, setContent] = useState("");
+  const [comments, setComments] = useState<Comment[]>(initialComments);
+  const [loaded, setLoaded] = useState(initialComments.length > 0);
+  const [loading, setLoading] = useState(false);
   const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!open || loaded) return;
+    setLoading(true);
+    getCommentPreview(postId)
+      .then((rows) => {
+        setComments(rows.reverse());
+        setLoaded(true);
+      })
+      .catch(() => toast.error("Could not load comments"))
+      .finally(() => setLoading(false));
+  }, [open, loaded, postId]);
 
   const handleSubmit = () => {
     if (!content.trim()) return;
@@ -49,11 +66,16 @@ export function InlineComments({
         await addComment(postId, content);
         setContent("");
         toast.success("Comment added");
+        const rows = await getCommentPreview(postId);
+        setComments(rows.reverse());
+        setLoaded(true);
       } catch {
         toast.error("Failed to add comment");
       }
     });
   };
+
+  if (commentCount === 0 && !open) return null;
 
   return (
     <div className="border-t border-border pt-3">
@@ -85,7 +107,14 @@ export function InlineComments({
             <GuestInlineCta action="comment on this install" next={`/post/${postId}`} />
           )}
 
-          {comments.slice(0, 3).map((comment) => (
+          {loading && (
+            <div className="flex items-center gap-2 text-sm text-muted">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading comments...
+            </div>
+          )}
+
+          {comments.map((comment) => (
             <div key={comment.id} className="flex gap-2">
               <Avatar className="h-7 w-7">
                 <AvatarImage src={comment.author.image ?? undefined} />
@@ -110,7 +139,7 @@ export function InlineComments({
             </div>
           ))}
 
-          {commentCount > 3 && (
+          {commentCount > comments.length && (
             <Link href={`/post/${postId}`} className="text-sm font-semibold text-blue-600 hover:underline dark:text-cyan-400">
               View all {commentCount} comments
             </Link>

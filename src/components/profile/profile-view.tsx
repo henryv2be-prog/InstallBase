@@ -12,6 +12,7 @@ import { PostFeed } from "@/components/feed/post-card";
 import { getReputationLabel, getExperienceLabel } from "@/lib/utils";
 import { FollowButton } from "@/components/profile/follow-button";
 import { signupHref } from "@/lib/auth-urls";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 interface ProfilePageProps {
   username: string;
@@ -87,6 +88,7 @@ export async function ProfileView({ username }: ProfilePageProps) {
                     currentUserId={session?.user?.id}
                     initialFollowing={alreadyFollowing}
                     followsYou={followsYou}
+                    targetName={user.name ?? undefined}
                   />
                   {session?.user ? (
                     <Link href={`/activity?tab=messages&user=${profile.username}`}>
@@ -106,9 +108,14 @@ export async function ProfileView({ username }: ProfilePageProps) {
                 </>
               )}
               {isOwnProfile && (
-                <Link href="/settings">
-                  <Button variant="outline" size="sm">Edit Profile</Button>
-                </Link>
+                <div className="flex flex-wrap gap-2">
+                  <Link href="/settings">
+                    <Button variant="outline" size="sm">Edit Profile</Button>
+                  </Link>
+                  <div className="sm:hidden">
+                    <LogoutButton compact />
+                  </div>
+                </div>
               )}
             </div>
           </div>

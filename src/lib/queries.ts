@@ -499,6 +499,19 @@ export async function getBookmarkedPosts(userId: string, limit = 30) {
   return withViewerState(posts, userId);
 }
 
+export async function getCommentPreview(postId: string, limit = 3) {
+  return prisma.comment.findMany({
+    where: { postId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: { author: { include: { profile: true } } },
+  });
+}
+
+export async function getSuggestedSearchTerms() {
+  return ["Hikvision", "PoE", "ANPR", "Ubiquiti", "CCTV", "access control"];
+}
+
 export async function getConversations(userId: string) {
   return prisma.conversationParticipant.findMany({
     where: { userId },

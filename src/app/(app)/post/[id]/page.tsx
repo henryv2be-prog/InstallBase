@@ -4,9 +4,13 @@ import { getPost } from "@/lib/queries";
 import { PostCard } from "@/components/feed/post-card";
 import { QuestionAnswers } from "@/components/feed/question-answers";
 import { CommentSection } from "@/components/feed/comment-section";
+import { BackLink } from "@/components/ui/back-link";
+
+export const dynamic = "force-dynamic";
 
 interface PostPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
 }
 
 export async function generateMetadata({ params }: PostPageProps) {
@@ -15,14 +19,16 @@ export async function generateMetadata({ params }: PostPageProps) {
   return { title: post?.title ?? "Post" };
 }
 
-export default async function PostDetailPage({ params }: PostPageProps) {
+export default async function PostDetailPage({ params, searchParams }: PostPageProps) {
   const { id } = await params;
+  const { from } = await searchParams;
   const session = await auth();
   const post = await getPost(id, session?.user?.id);
   if (!post) notFound();
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 animate-fade-in">
+      {from === "activity" && <BackLink href="/activity" label="Back to Activity" />}
       <PostCard post={post} currentUserId={session?.user?.id} showFull />
       {post.type === "QUESTION" ? (
         <QuestionAnswers

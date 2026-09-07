@@ -15,7 +15,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
 import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { Button } from "@/components/ui/button";
-import { cn, getReputationLabel } from "@/lib/utils";
+import { cn, getReputationLabel, getFeedReasonLabel } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { MediaGallery } from "@/components/ui/media-gallery";
 import { PostOptionsMenu } from "@/components/feed/post-options-menu";
@@ -35,9 +35,18 @@ interface PostCardProps {
   currentUserId?: string;
   showFull?: boolean;
   showInlineComments?: boolean;
+  feedContext?: "following" | "popular";
+  followingIds?: Set<string>;
 }
 
-export function PostCard({ post, currentUserId, showFull = false, showInlineComments = false }: PostCardProps) {
+export function PostCard({
+  post,
+  currentUserId,
+  showFull = false,
+  showInlineComments = false,
+  feedContext,
+  followingIds,
+}: PostCardProps) {
   const [pending, startTransition] = useTransition();
   const [commentsOpen, setCommentsOpen] = useState(false);
   const profile = post.author.profile;
@@ -47,6 +56,7 @@ export function PostCard({ post, currentUserId, showFull = false, showInlineComm
   const bragDetails = compactBragDetails(post.bragDetails);
   const canBrag = isBraggableType(post.type);
   const commentCount = post.type === "QUESTION" ? post._count.answers : post._count.comments;
+  const reasonLabel = feedContext ? getFeedReasonLabel(post, feedContext, followingIds) : null;
 
   const handleShare = async () => {
     const url = `${window.location.origin}/post/${post.id}`;
@@ -117,6 +127,9 @@ export function PostCard({ post, currentUserId, showFull = false, showInlineComm
       )}
     >
       <div className="p-5">
+        {reasonLabel && (
+          <p className="mb-3 text-xs font-medium text-muted">{reasonLabel}</p>
+        )}
         <div className="flex items-start justify-between gap-3">
           <Link href={`/profile/${profile?.username}`} className="flex items-center gap-3 group">
             <PresenceAvatar
@@ -225,6 +238,7 @@ export function PostCard({ post, currentUserId, showFull = false, showInlineComm
               onClick={() => handleAction(() => toggleLike(post.id))}
               className={cn(isLiked && "text-red-500")}
               aria-label="Like"
+              title={currentUserId ? "Like" : "Join to like posts"}
             >
               <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
               {post._count.likes}
@@ -257,7 +271,7 @@ export function PostCard({ post, currentUserId, showFull = false, showInlineComm
                 onClick={() => handleAction(() => toggleBragPoint(post.id))}
                 className={cn(hasBragged && "text-orange-500")}
                 aria-label="Give brag points"
-                title="Give brag points"
+                title={currentUserId ? "Give brag points" : "Join to give brag points"}
               >
                 <Trophy className={cn("h-4 w-4", hasBragged && "fill-current")} />
                 {post.bragScore}
@@ -306,8 +320,8 @@ export function PostCard({ post, currentUserId, showFull = false, showInlineComm
           <InlineComments
             postId={post.id}
             commentCount={commentCount}
-            comments={[]}
             currentUserId={currentUserId}
+            defaultOpen
           />
         )}
       </div>
@@ -319,16 +333,20 @@ export function PostFeed({
   posts,
   currentUserId,
   showInlineComments = false,
+  feedContext,
+  followingIds,
 }: {
   posts: PostCardData[];
   currentUserId?: string;
   showInlineComments?: boolean;
+  feedContext?: "following" | "popular";
+  followingIds?: Set<string>;
 }) {
   if (posts.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-900">
-        <p className="text-lg font-semibold text-gray-900 dark:text-white">No posts yet</p>
-        <p className="mt-2 text-gray-500">Be the first to share an installation!</p>
+      <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
+        <p className="font-semibold text-foreground">No posts yet</p>
+        <p className="mt-2 text-sm text-muted">Be the first to share an installation!</p>
       </div>
     );
   }
@@ -341,6 +359,8 @@ export function PostFeed({
           post={post}
           currentUserId={currentUserId}
           showInlineComments={showInlineComments}
+          feedContext={feedContext}
+          followingIds={followingIds}
         />
       ))}
     </div>

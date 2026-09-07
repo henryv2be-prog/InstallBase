@@ -5,7 +5,7 @@ import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { auth } from "@/lib/auth";
 import { FollowButton } from "@/components/profile/follow-button";
 
-export async function SearchResults({ query }: { query: string }) {
+export async function SearchResults({ query, filter = "all" }: { query: string; filter?: string }) {
   const session = await auth();
   const userId = session?.user?.id;
   const [results, followingIds] = await Promise.all([
@@ -14,11 +14,16 @@ export async function SearchResults({ query }: { query: string }) {
   ]);
   const followingSet = new Set(followingIds);
 
+  const showUsers = filter === "all" || filter === "installers";
+  const showPosts = filter === "all" || filter === "posts";
+  const showProducts = filter === "all" || filter === "products";
+  const showProjects = filter === "all" || filter === "projects";
+
   const total =
-    results.users.length +
-    results.posts.length +
-    results.products.length +
-    results.projects.length;
+    (showUsers ? results.users.length : 0) +
+    (showPosts ? results.posts.length : 0) +
+    (showProducts ? results.products.length : 0) +
+    (showProjects ? results.projects.length : 0);
 
   if (total === 0) {
     return (
@@ -34,7 +39,7 @@ export async function SearchResults({ query }: { query: string }) {
         Found {total} result{total === 1 ? "" : "s"} for &ldquo;{query}&rdquo;
       </p>
 
-      {results.users.length > 0 && (
+      {showUsers && results.users.length > 0 && (
         <section>
           <h2 className="mb-3 font-bold">Installers ({results.users.length})</h2>
           <div className="space-y-2">
@@ -59,6 +64,7 @@ export async function SearchResults({ query }: { query: string }) {
                     userId={user.userId}
                     currentUserId={session?.user?.id}
                     initialFollowing={followingSet.has(user.userId)}
+                    targetName={user.user.name ?? undefined}
                   />
                 )}
               </div>
@@ -67,9 +73,9 @@ export async function SearchResults({ query }: { query: string }) {
         </section>
       )}
 
-      {results.posts.length > 0 && (
+      {showPosts && results.posts.length > 0 && (
         <section>
-          <h2 className="mb-3 font-bold">Posts</h2>
+          <h2 className="mb-3 font-bold">Posts ({results.posts.length})</h2>
           <div className="space-y-4">
             {results.posts.map((post) => (
               <PostCard key={post.id} post={post} currentUserId={session?.user?.id} />
@@ -78,9 +84,9 @@ export async function SearchResults({ query }: { query: string }) {
         </section>
       )}
 
-      {results.products.length > 0 && (
+      {showProducts && results.products.length > 0 && (
         <section>
-          <h2 className="mb-3 font-bold">Products</h2>
+          <h2 className="mb-3 font-bold">Products ({results.products.length})</h2>
           <div className="grid gap-2 sm:grid-cols-2">
             {results.products.map((product) => (
               <Link
@@ -96,9 +102,9 @@ export async function SearchResults({ query }: { query: string }) {
         </section>
       )}
 
-      {results.projects.length > 0 && (
+      {showProjects && results.projects.length > 0 && (
         <section>
-          <h2 className="mb-3 font-bold">Projects</h2>
+          <h2 className="mb-3 font-bold">Projects ({results.projects.length})</h2>
           <div className="space-y-2">
             {results.projects.map((project) => (
               <Link

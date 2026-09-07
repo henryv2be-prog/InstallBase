@@ -7,7 +7,7 @@ import { auth, signIn } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
 import { getUploadDir, uploadPublicPath } from "@/lib/uploads";
 import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
-import { getOrCreateConversation } from "@/lib/queries";
+import { getOrCreateConversation, getCommentPreview as fetchCommentPreview } from "@/lib/queries";
 import { notifyUser } from "@/lib/notify";
 import { sendPushToUser } from "@/lib/push";
 import { isPushConfigured } from "@/lib/vapid";
@@ -250,6 +250,10 @@ export async function addComment(postId: string, content: string) {
   revalidatePath("/feed");
   revalidatePath(`/post/${postId}`);
   return { success: true };
+}
+
+export async function getCommentPreview(postId: string, limit = 3) {
+  return fetchCommentPreview(postId, limit);
 }
 
 export async function toggleFollow(userId: string) {
@@ -630,6 +634,49 @@ export async function updateProfile(formData: FormData) {
 
   revalidatePath("/settings");
   revalidatePath(`/profile/${profile.username}`);
+  return { success: true };
+}
+
+export async function updateAvatar(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const file = formData.get("file") as File | null;
+  if (!file) return { error: "No file provided" };
+
+  const uploadForm = new FormData();
+  uploadForm.append("file", file);
+  const result = await uploadImage(uploadForm);
+  if (result.error || !result.url) return { error: result.error ?? "Upload failed" };
+
+  const profile = await prisma.profile.findUnique({ where: { userId } });
+  await prisma.user.update({
+    where: { id: userId },
+    data: { image: result.url },
+  });
+
+  if (profile) revalidatePath(`/profile/${profile.username}`);
+  revalidatePath("/settings");
+  return { success: true, url: result.url };
+}
+
+export async function changePassword(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const current = formData.get("currentPassword") as string;
+  const next = formData.get("newPassword") as string;
+
+  if (!current || !next) return { error: "Please fill in both password fields" };
+  if (next.length < 8) return { error: "New password must be at least 8 characters" };
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user?.passwordHash) return { error: "Password change is not available for this account" };
+
+  const valid = await bcrypt.compare(current, user.passwordHash);
+  if (!valid) return { error: "Current password is incorrect" };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: await bcrypt.hash(next, 12) },
+  });
+
   return { success: true };
 }
 

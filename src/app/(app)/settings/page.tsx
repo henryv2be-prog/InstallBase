@@ -7,11 +7,14 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PushNotificationToggle } from "@/components/pwa/push-toggle";
 import { ProfileSettingsForm } from "@/components/settings/profile-settings-form";
+import { AvatarUpload } from "@/components/settings/avatar-upload";
+import { PasswordChangeForm } from "@/components/settings/password-change-form";
 import { getVapidPublicKey } from "@/lib/vapid";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
 import { LogoutButton } from "@/components/auth/logout-button";
 
 export const metadata = { title: "Settings" };
+export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -52,7 +55,8 @@ export default async function SettingsPage() {
         <CardHeader>
           <CardTitle>Profile</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          <AvatarUpload name={user.name} image={user.image} />
           <ProfileSettingsForm
             name={user.name ?? ""}
             username={profile.username}
@@ -102,6 +106,7 @@ export default async function SettingsPage() {
           <CardTitle>Account</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <PasswordChangeForm />
           <p className="text-sm text-muted">Sign out of InstallBase on this device.</p>
           <LogoutButton />
         </CardContent>
