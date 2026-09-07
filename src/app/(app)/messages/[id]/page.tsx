@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { markConversationMessagesRead } from "@/lib/notification-read";
 import { notFound } from "next/navigation";
 import { MessageThread } from "@/components/messages/message-thread";
 import { PresenceAvatar, LivePresenceLabel } from "@/components/presence/presence-avatar";
@@ -43,14 +44,7 @@ export default async function MessageThreadPage({ params }: MessageThreadPagePro
   const isParticipant = conversation.participants.some((p) => p.userId === userId);
   if (!isParticipant) notFound();
 
-  await prisma.message.updateMany({
-    where: {
-      conversationId: id,
-      senderId: { not: userId },
-      read: false,
-    },
-    data: { read: true },
-  });
+  await markConversationMessagesRead(id, userId);
 
   const other = conversation.participants.find((p) => p.userId !== userId)?.user;
 

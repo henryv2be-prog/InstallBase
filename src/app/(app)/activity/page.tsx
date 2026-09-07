@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { MarkReadButton } from "@/components/notifications/mark-read-button";
+import { NotificationItem } from "@/components/notifications/notification-item";
 import { EnableAlertsCta } from "@/components/pwa/enable-alerts-cta";
 import { getVapidPublicKey } from "@/lib/vapid";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
@@ -76,9 +77,11 @@ async function NotificationsList({ userId }: { userId: string }) {
   const earlierNotifications = notifications.filter((n) => !isToday(n.createdAt));
 
   const renderNotification = (notification: (typeof notifications)[number]) => (
-    <Link
+    <NotificationItem
       key={notification.id}
+      id={notification.id}
       href={notification.link ?? "#"}
+      read={notification.read}
       className={`flex items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${
         notification.read
           ? "border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
@@ -98,7 +101,7 @@ async function NotificationsList({ userId }: { userId: string }) {
           <RelativeTime date={notification.createdAt} />
         </p>
       </div>
-    </Link>
+    </NotificationItem>
   );
 
   return (

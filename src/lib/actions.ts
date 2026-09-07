@@ -9,6 +9,7 @@ import { getUploadDir, uploadPublicPath } from "@/lib/uploads";
 import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
 import { getOrCreateConversation, getCommentPreview as fetchCommentPreview } from "@/lib/queries";
 import { notifyUser } from "@/lib/notify";
+import { revalidateActivityPaths, markNotificationsReadForUser } from "@/lib/notification-read";
 import { sendPushToUser } from "@/lib/push";
 import { isPushConfigured } from "@/lib/vapid";
 import { compactBragDetails, isBraggableType, normalizeComposerType } from "@/lib/brag";
@@ -480,13 +481,20 @@ export async function startConversation(targetUserId: string, content: string) {
   return { conversationId: conversation.id };
 }
 
+export async function markNotificationRead(notificationId: string) {
+  const userId = await getCurrentUserId();
+  await markNotificationsReadForUser(userId, { id: notificationId });
+  revalidateActivityPaths();
+  return { success: true };
+}
+
 export async function markNotificationsRead() {
   const userId = await getCurrentUserId();
   await prisma.notification.updateMany({
     where: { userId, read: false },
     data: { read: true },
   });
-  revalidatePath("/notifications");
+  revalidateActivityPaths();
   return { success: true };
 }
 
