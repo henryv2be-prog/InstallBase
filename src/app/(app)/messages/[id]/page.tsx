@@ -5,14 +5,17 @@ import { notFound } from "next/navigation";
 import { MessageThread } from "@/components/messages/message-thread";
 import { PresenceAvatar, LivePresenceLabel } from "@/components/presence/presence-avatar";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
+import { BackLink } from "@/components/ui/back-link";
 import Link from "next/link";
 
 interface MessageThreadPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
 }
 
-export default async function MessageThreadPage({ params }: MessageThreadPageProps) {
+export default async function MessageThreadPage({ params, searchParams }: MessageThreadPageProps) {
   const { id } = await params;
+  const { from } = await searchParams;
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) {
@@ -50,6 +53,7 @@ export default async function MessageThreadPage({ params }: MessageThreadPagePro
 
   return (
     <div className="mx-auto max-w-2xl animate-fade-in">
+      {from === "activity" && <BackLink href="/activity?tab=messages" label="Back to Activity" />}
       <div className="mb-4 flex items-center gap-3">
         {other ? (
           <Link href={other.profile ? `/profile/${other.profile.username}` : "#"} className="flex min-w-0 items-center gap-3">

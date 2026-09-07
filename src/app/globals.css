@@ -210,6 +210,20 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+.brag-accent {
+  color: var(--brag);
+}
+
+.brag-card {
+  border-color: color-mix(in srgb, var(--brag) 40%, var(--border));
+  background: color-mix(in srgb, var(--brag) 6%, var(--card));
+}
+
+.brag-card-header {
+  background: linear-gradient(90deg, var(--brag), color-mix(in srgb, var(--brag) 70%, #fbbf24));
+  color: white;
+}
+
 .safe-top {
   padding-top: env(safe-area-inset-top);
 }

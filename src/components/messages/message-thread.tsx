@@ -70,10 +70,10 @@ export function MessageThread({
   };
 
   return (
-    <div className="flex h-[calc(100dvh-11rem-env(safe-area-inset-bottom))] flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+    <div className="glass-card flex h-[calc(100dvh-11rem-env(safe-area-inset-bottom))] flex-col rounded-2xl">
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 && (
-          <p className="py-8 text-center text-sm text-gray-500">
+          <p className="py-8 text-center text-sm text-muted">
             No messages yet. Say hello!
           </p>
         )}
@@ -91,7 +91,7 @@ export function MessageThread({
                 className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
                   isOwn
                     ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+                    : "bg-card text-foreground"
                 }`}
               >
                 {msg.content}
@@ -101,7 +101,7 @@ export function MessageThread({
         })}
         <div ref={bottomRef} />
       </div>
-      <div className="flex gap-2 border-t border-gray-200 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:border-gray-800">
+      <div className="flex gap-2 border-t border-border p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <Input
           value={content}
           onChange={(e) => setContent(e.target.value)}

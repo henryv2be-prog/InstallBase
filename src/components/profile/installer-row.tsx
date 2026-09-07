@@ -26,12 +26,12 @@ export function InstallerRow({
   const isSelf = currentUserId === userId;
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
+    <div className="glass-card flex items-center gap-3 rounded-xl p-3">
       <Link href={username ? `/profile/${username}` : "#"} className="flex min-w-0 flex-1 items-center gap-3">
         <PresenceAvatar src={image} name={name} lastSeenAt={lastSeenAt} />
         <div className="min-w-0">
           <p className="truncate font-semibold">{name}</p>
-          {username && <p className="truncate text-sm text-gray-500">@{username}</p>}
+          {username && <p className="truncate text-sm text-muted">@{username}</p>}
         </div>
       </Link>
       {!isSelf && (

@@ -9,13 +9,26 @@ interface EmptyStateProps {
   description?: string;
   action?: { label: string; href: string };
   children?: ReactNode;
+  variant?: "default" | "brag";
 }
 
-export function EmptyState({ icon: Icon, title, description, action, children }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+  children,
+  variant = "default",
+}: EmptyStateProps) {
+  const iconClass =
+    variant === "brag"
+      ? "bg-brag/15 text-brag"
+      : "bg-blue-500/10 text-blue-600 dark:text-cyan-400";
+
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
+    <div className="glass-card rounded-2xl border border-dashed border-border p-10 text-center">
       {Icon && (
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 dark:text-cyan-400">
+        <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ${iconClass}`}>
           <Icon className="h-6 w-6" />
         </div>
       )}

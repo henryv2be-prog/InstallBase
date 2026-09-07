@@ -30,6 +30,8 @@ import { toast } from "sonner";
 import type { PostCardData } from "@/lib/queries";
 import { compactBragDetails, isBraggableType } from "@/lib/brag";
 import { promptJoin } from "@/components/auth/guest-cta";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Camera } from "lucide-react";
 
 interface PostCardProps {
   post: PostCardData;
@@ -355,7 +357,7 @@ export function PostCard({
         </div>
 
         {canBrag && bragScore > 0 && (
-          <div className="mt-2 text-center text-sm font-semibold text-orange-600">
+          <div className="mt-2 text-center text-sm font-semibold brag-accent">
             🏆 {bragScore} Brag Points
           </div>
         )}
@@ -379,19 +381,27 @@ export function PostFeed({
   showInlineComments = false,
   feedContext,
   followingIds,
+  emptyTitle = "No posts yet",
+  emptyDescription = "Be the first to share an installation!",
+  emptyAction,
 }: {
   posts: PostCardData[];
   currentUserId?: string;
   showInlineComments?: boolean;
   feedContext?: "following" | "popular";
   followingIds?: Set<string>;
+  emptyTitle?: string;
+  emptyDescription?: string;
+  emptyAction?: { label: string; href: string };
 }) {
   if (posts.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
-        <p className="font-semibold text-foreground">No posts yet</p>
-        <p className="mt-2 text-sm text-muted">Be the first to share an installation!</p>
-      </div>
+      <EmptyState
+        icon={Camera}
+        title={emptyTitle}
+        description={emptyDescription}
+        action={emptyAction}
+      />
     );
   }
 

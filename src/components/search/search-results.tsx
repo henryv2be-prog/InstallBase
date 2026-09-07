@@ -4,6 +4,8 @@ import { PostCard } from "@/components/feed/post-card";
 import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { auth } from "@/lib/auth";
 import { FollowButton } from "@/components/profile/follow-button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Search } from "lucide-react";
 
 export async function SearchResults({ query, filter = "all" }: { query: string; filter?: string }) {
   const session = await auth();
@@ -27,9 +29,11 @@ export async function SearchResults({ query, filter = "all" }: { query: string; 
 
   if (total === 0) {
     return (
-      <p className="mt-6 text-gray-500">
-        No results for &ldquo;{query}&rdquo;. Try Hikvision, ANPR, PoE, or a city name.
-      </p>
+      <EmptyState
+        icon={Search}
+        title={`No results for "${query}"`}
+        description="Try Hikvision, ANPR, PoE, Ubiquiti, or a city name."
+      />
     );
   }
 
@@ -46,7 +50,7 @@ export async function SearchResults({ query, filter = "all" }: { query: string; 
             {results.users.map((user) => (
               <div
                 key={user.id}
-                className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
+                className="glass-card flex items-center gap-3 rounded-xl p-3"
               >
                 <Link href={`/profile/${user.username}`} className="flex min-w-0 flex-1 items-center gap-3">
                   <PresenceAvatar
@@ -56,7 +60,7 @@ export async function SearchResults({ query, filter = "all" }: { query: string; 
                   />
                   <div className="min-w-0">
                     <p className="truncate font-semibold">{user.user.name}</p>
-                    <p className="truncate text-sm text-gray-500">@{user.username}</p>
+                    <p className="truncate text-sm text-muted">@{user.username}</p>
                   </div>
                 </Link>
                 {session?.user?.id !== user.userId && (
@@ -92,10 +96,10 @@ export async function SearchResults({ query, filter = "all" }: { query: string; 
               <Link
                 key={product.id}
                 href={`/products/${product.slug}`}
-                className="rounded-xl border border-gray-200 bg-white p-4 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                className="glass-card rounded-xl p-4 hover:shadow-sm"
               >
                 <p className="font-semibold">{product.name}</p>
-                <p className="text-sm text-gray-500">{product.brand?.name}</p>
+                <p className="text-sm text-muted">{product.brand?.name}</p>
               </Link>
             ))}
           </div>
@@ -113,7 +117,7 @@ export async function SearchResults({ query, filter = "all" }: { query: string; 
                 className="block rounded-xl border border-gray-200 bg-white p-4 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900"
               >
                 <p className="font-semibold">{project.title}</p>
-                <p className="text-sm text-gray-500 line-clamp-1">{project.description}</p>
+                <p className="text-sm text-muted line-clamp-1">{project.description}</p>
               </Link>
             ))}
           </div>

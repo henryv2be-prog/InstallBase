@@ -15,6 +15,7 @@ import { PresenceAvatar, PresenceLabel } from "@/components/presence/presence-av
 import { ActivityTabs } from "@/components/activity/activity-tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Bell, MessageSquare } from "lucide-react";
+import { withFromActivity } from "@/lib/navigation";
 import { notFound, redirect } from "next/navigation";
 
 export const metadata = { title: "Activity" };
@@ -170,17 +171,17 @@ async function MessagesList({ userId }: { userId: string }) {
           return (
             <Link
               key={conversation.id}
-              href={`/messages/${conversation.id}`}
-              className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900"
+              href={withFromActivity(`/messages/${conversation.id}`)}
+              className="glass-card flex items-center gap-3 rounded-xl p-4 transition-shadow hover:shadow-sm"
             >
               <PresenceAvatar src={other?.image} name={other?.name} lastSeenAt={other?.lastSeenAt} />
               <div className="flex-1 overflow-hidden">
                 <p className="font-semibold">{other?.name}</p>
-                <p className="truncate text-sm text-gray-500">{lastMessage?.content ?? "No messages yet"}</p>
+                <p className="truncate text-sm text-muted">{lastMessage?.content ?? "No messages yet"}</p>
                 <PresenceLabel lastSeenAt={other?.lastSeenAt} className="text-xs" />
               </div>
               {lastMessage && (
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-muted">
                   <RelativeTime date={lastMessage.createdAt} />
                 </span>
               )}

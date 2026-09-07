@@ -310,16 +310,42 @@ export function CreatePostCard({ userName, compact, autoOpenFile }: CreatePostCa
   );
 
   if (compact && !expanded) {
+    const openPhoto = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setType("POST");
+      setExpanded(true);
+      requestAnimationFrame(() => fileRef.current?.click());
+    };
+    const openQuestion = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setType("QUESTION");
+      setExpanded(true);
+    };
+
     return (
-      <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => setExpanded(true)}>
+      <Card className="glass-card cursor-pointer transition-shadow hover:shadow-md" onClick={() => setExpanded(true)}>
         {fileInput}
         <CardContent className="p-4">
-          <p className="text-gray-500">
+          <p className="text-muted">
             What&apos;s happening on your install, {userName?.split(" ")[0] ?? "installer"}?
           </p>
-          <div className="mt-3 flex gap-3 text-sm text-muted">
-            <span className="flex items-center gap-1 text-blue-600"><Camera className="h-4 w-4" /> Photo</span>
-            <span className="flex items-center gap-1"><HelpCircle className="h-4 w-4" /> Ask</span>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={openPhoto}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border bg-card/60 px-3 py-2 text-sm font-medium text-primary hover:bg-card"
+            >
+              <Camera className="h-4 w-4" />
+              Photo
+            </button>
+            <button
+              type="button"
+              onClick={openQuestion}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border bg-card/60 px-3 py-2 text-sm font-medium text-muted hover:bg-card hover:text-foreground"
+            >
+              <HelpCircle className="h-4 w-4" />
+              Ask
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -327,7 +353,7 @@ export function CreatePostCard({ userName, compact, autoOpenFile }: CreatePostCa
   }
 
   return (
-    <Card>
+    <Card className="glass-card">
       {fileInput}
       <CardContent className={cn("p-5", compact && "pt-5")}>
         <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">

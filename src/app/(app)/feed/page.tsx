@@ -7,6 +7,8 @@ import { BragTooltip } from "@/components/feed/brag-tooltip";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { FollowSuggestions } from "@/components/onboarding/follow-suggestions";
 import { PullToRefresh } from "@/components/feed/pull-to-refresh";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Users } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -52,14 +54,14 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         {userId && followingPosts.length === 0 ? <FollowSuggestions userId={userId} /> : null}
 
         <div>
-          <div className="flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
+          <div className="flex rounded-xl bg-card/60 p-1 border border-border">
             <Link
               href="/feed?tab=popular"
               className={cn(
                 "flex-1 rounded-lg py-2 text-center text-sm font-semibold",
                 !followingTab
-                  ? "bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-white"
-                  : "text-gray-500"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted"
               )}
             >
               Popular
@@ -70,15 +72,15 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
                 className={cn(
                   "flex-1 rounded-lg py-2 text-center text-sm font-semibold",
                   followingTab
-                    ? "bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-white"
-                    : "text-gray-500"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted"
                 )}
               >
                 Following
               </Link>
             ) : (
               <span
-                className="flex-1 cursor-not-allowed rounded-lg py-2 text-center text-sm font-semibold text-gray-400"
+                className="flex-1 cursor-not-allowed rounded-lg py-2 text-center text-sm font-semibold text-muted/60"
                 title="Join to follow installers"
               >
                 Following
@@ -99,10 +101,11 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             next="/feed?tab=following"
           />
         ) : followingTab && posts.length === 0 ? (
-          <GuestJoinCard
+          <EmptyState
+            icon={Users}
             title="No posts from people you follow"
-            body="Follow installers to see their work here."
-            next="/feed?tab=following"
+            description="Follow installers to see their work in this feed."
+            action={{ label: "Find installers", href: "/discover?tab=people" }}
           />
         ) : (
           <PostFeed

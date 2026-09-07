@@ -13,6 +13,8 @@ import { getReputationLabel, getExperienceLabel } from "@/lib/utils";
 import { FollowButton } from "@/components/profile/follow-button";
 import { signupHref } from "@/lib/auth-urls";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { FolderKanban, Bookmark } from "lucide-react";
 
 interface ProfilePageProps {
   username: string;
@@ -47,7 +49,7 @@ export async function ProfileView({ username }: ProfilePageProps) {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+      <div className="glass-card overflow-hidden rounded-2xl">
         <div className="relative h-32 bg-gradient-to-r from-blue-600 to-blue-800 sm:h-48">
           {profile.coverImage && (
             <Image src={profile.coverImage} alt="Cover" fill className="object-cover" />
@@ -71,10 +73,10 @@ export async function ProfileView({ username }: ProfilePageProps) {
                 <h1 className="text-2xl font-bold">{user.name}</h1>
                 {profile.verified && <VerifiedBadge />}
               </div>
-              <p className="text-gray-500">@{profile.username}</p>
+              <p className="text-muted">@{profile.username}</p>
               <PresenceLabel lastSeenAt={user.lastSeenAt} className="mt-1 block text-sm" />
               {(profile.city || profile.country) && (
-                <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
+                <p className="mt-1 flex items-center gap-1 text-sm text-muted">
                   <MapPin className="h-3.5 w-3.5" />
                   {[profile.city, profile.country].filter(Boolean).join(", ")}
                 </p>
@@ -136,12 +138,12 @@ export async function ProfileView({ username }: ProfilePageProps) {
             </Link>
           </div>
 
-          <p className="mt-2 text-sm font-medium text-blue-600">
+          <p className="mt-2 text-sm font-medium text-primary">
             {getReputationLabel(profile.reputationLevel)}
           </p>
 
           {profile.bio && (
-            <p className="mt-3 text-gray-700 dark:text-gray-300">{profile.bio}</p>
+            <p className="mt-3 text-foreground/80">{profile.bio}</p>
           )}
 
           <div className="mt-3 flex flex-wrap gap-2">
@@ -150,7 +152,7 @@ export async function ProfileView({ username }: ProfilePageProps) {
             ))}
           </div>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-muted">
             Experience: {getExperienceLabel(profile.experienceLevel)}
           </p>
         </div>
@@ -165,42 +167,65 @@ export async function ProfileView({ username }: ProfilePageProps) {
           {isOwnProfile && <TabsTrigger value="saved">Saved ({tabCounts.saved})</TabsTrigger>}
         </TabsList>
         <TabsContent value="posts">
-          <PostFeed posts={normalPosts} currentUserId={session?.user?.id} />
+          <PostFeed
+            posts={normalPosts}
+            currentUserId={session?.user?.id}
+            emptyTitle="No posts yet"
+            emptyDescription="Share installs, tips, or site photos."
+            emptyAction={{ label: "Create post", href: "/create" }}
+          />
         </TabsContent>
         <TabsContent value="brags">
           {bragPosts.length > 0 && (
             <p className="mb-3 text-sm text-muted">Brags on a profile never expire.</p>
           )}
-          <PostFeed posts={bragPosts} currentUserId={session?.user?.id} />
+          <PostFeed
+            posts={bragPosts}
+            currentUserId={session?.user?.id}
+            emptyTitle="No brags yet"
+            emptyDescription="Post an install with photos to start collecting brag points."
+            emptyAction={{ label: "Share an install", href: "/create" }}
+          />
         </TabsContent>
         <TabsContent value="projects">
           <div className="space-y-4">
             {user.projects.length === 0 ? (
-              <p className="text-center text-muted py-8">No projects yet</p>
+              <EmptyState
+                icon={FolderKanban}
+                title="No projects yet"
+                description="Document a full job with equipment lists and photos."
+              />
             ) : (
               user.projects.map((project) => (
                 <Link
                   key={project.id}
                   href={`/projects/${project.slug}`}
-                  className="block rounded-2xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-900"
+                  className="glass-card block rounded-2xl p-5 transition-shadow hover:shadow-md"
                 >
                   <h3 className="font-bold">{project.title}</h3>
-                  <p className="mt-1 text-sm text-gray-500 line-clamp-2">{project.description}</p>
+                  <p className="mt-1 text-sm text-muted line-clamp-2">{project.description}</p>
                 </Link>
               ))
             )}
           </div>
         </TabsContent>
         <TabsContent value="questions">
-          <PostFeed posts={questionPosts} currentUserId={session?.user?.id} />
+          <PostFeed
+            posts={questionPosts}
+            currentUserId={session?.user?.id}
+            emptyTitle="No questions yet"
+            emptyDescription="Ask the community for help with tricky installs."
+            emptyAction={{ label: "Ask a question", href: "/create" }}
+          />
         </TabsContent>
         {isOwnProfile && (
           <TabsContent value="saved">
             {savedPosts.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-300 p-12 text-center dark:border-gray-700">
-                <p className="font-semibold">No saved posts yet</p>
-                <p className="mt-2 text-sm text-muted">Tap the menu on any post and choose Save post.</p>
-              </div>
+              <EmptyState
+                icon={Bookmark}
+                title="No saved posts yet"
+                description="Tap the menu on any post and choose Save post."
+              />
             ) : (
               <PostFeed posts={savedPosts} currentUserId={session?.user?.id} />
             )}
