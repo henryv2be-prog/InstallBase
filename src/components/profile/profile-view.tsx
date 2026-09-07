@@ -22,7 +22,9 @@ export async function ProfileView({ username }: ProfilePageProps) {
 
   const session = await auth();
   const user = profile.user;
-  const bragPosts = user.posts.filter((p) => p.type === "BRAG");
+  const bragPosts = user.posts.filter(
+    (p) => p.type === "BRAG" || (p.type !== "QUESTION" && p.media.length > 0)
+  );
   const questionPosts = user.posts.filter((p) => p.type === "QUESTION");
   const normalPosts = user.posts.filter((p) => p.type === "POST" || p.type === "VIDEO");
   const isOwnProfile = session?.user?.id === user.id;

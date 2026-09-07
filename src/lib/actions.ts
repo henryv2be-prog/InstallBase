@@ -11,7 +11,8 @@ import { getOrCreateConversation } from "@/lib/queries";
 import { notifyUser } from "@/lib/notify";
 import { sendPushToUser } from "@/lib/push";
 import { isPushConfigured } from "@/lib/vapid";
-import type { PostType, ExperienceLevel } from "@/generated/prisma/client";
+import { compactBragDetails, isBraggableType, normalizeComposerType } from "@/lib/brag";
+import type { ExperienceLevel } from "@/generated/prisma/client";
 
 async function getCurrentUserId() {
   const session = await auth();
@@ -80,11 +81,11 @@ export async function registerUser(formData: FormData) {
 
 export async function createPost(formData: FormData) {
   const userId = await getCurrentUserId();
-  const type = formData.get("type") as PostType;
+  const mediaUrls = formData.getAll("mediaUrls") as string[];
+  const type = normalizeComposerType(formData.get("type") as string | null, mediaUrls);
   const content = ((formData.get("content") as string) || "").trim();
   const title = formData.get("title") as string | null;
   const location = formData.get("location") as string | null;
-  const mediaUrls = formData.getAll("mediaUrls") as string[];
   if (!content && mediaUrls.filter(Boolean).length === 0) {
     return { error: "Add a photo or write something first" };
   }
@@ -95,11 +96,13 @@ export async function createPost(formData: FormData) {
   let bragDetails = null;
   if (bragDetailsRaw) {
     try {
-      bragDetails = JSON.parse(bragDetailsRaw);
+      bragDetails = compactBragDetails(JSON.parse(bragDetailsRaw));
     } catch {
       bragDetails = null;
     }
   }
+
+  const hasMedia = mediaUrls.filter(Boolean).length > 0;
 
   const post = await prisma.post.create({
     data: {
@@ -109,7 +112,7 @@ export async function createPost(formData: FormData) {
       title: title || undefined,
       location: location || undefined,
       bragDetails: bragDetails ?? undefined,
-      bragScore: type === "BRAG" ? 0 : undefined,
+      bragScore: 0,
       media: {
         create: mediaUrls.filter(Boolean).map((url, i) => ({
           url,
@@ -133,7 +136,7 @@ export async function createPost(formData: FormData) {
     await prisma.postTag.create({ data: { postId: post.id, tagId: tag.id } });
   }
 
-  if (type === "BRAG") {
+  if (isBraggableType(type) && hasMedia) {
     await prisma.profile.update({
       where: { userId },
       data: { bragCount: { increment: 1 } },
@@ -194,6 +197,11 @@ export async function toggleBookmark(postId: string) {
 
 export async function toggleBragPoint(postId: string) {
   const userId = await getCurrentUserId();
+  const post = await prisma.post.findUnique({ where: { id: postId }, select: { type: true } });
+  if (!post || !isBraggableType(post.type)) {
+    return { error: "Brag points are for installation posts" };
+  }
+
   const existing = await prisma.bragPoint.findUnique({
     where: { postId_userId: { postId, userId } },
   });
