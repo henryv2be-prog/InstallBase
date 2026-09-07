@@ -190,6 +190,9 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                 <Button type="button" variant="outline" onClick={() => setStep(1)}>
                   Back
                 </Button>
+                <Button type="button" variant="ghost" className="text-muted" onClick={() => setStep(3)}>
+                  Skip
+                </Button>
                 <Button type="button" className="flex-1" onClick={() => setStep(3)}>
                   Continue
                 </Button>

@@ -5,47 +5,37 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   Compass,
-  Trophy,
-  HelpCircle,
-  FolderKanban,
+  Plus,
   Search,
   Bell,
-  MessageCircle,
-  Plus,
-  Briefcase,
-  Shield,
-  LogIn,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { LogoutButton } from "@/components/auth/logout-button";
+import { UserMenu } from "@/components/layout/user-menu";
+import { CountBadge } from "@/components/ui/count-badge";
 import { getInitials } from "@/lib/utils";
 
-const navItems = [
-  { href: "/feed", label: "Feed", icon: Home },
-  { href: "/discover", label: "Discover", icon: Compass },
-  { href: "/brags", label: "Brags", icon: Trophy },
-  { href: "/questions", label: "Questions", icon: HelpCircle },
-  { href: "/projects", label: "Projects", icon: FolderKanban },
+const desktopNav = [
+  { href: "/feed", label: "Home", icon: Home },
+  { href: "/discover", label: "Explore", icon: Compass },
 ];
 
 const memberMobileNav = [
   { href: "/feed", label: "Home", icon: Home },
-  { href: "/discover", label: "Discover", icon: Compass },
+  { href: "/discover", label: "Explore", icon: Compass },
   { href: "/create", label: "Create", icon: Plus, highlight: true },
-  { href: "/brags", label: "Brags", icon: Trophy },
+  { href: "/activity", label: "Activity", icon: Bell, badge: true },
   { href: "/profile", label: "Profile", icon: null },
 ];
 
 const guestMobileNav = [
   { href: "/feed", label: "Home", icon: Home },
-  { href: "/discover", label: "Discover", icon: Compass },
+  { href: "/discover", label: "Explore", icon: Compass },
   { href: "/signup", label: "Join", icon: Plus, highlight: true },
-  { href: "/brags", label: "Brags", icon: Trophy },
-  { href: "/login", label: "Log in", icon: LogIn },
+  { href: "/login", label: "Log in", icon: null },
 ];
 
 interface AppShellProps {
@@ -56,9 +46,10 @@ interface AppShellProps {
     username?: string;
     role?: string;
   } | null;
+  activityCount?: number;
 }
 
-export function AppShell({ children, user }: AppShellProps) {
+export function AppShell({ children, user, activityCount = 0 }: AppShellProps) {
   const pathname = usePathname();
   const signedIn = Boolean(user);
   const mobileNavItems = signedIn ? memberMobileNav : guestMobileNav;
@@ -72,7 +63,7 @@ export function AppShell({ children, user }: AppShellProps) {
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
-            {navItems.map((item) => {
+            {desktopNav.map((item) => {
               const Icon = item.icon;
               const active = pathname.startsWith(item.href);
               return (
@@ -94,7 +85,9 @@ export function AppShell({ children, user }: AppShellProps) {
           </nav>
 
           <div className="flex items-center gap-0.5 sm:gap-1">
-            <ThemeToggle />
+            <div className="hidden sm:block">
+              <ThemeToggle />
+            </div>
             <Link href="/search">
               <Button variant="ghost" size="icon" aria-label="Search">
                 <Search className="h-5 w-5" />
@@ -102,15 +95,11 @@ export function AppShell({ children, user }: AppShellProps) {
             </Link>
             {signedIn ? (
               <>
-                <Link href="/messages">
-                  <Button variant="ghost" size="icon" aria-label="Messages">
-                    <MessageCircle className="h-5 w-5" />
-                  </Button>
-                </Link>
-                <Link href="/notifications">
-                  <Button variant="ghost" size="icon" aria-label="Notifications">
+                <Link href="/activity" className="relative hidden md:inline-flex">
+                  <Button variant="ghost" size="icon" aria-label="Activity">
                     <Bell className="h-5 w-5" />
                   </Button>
+                  <CountBadge count={activityCount} />
                 </Link>
                 <Link href="/create" className="hidden sm:block">
                   <Button size="sm">
@@ -120,27 +109,17 @@ export function AppShell({ children, user }: AppShellProps) {
                 </Link>
                 {user?.role === "ADMIN" && (
                   <Link href="/admin" className="hidden sm:block">
-                    <Button variant="ghost" size="icon" aria-label="Admin">
-                      <Shield className="h-5 w-5" />
-                    </Button>
+                    <Button variant="ghost" size="sm">Admin</Button>
                   </Link>
                 )}
-                <Link href={user?.username ? `/profile/${user.username}` : "/profile"} className="hidden sm:block">
-                  <Avatar className="h-9 w-9 ring-2 ring-transparent transition-all hover:ring-blue-500/50">
-                    <AvatarImage src={user?.image ?? undefined} />
-                    <AvatarFallback>{getInitials(user?.name ?? "U")}</AvatarFallback>
-                  </Avatar>
-                </Link>
                 <div className="hidden sm:block">
-                  <LogoutButton compact />
+                  <UserMenu name={user?.name} image={user?.image} username={user?.username} />
                 </div>
               </>
             ) : (
               <>
                 <Link href="/login" className="hidden sm:block">
-                  <Button variant="ghost" size="sm">
-                    Log in
-                  </Button>
+                  <Button variant="ghost" size="sm">Log in</Button>
                 </Link>
                 <Link href="/signup">
                   <Button size="sm">Join</Button>
@@ -152,13 +131,9 @@ export function AppShell({ children, user }: AppShellProps) {
         {!signedIn && (
           <div className="border-t border-blue-500/15 bg-blue-500/10 px-3 py-2 text-center text-xs sm:text-sm">
             <span className="text-foreground/80">Browsing as a guest. Join to post, follow, and message.</span>
-            <Link href="/signup" className="ml-2 font-semibold text-blue-600 dark:text-cyan-400">
-              Join free
-            </Link>
+            <Link href="/signup" className="ml-2 font-semibold text-blue-600 dark:text-cyan-400">Join free</Link>
             <span className="mx-1.5 text-muted">·</span>
-            <Link href="/login" className="font-semibold hover:underline">
-              Log in
-            </Link>
+            <Link href="/login" className="font-semibold hover:underline">Log in</Link>
           </div>
         )}
       </header>
@@ -179,11 +154,17 @@ export function AppShell({ children, user }: AppShellProps) {
                 >
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={user?.image ?? undefined} />
-                    <AvatarFallback className="text-[10px]">
-                      {getInitials(user?.name ?? "U")}
-                    </AvatarFallback>
+                    <AvatarFallback className="text-[10px]">{getInitials(user?.name ?? "U")}</AvatarFallback>
                   </Avatar>
                   <span className="text-[10px] font-medium text-muted">{item.label}</span>
+                </Link>
+              );
+            }
+
+            if (item.href === "/login") {
+              return (
+                <Link key={item.href} href="/login" className="flex min-w-[3.25rem] flex-col items-center gap-0.5 p-2 text-muted">
+                  <span className="text-xs font-semibold">Log in</span>
                 </Link>
               );
             }
@@ -206,11 +187,12 @@ export function AppShell({ children, user }: AppShellProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex min-w-[3.25rem] flex-col items-center gap-0.5 p-2 transition-colors",
+                  "relative flex min-w-[3.25rem] flex-col items-center gap-0.5 p-2 transition-colors",
                   active ? "text-blue-600 dark:text-cyan-400" : "text-muted"
                 )}
               >
                 <Icon className="h-5 w-5" />
+                {"badge" in item && item.badge && <CountBadge count={activityCount} />}
                 <span className="text-[10px] font-medium">{item.label}</span>
               </Link>
             );
@@ -218,17 +200,5 @@ export function AppShell({ children, user }: AppShellProps) {
         </div>
       </nav>
     </div>
-  );
-}
-
-export function JobsLink() {
-  return (
-    <Link
-      href="/jobs"
-      className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-muted hover:bg-card hover:text-foreground"
-    >
-      <Briefcase className="h-4 w-4" />
-      Jobs
-    </Link>
   );
 }

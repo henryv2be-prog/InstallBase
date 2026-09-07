@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { MapPin, MessageCircle } from "lucide-react";
-import { getProfileByUsername } from "@/lib/queries";
+import { getProfileByUsername, getBookmarkedPosts } from "@/lib/queries";
 import { auth } from "@/lib/auth";
 import { PresenceAvatar, PresenceLabel } from "@/components/presence/presence-avatar";
 import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
@@ -31,6 +31,18 @@ export async function ProfileView({ username }: ProfilePageProps) {
   const isOwnProfile = session?.user?.id === user.id;
   const alreadyFollowing = profile.alreadyFollowing;
   const followsYou = profile.followsYou;
+
+  const savedPosts = isOwnProfile && session?.user?.id
+    ? await getBookmarkedPosts(session.user.id)
+    : [];
+
+  const tabCounts = {
+    posts: normalPosts.length,
+    brags: bragPosts.length,
+    projects: user.projects.length,
+    questions: questionPosts.length,
+    saved: savedPosts.length,
+  };
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -77,7 +89,7 @@ export async function ProfileView({ username }: ProfilePageProps) {
                     followsYou={followsYou}
                   />
                   {session?.user ? (
-                    <Link href={`/messages?user=${profile.username}`}>
+                    <Link href={`/activity?tab=messages&user=${profile.username}`}>
                       <Button variant="outline" size="sm">
                         <MessageCircle className="h-4 w-4" />
                         Message
@@ -138,11 +150,12 @@ export async function ProfileView({ username }: ProfilePageProps) {
       </div>
 
       <Tabs defaultValue="posts" className="mt-6">
-        <TabsList className="w-full">
-          <TabsTrigger value="posts" className="flex-1">Posts</TabsTrigger>
-          <TabsTrigger value="brags" className="flex-1">Brags</TabsTrigger>
-          <TabsTrigger value="projects" className="flex-1">Projects</TabsTrigger>
-          <TabsTrigger value="questions" className="flex-1">Questions</TabsTrigger>
+        <TabsList className="w-full flex-wrap h-auto gap-1">
+          <TabsTrigger value="posts">Posts ({tabCounts.posts})</TabsTrigger>
+          <TabsTrigger value="brags">Brags ({tabCounts.brags})</TabsTrigger>
+          <TabsTrigger value="projects">Projects ({tabCounts.projects})</TabsTrigger>
+          <TabsTrigger value="questions">Questions ({tabCounts.questions})</TabsTrigger>
+          {isOwnProfile && <TabsTrigger value="saved">Saved ({tabCounts.saved})</TabsTrigger>}
         </TabsList>
         <TabsContent value="posts">
           <PostFeed posts={normalPosts} currentUserId={session?.user?.id} />
@@ -155,21 +168,37 @@ export async function ProfileView({ username }: ProfilePageProps) {
         </TabsContent>
         <TabsContent value="projects">
           <div className="space-y-4">
-            {user.projects.map((project) => (
-              <Link
-                key={project.id}
-                href={`/projects/${project.slug}`}
-                className="block rounded-2xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-900"
-              >
-                <h3 className="font-bold">{project.title}</h3>
-                <p className="mt-1 text-sm text-gray-500 line-clamp-2">{project.description}</p>
-              </Link>
-            ))}
+            {user.projects.length === 0 ? (
+              <p className="text-center text-muted py-8">No projects yet</p>
+            ) : (
+              user.projects.map((project) => (
+                <Link
+                  key={project.id}
+                  href={`/projects/${project.slug}`}
+                  className="block rounded-2xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-900"
+                >
+                  <h3 className="font-bold">{project.title}</h3>
+                  <p className="mt-1 text-sm text-gray-500 line-clamp-2">{project.description}</p>
+                </Link>
+              ))
+            )}
           </div>
         </TabsContent>
         <TabsContent value="questions">
           <PostFeed posts={questionPosts} currentUserId={session?.user?.id} />
         </TabsContent>
+        {isOwnProfile && (
+          <TabsContent value="saved">
+            {savedPosts.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-gray-300 p-12 text-center dark:border-gray-700">
+                <p className="font-semibold">No saved posts yet</p>
+                <p className="mt-2 text-sm text-muted">Tap the menu on any post and choose Save post.</p>
+              </div>
+            ) : (
+              <PostFeed posts={savedPosts} currentUserId={session?.user?.id} />
+            )}
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

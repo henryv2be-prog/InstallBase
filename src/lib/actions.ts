@@ -186,14 +186,18 @@ export async function toggleBookmark(postId: string) {
     where: { postId_userId: { postId, userId } },
   });
 
+  let saved = false;
   if (existing) {
     await prisma.bookmark.delete({ where: { id: existing.id } });
+    saved = false;
   } else {
     await prisma.bookmark.create({ data: { postId, userId } });
+    saved = true;
   }
 
   revalidatePath("/feed");
-  return { success: true };
+  revalidatePath("/profile");
+  return { success: true, saved };
 }
 
 export async function toggleBragPoint(postId: string) {
@@ -589,6 +593,44 @@ export async function sendTestPush() {
   }
 
   return { success: true, sent };
+}
+
+export async function updateProfile(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const name = (formData.get("name") as string | null)?.trim();
+  const bio = (formData.get("bio") as string | null)?.trim() || null;
+  const city = (formData.get("city") as string | null)?.trim() || null;
+  const country = (formData.get("country") as string | null)?.trim() || null;
+  const experience = formData.get("experience") as ExperienceLevel | null;
+  const specialties = formData.getAll("specialties") as string[];
+  const website = (formData.get("website") as string | null)?.trim() || null;
+
+  if (!name) return { error: "Name is required" };
+  if (!experience) return { error: "Experience level is required" };
+
+  const profile = await prisma.profile.findUnique({ where: { userId } });
+  if (!profile) return { error: "Profile not found" };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { name },
+  });
+
+  await prisma.profile.update({
+    where: { userId },
+    data: {
+      bio,
+      city,
+      country,
+      experienceLevel: experience,
+      specialties,
+      website,
+    },
+  });
+
+  revalidatePath("/settings");
+  revalidatePath(`/profile/${profile.username}`);
+  return { success: true };
 }
 
 export async function pingPresence() {

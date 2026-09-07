@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useTransition } from "react";
 import {
   Heart,
   MessageCircle,
@@ -8,7 +9,9 @@ import {
   Bookmark,
   Trophy,
   MapPin,
+  MoreHorizontal,
 } from "lucide-react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
 import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { Button } from "@/components/ui/button";
@@ -16,13 +19,13 @@ import { cn, getReputationLabel } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { MediaGallery } from "@/components/ui/media-gallery";
 import { PostOptionsMenu } from "@/components/feed/post-options-menu";
+import { InlineComments } from "@/components/feed/inline-comments";
 import {
   toggleLike,
   toggleBookmark,
   toggleBragPoint,
 } from "@/lib/actions";
 import { toast } from "sonner";
-import { useTransition } from "react";
 import type { PostCardData } from "@/lib/queries";
 import { compactBragDetails, isBraggableType } from "@/lib/brag";
 import { promptJoin } from "@/components/auth/guest-cta";
@@ -31,16 +34,19 @@ interface PostCardProps {
   post: PostCardData;
   currentUserId?: string;
   showFull?: boolean;
+  showInlineComments?: boolean;
 }
 
-export function PostCard({ post, currentUserId, showFull = false }: PostCardProps) {
+export function PostCard({ post, currentUserId, showFull = false, showInlineComments = false }: PostCardProps) {
   const [pending, startTransition] = useTransition();
+  const [commentsOpen, setCommentsOpen] = useState(false);
   const profile = post.author.profile;
   const isLiked = currentUserId ? post.likes.some((l) => l.userId === currentUserId) : false;
   const isSaved = currentUserId ? post.bookmarks.some((b) => b.userId === currentUserId) : false;
   const hasBragged = currentUserId ? post.bragPoints.some((b) => b.userId === currentUserId) : false;
   const bragDetails = compactBragDetails(post.bragDetails);
   const canBrag = isBraggableType(post.type);
+  const commentCount = post.type === "QUESTION" ? post._count.answers : post._count.comments;
 
   const handleShare = async () => {
     const url = `${window.location.origin}/post/${post.id}`;
@@ -71,6 +77,25 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
     });
   };
 
+  const handleBookmark = () => {
+    if (!currentUserId) {
+      promptJoin("save posts");
+      return;
+    }
+    startTransition(async () => {
+      try {
+        const result = await toggleBookmark(post.id);
+        if (result.saved) {
+          toast.success("Saved to your profile");
+        } else {
+          toast.success("Removed from saved");
+        }
+      } catch {
+        toast.error("Something went wrong");
+      }
+    });
+  };
+
   const typeBadge = {
     BRAG: { label: null, variant: "brag" as const },
     QUESTION: { label: "❓ Question", variant: "question" as const },
@@ -78,6 +103,11 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
     VIDEO: { label: "🎥 How I Did It", variant: "secondary" as const },
     POST: { label: null, variant: "secondary" as const },
   }[post.type];
+
+  const toggleComments = () => {
+    if (!showInlineComments) return;
+    setCommentsOpen((v) => !v);
+  };
 
   return (
     <article
@@ -109,11 +139,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
               </div>
             </div>
           </Link>
-          <PostOptionsMenu
-            postId={post.id}
-            authorId={post.authorId}
-            currentUserId={currentUserId}
-          />
+          <PostOptionsMenu postId={post.id} authorId={post.authorId} currentUserId={currentUserId} />
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -185,9 +211,7 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
         {post.tags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {post.tags.map(({ tag }) => (
-              <Badge key={tag.id} variant="secondary">
-                #{tag.name}
-              </Badge>
+              <Badge key={tag.id} variant="secondary">#{tag.name}</Badge>
             ))}
           </div>
         )}
@@ -200,16 +224,31 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
               disabled={pending}
               onClick={() => handleAction(() => toggleLike(post.id))}
               className={cn(isLiked && "text-red-500")}
+              aria-label="Like"
             >
               <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
               {post._count.likes}
             </Button>
-            <Link href={`/post/${post.id}`}>
-              <Button variant="ghost" size="sm">
+
+            {showInlineComments ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleComments}
+                aria-label="Comment"
+              >
                 <MessageCircle className="h-4 w-4" />
-                {post.type === "QUESTION" ? post._count.answers : post._count.comments}
+                {commentCount}
               </Button>
-            </Link>
+            ) : (
+              <Link href={`/post/${post.id}`}>
+                <Button variant="ghost" size="sm" aria-label="Comment">
+                  <MessageCircle className="h-4 w-4" />
+                  {commentCount}
+                </Button>
+              </Link>
+            )}
+
             {canBrag && (
               <Button
                 variant="ghost"
@@ -218,24 +257,43 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
                 onClick={() => handleAction(() => toggleBragPoint(post.id))}
                 className={cn(hasBragged && "text-orange-500")}
                 aria-label="Give brag points"
+                title="Give brag points"
               >
                 <Trophy className={cn("h-4 w-4", hasBragged && "fill-current")} />
                 {post.bragScore}
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={handleShare} aria-label="Share post">
-              <Share2 className="h-4 w-4" />
-            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={pending}
-            onClick={() => handleAction(() => toggleBookmark(post.id))}
-            className={cn(isSaved && "text-blue-500")}
-          >
-            <Bookmark className={cn("h-4 w-4", isSaved && "fill-current")} />
-          </Button>
+
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <Button variant="ghost" size="sm" aria-label="More actions">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                className="z-50 min-w-[160px] rounded-xl border border-border bg-card p-1 shadow-lg"
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenu.Item
+                  className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800"
+                  onSelect={handleBookmark}
+                >
+                  <Bookmark className={cn("h-4 w-4", isSaved && "fill-current text-blue-500")} />
+                  {isSaved ? "Unsave" : "Save post"}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800"
+                  onSelect={handleShare}
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </div>
 
         {canBrag && post.bragScore > 0 && (
@@ -243,12 +301,29 @@ export function PostCard({ post, currentUserId, showFull = false }: PostCardProp
             🏆 {post.bragScore} Brag Points
           </div>
         )}
+
+        {showInlineComments && commentsOpen && (
+          <InlineComments
+            postId={post.id}
+            commentCount={commentCount}
+            comments={[]}
+            currentUserId={currentUserId}
+          />
+        )}
       </div>
     </article>
   );
 }
 
-export function PostFeed({ posts, currentUserId }: { posts: PostCardData[]; currentUserId?: string }) {
+export function PostFeed({
+  posts,
+  currentUserId,
+  showInlineComments = false,
+}: {
+  posts: PostCardData[];
+  currentUserId?: string;
+  showInlineComments?: boolean;
+}) {
   if (posts.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-900">
@@ -261,7 +336,12 @@ export function PostFeed({ posts, currentUserId }: { posts: PostCardData[]; curr
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} currentUserId={currentUserId} />
+        <PostCard
+          key={post.id}
+          post={post}
+          currentUserId={currentUserId}
+          showInlineComments={showInlineComments}
+        />
       ))}
     </div>
   );

@@ -30,9 +30,13 @@ export async function SearchResults({ query }: { query: string }) {
 
   return (
     <div className="mt-8 space-y-8">
+      <p className="text-sm text-muted">
+        Found {total} result{total === 1 ? "" : "s"} for &ldquo;{query}&rdquo;
+      </p>
+
       {results.users.length > 0 && (
         <section>
-          <h2 className="mb-3 font-bold">Installers</h2>
+          <h2 className="mb-3 font-bold">Installers ({results.users.length})</h2>
           <div className="space-y-2">
             {results.users.map((user) => (
               <div
