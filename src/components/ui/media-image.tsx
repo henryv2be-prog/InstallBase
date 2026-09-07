@@ -21,6 +21,8 @@ export function MediaImage({ src, alt, fill, className, sizes }: MediaImageProps
       <img
         src={src}
         alt={alt}
+        loading="lazy"
+        decoding="async"
         className={cn(fill && "absolute inset-0 h-full w-full object-cover", className)}
       />
     );

@@ -19,8 +19,13 @@ export function NotificationPrompt({ vapidPublicKey }: { vapidPublicKey: string 
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    if (pathname === "/settings" || pathname === "/notifications") {
+      setVisible(false);
+    }
+  }, [pathname]);
+
+  useEffect(() => {
     if (!vapidPublicKey) return;
-    if (pathname === "/settings" || pathname === "/notifications") return;
     if (!isPushApiAvailable() || needsIosInstallForPush()) return;
     if (Notification.permission !== "default") return;
     if (localStorage.getItem(NOTIFY_PROMPT_DISMISS_KEY) === "1") return;
@@ -42,7 +47,7 @@ export function NotificationPrompt({ vapidPublicKey }: { vapidPublicKey: string 
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [pathname, vapidPublicKey]);
+  }, [vapidPublicKey]);
 
   if (!visible) return null;
 

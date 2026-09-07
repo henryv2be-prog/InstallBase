@@ -10,11 +10,11 @@ export function startOfWeek(date = new Date()) {
 }
 
 /** 1.0 when posted, ~0.5 after a week, ~0.12 after a month. */
-export function recencyMultiplier(createdAt: Date, halfLifeDays = BRAG_HALF_LIFE_DAYS) {
-  const ageDays = Math.max(0, (Date.now() - createdAt.getTime()) / 86_400_000);
+export function recencyMultiplier(createdAt: Date | string, halfLifeDays = BRAG_HALF_LIFE_DAYS) {
+  const ageDays = Math.max(0, (Date.now() - new Date(createdAt).getTime()) / 86_400_000);
   return Math.pow(0.5, ageDays / halfLifeDays);
 }
 
-export function bragHotScore(bragScore: number, createdAt: Date) {
+export function bragHotScore(bragScore: number, createdAt: Date | string) {
   return (bragScore + 1) * recencyMultiplier(createdAt);
 }

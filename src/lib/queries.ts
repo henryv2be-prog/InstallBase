@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { Prisma, PostType } from "@/generated/prisma/client";
 import { BRAG_CATEGORIES } from "@/lib/constants";
@@ -69,11 +70,21 @@ async function withViewerState<T extends { id: string }>(
   }));
 }
 
+async function cachedRows<T>(key: string[], fn: () => Promise<T>, revalidate = 20): Promise<T> {
+  return unstable_cache(async () => JSON.parse(JSON.stringify(await fn())) as T, key, {
+    revalidate,
+    tags: ["posts"],
+  })();
+}
+
 async function loadPostCards(
   args: Omit<Prisma.PostFindManyArgs, "include" | "select">,
-  userId?: string
+  userId: string | undefined,
+  cacheKey: string[]
 ) {
-  const posts = await prisma.post.findMany({ ...args, include: postCardInclude });
+  const posts = await cachedRows(cacheKey, () =>
+    prisma.post.findMany({ ...args, include: postCardInclude })
+  );
   return withViewerState(posts, userId);
 }
 
@@ -123,28 +134,28 @@ export async function getFollowingFeedPosts(userId: string, limit = 30) {
       take: limit,
       orderBy: { createdAt: "desc" },
     },
-    userId
+    userId,
+    ["following-feed", userId, String(limit)]
   );
 }
 
 export async function getFeedPosts(userId?: string, limit = 20) {
-  let followingIds: string[] = [];
-
-  if (userId) {
-    followingIds = await getFollowingIds(userId);
-  }
-
-  const posts = await loadPostCards(
-    {
-      take: Math.min(limit + 8, 28),
-      orderBy: { createdAt: "desc" },
-    },
-    userId
-  );
+  const take = Math.min(limit + 8, 28);
+  const [followingIds, posts] = await Promise.all([
+    userId ? getFollowingIds(userId) : Promise.resolve([] as string[]),
+    loadPostCards(
+      {
+        take,
+        orderBy: { createdAt: "desc" },
+      },
+      userId,
+      ["feed-recent", String(take)]
+    ),
+  ]);
 
   const scored = posts.map((post) => {
     let score = 0;
-    const ageHours = (Date.now() - post.createdAt.getTime()) / 3600000;
+    const ageHours = (Date.now() - new Date(post.createdAt).getTime()) / 3600000;
     score += Math.max(0, 100 - ageHours * 2);
     score += post._count.likes * 3;
     score += post._count.comments * 5;
@@ -167,26 +178,39 @@ export async function getPostsByType(type: PostType, limit = 20, userId?: string
       take: limit,
       orderBy: { createdAt: "desc" },
     },
-    userId
+    userId,
+    ["posts-by-type", type, String(limit)]
   );
 }
 
 export async function getHotBrags(limit = 20, userId?: string) {
-  const candidates = await prisma.post.findMany({
-    where: braggablePostWhere,
-    take: Math.min(Math.max(limit * 3, 24), 40),
-    select: { id: true, bragScore: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const candidateTake = Math.min(Math.max(limit * 3, 24), 40);
+  const candidates = await cachedRows(
+    ["hot-brag-candidates", String(candidateTake)],
+    () =>
+      prisma.post.findMany({
+        where: braggablePostWhere,
+        take: candidateTake,
+        select: { id: true, bragScore: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+      })
+  );
 
   const topIds = candidates
-    .sort((a, b) => bragHotScore(b.bragScore, b.createdAt) - bragHotScore(a.bragScore, a.createdAt))
+    .sort(
+      (a, b) =>
+        bragHotScore(b.bragScore, new Date(b.createdAt)) - bragHotScore(a.bragScore, new Date(a.createdAt))
+    )
     .slice(0, limit)
     .map((row) => row.id);
 
   if (topIds.length === 0) return [];
 
-  const posts = await loadPostCards({ where: { id: { in: topIds } } }, userId);
+  const posts = await loadPostCards(
+    { where: { id: { in: topIds } } },
+    userId,
+    ["posts-by-ids", ...topIds]
+  );
   const byId = new Map(posts.map((post) => [post.id, post]));
   return topIds.map((id) => byId.get(id)).filter((post): post is NonNullable<typeof post> => Boolean(post));
 }
@@ -198,7 +222,8 @@ export async function getAllTimeBrags(limit = 4, userId?: string) {
       take: limit,
       orderBy: [{ bragScore: "desc" }, { createdAt: "desc" }],
     },
-    userId
+    userId,
+    ["all-time-brags", String(limit)]
   );
 }
 
@@ -213,23 +238,28 @@ export const getPost = cache(async function getPost(id: string, userId?: string)
 });
 
 export async function getProfileByUsername(username: string, viewerId?: string) {
-  const profile = await prisma.profile.findUnique({
-    where: { username },
-    include: {
-      user: {
+  const profile = await cachedRows(
+    ["profile-core", username],
+    () =>
+      prisma.profile.findUnique({
+        where: { username },
         include: {
-          reputation: true,
-          posts: {
-            include: postCardInclude,
-            orderBy: { createdAt: "desc" },
-            take: 20,
+          user: {
+            include: {
+              reputation: true,
+              posts: {
+                include: postCardInclude,
+                orderBy: { createdAt: "desc" },
+                take: 20,
+              },
+              projects: { include: { media: true }, orderBy: { createdAt: "desc" } },
+              _count: { select: { followers: true, following: true } },
+            },
           },
-          projects: { include: { media: true }, orderBy: { createdAt: "desc" } },
-          _count: { select: { followers: true, following: true } },
         },
-      },
-    },
-  });
+      }),
+    30
+  );
 
   if (!profile) return null;
 
@@ -255,12 +285,17 @@ export async function getTrendingBrags(limit = 10, userId?: string) {
 }
 
 export async function getBragLeaderboard(limit = 5) {
-  return prisma.profile.findMany({
-    where: { bragCount: { gt: 0 } },
-    take: limit,
-    orderBy: [{ bragCount: "desc" }, { reputationScore: "desc" }],
-    include: { user: true },
-  });
+  return cachedRows(
+    ["brag-leaderboard", String(limit)],
+    () =>
+      prisma.profile.findMany({
+        where: { bragCount: { gt: 0 } },
+        take: limit,
+        orderBy: [{ bragCount: "desc" }, { reputationScore: "desc" }],
+        include: { user: true },
+      }),
+    60
+  );
 }
 
 export async function getBragOfWeek(userId?: string) {
@@ -273,7 +308,8 @@ export async function getBragOfWeek(userId?: string) {
   if (featured.length > 0) {
     const featuredPosts = await loadPostCards(
       { where: { id: { in: featured.map((row) => row.postId) } } },
-      userId
+      userId,
+      ["brag-featured", weekStart.toISOString(), ...featured.map((row) => row.postId)]
     );
     const byId = new Map(featuredPosts.map((post) => [post.id, post]));
     const featuredRows = featured
@@ -289,7 +325,8 @@ export async function getBragOfWeek(userId?: string) {
       take: 8,
       orderBy: [{ bragScore: "desc" }, { createdAt: "desc" }],
     },
-    userId
+    userId,
+    ["brag-week", weekStart.toISOString()]
   );
 
   const picked = [...thisWeek];
@@ -319,20 +356,35 @@ export async function getDiscoverData(userId?: string) {
         take: 6,
         orderBy: { comments: { _count: "desc" } },
       },
-      userId
+      userId,
+      ["questions-popular", "6"]
     ),
-    prisma.profile.findMany({
-      take: 8,
-      orderBy: { reputationScore: "desc" },
-      include: { user: true },
-    }),
+    cachedRows(
+      ["discover-installers"],
+      () =>
+        prisma.profile.findMany({
+          take: 8,
+          orderBy: { reputationScore: "desc" },
+          include: { user: true },
+        }),
+      60
+    ),
     getBragLeaderboard(5),
-    prisma.product.findMany({
-      take: 8,
-      include: { brand: true, _count: { select: { postProducts: true } } },
-      orderBy: { postProducts: { _count: "desc" } },
-    }),
-    prisma.job.findMany({ where: { active: true }, take: 4, orderBy: { createdAt: "desc" } }),
+    cachedRows(
+      ["discover-products"],
+      () =>
+        prisma.product.findMany({
+          take: 8,
+          include: { brand: true, _count: { select: { postProducts: true } } },
+          orderBy: { postProducts: { _count: "desc" } },
+        }),
+      60
+    ),
+    cachedRows(
+      ["discover-jobs"],
+      () => prisma.job.findMany({ where: { active: true }, take: 4, orderBy: { createdAt: "desc" } }),
+      60
+    ),
   ]);
 
   return { trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products, jobs };
@@ -364,7 +416,8 @@ export async function searchAll(query: string, userId?: string) {
         },
         take: 15,
       },
-      userId
+      userId,
+      ["search-posts", q]
     ),
     prisma.product.findMany({
       where: { name: { contains: q, mode: "insensitive" } },
@@ -387,14 +440,19 @@ export async function searchAll(query: string, userId?: string) {
 }
 
 export async function getProjects(limit = 20) {
-  return prisma.project.findMany({
-    take: limit,
-    include: {
-      author: { include: { profile: true } },
-      media: { orderBy: { order: "asc" } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  return cachedRows(
+    ["projects", String(limit)],
+    () =>
+      prisma.project.findMany({
+        take: limit,
+        include: {
+          author: { include: { profile: true } },
+          media: { orderBy: { order: "asc" } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+    60
+  );
 }
 
 export async function getProject(slug: string) {
