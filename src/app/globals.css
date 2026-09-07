@@ -64,6 +64,13 @@
 
 html {
   -webkit-tap-highlight-color: transparent;
+  background: #050810;
+  color-scheme: dark;
+}
+
+html.light {
+  background: #f0f4f8;
+  color-scheme: light;
 }
 
 body {
@@ -181,6 +188,18 @@ body {
 
 .animate-fade-in {
   animation: fade-in 0.35s ease-out;
+}
+
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  .animate-fade-in {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation: none;
+  }
 }
 
 .animate-pulse-glow {

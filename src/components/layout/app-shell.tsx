@@ -221,6 +221,67 @@ export function AppShell({ children, user }: AppShellProps) {
   );
 }
 
+/** Chrome shown while the signed-in session is resolving — keeps the PWA from flashing a blank page. */
+export function AppShellFallback({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative min-h-dvh tech-bg">
+      <header className="sticky top-0 z-50 border-b border-border bg-card/70 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:h-16 sm:px-4 lg:px-6">
+          <Link href="/feed" className="min-w-0 shrink">
+            <Logo size="md" />
+          </Link>
+          <nav className="hidden items-center gap-1 md:flex">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-muted"
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <ThemeToggle />
+            <span className="inline-flex h-9 w-9 rounded-xl bg-gray-200 dark:bg-gray-800" />
+            <span className="inline-flex h-9 w-9 rounded-full bg-gray-200 dark:bg-gray-800" />
+          </div>
+        </div>
+      </header>
+
+      <main className="relative z-10 mx-auto max-w-7xl px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:px-4 lg:px-6 md:pb-8 md:pt-6">
+        {children}
+      </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
+        <div className="flex items-center justify-around px-1 py-1.5">
+          {memberMobileNav.map((item) => {
+            if (item.highlight) {
+              return (
+                <div key={item.href} className="flex flex-col items-center -mt-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg btn-glow">
+                    <Plus className="h-6 w-6" />
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <div key={item.href} className="flex min-w-[3.25rem] flex-col items-center gap-0.5 p-2">
+                <span className="h-5 w-5 rounded-md bg-gray-200 dark:bg-gray-800" />
+                <span className="mt-0.5 h-2 w-8 rounded bg-gray-200 dark:bg-gray-800" />
+              </div>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
+  );
+}
+
 export function JobsLink() {
   return (
     <Link

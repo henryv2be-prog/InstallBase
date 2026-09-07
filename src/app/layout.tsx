@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/providers/toast-provider";
@@ -46,7 +47,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`dark ${inter.variable} ${jetbrains.variable}`}>
-      <body className="min-h-dvh font-sans text-foreground antialiased">
+      <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
+        <Script id="ib-theme" strategy="beforeInteractive">
+          {`(function(){try{var t=localStorage.getItem("installbase-theme");if(t==="light"||t==="dark"){var r=document.documentElement;r.classList.remove("light","dark");r.classList.add(t);}}catch(e){}})();`}
+        </Script>
         <ThemeInit />
         <SessionProvider>
           <ServiceWorkerRegistrar />
