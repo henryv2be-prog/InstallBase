@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { auth, signIn } from "@/lib/auth";
@@ -146,6 +146,7 @@ export async function createPost(formData: FormData) {
   revalidatePath("/feed");
   revalidatePath("/brags");
   revalidatePath("/questions");
+  revalidateTag("posts", "max");
   return { success: true, postId: post.id };
 }
 

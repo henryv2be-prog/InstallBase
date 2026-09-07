@@ -8,8 +8,15 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  const pool = globalForPrisma.pool ?? new Pool({ connectionString: process.env.DATABASE_URL });
-  if (process.env.NODE_ENV !== "production") globalForPrisma.pool = pool;
+  const pool =
+    globalForPrisma.pool ??
+    new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 8,
+      idleTimeoutMillis: 10_000,
+      connectionTimeoutMillis: 8_000,
+    });
+  globalForPrisma.pool = pool;
   const adapter = new PrismaPg(pool);
   return new PrismaClient({
     adapter,
@@ -18,5 +25,4 @@ function createPrismaClient() {
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+globalForPrisma.prisma = prisma;

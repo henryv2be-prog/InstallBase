@@ -45,7 +45,13 @@ export function MediaGallery({ items, className, limit }: MediaGalleryProps) {
           >
             {isVideo(media.type, media.url) ? (
               <>
-                <video src={media.url} className="h-full w-full object-cover" muted playsInline />
+                <video
+                  src={media.url}
+                  className="h-full w-full object-cover"
+                  muted
+                  playsInline
+                  preload="none"
+                />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 text-white">
                     ▶
