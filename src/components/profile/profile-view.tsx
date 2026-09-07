@@ -173,8 +173,12 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
             posts={normalPosts}
             currentUserId={session?.user?.id}
             emptyTitle="No posts yet"
-            emptyDescription="Share installs, tips, or site photos."
-            emptyAction={{ label: "Create post", href: "/create" }}
+            emptyDescription={
+              isOwnProfile
+                ? "Share installs, tips, or site photos."
+                : `${user.name ?? profile.username} hasn't shared any posts yet.`
+            }
+            emptyAction={isOwnProfile ? { label: "Create post", href: "/create" } : undefined}
           />
         </TabsContent>
         <TabsContent value="brags">
@@ -185,8 +189,12 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
             posts={bragPosts}
             currentUserId={session?.user?.id}
             emptyTitle="No brags yet"
-            emptyDescription="Post an install with photos to start collecting brag points."
-            emptyAction={{ label: "Share an install", href: "/create" }}
+            emptyDescription={
+              isOwnProfile
+                ? "Post an install with photos to start collecting brag points."
+                : `${user.name ?? profile.username} hasn't shared any brags yet.`
+            }
+            emptyAction={isOwnProfile ? { label: "Share an install", href: "/create" } : undefined}
           />
         </TabsContent>
         <TabsContent value="projects">
@@ -195,7 +203,11 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
               <EmptyState
                 icon={FolderKanban}
                 title="No projects yet"
-                description="Document a full job with equipment lists and photos."
+                description={
+                  isOwnProfile
+                    ? "Document a full job with equipment lists and photos."
+                    : `${user.name ?? profile.username} hasn't published any projects yet.`
+                }
               />
             ) : (
               user.projects.map((project) => (
@@ -216,8 +228,12 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
             posts={questionPosts}
             currentUserId={session?.user?.id}
             emptyTitle="No questions yet"
-            emptyDescription="Ask the community for help with tricky installs."
-            emptyAction={{ label: "Ask a question", href: "/create" }}
+            emptyDescription={
+              isOwnProfile
+                ? "Ask the community for help with tricky installs."
+                : `${user.name ?? profile.username} hasn't asked any questions yet.`
+            }
+            emptyAction={isOwnProfile ? { label: "Ask a question", href: "/create" } : undefined}
           />
         </TabsContent>
         {isOwnProfile && (
