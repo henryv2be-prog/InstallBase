@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Camera,
-  Video,
   Trophy,
   HelpCircle,
   FolderKanban,
