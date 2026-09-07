@@ -36,7 +36,7 @@ const memberMobileNav = [
   { href: "/feed", label: "Home", icon: Home },
   { href: "/discover", label: "Discover", icon: Compass },
   { href: "/create", label: "Create", icon: Plus, highlight: true },
-  { href: "/notifications", label: "Alerts", icon: Bell },
+  { href: "/brags", label: "Brags", icon: Trophy },
   { href: "/profile", label: "Profile", icon: null },
 ];
 
@@ -107,7 +107,7 @@ export function AppShell({ children, user }: AppShellProps) {
                     <MessageCircle className="h-5 w-5" />
                   </Button>
                 </Link>
-                <Link href="/notifications" className="hidden sm:block">
+                <Link href="/notifications">
                   <Button variant="ghost" size="icon" aria-label="Notifications">
                     <Bell className="h-5 w-5" />
                   </Button>
