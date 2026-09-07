@@ -13,7 +13,7 @@ function hasSessionCookie(request: NextRequest) {
   });
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (request.nextUrl.pathname !== "/") return NextResponse.next();
   if (!hasSessionCookie(request)) return NextResponse.next();
 
