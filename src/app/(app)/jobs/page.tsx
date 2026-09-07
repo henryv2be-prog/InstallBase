@@ -5,6 +5,7 @@ import { RelativeTime } from "@/components/ui/relative-time";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = { title: "Jobs" };
+export const dynamic = "force-dynamic";
 
 export default async function JobsPage() {
   const jobs = await getJobs();
