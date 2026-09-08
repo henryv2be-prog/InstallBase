@@ -92,6 +92,14 @@ export function LoginForm({ next = "/feed" }: { next?: string }) {
               placeholder="••••••••"
               className="text-base"
             />
+            <div className="mt-2 text-right">
+              <Link
+                href="/forgot-password"
+                className="text-sm font-medium text-blue-600 hover:underline dark:text-cyan-400"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           {error && (

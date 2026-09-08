@@ -98,6 +98,7 @@ model User {
   projects      Project[]
   reputation    Reputation?
   pushSubscriptions PushSubscription[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Account {
@@ -133,6 +134,18 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Profile {

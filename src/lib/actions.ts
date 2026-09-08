@@ -21,6 +21,7 @@ import {
   syncPostBragScore,
 } from "@/lib/reputation";
 import type { ExperienceLevel } from "@/generated/prisma/client";
+import { requestPasswordReset, resetPasswordWithToken } from "@/lib/password-reset";
 
 async function getCurrentUserId() {
   const session = await auth();
@@ -704,6 +705,19 @@ export async function changePassword(formData: FormData) {
   });
 
   return { success: true };
+}
+
+export async function requestPasswordResetAction(formData: FormData) {
+  const email = (formData.get("email") as string | null)?.trim();
+  if (!email) return { error: "Please enter your email address" };
+  return requestPasswordReset(email);
+}
+
+export async function resetPasswordAction(formData: FormData) {
+  const token = (formData.get("token") as string | null)?.trim();
+  const password = formData.get("password") as string | null;
+  if (!token || !password) return { error: "Please fill in all fields" };
+  return resetPasswordWithToken(token, password);
 }
 
 export async function pingPresence() {
