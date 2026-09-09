@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { signOut } from "next-auth/react";
+import { logout } from "@/lib/logout";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,11 +20,7 @@ export function LogoutButton({ compact = false }: LogoutButtonProps) {
       disabled={pending}
       aria-label="Log out"
       title="Log out"
-      onClick={() =>
-        startTransition(() => {
-          signOut({ callbackUrl: "/" });
-        })
-      }
+      onClick={() => startTransition(() => logout("/"))}
       className={cn(
         !compact && "text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
       )}
