@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
-import { isVideoMedia } from "@/lib/media";
+import { baseVideoUrl, isVideoMedia } from "@/lib/media";
 
 interface MediaItem {
   url: string;
@@ -442,7 +442,7 @@ export function MediaLightbox({ items, index, onClose, onIndexChange }: MediaLig
         {isVideoMedia(active.type, active.url) ? (
           <video
             key={active.url}
-            src={active.url.split("#")[0]}
+            src={baseVideoUrl(active.url)}
             controls
             autoPlay
             playsInline

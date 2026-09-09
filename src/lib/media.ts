@@ -2,11 +2,14 @@ export function isVideoMedia(type?: string, url?: string) {
   return type === "video" || Boolean(url?.match(/\.(mp4|webm|mov)(\?|$)/i));
 }
 
+export function baseVideoUrl(url: string) {
+  return url.split("#")[0];
+}
+
 /** Safari often needs a media fragment to paint the first frame without playing. */
 export function videoPreviewSrc(url: string, seconds = 0.1) {
   if (url.includes("#t=")) return url;
-  const base = url.split("#")[0];
-  return `${base}#t=${seconds}`;
+  return `${baseVideoUrl(url)}#t=${seconds}`;
 }
 
 export function formatVideoDuration(seconds: number) {
