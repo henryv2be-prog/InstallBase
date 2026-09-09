@@ -3,6 +3,7 @@ import { createHash, randomBytes } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { buildPasswordResetUrl, passwordResetEmailContent, sendEmail } from "@/lib/email";
+import { validatePassword } from "@/lib/auth-validation";
 
 const RESET_TTL_MS = 60 * 60 * 1000;
 
@@ -58,7 +59,8 @@ export async function requestPasswordReset(email: string) {
 export async function resetPasswordWithToken(token: string, password: string) {
   const trimmedToken = token.trim();
   if (!trimmedToken) return { error: "Reset link is invalid or expired" };
-  if (password.length < 8) return { error: "Password must be at least 8 characters" };
+  const passwordError = validatePassword(password);
+  if (passwordError) return { error: passwordError };
 
   const tokenHash = hashToken(trimmedToken);
   const record = await prisma.passwordResetToken.findUnique({

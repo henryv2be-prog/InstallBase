@@ -22,6 +22,12 @@ import {
 } from "@/lib/reputation";
 import type { ExperienceLevel } from "@/generated/prisma/client";
 import { requestPasswordReset, resetPasswordWithToken } from "@/lib/password-reset";
+import {
+  type SignupField,
+  firstSignupError,
+  validateSignupInput,
+  validatePassword,
+} from "@/lib/auth-validation";
 
 async function getCurrentUserId() {
   const session = await auth();
@@ -30,54 +36,73 @@ async function getCurrentUserId() {
 }
 
 export async function registerUser(formData: FormData) {
-  const email = (formData.get("email") as string | null)?.trim();
-  const password = formData.get("password") as string | null;
-  const name = (formData.get("name") as string | null)?.trim();
-  const username = (formData.get("username") as string | null)?.trim().toLowerCase();
-  const city = (formData.get("city") as string | null)?.trim();
-  const country = (formData.get("country") as string | null)?.trim();
-  const experience = formData.get("experience") as ExperienceLevel | null;
+  const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
+  const password = formData.get("password") as string | null ?? "";
+  const name = (formData.get("name") as string | null)?.trim() ?? "";
+  const username = (formData.get("username") as string | null)?.trim().toLowerCase() ?? "";
+  const city = (formData.get("city") as string | null)?.trim() ?? "";
+  const country = (formData.get("country") as string | null)?.trim() ?? "";
+  const experience = (formData.get("experience") as string | null) ?? "";
   const specialties = formData.getAll("specialties") as string[];
 
-  if (!email || !password || !name || !username || !city || !country || !experience) {
-    return { error: "Please fill in all required fields" };
-  }
-
-  if (password.length < 8) {
-    return { error: "Password must be at least 8 characters" };
-  }
-
-  if (!/^[a-z0-9_]+$/.test(username)) {
-    return { error: "Username can only contain lowercase letters, numbers, and underscores" };
-  }
-
-  const existing = await prisma.user.findFirst({
-    where: { OR: [{ email }, { profile: { username } }] },
+  const validationErrors = validateSignupInput({
+    name,
+    username,
+    email,
+    password,
+    city,
+    country,
+    experience,
   });
-  if (existing) return { error: "Email or username already exists" };
 
-  const passwordHash = await bcrypt.hash(password, 12);
-  const user = await prisma.user.create({
-    data: {
-      email,
-      name,
-      passwordHash,
-      role: roleForEmail(email),
-      profile: {
-        create: {
-          username,
-          city,
-          country,
-          experienceLevel: experience,
-          specialties,
+  const firstError = firstSignupError(validationErrors);
+  if (firstError) {
+    return {
+      error: firstError.message,
+      field: firstError.field,
+      errors: validationErrors,
+    };
+  }
+
+  try {
+    const [existingEmail, existingUsername] = await Promise.all([
+      prisma.user.findUnique({ where: { email }, select: { id: true } }),
+      prisma.profile.findUnique({ where: { username }, select: { id: true } }),
+    ]);
+
+    if (existingEmail) {
+      return { error: "An account with this email already exists", field: "email" as SignupField };
+    }
+    if (existingUsername) {
+      return { error: "This username is already taken", field: "username" as SignupField };
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name,
+        passwordHash,
+        role: roleForEmail(email),
+        profile: {
+          create: {
+            username,
+            city,
+            country,
+            experienceLevel: experience as ExperienceLevel,
+            specialties,
+          },
         },
+        reputation: { create: { score: 0 } },
       },
-      reputation: { create: { score: 0 } },
-    },
-  });
+    });
 
-  await signIn("credentials", { email, password, redirect: false });
-  return { success: true, userId: user.id };
+    await signIn("credentials", { email, password, redirect: false });
+    return { success: true, userId: user.id };
+  } catch (error) {
+    console.error("registerUser failed:", error);
+    return { error: "Could not create your account. Please try again in a moment." };
+  }
 }
 
 export async function createPost(formData: FormData) {
@@ -700,7 +725,8 @@ export async function changePassword(formData: FormData) {
   const next = formData.get("newPassword") as string;
 
   if (!current || !next) return { error: "Please fill in both password fields" };
-  if (next.length < 8) return { error: "New password must be at least 8 characters" };
+  const passwordError = validatePassword(next);
+  if (passwordError) return { error: passwordError };
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user?.passwordHash) return { error: "Password change is not available for this account" };
