@@ -12,7 +12,11 @@ import type {
   Prisma,
 } from "@/generated/prisma/client";
 import { uploadImage } from "@/lib/actions";
-import { sanitizeAdText } from "./security";
+import {
+  isAllowedMediaUrl,
+  sanitizeAdDestinationUrl,
+  sanitizeAdText,
+} from "./security";
 import { parseTargetingRules } from "./targeting";
 import {
   advertisementFormErrorSummary,
