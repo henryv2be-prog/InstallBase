@@ -11,23 +11,18 @@ import type {
   PricingModel,
   Prisma,
 } from "@/generated/prisma/client";
-import { sanitizeAdDestinationUrl, sanitizeAdText, isAllowedMediaUrl } from "./security";
+import { sanitizeAdText } from "./security";
 import { parseTargetingRules } from "./targeting";
-import { ALL_PLACEMENT_KEYS } from "./placements";
+import {
+  advertisementFormErrorSummary,
+  parsePlacementsFromForm,
+  validateAdvertisementForm,
+} from "./admin-validation";
 
 async function requireAdmin() {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   return session;
-}
-
-function parsePlacements(raw: FormDataEntryValue | null): string[] {
-  const value = String(raw ?? "");
-  const placements = value
-    .split(",")
-    .map((p) => p.trim())
-    .filter((p) => ALL_PLACEMENT_KEYS.includes(p as (typeof ALL_PLACEMENT_KEYS)[number]));
-  return placements.length ? placements : ["feed_between_posts"];
 }
 
 function parseTargetingJson(raw: FormDataEntryValue | null) {
@@ -118,24 +113,25 @@ export async function upsertCampaign(formData: FormData) {
 export async function upsertAdvertisement(formData: FormData) {
   await requireAdmin();
   const id = formData.get("id") as string | null;
-  const campaignId = String(formData.get("campaignId") ?? "");
-  const advertiserId = String(formData.get("advertiserId") ?? "");
-  const title = sanitizeAdText(String(formData.get("title") ?? ""), 120);
-  const type = formData.get("type") as AdType;
-  const isInternal = formData.get("isInternalLink") === "true";
-  const destinationUrl = sanitizeAdDestinationUrl(
-    String(formData.get("destinationUrl") ?? ""),
-    isInternal
-  );
+  const { errors, data: validated } = validateAdvertisementForm(formData);
 
-  if (!campaignId || !advertiserId || !title || !destinationUrl || !type) {
-    return { error: "Missing required fields" };
+  if (!validated) {
+    return {
+      error: advertisementFormErrorSummary(errors),
+      fields: errors,
+    };
   }
 
-  const mediaUrl = String(formData.get("mediaUrl") ?? "").trim();
-  if (mediaUrl && !isAllowedMediaUrl(mediaUrl)) {
-    return { error: "Invalid media URL" };
-  }
+  const {
+    campaignId,
+    advertiserId,
+    title,
+    type,
+    destinationUrl,
+    isInternal,
+    mediaUrl,
+    placements,
+  } = validated;
 
   const data = {
     campaignId,
@@ -143,9 +139,9 @@ export async function upsertAdvertisement(formData: FormData) {
     title,
     description: sanitizeAdText(String(formData.get("description") ?? ""), 500) || null,
     type,
-    placements: parsePlacements(formData.get("placements")),
+    placements,
     status: (formData.get("status") as AdStatus) || "DRAFT",
-    mediaUrl: mediaUrl || null,
+    mediaUrl,
     mediaType: String(formData.get("mediaType") ?? "").trim() || null,
     destinationUrl,
     ctaText: sanitizeAdText(String(formData.get("ctaText") ?? ""), 40) || null,
@@ -180,6 +176,16 @@ export async function updateAdStatus(adId: string, status: AdStatus) {
 export async function updateCampaignStatus(campaignId: string, status: CampaignStatus) {
   await requireAdmin();
   await prisma.adCampaign.update({ where: { id: campaignId }, data: { status } });
+  revalidatePath("/admin/ads");
+  return { success: true };
+}
+
+export async function deleteAdvertisement(adId: string) {
+  await requireAdmin();
+  const ad = await prisma.advertisement.findUnique({ where: { id: adId } });
+  if (!ad) return { error: "Advertisement not found" };
+
+  await prisma.advertisement.delete({ where: { id: adId } });
   revalidatePath("/admin/ads");
   return { success: true };
 }

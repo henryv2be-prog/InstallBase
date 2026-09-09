@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,12 @@ import {
   updateAdStatus,
   updateCampaignStatus,
   duplicateAdvertisement,
+  deleteAdvertisement,
   updateAdSettings,
   toggleInventoryPlacement,
 } from "@/lib/advertising/admin-actions";
+import type { AdvertisementFormField } from "@/lib/advertising/admin-validation";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { AdRenderer } from "@/components/ads/ad-renderer";
 import type { AdCreative } from "@/lib/advertising/types";
@@ -59,12 +62,41 @@ function toPreviewCreative(ad: ListData["advertisements"][0]): AdCreative {
   };
 }
 
+function FormField({
+  label,
+  error,
+  hint,
+  children,
+  className,
+}: {
+  label: string;
+  error?: string;
+  hint?: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      <label className="mb-1 block text-sm font-medium">{label}</label>
+      {children}
+      {hint && !error && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {error && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>}
+    </div>
+  );
+}
+
+const DEFAULT_PLACEMENTS = ["feed_between_posts", "feed_top"];
+
 export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [filterStatus, setFilterStatus] = useState("");
   const [filterPlacement, setFilterPlacement] = useState("");
   const [previewAd, setPreviewAd] = useState<ListData["advertisements"][0] | null>(null);
+  const [adFormErrors, setAdFormErrors] = useState<Partial<Record<AdvertisementFormField, string>>>({});
+  const [selectedCampaignId, setSelectedCampaignId] = useState("");
+  const [selectedAdvertiserId, setSelectedAdvertiserId] = useState("");
+  const [selectedPlacements, setSelectedPlacements] = useState<string[]>(DEFAULT_PLACEMENTS);
 
   const filteredAds = useMemo(() => {
     return list.advertisements.filter((ad) => {
@@ -74,14 +106,51 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
     });
   }, [list.advertisements, filterStatus, filterPlacement]);
 
-  const run = (fn: () => Promise<{ error?: string; success?: boolean }>) => {
+  const run = (
+    fn: () => Promise<{ error?: string; success?: boolean; fields?: Partial<Record<AdvertisementFormField, string>> }>,
+    options?: { clearAdErrors?: boolean }
+  ) => {
     startTransition(async () => {
       const result = await fn();
-      if (result.error) toast.error(result.error);
-      else {
+      if (result.error) {
+        toast.error(result.error);
+        if (result.fields) setAdFormErrors(result.fields);
+      } else {
+        if (options?.clearAdErrors) {
+          setAdFormErrors({});
+          setSelectedCampaignId("");
+          setSelectedAdvertiserId("");
+          setSelectedPlacements(DEFAULT_PLACEMENTS);
+        }
         toast.success("Saved");
         router.refresh();
       }
+    });
+  };
+
+  const onCampaignChange = (campaignId: string) => {
+    setSelectedCampaignId(campaignId);
+    const campaign = list.campaigns.find((item) => item.id === campaignId);
+    if (campaign) setSelectedAdvertiserId(campaign.advertiserId);
+    setAdFormErrors((prev) => {
+      const next = { ...prev };
+      delete next.campaignId;
+      delete next.advertiserId;
+      return next;
+    });
+  };
+
+  const togglePlacement = (placement: string) => {
+    setSelectedPlacements((prev) => {
+      const next = prev.includes(placement)
+        ? prev.filter((item) => item !== placement)
+        : [...prev, placement];
+      return next.length ? next : prev;
+    });
+    setAdFormErrors((prev) => {
+      const next = { ...prev };
+      delete next.placements;
+      return next;
     });
   };
 
@@ -142,41 +211,132 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
             className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-2"
             onSubmit={(e) => {
               e.preventDefault();
-              run(() => upsertAdvertisement(new FormData(e.currentTarget)));
+              run(() => upsertAdvertisement(new FormData(e.currentTarget)), { clearAdErrors: true });
             }}
           >
             <h3 className="md:col-span-2 font-semibold">Create advertisement</h3>
-            <select name="campaignId" required className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
-              <option value="">Campaign</option>
-              {list.campaigns.map((c) => (
-                <option key={c.id} value={c.id}>{c.name} — {c.advertiser.name}</option>
-              ))}
-            </select>
-            <select name="advertiserId" required className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
-              <option value="">Advertiser</option>
-              {list.advertisers.map((a) => (
-                <option key={a.id} value={a.id}>{a.name}</option>
-              ))}
-            </select>
-            <Input name="title" placeholder="Title" required />
-            <select name="type" required className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
-              {AD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-            <Input name="destinationUrl" placeholder="Destination URL" required />
-            <Input name="mediaUrl" placeholder="Media URL (optional)" />
-            <Input name="ctaText" placeholder="CTA text" />
-            <Input name="placements" placeholder="Placements (comma-separated keys)" defaultValue="feed_between_posts" />
-            <select name="status" className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
-              {AD_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <label className="flex items-center gap-2 text-sm">
+            {list.campaigns.length === 0 && (
+              <p className="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                Create an advertiser and campaign first, then you can add an advertisement.
+              </p>
+            )}
+            <FormField label="Campaign *" error={adFormErrors.campaignId}>
+              <select
+                name="campaignId"
+                value={selectedCampaignId}
+                onChange={(event) => onCampaignChange(event.target.value)}
+                className={cn(
+                  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm",
+                  adFormErrors.campaignId && "border-red-500"
+                )}
+              >
+                <option value="">Select campaign…</option>
+                {list.campaigns.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name} — {c.advertiser.name}</option>
+                ))}
+              </select>
+            </FormField>
+            <FormField label="Advertiser *" error={adFormErrors.advertiserId} hint="Auto-filled from the campaign you pick">
+              <select
+                name="advertiserId"
+                value={selectedAdvertiserId}
+                onChange={(event) => setSelectedAdvertiserId(event.target.value)}
+                className={cn(
+                  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm",
+                  adFormErrors.advertiserId && "border-red-500"
+                )}
+              >
+                <option value="">Select advertiser…</option>
+                {list.advertisers.map((a) => (
+                  <option key={a.id} value={a.id}>{a.name}</option>
+                ))}
+              </select>
+            </FormField>
+            <FormField label="Title *" error={adFormErrors.title}>
+              <Input
+                name="title"
+                placeholder="e.g. Professional CCTV for every install"
+                className={adFormErrors.title ? "border-red-500" : undefined}
+              />
+            </FormField>
+            <FormField label="Ad type *" error={adFormErrors.type}>
+              <select
+                name="type"
+                className={cn(
+                  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm",
+                  adFormErrors.type && "border-red-500"
+                )}
+              >
+                {AD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </FormField>
+            <FormField
+              label="Destination URL *"
+              error={adFormErrors.destinationUrl}
+              hint="Use https://… for external sites, or /discover for in-app pages (paths starting with / work automatically)"
+            >
+              <Input
+                name="destinationUrl"
+                placeholder="https://example.com or /discover"
+                className={adFormErrors.destinationUrl ? "border-red-500" : undefined}
+              />
+            </FormField>
+            <FormField
+              label="Media URL"
+              error={adFormErrors.mediaUrl}
+              hint="Optional. Use /ads/… or https://…"
+            >
+              <Input
+                name="mediaUrl"
+                placeholder="/ads/hikvision-demo.jpg"
+                className={adFormErrors.mediaUrl ? "border-red-500" : undefined}
+              />
+            </FormField>
+            <FormField label="CTA text" hint="Optional button label, e.g. Learn more">
+              <Input name="ctaText" placeholder="Learn more" />
+            </FormField>
+            <FormField label="Status">
+              <select name="status" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+                {AD_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </FormField>
+            <label className="flex items-center gap-2 text-sm md:col-span-2">
               <input type="checkbox" name="isInternalLink" value="true" />
-              Internal link
+              Internal link (only needed if the URL does not start with /)
             </label>
-            <Textarea name="description" placeholder="Description" className="md:col-span-2" rows={2} />
-            <Textarea name="targetingRules" placeholder='Targeting JSON e.g. {"trades":["CCTV"],"countries":["South Africa"]}' className="md:col-span-2 font-mono text-xs" rows={2} />
+            <FormField label="Placements *" error={adFormErrors.placements} className="md:col-span-2">
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {ALL_PLACEMENT_KEYS.map((placement) => (
+                  <label
+                    key={placement}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      name="placementKeys"
+                      value={placement}
+                      checked={selectedPlacements.includes(placement)}
+                      onChange={() => togglePlacement(placement)}
+                    />
+                    {PLACEMENT_LABELS[placement as keyof typeof PLACEMENT_LABELS] ?? placement}
+                  </label>
+                ))}
+              </div>
+            </FormField>
+            <FormField label="Description" className="md:col-span-2">
+              <Textarea name="description" placeholder="Short ad copy shown in the feed" rows={2} />
+            </FormField>
+            <FormField
+              label="Targeting (optional)"
+              hint='JSON e.g. {"trades":["CCTV"],"countries":["South Africa"]} — leave blank to show everyone'
+              className="md:col-span-2"
+            >
+              <Textarea name="targetingRules" className="font-mono text-xs" rows={2} />
+            </FormField>
             <div className="md:col-span-2">
-              <Button type="submit" disabled={pending}>Create advertisement</Button>
+              <Button type="submit" disabled={pending || list.campaigns.length === 0}>
+                Create advertisement
+              </Button>
             </div>
           </form>
 
@@ -206,6 +366,18 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
                     {ad.status !== "ARCHIVED" && (
                       <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => updateAdStatus(ad.id, "ARCHIVED"))}>Archive</Button>
                     )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-600 hover:text-red-700 dark:text-red-400"
+                      disabled={pending}
+                      onClick={() => {
+                        if (!window.confirm(`Delete "${ad.title}"? This cannot be undone.`)) return;
+                        run(() => deleteAdvertisement(ad.id));
+                      }}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 </div>
               </div>
