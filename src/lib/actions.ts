@@ -716,6 +716,8 @@ export async function updateAvatar(formData: FormData) {
 
   if (profile) revalidatePath(`/profile/${profile.username}`);
   revalidatePath("/settings");
+  revalidatePath("/feed");
+  revalidatePath("/profile");
   return { success: true, url: result.url };
 }
 

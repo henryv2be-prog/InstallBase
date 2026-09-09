@@ -5,7 +5,8 @@ import { MapPin, MessageCircle } from "lucide-react";
 import { getProfileByUsername, getBookmarkedPosts } from "@/lib/queries";
 import { getSession } from "@/lib/session";
 import type { Session } from "next-auth";
-import { PresenceAvatar, PresenceLabel } from "@/components/presence/presence-avatar";
+import { PresenceLabel } from "@/components/presence/presence-avatar";
+import { EditableProfileAvatar } from "@/components/profile/editable-profile-avatar";
 import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -58,11 +59,11 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
           )}
         </div>
         <div className="relative px-5 pb-5">
-          <PresenceAvatar
-            src={user.image}
+          <EditableProfileAvatar
+            image={user.image}
             name={user.name}
             lastSeenAt={user.lastSeenAt}
-            size="lg"
+            editable={isOwnProfile}
             wrapperClassName="-mt-12"
             className="h-24 w-24 border-4 border-white dark:border-gray-900"
             fallbackClassName="text-2xl"

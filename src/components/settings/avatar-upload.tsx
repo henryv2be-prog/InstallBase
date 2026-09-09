@@ -1,34 +1,18 @@
 "use client";
 
-import { useRef, useTransition } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { updateAvatar } from "@/lib/actions";
+import { useProfilePhotoUpload } from "@/hooks/use-profile-photo-upload";
 import { getInitials } from "@/lib/utils";
-import { toast } from "sonner";
 
 export function AvatarUpload({
   name,
-  image,
+  image: initialImage,
 }: {
   name?: string | null;
   image?: string | null;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [pending, startTransition] = useTransition();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append("file", file);
-    startTransition(async () => {
-      const result = await updateAvatar(formData);
-      if (result.error) toast.error(result.error);
-      else toast.success("Profile photo updated");
-    });
-    e.target.value = "";
-  };
+  const { image, pending, inputRef, openPicker, onFileChange } = useProfilePhotoUpload(initialImage);
 
   return (
     <div className="flex items-center gap-4">
@@ -36,11 +20,18 @@ export function AvatarUpload({
         <AvatarImage src={image ?? undefined} />
         <AvatarFallback className="text-lg">{getInitials(name ?? "U")}</AvatarFallback>
       </Avatar>
-      <div>
-        <input ref={inputRef} type="file" accept="image/*" className="sr-only" onChange={handleChange} />
-        <Button type="button" variant="outline" size="sm" disabled={pending} onClick={() => inputRef.current?.click()}>
-          {pending ? "Uploading..." : "Change photo"}
+      <div className="space-y-1">
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*,.heic,.heif"
+          className="sr-only"
+          onChange={onFileChange}
+        />
+        <Button type="button" variant="outline" size="sm" disabled={pending} onClick={openPicker}>
+          {pending ? "Uploading..." : image ? "Change photo" : "Add profile photo"}
         </Button>
+        <p className="text-xs text-muted">JPG, PNG, or HEIC. Shown on your profile and posts.</p>
       </div>
     </div>
   );
