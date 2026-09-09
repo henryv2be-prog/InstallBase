@@ -11,6 +11,7 @@ import {
   needsIosInstallForPush,
 } from "@/components/pwa/device";
 import { enablePushNotifications } from "@/components/pwa/enable-push";
+import { describePushEnableError } from "@/components/pwa/push-errors";
 import { syncLocalPushSubscription } from "@/components/pwa/push-utils";
 
 export function NotificationPrompt({ vapidPublicKey }: { vapidPublicKey: string }) {
@@ -70,7 +71,7 @@ export function NotificationPrompt({ vapidPublicKey }: { vapidPublicKey: string 
       toast.success("Alerts enabled on this device");
     } catch (error) {
       console.error("Enable push failed:", error);
-      toast.error("Could not enable notifications");
+      toast.error(describePushEnableError(error));
     } finally {
       setBusy(false);
     }

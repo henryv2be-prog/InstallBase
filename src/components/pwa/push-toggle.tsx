@@ -7,6 +7,7 @@ import { deletePushSubscription, sendTestPush } from "@/lib/actions";
 import { toast } from "sonner";
 import { isPushApiAvailable, needsIosInstallForPush } from "@/components/pwa/device";
 import { enablePushNotifications } from "@/components/pwa/enable-push";
+import { describePushEnableError } from "@/components/pwa/push-errors";
 import { syncLocalPushSubscription } from "@/components/pwa/push-utils";
 
 export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: string }) {
@@ -82,7 +83,7 @@ export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: str
       toast.success("Alerts enabled on this device");
     } catch (error) {
       console.error("Enable push failed:", error);
-      toast.error("Could not enable notifications");
+      toast.error(describePushEnableError(error));
     } finally {
       setBusy(false);
     }
