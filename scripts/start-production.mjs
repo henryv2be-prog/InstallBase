@@ -22,6 +22,14 @@ if (process.env.NODE_ENV === "production" && databaseUrl.includes("localhost")) 
   process.exit(1);
 }
 
+const railwayDomain = process.env.RAILWAY_PUBLIC_DOMAIN?.trim();
+if (!process.env.AUTH_URL?.trim() && !process.env.NEXTAUTH_URL?.trim() && railwayDomain) {
+  const authUrl = `https://${railwayDomain}`;
+  process.env.AUTH_URL = authUrl;
+  process.env.NEXTAUTH_URL = authUrl;
+  console.log(`→ AUTH_URL set from RAILWAY_PUBLIC_DOMAIN: ${authUrl}`);
+}
+
 const required = [
   { name: "AUTH_SECRET", hint: "Generate with: openssl rand -base64 32" },
 ];
