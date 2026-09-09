@@ -24,6 +24,7 @@ import type { AdvertisementFormField } from "@/lib/advertising/admin-validation"
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { AdRenderer } from "@/components/ads/ad-renderer";
+import { AdMediaUpload } from "@/components/admin/ad-media-upload";
 import type { AdCreative } from "@/lib/advertising/types";
 
 type Overview = Awaited<ReturnType<typeof import("@/lib/advertising/queries").getAdAdminOverview>>;
@@ -97,6 +98,8 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
   const [selectedCampaignId, setSelectedCampaignId] = useState("");
   const [selectedAdvertiserId, setSelectedAdvertiserId] = useState("");
   const [selectedPlacements, setSelectedPlacements] = useState<string[]>(DEFAULT_PLACEMENTS);
+  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaType, setMediaType] = useState("");
 
   const filteredAds = useMemo(() => {
     return list.advertisements.filter((ad) => {
@@ -121,6 +124,8 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
           setSelectedCampaignId("");
           setSelectedAdvertiserId("");
           setSelectedPlacements(DEFAULT_PLACEMENTS);
+          setMediaUrl("");
+          setMediaType("");
         }
         toast.success("Saved");
         router.refresh();
@@ -196,15 +201,33 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
         </TabsList>
 
         <TabsContent value="ads" className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            <select className="rounded-lg border border-border bg-card px-3 py-2 text-sm" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-              <option value="">All statuses</option>
-              {AD_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <select className="rounded-lg border border-border bg-card px-3 py-2 text-sm" value={filterPlacement} onChange={(e) => setFilterPlacement(e.target.value)}>
-              <option value="">All placements</option>
-              {ALL_PLACEMENT_KEYS.map((p) => <option key={p} value={p}>{PLACEMENT_LABELS[p]}</option>)}
-            </select>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted">
+              {filteredAds.length} of {list.advertisements.length} advertisement{list.advertisements.length === 1 ? "" : "s"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <select className="rounded-lg border border-border bg-card px-3 py-2 text-sm" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                <option value="">All statuses</option>
+                {AD_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <select className="rounded-lg border border-border bg-card px-3 py-2 text-sm" value={filterPlacement} onChange={(e) => setFilterPlacement(e.target.value)}>
+                <option value="">All placements</option>
+                {ALL_PLACEMENT_KEYS.map((p) => <option key={p} value={p}>{PLACEMENT_LABELS[p]}</option>)}
+              </select>
+              {(filterStatus || filterPlacement) && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setFilterStatus("");
+                    setFilterPlacement("");
+                  }}
+                >
+                  Clear filters
+                </Button>
+              )}
+            </div>
           </div>
 
           <form
@@ -282,14 +305,24 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
               />
             </FormField>
             <FormField
-              label="Media URL"
+              label="Ad image or video"
               error={adFormErrors.mediaUrl}
-              hint="Optional. Use /ads/… or https://…"
+              hint="Upload a file or paste a URL. Shown in the feed and discover placements."
+              className="md:col-span-2"
             >
-              <Input
-                name="mediaUrl"
-                placeholder="/ads/hikvision-demo.jpg"
-                className={adFormErrors.mediaUrl ? "border-red-500" : undefined}
+              <AdMediaUpload
+                mediaUrl={mediaUrl}
+                mediaType={mediaType}
+                error={adFormErrors.mediaUrl}
+                onChange={(url, type) => {
+                  setMediaUrl(url);
+                  setMediaType(type);
+                  setAdFormErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.mediaUrl;
+                    return next;
+                  });
+                }}
               />
             </FormField>
             <FormField label="CTA text" hint="Optional button label, e.g. Learn more">
@@ -341,42 +374,63 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
           </form>
 
           <div className="space-y-3">
+            {filteredAds.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-border bg-card/50 p-6 text-center text-sm text-muted">
+                {list.advertisements.length === 0
+                  ? "No advertisements yet. Create one using the form above."
+                  : "No ads match your filters. Try clearing filters to see all ads."}
+              </div>
+            )}
             {filteredAds.map((ad) => (
               <div key={ad.id} className="rounded-2xl border border-border bg-card p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold">{ad.title}</p>
-                    <p className="text-sm text-muted">{ad.advertiser.name} · {ad.campaign.name}</p>
-                    <p className="mt-1 text-xs text-muted">
-                      {ad.type} · {ad.status} · {ad.placements.map((p) => PLACEMENT_LABELS[p as keyof typeof PLACEMENT_LABELS] ?? p).join(", ")}
-                    </p>
-                    <p className="mt-1 text-xs">
-                      {formatNumber(ad.impressions)} impressions · {formatNumber(ad.clicks)} clicks · CTR {ad.impressions ? ((ad.clicks / ad.impressions) * 100).toFixed(2) : "0.00"}%
-                    </p>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 gap-3">
+                    {ad.mediaUrl ? (
+                      <div className="h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-muted">
+                        {ad.mediaType === "video" || /\.(mp4|webm|mov)(\?|$)/i.test(ad.mediaUrl) ? (
+                          <video src={ad.mediaUrl} className="h-full w-full object-cover" muted playsInline />
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={ad.mediaUrl} alt="" className="h-full w-full object-cover" />
+                        )}
+                      </div>
+                    ) : null}
+                    <div className="min-w-0">
+                      <p className="font-semibold">{ad.title}</p>
+                      <p className="text-sm text-muted">{ad.advertiser.name} · {ad.campaign.name}</p>
+                      <p className="mt-1 text-xs text-muted">
+                        {ad.type} · <span className="font-medium text-foreground">{ad.status}</span> · {ad.placements.map((p) => PLACEMENT_LABELS[p as keyof typeof PLACEMENT_LABELS] ?? p).join(", ")}
+                      </p>
+                      <p className="mt-1 text-xs">
+                        {formatNumber(ad.impressions)} impressions · {formatNumber(ad.clicks)} clicks · CTR {ad.impressions ? ((ad.clicks / ad.impressions) * 100).toFixed(2) : "0.00"}%
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="outline" onClick={() => setPreviewAd(ad)}>Preview</Button>
-                    <Button size="sm" variant="outline" disabled={pending} onClick={() => run(() => duplicateAdvertisement(ad.id))}>Duplicate</Button>
-                    {ad.status !== "ACTIVE" && (
-                      <Button size="sm" disabled={pending} onClick={() => run(() => updateAdStatus(ad.id, "ACTIVE"))}>Activate</Button>
-                    )}
-                    {ad.status === "ACTIVE" && (
-                      <Button size="sm" variant="outline" disabled={pending} onClick={() => run(() => updateAdStatus(ad.id, "PAUSED"))}>Pause</Button>
-                    )}
-                    {ad.status !== "ARCHIVED" && (
-                      <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => updateAdStatus(ad.id, "ARCHIVED"))}>Archive</Button>
-                    )}
+                  <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[220px]">
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" variant="outline" onClick={() => setPreviewAd(ad)}>Preview</Button>
+                      <Button size="sm" variant="outline" disabled={pending} onClick={() => run(() => duplicateAdvertisement(ad.id))}>Duplicate</Button>
+                      {ad.status !== "ACTIVE" && (
+                        <Button size="sm" disabled={pending} onClick={() => run(() => updateAdStatus(ad.id, "ACTIVE"))}>Activate</Button>
+                      )}
+                      {ad.status === "ACTIVE" && (
+                        <Button size="sm" variant="outline" disabled={pending} onClick={() => run(() => updateAdStatus(ad.id, "PAUSED"))}>Pause</Button>
+                      )}
+                      {ad.status !== "ARCHIVED" && (
+                        <Button size="sm" variant="outline" disabled={pending} onClick={() => run(() => updateAdStatus(ad.id, "ARCHIVED"))}>Archive</Button>
+                      )}
+                    </div>
                     <Button
                       size="sm"
-                      variant="ghost"
-                      className="text-red-600 hover:text-red-700 dark:text-red-400"
+                      variant="destructive"
+                      className="w-full sm:w-auto"
                       disabled={pending}
                       onClick={() => {
                         if (!window.confirm(`Delete "${ad.title}"? This cannot be undone.`)) return;
                         run(() => deleteAdvertisement(ad.id));
                       }}
                     >
-                      Delete
+                      Delete ad
                     </Button>
                   </div>
                 </div>

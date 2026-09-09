@@ -11,6 +11,7 @@ import type {
   PricingModel,
   Prisma,
 } from "@/generated/prisma/client";
+import { uploadImage } from "@/lib/actions";
 import { sanitizeAdText } from "./security";
 import { parseTargetingRules } from "./targeting";
 import {
@@ -110,6 +111,18 @@ export async function upsertCampaign(formData: FormData) {
   return { success: true };
 }
 
+export async function uploadAdMedia(formData: FormData) {
+  await requireAdmin();
+  return uploadImage(formData);
+}
+
+function inferMediaType(mediaUrl: string | null, explicit: string | null) {
+  if (explicit) return explicit;
+  if (!mediaUrl) return null;
+  if (/\.(mp4|webm|mov)(\?|$)/i.test(mediaUrl)) return "video";
+  return "image";
+}
+
 export async function upsertAdvertisement(formData: FormData) {
   await requireAdmin();
   const id = formData.get("id") as string | null;
@@ -142,7 +155,7 @@ export async function upsertAdvertisement(formData: FormData) {
     placements,
     status: (formData.get("status") as AdStatus) || "DRAFT",
     mediaUrl,
-    mediaType: String(formData.get("mediaType") ?? "").trim() || null,
+    mediaType: inferMediaType(mediaUrl, String(formData.get("mediaType") ?? "").trim() || null),
     destinationUrl,
     ctaText: sanitizeAdText(String(formData.get("ctaText") ?? ""), 40) || null,
     isInternalLink: isInternal,
