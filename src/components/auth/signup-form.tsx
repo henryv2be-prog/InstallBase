@@ -8,6 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SPECIALTIES } from "@/lib/constants";
 import { registerUser } from "@/lib/actions";
+import {
+  PASSWORD_MIN_LENGTH,
+  type SignupField,
+  type SignupValidationErrors,
+  firstSignupError,
+  signupStepForField,
+  validateSignupInput,
+} from "@/lib/auth-validation";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const experienceLevels = [
@@ -18,11 +27,18 @@ const experienceLevels = [
   { value: "TEN_PLUS", label: "10+ years" },
 ];
 
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p className="mt-1 text-sm text-red-600 dark:text-red-400">{message}</p>;
+}
+
 export function SignupForm({ next = "/feed" }: { next?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [pending, startTransition] = useTransition();
   const [specialties, setSpecialties] = useState<string[]>([]);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<SignupValidationErrors>({});
   const [form, setForm] = useState({
     name: "",
     username: "",
@@ -35,6 +51,14 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
 
   const update = (field: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    setFormError(null);
+    if (field in fieldErrors) {
+      setFieldErrors((prev) => {
+        const nextErrors = { ...prev };
+        delete nextErrors[field as SignupField];
+        return nextErrors;
+      });
+    }
   };
 
   const toggleSpecialty = (s: string) => {
@@ -43,23 +67,57 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
     );
   };
 
-  const canContinueStep1 =
-    form.name.trim() &&
-    form.username.trim() &&
-    form.email.trim() &&
-    form.password.length >= 8;
+  const inputClass = (field: SignupField) =>
+    cn(fieldErrors[field] && "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30");
+
+  const applyValidationErrors = (errors: SignupValidationErrors) => {
+    setFieldErrors(errors);
+    const first = firstSignupError(errors);
+    if (first) {
+      setStep(signupStepForField(first.field));
+      toast.error(first.message);
+    }
+  };
+
+  const validateCurrentInput = () => {
+    const errors = validateSignupInput(form);
+    setFieldErrors(errors);
+    return errors;
+  };
+
+  const continueToStep2 = () => {
+    const errors = validateSignupInput(form);
+    const step1Errors: SignupValidationErrors = {};
+    for (const field of ["name", "username", "email", "password"] as SignupField[]) {
+      if (errors[field]) step1Errors[field] = errors[field];
+    }
+
+    if (Object.keys(step1Errors).length > 0) {
+      setFieldErrors(step1Errors);
+      const first = step1Errors.name || step1Errors.username || step1Errors.email || step1Errors.password;
+      if (first) toast.error(first);
+      return;
+    }
+
+    setFieldErrors({});
+    setFormError(null);
+    setStep(2);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.city.trim()) {
-      toast.error("Please enter your city");
+    setFormError(null);
+
+    const errors = validateCurrentInput();
+    if (Object.keys(errors).length > 0) {
+      applyValidationErrors(errors);
       return;
     }
 
     const formData = new FormData();
     formData.append("name", form.name.trim());
     formData.append("username", form.username.trim().toLowerCase());
-    formData.append("email", form.email.trim());
+    formData.append("email", form.email.trim().toLowerCase());
     formData.append("password", form.password);
     formData.append("experience", form.experience);
     formData.append("country", form.country.trim());
@@ -67,12 +125,27 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
     specialties.forEach((s) => formData.append("specialties", s));
 
     startTransition(async () => {
-      const result = await registerUser(formData);
-      if (result.error) {
-        toast.error(result.error);
-      } else {
+      try {
+        const result = await registerUser(formData);
+        if (result.error) {
+          setFormError(result.error);
+          toast.error(result.error);
+
+          if (result.field) {
+            setFieldErrors((prev) => ({ ...prev, [result.field!]: result.error }));
+            setStep(signupStepForField(result.field));
+          } else if (result.errors) {
+            applyValidationErrors(result.errors);
+          }
+          return;
+        }
+
         toast.success("Welcome to InstallBase!");
         router.push(next);
+      } catch {
+        const message = "Something went wrong. Check your connection and try again.";
+        setFormError(message);
+        toast.error(message);
       }
     });
   };
@@ -93,6 +166,12 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
+          {formError && (
+            <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
+              {formError}
+            </p>
+          )}
+
           {step === 1 && (
             <div className="space-y-4">
               <div>
@@ -102,7 +181,10 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                   onChange={(e) => update("name", e.target.value)}
                   required
                   placeholder="John Smith"
+                  className={inputClass("name")}
+                  aria-invalid={Boolean(fieldErrors.name)}
                 />
+                <FieldError message={fieldErrors.name} />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Username</label>
@@ -112,7 +194,11 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                   required
                   placeholder="johnsecurity"
                   pattern="[a-z0-9_]+"
+                  className={inputClass("username")}
+                  aria-invalid={Boolean(fieldErrors.username)}
                 />
+                <FieldError message={fieldErrors.username} />
+                <p className="mt-1 text-xs text-muted">Lowercase letters, numbers, and underscores only.</p>
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Email</label>
@@ -122,7 +208,10 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                   onChange={(e) => update("email", e.target.value)}
                   required
                   placeholder="you@company.com"
+                  className={inputClass("email")}
+                  aria-invalid={Boolean(fieldErrors.email)}
                 />
+                <FieldError message={fieldErrors.email} />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Password</label>
@@ -131,16 +220,20 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                   value={form.password}
                   onChange={(e) => update("password", e.target.value)}
                   required
-                  minLength={8}
-                  placeholder="Min 8 characters"
+                  minLength={PASSWORD_MIN_LENGTH}
+                  placeholder={`At least ${PASSWORD_MIN_LENGTH} characters`}
+                  className={inputClass("password")}
+                  aria-invalid={Boolean(fieldErrors.password)}
                 />
+                <FieldError message={fieldErrors.password} />
+                {form.password.length > 0 && form.password.length < PASSWORD_MIN_LENGTH && !fieldErrors.password && (
+                  <p className="mt-1 text-xs text-muted">
+                    {PASSWORD_MIN_LENGTH - form.password.length} more character
+                    {PASSWORD_MIN_LENGTH - form.password.length === 1 ? "" : "s"} needed
+                  </p>
+                )}
               </div>
-              <Button
-                type="button"
-                className="w-full"
-                disabled={!canContinueStep1}
-                onClick={() => setStep(2)}
-              >
+              <Button type="button" className="w-full" onClick={continueToStep2}>
                 Continue
               </Button>
             </div>
@@ -177,7 +270,11 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                   value={form.experience}
                   onChange={(e) => update("experience", e.target.value)}
                   required
-                  className="flex h-10 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm dark:border-gray-700 dark:bg-gray-900"
+                  className={cn(
+                    "flex h-10 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm dark:border-gray-700 dark:bg-gray-900",
+                    fieldErrors.experience && "border-red-500"
+                  )}
+                  aria-invalid={Boolean(fieldErrors.experience)}
                 >
                   {experienceLevels.map((l) => (
                     <option key={l.value} value={l.value}>
@@ -185,6 +282,7 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                     </option>
                   ))}
                 </select>
+                <FieldError message={fieldErrors.experience} />
               </div>
               <div className="flex gap-2">
                 <Button type="button" variant="outline" onClick={() => setStep(1)}>
@@ -209,7 +307,10 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                   onChange={(e) => update("country", e.target.value)}
                   required
                   placeholder="South Africa"
+                  className={inputClass("country")}
+                  aria-invalid={Boolean(fieldErrors.country)}
                 />
+                <FieldError message={fieldErrors.country} />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">City</label>
@@ -218,7 +319,10 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                   onChange={(e) => update("city", e.target.value)}
                   required
                   placeholder="Johannesburg"
+                  className={inputClass("city")}
+                  aria-invalid={Boolean(fieldErrors.city)}
                 />
+                <FieldError message={fieldErrors.city} />
               </div>
               <div className="flex gap-2">
                 <Button type="button" variant="outline" onClick={() => setStep(2)}>
