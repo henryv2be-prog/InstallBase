@@ -30,7 +30,7 @@ export function sanitizeAdText(text: string, maxLength = 500): string {
 export function isAllowedMediaUrl(url: string | null | undefined): boolean {
   if (!url) return true;
   const trimmed = url.trim();
-  if (trimmed.startsWith("/uploads/")) return true;
+  if (trimmed.startsWith("/uploads/") || trimmed.startsWith("/ads/")) return true;
   try {
     const parsed = new URL(trimmed);
     return parsed.protocol === "http:" || parsed.protocol === "https:";
