@@ -13,6 +13,7 @@
     "lint": "eslint",
     "test": "tsx --test src/lib/advertising/__tests__/advertising.test.ts",
     "db:seed": "npx tsx prisma/seed.ts",
+    "db:seed-demo-ad": "npx tsx scripts/seed-demo-ad.ts",
     "db:fix-images": "npx tsx prisma/fix-images.ts",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "node scripts/migrate-deploy.mjs",
