@@ -42,23 +42,27 @@ export async function seedDemoAdCampaign(prisma: PrismaClient) {
     },
   });
 
+  const demoMediaUrl = "/ads/hikvision-demo.jpg";
+
   const ad = await prisma.advertisement.upsert({
     where: { id: "seed-demo-ad-feed" },
     update: {
       status: "ACTIVE",
       priority: 10,
       targetingRules: {},
+      mediaUrl: demoMediaUrl,
+      mediaType: "image",
     },
     create: {
       id: "seed-demo-ad-feed",
       campaignId: campaign.id,
       advertiserId: advertiser.id,
       title: "Professional CCTV for every install",
-      description: "Turbo HD cameras with PoE — trusted on site worldwide.",
+      description: "ColorVu cameras with full-colour night imaging — trusted on site worldwide.",
       type: "SPONSORED_POST",
       placements: ["feed_between_posts", "feed_top", "community", "search_results"],
       status: "ACTIVE",
-      mediaUrl: "https://images.unsplash.com/photo-1558002038-1055907df827?w=800&q=80",
+      mediaUrl: demoMediaUrl,
       mediaType: "image",
       destinationUrl: "/discover?tab=products",
       ctaText: "Explore products",

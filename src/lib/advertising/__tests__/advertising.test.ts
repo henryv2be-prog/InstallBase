@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { matchesTargeting, parseTargetingRules } from "../targeting";
-import { sanitizeAdDestinationUrl, sanitizeAdText } from "../security";
+import { isAllowedMediaUrl, sanitizeAdDestinationUrl, sanitizeAdText } from "../security";
 import { mergeAdSettings } from "../config";
 import type { TargetingContext } from "../types";
 import type { AdvertisingProvider } from "../provider";
@@ -46,6 +46,12 @@ describe("security", () => {
 
   it("sanitizes ad text", () => {
     assert.equal(sanitizeAdText("<script>bad</script>Hello"), "scriptbad/scriptHello");
+  });
+
+  it("allows bundled ad media paths", () => {
+    assert.equal(isAllowedMediaUrl("/ads/hikvision-demo.jpg"), true);
+    assert.equal(isAllowedMediaUrl("/uploads/ad.jpg"), true);
+    assert.equal(isAllowedMediaUrl("javascript:alert(1)"), false);
   });
 });
 
