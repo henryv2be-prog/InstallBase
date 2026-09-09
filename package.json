@@ -11,7 +11,7 @@
     "start": "node scripts/start-production.mjs",
     "start:server": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "eslint",
-    "test": "tsx --test src/lib/advertising/__tests__/advertising.test.ts src/lib/__tests__/auth-validation.test.ts src/lib/__tests__/media.test.ts src/components/pwa/__tests__/push-errors.test.ts",
+    "test": "tsx --test src/lib/advertising/__tests__/advertising.test.ts src/lib/__tests__/auth-validation.test.ts src/lib/__tests__/media.test.ts src/hooks/__tests__/scroll-safe-menu.test.ts src/components/pwa/__tests__/push-errors.test.ts",
     "db:seed": "npx tsx prisma/seed.ts",
     "db:seed-demo-ad": "SEED_DEMO_AD_ONLY=true npx tsx prisma/seed.ts",
     "db:fix-images": "npx tsx prisma/fix-images.ts",

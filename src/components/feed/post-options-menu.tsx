@@ -1,10 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { MoreHorizontal, Link2, Flag, ExternalLink } from "lucide-react";
+import {
+  MoreHorizontal,
+  Link2,
+  Flag,
+  ExternalLink,
+  Bookmark,
+  Share2,
+} from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { reportContent } from "@/lib/actions";
+import { useScrollSafeMenu } from "@/hooks/use-scroll-safe-menu";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTransition } from "react";
 
@@ -12,6 +21,9 @@ interface PostOptionsMenuProps {
   postId: string;
   authorId: string;
   currentUserId?: string;
+  isSaved?: boolean;
+  onBookmark?: () => void;
+  onShare?: () => void;
 }
 
 const reportReasons = [
@@ -22,8 +34,16 @@ const reportReasons = [
   { value: "OTHER", label: "Other" },
 ] as const;
 
-export function PostOptionsMenu({ postId, authorId, currentUserId }: PostOptionsMenuProps) {
+export function PostOptionsMenu({
+  postId,
+  authorId,
+  currentUserId,
+  isSaved = false,
+  onBookmark,
+  onShare,
+}: PostOptionsMenuProps) {
   const [pending, startTransition] = useTransition();
+  const { open, onOpenChange, triggerProps } = useScrollSafeMenu();
 
   const copyLink = () => {
     const url = `${window.location.origin}/post/${postId}`;
@@ -53,18 +73,44 @@ export function PostOptionsMenu({ postId, authorId, currentUserId }: PostOptions
   };
 
   return (
-    <DropdownMenu.Root>
+    <DropdownMenu.Root open={open} onOpenChange={onOpenChange} modal={false}>
       <DropdownMenu.Trigger asChild>
-        <Button variant="ghost" size="icon" className="shrink-0" disabled={pending} aria-label="Post options">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="shrink-0 touch-pan-y"
+          disabled={pending}
+          aria-label="More post actions"
+          {...triggerProps}
+        >
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          className="z-50 min-w-[180px] rounded-xl border border-border bg-card p-1 shadow-lg animate-in fade-in-0 zoom-in-95"
+          className="z-50 min-w-[190px] rounded-xl border border-border bg-card p-1 shadow-lg animate-in fade-in-0 zoom-in-95"
           align="end"
-          sideOffset={4}
+          sideOffset={6}
+          onCloseAutoFocus={(event) => event.preventDefault()}
         >
+          {onBookmark && (
+            <DropdownMenu.Item
+              className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800"
+              onSelect={onBookmark}
+            >
+              <Bookmark className={cn("h-4 w-4", isSaved && "fill-current text-blue-500")} />
+              {isSaved ? "Unsave" : "Save post"}
+            </DropdownMenu.Item>
+          )}
+          {onShare && (
+            <DropdownMenu.Item
+              className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800"
+              onSelect={onShare}
+            >
+              <Share2 className="h-4 w-4" />
+              Share
+            </DropdownMenu.Item>
+          )}
           <DropdownMenu.Item asChild>
             <Link
               href={`/post/${postId}`}
