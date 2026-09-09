@@ -43,7 +43,7 @@ export function PostOptionsMenu({
   onShare,
 }: PostOptionsMenuProps) {
   const [pending, startTransition] = useTransition();
-  const { open, onOpenChange, triggerProps } = useScrollSafeMenu();
+  const { open, onOpenChange, triggerProps, pressing, requiresLongPress } = useScrollSafeMenu();
 
   const copyLink = () => {
     const url = `${window.location.origin}/post/${postId}`;
@@ -78,9 +78,13 @@ export function PostOptionsMenu({
         <Button
           variant="ghost"
           size="sm"
-          className="shrink-0 touch-pan-y"
+          className={cn(
+            "shrink-0 touch-pan-y transition-transform",
+            pressing && "scale-95 bg-muted"
+          )}
           disabled={pending}
-          aria-label="More post actions"
+          aria-label={requiresLongPress ? "Press and hold for post actions" : "More post actions"}
+          title={requiresLongPress ? "Press and hold" : undefined}
           {...triggerProps}
         >
           <MoreHorizontal className="h-4 w-4" />

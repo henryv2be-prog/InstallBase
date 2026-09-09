@@ -1,10 +1,14 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { MENU_LONG_PRESS_MS } from "../use-scroll-safe-menu";
 
-// Threshold is documented in the hook — keep in sync if changed.
 const MOVE_THRESHOLD_PX = 12;
 
-describe("scroll-safe menu gesture threshold", () => {
+describe("scroll-safe menu gestures", () => {
+  it("uses a deliberate long-press duration on touch", () => {
+    assert.equal(MENU_LONG_PRESS_MS, 450);
+  });
+
   it("treats small movement as a tap", () => {
     assert.ok(8 < MOVE_THRESHOLD_PX);
   });
