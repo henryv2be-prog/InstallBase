@@ -58,6 +58,23 @@ if (migrate.status !== 0) {
 
 console.log("Migrations complete.");
 
+if (process.env.SEED_DEMO_AD_ONLY === "true" || process.env.SEED_DEMO_AD_ONLY === "1") {
+  console.log("\n→ Seeding demo ad campaign (SEED_DEMO_AD_ONLY — safe upsert, no other data touched)");
+  const seed = spawnSync("npx", ["tsx", "prisma/seed.ts"], {
+    stdio: "inherit",
+    shell: true,
+    env: {
+      ...process.env,
+      SEED_DEMO_AD_ONLY: "true",
+    },
+  });
+  if (seed.status !== 0) {
+    console.error("\n⚠ Demo ad seed failed — check logs above. App will still start.\n");
+  } else {
+    console.log("Demo ad seed complete.");
+  }
+}
+
 const port = process.env.PORT || "3000";
 console.log(`\n→ Starting Next.js on 0.0.0.0:${port}`);
 

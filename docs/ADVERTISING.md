@@ -4,18 +4,25 @@
 
 **Do not run** `npm run db:seed` on a live site — it wipes all content.
 
-Seed only the Hikvision demo ad:
+### Option A — Railway variable (no terminal)
+
+1. Railway → your **web service** → **Variables**
+2. Add: `SEED_DEMO_AD_ONLY` = `true`
+3. **Redeploy** (or restart the service)
+
+On each deploy/start, the app runs a safe upsert for the Hikvision demo ad only (after migrations). You can leave the variable set — re-runs are harmless.
+
+### Option B — Manual command (if you have a shell)
 
 ```bash
-# Option A — npm script
-npm run db:seed-demo-ad
-
-# Option B — env variable
-SEED_DEMO_AD_ONLY=true npm run db:seed
-
-# Railway
 railway run npm run db:seed-demo-ad
 ```
+
+### Option C — Admin UI (no terminal, no env var)
+
+1. Go to `/admin/ads`
+2. Create advertiser → campaign → advertisement
+3. Set both to **ACTIVE**, placements e.g. `feed_top`, `feed_between_posts`, `community`
 
 Uses upsert only; safe to re-run. Does not require `ALLOW_SEED=true`.
 
