@@ -565,31 +565,40 @@ export async function savePushSubscription(input: {
   keys: { p256dh: string; auth: string };
   userAgent?: string;
 }) {
-  const userId = await getCurrentUserId();
-  if (!input.endpoint || !input.keys?.p256dh || !input.keys?.auth) {
-    return { error: "Invalid subscription" };
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { error: "Your session expired. Refresh the page and sign in again." };
+    }
+
+    if (!input.endpoint || !input.keys?.p256dh || !input.keys?.auth) {
+      return { error: "Invalid subscription from this browser" };
+    }
+
+    const userAgent = input.userAgent?.slice(0, 500);
+
+    await prisma.pushSubscription.upsert({
+      where: { endpoint: input.endpoint },
+      create: {
+        userId: session.user.id,
+        endpoint: input.endpoint,
+        p256dh: input.keys.p256dh,
+        auth: input.keys.auth,
+        userAgent,
+      },
+      update: {
+        userId: session.user.id,
+        p256dh: input.keys.p256dh,
+        auth: input.keys.auth,
+        userAgent,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("savePushSubscription failed:", error);
+    return { error: "Could not save this device. Try again in a moment." };
   }
-
-  const userAgent = input.userAgent?.slice(0, 500);
-
-  await prisma.pushSubscription.upsert({
-    where: { endpoint: input.endpoint },
-    create: {
-      userId,
-      endpoint: input.endpoint,
-      p256dh: input.keys.p256dh,
-      auth: input.keys.auth,
-      userAgent,
-    },
-    update: {
-      userId,
-      p256dh: input.keys.p256dh,
-      auth: input.keys.auth,
-      userAgent,
-    },
-  });
-
-  return { success: true };
 }
 
 export async function deletePushSubscription(endpoint: string) {
