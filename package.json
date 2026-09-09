@@ -11,6 +11,7 @@
     "start": "node scripts/start-production.mjs",
     "start:server": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "eslint",
+    "test": "tsx --test src/lib/advertising/__tests__/advertising.test.ts",
     "db:seed": "npx tsx prisma/seed.ts",
     "db:fix-images": "npx tsx prisma/fix-images.ts",
     "db:migrate": "prisma migrate dev",

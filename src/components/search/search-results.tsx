@@ -6,6 +6,8 @@ import { auth } from "@/lib/auth";
 import { FollowButton } from "@/components/profile/follow-button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Search } from "lucide-react";
+import { AdSlot } from "@/components/ads/ad-slot";
+import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 
 export async function SearchResults({ query, filter = "all" }: { query: string; filter?: string }) {
   const session = await auth();
@@ -42,6 +44,8 @@ export async function SearchResults({ query, filter = "all" }: { query: string; 
       <p className="text-sm text-muted">
         Found {total} result{total === 1 ? "" : "s"} for &ldquo;{query}&rdquo;
       </p>
+
+      <AdSlot placement={AD_PLACEMENTS.SEARCH_RESULTS} />
 
       {showUsers && results.users.length > 0 && (
         <section>

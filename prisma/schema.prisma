@@ -525,3 +525,198 @@ model PushSubscription {
 
   @@index([userId])
 }
+
+// ─── Advertising ───────────────────────────────────────────────────────────
+
+enum AdType {
+  IMAGE
+  BANNER
+  SPONSORED_POST
+  SPONSORED_PRODUCT
+  SPONSORED_ARTICLE
+  VIDEO
+}
+
+enum AdStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+  COMPLETED
+}
+
+enum PricingModel {
+  CPM
+  CPC
+  FLAT_RATE
+  MONTHLY
+  PACKAGE
+}
+
+enum AdDeviceTarget {
+  ALL
+  MOBILE
+  DESKTOP
+  TABLET
+}
+
+enum AdEventType {
+  IMPRESSION
+  CLICK
+}
+
+model Advertiser {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  description  String?
+  logoUrl      String?
+  website      String?
+  contactEmail String?
+  contactPhone String?
+  companyType  String?
+  userId       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  campaigns      AdCampaign[]
+  advertisements Advertisement[]
+
+  @@index([userId])
+}
+
+model AdInventory {
+  id            String         @id @default(cuid())
+  placementKey  String         @unique
+  name          String
+  description   String?
+  format        String         @default("card")
+  width         Int?
+  height        Int?
+  deviceSupport AdDeviceTarget @default(ALL)
+  enabled       Boolean        @default(true)
+  pricingConfig Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model AdCampaign {
+  id           String         @id @default(cuid())
+  advertiserId String
+  name         String
+  description  String?
+  status       CampaignStatus @default(DRAFT)
+  pricingModel PricingModel?
+  budget       Decimal?       @db.Decimal(12, 2)
+  spent        Decimal        @default(0) @db.Decimal(12, 2)
+  startDate    DateTime?
+  endDate      DateTime?
+  priority     Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  advertiser     Advertiser      @relation(fields: [advertiserId], references: [id], onDelete: Cascade)
+  advertisements Advertisement[]
+  events         AdEvent[]
+  dailyStats     AdDailyStats[]
+
+  @@index([advertiserId])
+  @@index([status, startDate, endDate])
+}
+
+model Advertisement {
+  id                 String   @id @default(cuid())
+  campaignId         String
+  advertiserId       String
+  title              String
+  description        String?
+  type               AdType
+  placements         String[]
+  status             AdStatus @default(DRAFT)
+  mediaUrl           String?
+  mediaType          String?
+  destinationUrl     String
+  ctaText            String?
+  isInternalLink     Boolean  @default(false)
+  sponsoredProductId String?
+  sponsoredPostId    String?
+  priority           Int      @default(0)
+  impressions        Int      @default(0)
+  clicks             Int      @default(0)
+  uniqueImpressions  Int      @default(0)
+  uniqueClicks       Int      @default(0)
+  startDate          DateTime?
+  endDate            DateTime?
+  targetingRules     Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  campaign   AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  advertiser Advertiser @relation(fields: [advertiserId], references: [id], onDelete: Cascade)
+  events     AdEvent[]
+  dailyStats AdDailyStats[]
+
+  @@index([campaignId])
+  @@index([advertiserId])
+  @@index([status])
+  @@index([status, startDate, endDate])
+}
+
+model AdEvent {
+  id              String      @id @default(cuid())
+  advertisementId String
+  campaignId      String
+  placementKey    String
+  eventType       AdEventType
+  viewerKey       String?
+  deviceType      String?
+  createdAt       DateTime    @default(now())
+
+  advertisement Advertisement @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+  campaign      AdCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([advertisementId, eventType, createdAt])
+  @@index([campaignId, createdAt])
+  @@index([placementKey, createdAt])
+  @@index([viewerKey, advertisementId, eventType, createdAt])
+}
+
+model AdDailyStats {
+  id                String   @id @default(cuid())
+  advertisementId   String
+  campaignId        String
+  placementKey      String
+  date              DateTime @db.Date
+  impressions       Int      @default(0)
+  clicks            Int      @default(0)
+  uniqueImpressions Int      @default(0)
+  uniqueClicks      Int      @default(0)
+
+  advertisement Advertisement @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+  campaign      AdCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([advertisementId, placementKey, date])
+  @@index([campaignId, date])
+}
+
+model AdSettings {
+  id                 String   @id @default("global")
+  adsEnabled         Boolean  @default(true)
+  sponsoredEnabled   Boolean  @default(true)
+  analyticsEnabled   Boolean  @default(true)
+  maxFeedAds         Int      @default(3)
+  minPostsBetweenAds Int      @default(4)
+  maxPageAds         Int      @default(5)
+  mobileMaxFeedAds   Int      @default(2)
+  desktopMaxFeedAds  Int      @default(3)
+  defaultPriority    Int      @default(0)
+  provider           String   @default("internal")
+  updatedAt          DateTime @updatedAt
+}

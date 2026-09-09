@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { adminSuspendUser, adminDeletePost, adminResolveReport } from "@/lib/actions";
 import { toast } from "sonner";
@@ -64,6 +65,12 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
   return (
     <div className="animate-fade-in">
       <h1 className="mb-6 text-2xl font-bold">Admin Dashboard</h1>
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        <Link href="/admin/ads">
+          <Button variant="outline" size="sm">Advertising</Button>
+        </Link>
+      </div>
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => (

@@ -1,7 +1,9 @@
 import { getSession } from "@/lib/session";
 import { getFeedPosts, getFollowingFeedPosts, getFollowingIds } from "@/lib/queries";
 import { CreatePostCard } from "@/components/feed/create-post";
-import { PostFeed } from "@/components/feed/post-card";
+import { PostFeedWithAds } from "@/components/feed/post-feed-with-ads";
+import { AdSlot } from "@/components/ads/ad-slot";
+import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
 import { BragTooltip } from "@/components/feed/brag-tooltip";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
@@ -113,13 +115,16 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             action={{ label: "Find installers", href: "/discover?tab=people" }}
           />
         ) : (
-          <PostFeed
-            posts={posts}
-            currentUserId={userId}
-            showInlineComments
-            feedContext={followingTab ? "following" : "popular"}
-            followingIds={followingSet}
-          />
+          <>
+            <AdSlot placement={AD_PLACEMENTS.FEED_TOP} className="mb-2" />
+            <PostFeedWithAds
+              posts={posts}
+              currentUserId={userId}
+              showInlineComments
+              feedContext={followingTab ? "following" : "popular"}
+              followingIds={followingSet}
+            />
+          </>
         )}
       </div>
     </PullToRefresh>

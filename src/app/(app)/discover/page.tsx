@@ -23,6 +23,8 @@ import { formatNumber } from "@/lib/utils";
 import { TrendingUp, HelpCircle, FolderKanban } from "lucide-react";
 import { DiscoverTabs } from "@/components/discover/discover-tabs";
 import { EmptyState } from "@/components/ui/empty-state";
+import { AdSlot } from "@/components/ads/ad-slot";
+import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 
 export const metadata = { title: "Explore" };
 export const dynamic = "force-dynamic";
@@ -83,6 +85,8 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
       <Suspense fallback={null}>
         <DiscoverTabs />
       </Suspense>
+
+      <AdSlot placement={AD_PLACEMENTS.COMMUNITY} className="my-4" />
 
       {isTrending && (
         <>

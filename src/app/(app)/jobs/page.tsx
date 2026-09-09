@@ -3,6 +3,8 @@ import { getJobs } from "@/lib/queries";
 import { MapPin, Clock } from "lucide-react";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { Badge } from "@/components/ui/badge";
+import { AdSlot } from "@/components/ads/ad-slot";
+import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 
 export const metadata = { title: "Jobs" };
 export const dynamic = "force-dynamic";
@@ -23,6 +25,8 @@ export default async function JobsPage() {
         🚧 The InstallBase jobs marketplace is under development. These are sample listings
         to show how hiring and subcontracting will work.
       </div>
+
+      <AdSlot placement={AD_PLACEMENTS.JOB} className="mb-6" />
 
       <div className="space-y-4">
         {jobs.map((job) => (
