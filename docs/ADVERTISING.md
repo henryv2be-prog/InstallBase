@@ -1,5 +1,24 @@
 # InstallBase Advertising System
 
+## Demo campaign (live production)
+
+**Do not run** `npm run db:seed` on a live site — it wipes all content.
+
+Seed only the Hikvision demo ad:
+
+```bash
+# Option A — npm script
+npm run db:seed-demo-ad
+
+# Option B — env variable
+SEED_DEMO_AD_ONLY=true npm run db:seed
+
+# Railway
+railway run npm run db:seed-demo-ad
+```
+
+Uses upsert only; safe to re-run. Does not require `ALLOW_SEED=true`.
+
 ## Architecture
 
 Advertising is modular and provider-based:

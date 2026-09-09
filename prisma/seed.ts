@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 import { DEMO_IMAGES } from "../src/lib/constants";
+import { logDemoAdSeedResult, seedDemoAdCampaign } from "./seed-demo-ad";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -35,6 +36,16 @@ const installers = [
 ];
 
 async function main() {
+  const demoAdOnly =
+    process.env.SEED_DEMO_AD_ONLY === "true" || process.env.SEED_DEMO_AD_ONLY === "1";
+
+  if (demoAdOnly) {
+    console.log("Seeding Hikvision demo ad campaign only (SEED_DEMO_AD_ONLY)…");
+    const result = await seedDemoAdCampaign(prisma);
+    logDemoAdSeedResult(result);
+    return;
+  }
+
   if (process.env.NODE_ENV === "production" && process.env.ALLOW_SEED !== "true") {
     console.error("Refusing to seed production database. Set ALLOW_SEED=true to override.");
     process.exit(1);
@@ -460,56 +471,8 @@ async function main() {
   });
 
   // Sample advertising (internal provider demo)
-  const advertiser = await prisma.advertiser.upsert({
-    where: { slug: "hikvision-demo" },
-    update: {},
-    create: {
-      name: "Hikvision Demo",
-      slug: "hikvision-demo",
-      description: "Sample advertiser for InstallBase ad system demo.",
-      companyType: "Manufacturer",
-      website: "https://www.hikvision.com",
-      contactEmail: "ads@example.com",
-    },
-  });
-
-  const campaign = await prisma.adCampaign.upsert({
-    where: { id: "seed-demo-campaign" },
-    update: {},
-    create: {
-      id: "seed-demo-campaign",
-      advertiserId: advertiser.id,
-      name: "Q3 Installer Outreach",
-      status: "ACTIVE",
-      pricingModel: "CPM",
-      budget: 5000,
-      priority: 10,
-      startDate: new Date(Date.now() - 86400000),
-      endDate: new Date(Date.now() + 90 * 86400000),
-    },
-  });
-
-  await prisma.advertisement.upsert({
-    where: { id: "seed-demo-ad-feed" },
-    update: {},
-    create: {
-      id: "seed-demo-ad-feed",
-      campaignId: campaign.id,
-      advertiserId: advertiser.id,
-      title: "Professional CCTV for every install",
-      description: "Turbo HD cameras with PoE — trusted on site worldwide.",
-      type: "SPONSORED_POST",
-      placements: ["feed_between_posts", "feed_top", "community", "search_results"],
-      status: "ACTIVE",
-      mediaUrl: "https://images.unsplash.com/photo-1558002038-1055907df827?w=800&q=80",
-      mediaType: "image",
-      destinationUrl: "/discover?tab=products",
-      ctaText: "Explore products",
-      isInternalLink: true,
-      priority: 10,
-      targetingRules: { trades: ["CCTV", "Security"] },
-    },
-  });
+  const demoAd = await seedDemoAdCampaign(prisma);
+  logDemoAdSeedResult(demoAd);
 
   console.log("✅ Seed complete!");
   console.log(`   ${users.length} installers`);

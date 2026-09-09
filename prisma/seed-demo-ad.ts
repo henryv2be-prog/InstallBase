@@ -1,30 +1,7 @@
-/**
- * Seeds ONLY the Hikvision demo advertising campaign.
- * Safe to run on a live database — uses upsert, does not touch users/posts/etc.
- *
- * Usage:
- *   npx tsx scripts/seed-demo-ad.ts
- *
- * On Railway:
- *   railway run npx tsx scripts/seed-demo-ad.ts
- */
-import "dotenv/config";
-import { PrismaClient } from "../src/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
+import type { PrismaClient } from "../src/generated/prisma/client";
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
-
-async function main() {
-  if (!process.env.DATABASE_URL) {
-    console.error("DATABASE_URL is not set.");
-    process.exit(1);
-  }
-
-  console.log("Seeding Hikvision demo ad campaign only…");
-
+/** Upserts the Hikvision demo ad campaign only — safe on live databases. */
+export async function seedDemoAdCampaign(prisma: PrismaClient) {
   const advertiser = await prisma.advertiser.upsert({
     where: { slug: "hikvision-demo" },
     update: {
@@ -90,6 +67,14 @@ async function main() {
     },
   });
 
+  return { advertiser, campaign, ad };
+}
+
+export function logDemoAdSeedResult({
+  advertiser,
+  campaign,
+  ad,
+}: Awaited<ReturnType<typeof seedDemoAdCampaign>>) {
   console.log("✅ Demo ad campaign ready");
   console.log(`   Advertiser: ${advertiser.name} (${advertiser.slug})`);
   console.log(`   Campaign:   ${campaign.name} [${campaign.status}]`);
@@ -99,13 +84,3 @@ async function main() {
   console.log("Note: ad targets users with CCTV or Security specialties.");
   console.log("Guests and other users won't see it unless targeting is cleared in /admin/ads.");
 }
-
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-    await pool.end();
-  });
