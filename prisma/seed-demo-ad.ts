@@ -47,6 +47,7 @@ export async function seedDemoAdCampaign(prisma: PrismaClient) {
     update: {
       status: "ACTIVE",
       priority: 10,
+      targetingRules: {},
     },
     create: {
       id: "seed-demo-ad-feed",
@@ -63,7 +64,7 @@ export async function seedDemoAdCampaign(prisma: PrismaClient) {
       ctaText: "Explore products",
       isInternalLink: true,
       priority: 10,
-      targetingRules: { trades: ["CCTV", "Security"] },
+      targetingRules: {},
     },
   });
 
@@ -81,6 +82,6 @@ export function logDemoAdSeedResult({
   console.log(`   Ad:         ${ad.title} [${ad.status}]`);
   console.log(`   Placements: ${ad.placements.join(", ")}`);
   console.log("");
-  console.log("Note: ad targets users with CCTV or Security specialties.");
-  console.log("Guests and other users won't see it unless targeting is cleared in /admin/ads.");
+  console.log("Note: demo ad has no targeting — visible to all users (guests included).");
+  console.log("Manage or pause it in /admin/ads.");
 }
