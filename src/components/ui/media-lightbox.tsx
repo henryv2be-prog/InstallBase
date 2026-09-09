@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { isVideoMedia } from "@/lib/media";
 
 interface MediaItem {
   url: string;
@@ -26,10 +27,6 @@ function appViewportContent(meta: Element | null) {
   const value = current.includes("user-scalable=no") ? APP_VIEWPORT : current;
   document.documentElement.dataset.appViewport = value;
   return value;
-}
-
-function isVideo(type?: string, url?: string) {
-  return type === "video" || Boolean(url?.match(/\.(mp4|webm|mov)(\?|$)/i));
 }
 
 function clamp(n: number, min: number, max: number) {
@@ -362,7 +359,7 @@ export function MediaLightbox({ items, index, onClose, onIndexChange }: MediaLig
       style={{ backgroundColor: `rgba(0,0,0,${0.95 * opacity})` }}
       role="dialog"
       aria-modal="true"
-      aria-label="Photo viewer"
+      aria-label="Media viewer"
       onClick={() => {
         if (ignoreClickRef.current) {
           ignoreClickRef.current = false;
@@ -371,17 +368,41 @@ export function MediaLightbox({ items, index, onClose, onIndexChange }: MediaLig
         onClose();
       }}
     >
-      <button
-        type="button"
-        onClick={(event) => {
-          event.stopPropagation();
-          onClose();
-        }}
-        className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-20 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-        aria-label="Close"
+      <div
+        className="absolute inset-x-0 top-0 z-30 flex items-center justify-between bg-gradient-to-b from-black/80 via-black/40 to-transparent px-3 pb-10 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-4"
       >
-        <X className="h-6 w-6" />
-      </button>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onClose();
+          }}
+          className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/20"
+          aria-label="Close viewer"
+        >
+          <ChevronDown className="h-5 w-5 sm:hidden" />
+          <ChevronLeft className="hidden h-5 w-5 sm:inline" />
+          <span>Close</span>
+        </button>
+
+        {items.length > 1 && (
+          <p className="text-sm font-medium text-white/90">
+            {index + 1} / {items.length}
+          </p>
+        )}
+
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onClose();
+          }}
+          className="rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+          aria-label="Close viewer"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
       {items.length > 1 && index > 0 && (
         <button
@@ -418,14 +439,15 @@ export function MediaLightbox({ items, index, onClose, onIndexChange }: MediaLig
           transition: dragging ? "none" : "transform 220ms ease-out",
         }}
       >
-        {isVideo(active.type, active.url) ? (
+        {isVideoMedia(active.type, active.url) ? (
           <video
             key={active.url}
-            src={active.url}
+            src={active.url.split("#")[0]}
             controls
             autoPlay
             playsInline
-            className="pointer-events-auto max-h-[85dvh] max-w-[92vw] rounded-lg"
+            preload="auto"
+            className="pointer-events-auto max-h-[85dvh] max-w-[92vw] rounded-lg bg-black"
             onClick={(event) => event.stopPropagation()}
           />
         ) : (
@@ -447,23 +469,23 @@ export function MediaLightbox({ items, index, onClose, onIndexChange }: MediaLig
         )}
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 flex flex-col items-center gap-2">
-        {active.caption && <p className="px-6 text-center text-sm text-white/80">{active.caption}</p>}
+      <div className="pointer-events-none absolute inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 flex flex-col items-center gap-2 px-4">
+        {active.caption && <p className="text-center text-sm text-white/80">{active.caption}</p>}
         {items.length > 1 && (
-          <>
-            <p className="text-xs text-white/70">
-              {index + 1} / {items.length}
-            </p>
-            <div className="flex items-center gap-1.5">
-              {items.map((item, i) => (
-                <span
-                  key={`${item.url}-${i}`}
-                  className={`h-1.5 rounded-full ${i === index ? "w-4 bg-white" : "w-1.5 bg-white/35"}`}
-                />
-              ))}
-            </div>
-          </>
+          <div className="flex items-center gap-1.5">
+            {items.map((item, i) => (
+              <span
+                key={`${item.url}-${i}`}
+                className={`h-1.5 rounded-full ${i === index ? "w-4 bg-white" : "w-1.5 bg-white/35"}`}
+              />
+            ))}
+          </div>
         )}
+        <p className="text-xs text-white/55">
+          {isVideoMedia(active.type, active.url)
+            ? "Tap Close or swipe down · use player controls for sound"
+            : "Tap Close, swipe down, or press back to exit"}
+        </p>
       </div>
     </div>
   );
