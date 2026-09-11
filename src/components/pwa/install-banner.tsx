@@ -9,7 +9,6 @@ import {
   NOTIFY_PROMPT_DISMISS_KEY,
   isIosDevice,
   isStandaloneDisplay,
-  isWrongDomain,
   prefersManualHomeScreenInstall,
 } from "@/components/pwa/device";
 
@@ -20,7 +19,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 const DISMISS_KEY = "ib-install-dismissed";
 
-export function PwaInstallBanner({ canonicalHost }: { canonicalHost: string | null }) {
+export function PwaInstallBanner() {
   const { status } = useSession();
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -50,9 +49,8 @@ export function PwaInstallBanner({ canonicalHost }: { canonicalHost: string | nu
   }, [status]);
 
   const manualInstall = prefersManualHomeScreenInstall();
-  const wrongDomain = isWrongDomain(canonicalHost);
 
-  if (standalone || dismissed || deferForNotify || wrongDomain) return null;
+  if (standalone || dismissed || deferForNotify) return null;
   if (!deferred && !manualInstall) return null;
 
   const dismiss = () => {

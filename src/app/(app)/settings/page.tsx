@@ -11,7 +11,6 @@ import { ProfileSettingsForm } from "@/components/settings/profile-settings-form
 import { PlatformPurposesForm } from "@/components/settings/platform-purposes-form";
 import { AvatarUpload } from "@/components/settings/avatar-upload";
 import { PasswordChangeForm } from "@/components/settings/password-change-form";
-import { getCanonicalHost } from "@/lib/canonical-host";
 import { getVapidPublicKey } from "@/lib/vapid";
 import { getUserPlatformRoles } from "@/lib/queries";
 import { needsProfessionalDetails } from "@/lib/platform-roles";
@@ -47,7 +46,6 @@ export default async function SettingsPage() {
   const platformRoles = await getUserPlatformRoles(user.id);
   const showProfessionalFields = needsProfessionalDetails(platformRoles);
   const vapidPublicKey = getVapidPublicKey();
-  const canonicalHost = getCanonicalHost();
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 animate-fade-in">
@@ -119,7 +117,7 @@ export default async function SettingsPage() {
           <CardTitle>Install app</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted">
-          <InstallInstructions canonicalHost={canonicalHost} />
+          <InstallInstructions />
         </CardContent>
       </Card>
 

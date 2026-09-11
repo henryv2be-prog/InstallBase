@@ -1,11 +1,6 @@
 import { afterEach, describe, it } from "node:test";
 import assert from "node:assert/strict";
-import {
-  isHuaweiDevice,
-  isWrongDomain,
-  likelyLacksGooglePlayServices,
-  prefersManualHomeScreenInstall,
-} from "../device";
+import { isHuaweiDevice, likelyLacksGooglePlayServices, prefersManualHomeScreenInstall } from "../device";
 
 const ORIGINAL_NAVIGATOR = globalThis.navigator;
 
@@ -35,12 +30,4 @@ describe("device helpers", () => {
     assert.equal(likelyLacksGooglePlayServices(), true);
   });
 
-  it("detects wrong domain", () => {
-    Object.defineProperty(globalThis, "window", {
-      configurable: true,
-      value: { location: { hostname: "base.up.railway.app" } },
-    });
-    assert.equal(isWrongDomain("installbase.up.railway.app"), true);
-    assert.equal(isWrongDomain("base.up.railway.app"), false);
-  });
 });

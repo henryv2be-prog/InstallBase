@@ -1,5 +1,4 @@
 export const NOTIFY_PROMPT_DISMISS_KEY = "ib-notify-prompt";
-export const DOMAIN_PROMPT_DISMISS_KEY = "ib-domain-prompt";
 
 export function isIosDevice() {
   if (typeof navigator === "undefined") return false;
@@ -43,11 +42,6 @@ export function likelyLacksGooglePlayServices() {
   if (!isHuaweiDevice()) return false;
   const ua = navigator.userAgent;
   return !/; GMS\b|; google\b/i.test(ua);
-}
-
-export function isWrongDomain(canonicalHost: string | null | undefined) {
-  if (!canonicalHost || typeof window === "undefined") return false;
-  return window.location.hostname.toLowerCase() !== canonicalHost.toLowerCase();
 }
 
 /** EMUI/Huawei launchers often fail the native install prompt — manual A2HS is more reliable. */

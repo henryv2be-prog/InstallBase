@@ -2,7 +2,7 @@
 
 import { isHuaweiDevice, isIosDevice, prefersManualHomeScreenInstall } from "@/components/pwa/device";
 
-export function InstallInstructions({ canonicalHost }: { canonicalHost?: string | null }) {
+export function InstallInstructions() {
   if (isIosDevice()) {
     return (
       <p>
@@ -19,12 +19,9 @@ export function InstallInstructions({ canonicalHost }: { canonicalHost?: string 
           On Huawei, use Chrome&apos;s menu (⋮) → <strong>Add to Home screen</strong>. If the &quot;Install
           app&quot; popup loops back without adding a shortcut, skip it and use the menu instead.
         </p>
-        {canonicalHost && (
-          <p>
-            Make sure you are on the correct link (<strong>{canonicalHost}</strong>, not an old shortened URL).
-            After adding the shortcut, open InstallBase from your home screen.
-          </p>
-        )}
+        <p>
+          After adding the shortcut, open InstallBase from your home screen (not from a browser tab).
+        </p>
         <p>
           Phone alerts require Google Play Services. Many Huawei phones cannot receive web push in Chrome — in-app
           notifications still work when you open the app.
