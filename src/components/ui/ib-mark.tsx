@@ -1,12 +1,35 @@
 import { cn } from "@/lib/utils";
 
-export const IB_MARK_VIEWBOX = "0 0 56 40";
+/** Square-ish canvas matching the reference mark proportions. */
+export const IB_MARK_VIEWBOX = "0 0 50 46";
 
-/** Cyan accent for the i-dot — reads on the blue gradient like the reference mark. */
+/** Cyan accent for the full i (dot + stem), like the orange i in the reference. */
 export const IB_MARK_ACCENT = "#67e8f9";
 
 /** Default in-app mark scale inside the blue rounded square. */
-export const IB_MARK_BOX_CLASS = "h-[68%] w-[84%]";
+export const IB_MARK_BOX_CLASS = "h-[72%] w-[72%]";
+
+export const I_DOT = { cx: 10, cy: 8, r: 4.5 };
+export const I_STEM = { x: 6.25, y: 15.5, w: 7.5, h: 28.5, rx: 3.75 };
+
+/** Upward spur where the top bowl meets the shared stem. */
+export const B_SPUR = "M13.75 15.5L13.75 10.8L15.8 8.2L15.8 15.5Z";
+
+/** Top and bottom bowls attach directly to the i stem spine at x=13.75. */
+export const B_TOP_BOWL =
+  "M13.75 15.5H19.2C34.8 15.5 40.2 18.4 40.2 22.8C40.2 27.2 34.8 29.8 19.2 29.8H13.75V15.5Z";
+
+export const B_BOTTOM_BOWL =
+  "M13.75 29.8H20.8C36.2 29.8 40.8 33 40.8 37.8C40.8 42.6 35.6 44.5 20.8 44.5H13.75V29.8Z";
+
+export const B_TOP_COUNTER =
+  "M20.8 18.6H35.2C37.4 18.6 38.6 19.9 38.6 22.2C38.6 24.8 36.8 26.2 34.2 26.2H20.8V18.6Z";
+
+export const B_BOTTOM_COUNTER =
+  "M20.8 32.8H34.2C36.8 32.8 38.2 34.5 38.2 37.2C38.2 40 36.2 41.6 33.2 41.6H20.8V32.8Z";
+
+export const B_PATH = `${B_SPUR} ${B_TOP_BOWL} ${B_BOTTOM_BOWL}`;
+export const B_PATH_D = `${B_PATH} ${B_TOP_COUNTER} ${B_BOTTOM_COUNTER}`;
 
 interface IbMarkProps {
   className?: string;
@@ -15,12 +38,12 @@ interface IbMarkProps {
 }
 
 /**
- * Stylized iB monogram: lowercase i with accent dot + geometric B,
- * inspired by the InstallBase reference mark.
+ * Stylized iB monogram matching the reference geometry: accent i (dot + stem)
+ * with white B bowls attached to the stem.
  */
 export function IbMark({ className, monochrome = false }: IbMarkProps) {
-  const letterColor = "currentColor";
-  const dotColor = monochrome ? letterColor : IB_MARK_ACCENT;
+  const accentColor = monochrome ? "currentColor" : IB_MARK_ACCENT;
+  const bColor = "currentColor";
 
   return (
     <svg
@@ -30,12 +53,16 @@ export function IbMark({ className, monochrome = false }: IbMarkProps) {
       className={cn("block", className)}
       aria-hidden
     >
-      <circle cx="9" cy="8" r="4.5" fill={dotColor} />
-      <rect x="6.25" y="16" width="5.5" height="22" rx="2.75" fill={letterColor} />
-      <path
-        fill={letterColor}
-        d="M22 4h14c6.2 0 10.5 3.8 10.5 9.2 0 3.4-1.8 6.2-4.8 7.6 3.4 1.3 5.8 4.4 5.8 8.4 0 5.8-4.6 9.8-11.3 9.8H22V4zm5.2 5.2v7.6h7.4c2.6 0 4.2-1.6 4.2-3.8s-1.6-3.8-4.2-3.8h-7.4zm0 12.8v9.6h8.2c3.2 0 5.4-2 5.4-4.8s-2.2-4.8-5.4-4.8h-8.2z"
+      <circle cx={I_DOT.cx} cy={I_DOT.cy} r={I_DOT.r} fill={accentColor} />
+      <rect
+        x={I_STEM.x}
+        y={I_STEM.y}
+        width={I_STEM.w}
+        height={I_STEM.h}
+        rx={I_STEM.rx}
+        fill={accentColor}
       />
+      <path fill={bColor} fillRule={monochrome ? "nonzero" : "evenodd"} d={monochrome ? B_PATH : B_PATH_D} />
     </svg>
   );
 }
