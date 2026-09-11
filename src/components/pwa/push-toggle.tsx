@@ -5,7 +5,11 @@ import { Bell, BellOff, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deletePushSubscription, sendTestPush } from "@/lib/actions";
 import { toast } from "sonner";
-import { isPushApiAvailable, needsIosInstallForPush } from "@/components/pwa/device";
+import {
+  isPushApiAvailable,
+  likelyLacksGooglePlayServices,
+  needsIosInstallForPush,
+} from "@/components/pwa/device";
 import { enablePushNotifications } from "@/components/pwa/enable-push";
 import { describePushEnableError } from "@/components/pwa/push-errors";
 import { syncLocalPushSubscription } from "@/components/pwa/push-utils";
@@ -50,6 +54,15 @@ export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: str
     return (
       <p className="text-sm text-muted">
         On iPhone, add InstallBase to the Home Screen first (Share → Add to Home Screen), then open it from the icon to enable alerts. iOS 16.4+.
+      </p>
+    );
+  }
+
+  if (likelyLacksGooglePlayServices()) {
+    return (
+      <p className="text-sm text-muted">
+        This Huawei phone does not include Google Play Services, so Chrome cannot deliver lock-screen web push alerts.
+        You will still see in-app notifications when you open InstallBase.
       </p>
     );
   }

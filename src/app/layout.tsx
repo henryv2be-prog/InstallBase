@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { getSession } from "@/lib/session";
 import "./globals.css";
@@ -50,6 +51,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" suppressHydrationWarning className={`dark ${inter.variable} ${jetbrains.variable}`}>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
+        <Script id="pwa-sw-register" strategy="beforeInteractive">
+          {`if("serviceWorker"in navigator){navigator.serviceWorker.register("/sw.js",{scope:"/",updateViaCache:"none"});}`}
+        </Script>
         <ThemeInit />
         <SessionProvider session={session}>
           <ServiceWorkerRegistrar />
