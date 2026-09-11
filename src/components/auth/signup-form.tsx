@@ -14,8 +14,15 @@ import {
   type SignupValidationErrors,
   firstSignupError,
   signupStepForField,
-  validateSignupInput,
+  validateAccountInput,
+  validateProfessionalSignupInput,
 } from "@/lib/auth-validation";
+import {
+  PLATFORM_PURPOSES,
+  needsProfessionalDetails,
+  purposeIdsToRoles,
+  type PlatformPurposeId,
+} from "@/lib/platform-roles";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -36,6 +43,7 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [pending, startTransition] = useTransition();
+  const [purposes, setPurposes] = useState<PlatformPurposeId[]>([]);
   const [specialties, setSpecialties] = useState<string[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<SignupValidationErrors>({});
@@ -49,6 +57,9 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
     city: "",
   });
 
+  const selectedRoles = purposeIdsToRoles(purposes);
+  const requireProfessional = needsProfessionalDetails(selectedRoles);
+
   const update = (field: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     setFormError(null);
@@ -61,6 +72,13 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
     }
   };
 
+  const togglePurpose = (id: PlatformPurposeId) => {
+    setPurposes((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+    setFormError(null);
+  };
+
   const toggleSpecialty = (s: string) => {
     setSpecialties((prev) =>
       prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
@@ -70,31 +88,20 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
   const inputClass = (field: SignupField) =>
     cn(fieldErrors[field] && "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30");
 
-  const applyValidationErrors = (errors: SignupValidationErrors) => {
+  const applyValidationErrors = (errors: SignupValidationErrors, professionalRequired: boolean) => {
     setFieldErrors(errors);
     const first = firstSignupError(errors);
     if (first) {
-      setStep(signupStepForField(first.field));
+      setStep(signupStepForField(first.field, professionalRequired));
       toast.error(first.message);
     }
   };
 
-  const validateCurrentInput = () => {
-    const errors = validateSignupInput(form);
-    setFieldErrors(errors);
-    return errors;
-  };
-
   const continueToStep2 = () => {
-    const errors = validateSignupInput(form);
-    const step1Errors: SignupValidationErrors = {};
-    for (const field of ["name", "username", "email", "password"] as SignupField[]) {
-      if (errors[field]) step1Errors[field] = errors[field];
-    }
-
-    if (Object.keys(step1Errors).length > 0) {
-      setFieldErrors(step1Errors);
-      const first = step1Errors.name || step1Errors.username || step1Errors.email || step1Errors.password;
+    const errors = validateAccountInput(form);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      const first = errors.name || errors.username || errors.email || errors.password;
       if (first) toast.error(first);
       return;
     }
@@ -104,13 +111,24 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
     setStep(2);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const continueFromPurposes = () => {
+    if (requireProfessional) {
+      setStep(3);
+      return;
+    }
+    submitRegistration();
+  };
+
+  const submitRegistration = () => {
     setFormError(null);
 
-    const errors = validateCurrentInput();
+    const errors = {
+      ...validateAccountInput(form),
+      ...validateProfessionalSignupInput(form, requireProfessional),
+    };
+
     if (Object.keys(errors).length > 0) {
-      applyValidationErrors(errors);
+      applyValidationErrors(errors, requireProfessional);
       return;
     }
 
@@ -122,6 +140,7 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
     formData.append("experience", form.experience);
     formData.append("country", form.country.trim());
     formData.append("city", form.city.trim());
+    purposes.forEach((purpose) => formData.append("purposes", purpose));
     specialties.forEach((s) => formData.append("specialties", s));
 
     startTransition(async () => {
@@ -133,9 +152,9 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
 
           if (result.field) {
             setFieldErrors((prev) => ({ ...prev, [result.field!]: result.error }));
-            setStep(signupStepForField(result.field));
+            setStep(signupStepForField(result.field, result.requireProfessional ?? requireProfessional));
           } else if (result.errors) {
-            applyValidationErrors(result.errors);
+            applyValidationErrors(result.errors, result.requireProfessional ?? requireProfessional);
           }
           return;
         }
@@ -150,19 +169,27 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
     });
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitRegistration();
+  };
+
   return (
     <Card className="w-full max-w-lg">
       <CardHeader>
         <CardTitle className="text-2xl">Join InstallBase</CardTitle>
-        <p className="text-sm text-gray-500">Show your work. Share your knowledge.</p>
+        <p className="text-sm text-gray-500">Connect with the installation industry.</p>
         <div className="mt-2 flex gap-2">
           {[1, 2, 3].map((s) => (
             <div
               key={s}
-              className={`h-1 flex-1 rounded-full ${step >= s ? "bg-blue-600" : "bg-gray-200"}`}
+              className={`h-1 flex-1 rounded-full ${step >= s ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"}`}
             />
           ))}
         </div>
+        <p className="text-xs text-muted">
+          Step {step} of 3 — {step === 1 ? "Account" : step === 2 ? "What brings you here?" : "Professional details"}
+        </p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
@@ -226,12 +253,6 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                   aria-invalid={Boolean(fieldErrors.password)}
                 />
                 <FieldError message={fieldErrors.password} />
-                {form.password.length > 0 && form.password.length < PASSWORD_MIN_LENGTH && !fieldErrors.password && (
-                  <p className="mt-1 text-xs text-muted">
-                    {PASSWORD_MIN_LENGTH - form.password.length} more character
-                    {PASSWORD_MIN_LENGTH - form.password.length === 1 ? "" : "s"} needed
-                  </p>
-                )}
               </div>
               <Button type="button" className="w-full" onClick={continueToStep2}>
                 Continue
@@ -242,16 +263,74 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
           {step === 2 && (
             <div className="space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-medium">What type of installer are you?</label>
+                <label className="mb-1 block text-sm font-medium">What brings you to InstallBase?</label>
+                <p className="mb-3 text-xs text-muted">Select all that apply. You can change these later in settings.</p>
+                <div className="space-y-2">
+                  {PLATFORM_PURPOSES.map((purpose) => {
+                    const selected = purposes.includes(purpose.id);
+                    return (
+                      <button
+                        key={purpose.id}
+                        type="button"
+                        onClick={() => togglePurpose(purpose.id)}
+                        className={cn(
+                          "flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors",
+                          selected
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
+                            : "border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600"
+                        )}
+                      >
+                        <span className="text-xl leading-none" aria-hidden>
+                          {purpose.emoji}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold">{purpose.title}</span>
+                          <span className="mt-0.5 block text-xs text-muted">{purpose.description}</span>
+                        </span>
+                        <span
+                          className={cn(
+                            "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs",
+                            selected
+                              ? "border-blue-600 bg-blue-600 text-white"
+                              : "border-gray-300 dark:border-gray-600"
+                          )}
+                          aria-hidden
+                        >
+                          {selected ? "✓" : ""}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                  Back
+                </Button>
+                <Button type="button" className="flex-1" onClick={continueFromPurposes} disabled={pending}>
+                  {requireProfessional ? "Continue" : pending ? "Creating account..." : "Create account"}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted">
+                Help other professionals understand your background. You can update this anytime.
+              </p>
+              <div>
+                <label className="mb-2 block text-sm font-medium">Specialties</label>
                 <div className="grid grid-cols-2 gap-2">
                   {SPECIALTIES.map((s) => (
                     <label
                       key={s}
-                      className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm transition-colors ${
+                      className={cn(
+                        "flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm transition-colors",
                         specialties.includes(s)
                           ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
                           : "border-gray-200 dark:border-gray-700"
-                      }`}
+                      )}
                     >
                       <input
                         type="checkbox"
@@ -265,7 +344,7 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium">How experienced are you?</label>
+                <label className="mb-1 block text-sm font-medium">Experience level</label>
                 <select
                   value={form.experience}
                   onChange={(e) => update("experience", e.target.value)}
@@ -284,22 +363,6 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                 </select>
                 <FieldError message={fieldErrors.experience} />
               </div>
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={() => setStep(1)}>
-                  Back
-                </Button>
-                <Button type="button" variant="ghost" className="text-muted" onClick={() => setStep(3)}>
-                  Skip
-                </Button>
-                <Button type="button" className="flex-1" onClick={() => setStep(3)}>
-                  Continue
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="space-y-4">
               <div>
                 <label className="mb-1 block text-sm font-medium">Country</label>
                 <Input

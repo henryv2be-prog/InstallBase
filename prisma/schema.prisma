@@ -12,6 +12,14 @@ enum UserRole {
   ADMIN
 }
 
+enum PlatformRole {
+  PROFESSIONAL
+  COMPANY_REP
+  EMPLOYER
+  CUSTOMER
+  SEEKING_WORK
+}
+
 enum ExperienceLevel {
   APPRENTICE
   ONE_TO_THREE
@@ -99,6 +107,18 @@ model User {
   reputation    Reputation?
   pushSubscriptions PushSubscription[]
   passwordResetTokens PasswordResetToken[]
+  platformRoles     UserPlatformRole[]
+}
+
+model UserPlatformRole {
+  userId    String
+  role      PlatformRole
+  createdAt DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, role])
+  @@index([role])
 }
 
 model Account {

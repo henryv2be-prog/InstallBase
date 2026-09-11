@@ -680,3 +680,12 @@ export async function getAllProducts() {
     orderBy: { name: "asc" },
   });
 }
+
+export async function getUserPlatformRoles(userId: string) {
+  const rows = await prisma.userPlatformRole.findMany({
+    where: { userId },
+    select: { role: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return rows.map((row) => row.role);
+}

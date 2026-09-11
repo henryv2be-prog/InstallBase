@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PushNotificationToggle } from "@/components/pwa/push-toggle";
 import { ProfileSettingsForm } from "@/components/settings/profile-settings-form";
+import { PlatformPurposesForm } from "@/components/settings/platform-purposes-form";
 import { AvatarUpload } from "@/components/settings/avatar-upload";
 import { PasswordChangeForm } from "@/components/settings/password-change-form";
 import { getVapidPublicKey } from "@/lib/vapid";
+import { getUserPlatformRoles } from "@/lib/queries";
+import { needsProfessionalDetails } from "@/lib/platform-roles";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
 import { LogoutButton } from "@/components/auth/logout-button";
 
@@ -39,6 +42,8 @@ export default async function SettingsPage() {
   if (!user?.profile) redirect("/login");
 
   const profile = user.profile;
+  const platformRoles = await getUserPlatformRoles(user.id);
+  const showProfessionalFields = needsProfessionalDetails(platformRoles);
   const vapidPublicKey = getVapidPublicKey();
 
   return (
@@ -50,6 +55,15 @@ export default async function SettingsPage() {
         </div>
         <ThemeToggle />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>How I use InstallBase</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PlatformPurposesForm initialRoles={platformRoles} />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -67,6 +81,7 @@ export default async function SettingsPage() {
             experience={profile.experienceLevel}
             specialties={profile.specialties}
             website={profile.website}
+            showProfessionalFields={showProfessionalFields}
           />
           <div className="mt-4">
             <Link href={`/profile/${profile.username}`}>

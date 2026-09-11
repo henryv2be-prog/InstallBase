@@ -25,9 +25,12 @@ import { requestPasswordReset, resetPasswordWithToken } from "@/lib/password-res
 import {
   type SignupField,
   firstSignupError,
-  validateSignupInput,
+  validateAccountInput,
+  validateProfessionalSignupInput,
   validatePassword,
 } from "@/lib/auth-validation";
+import { needsProfessionalDetails, purposeIdsToRoles } from "@/lib/platform-roles";
+import type { PlatformRole } from "@/generated/prisma/client";
 
 async function getCurrentUserId() {
   const session = await auth();
@@ -44,16 +47,14 @@ export async function registerUser(formData: FormData) {
   const country = (formData.get("country") as string | null)?.trim() ?? "";
   const experience = (formData.get("experience") as string | null) ?? "";
   const specialties = formData.getAll("specialties") as string[];
+  const purposeIds = formData.getAll("purposes") as string[];
+  const platformRoles = purposeIdsToRoles(purposeIds);
+  const requireProfessional = needsProfessionalDetails(platformRoles);
 
-  const validationErrors = validateSignupInput({
-    name,
-    username,
-    email,
-    password,
-    city,
-    country,
-    experience,
-  });
+  const validationErrors = {
+    ...validateAccountInput({ name, username, email, password }),
+    ...validateProfessionalSignupInput({ city, country, experience }, requireProfessional),
+  };
 
   const firstError = firstSignupError(validationErrors);
   if (firstError) {
@@ -61,6 +62,7 @@ export async function registerUser(formData: FormData) {
       error: firstError.message,
       field: firstError.field,
       errors: validationErrors,
+      requireProfessional,
     };
   }
 
@@ -87,18 +89,21 @@ export async function registerUser(formData: FormData) {
         profile: {
           create: {
             username,
-            city,
-            country,
-            experienceLevel: experience as ExperienceLevel,
+            city: city || null,
+            country: country || null,
+            experienceLevel: (experience || "APPRENTICE") as ExperienceLevel,
             specialties,
           },
         },
         reputation: { create: { score: 0 } },
+        platformRoles: {
+          create: platformRoles.map((role) => ({ role })),
+        },
       },
     });
 
     await signIn("credentials", { email, password, redirect: false });
-    return { success: true, userId: user.id };
+    return { success: true, userId: user.id, platformRoles };
   } catch (error) {
     console.error("registerUser failed:", error);
     return { error: "Could not create your account. Please try again in a moment." };
@@ -669,9 +674,10 @@ export async function updateProfile(formData: FormData) {
   const experience = formData.get("experience") as ExperienceLevel | null;
   const specialties = formData.getAll("specialties") as string[];
   const website = (formData.get("website") as string | null)?.trim() || null;
+  const includeProfessional = formData.get("includeProfessional") === "true";
 
   if (!name) return { error: "Name is required" };
-  if (!experience) return { error: "Experience level is required" };
+  if (includeProfessional && !experience) return { error: "Experience level is required" };
 
   const profile = await prisma.profile.findUnique({ where: { userId } });
   if (!profile) return { error: "Profile not found" };
@@ -687,15 +693,38 @@ export async function updateProfile(formData: FormData) {
       bio,
       city,
       country,
-      experienceLevel: experience,
-      specialties,
       website,
+      ...(includeProfessional
+        ? {
+            experienceLevel: experience!,
+            specialties,
+          }
+        : {}),
     },
   });
 
   revalidatePath("/settings");
   revalidatePath(`/profile/${profile.username}`);
   return { success: true };
+}
+
+export async function updatePlatformPurposes(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const purposeIds = formData.getAll("purposes") as string[];
+  const roles = purposeIdsToRoles(purposeIds);
+
+  await prisma.$transaction(async (tx) => {
+    await tx.userPlatformRole.deleteMany({ where: { userId } });
+    if (roles.length > 0) {
+      await tx.userPlatformRole.createMany({
+        data: roles.map((role) => ({ userId, role })),
+      });
+    }
+  });
+
+  revalidatePath("/settings");
+  revalidatePath("/feed");
+  return { success: true, roles: roles as PlatformRole[] };
 }
 
 export async function updateAvatar(formData: FormData) {

@@ -70,7 +70,9 @@ export function validateUsername(username: string): string | null {
   return null;
 }
 
-export function validateSignupInput(input: SignupInput): SignupValidationErrors {
+export function validateAccountInput(
+  input: Pick<SignupInput, "name" | "username" | "email" | "password">
+): SignupValidationErrors {
   const errors: SignupValidationErrors = {};
 
   const name = input.name.trim();
@@ -88,6 +90,17 @@ export function validateSignupInput(input: SignupInput): SignupValidationErrors 
   const passwordError = validatePassword(input.password);
   if (passwordError) errors.password = passwordError;
 
+  return errors;
+}
+
+export function validateProfessionalSignupInput(
+  input: Pick<SignupInput, "city" | "country" | "experience">,
+  required: boolean
+): SignupValidationErrors {
+  const errors: SignupValidationErrors = {};
+
+  if (!required) return errors;
+
   if (!input.country.trim()) errors.country = "Country is required";
   if (!input.city.trim()) errors.city = "City is required";
 
@@ -98,12 +111,24 @@ export function validateSignupInput(input: SignupInput): SignupValidationErrors 
   return errors;
 }
 
-export function signupStepForField(field: SignupField): 1 | 2 | 3 {
+export function validateSignupInput(
+  input: SignupInput,
+  options: { requireProfessional?: boolean } = {}
+): SignupValidationErrors {
+  return {
+    ...validateAccountInput(input),
+    ...validateProfessionalSignupInput(input, options.requireProfessional ?? true),
+  };
+}
+
+export function signupStepForField(field: SignupField, requireProfessional = true): 1 | 2 | 3 {
   if (field === "name" || field === "username" || field === "email" || field === "password") {
     return 1;
   }
-  if (field === "experience") return 2;
-  return 3;
+  if (field === "experience" || field === "country" || field === "city") {
+    return requireProfessional ? 3 : 2;
+  }
+  return 2;
 }
 
 export function firstSignupError(errors: SignupValidationErrors): {

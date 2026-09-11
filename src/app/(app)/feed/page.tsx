@@ -1,5 +1,5 @@
 import { getSession } from "@/lib/session";
-import { getFeedPosts, getFollowingFeedPosts, getFollowingIds } from "@/lib/queries";
+import { getFeedPosts, getFollowingFeedPosts, getFollowingIds, getUserPlatformRoles } from "@/lib/queries";
 import { CreatePostCard } from "@/components/feed/create-post";
 import { PostFeedWithAds } from "@/components/feed/post-feed-with-ads";
 import { AdSlot } from "@/components/ads/ad-slot";
@@ -27,6 +27,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   const userId = session?.user?.id;
 
   const followingIds = userId ? await getFollowingIds(userId) : [];
+  const platformRoles = userId ? await getUserPlatformRoles(userId) : [];
   const followingSet = userId ? new Set(followingIds) : undefined;
   const followingTab =
     tab === "following" || (tab !== "popular" && !!userId && followingIds.length > 0);
@@ -41,7 +42,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   return (
     <PullToRefresh>
       <div className="mx-auto max-w-2xl space-y-4 animate-fade-in">
-        {userId ? <WelcomeModal /> : null}
+        {userId ? <WelcomeModal platformRoles={platformRoles} /> : null}
         {userId ? <BragTooltip /> : null}
 
         {userId ? (

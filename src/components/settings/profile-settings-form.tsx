@@ -29,6 +29,7 @@ interface ProfileSettingsFormProps {
   experience: ExperienceLevel;
   specialties: string[];
   website: string | null;
+  showProfessionalFields: boolean;
 }
 
 export function ProfileSettingsForm({
@@ -41,6 +42,7 @@ export function ProfileSettingsForm({
   experience: initialExperience,
   specialties: initialSpecialties,
   website: initialWebsite,
+  showProfessionalFields,
 }: ProfileSettingsFormProps) {
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState(initialName);
@@ -66,7 +68,10 @@ export function ProfileSettingsForm({
     formData.append("country", country.trim());
     formData.append("experience", experience);
     formData.append("website", website.trim());
-    specialties.forEach((s) => formData.append("specialties", s));
+    formData.append("includeProfessional", showProfessionalFields ? "true" : "false");
+    if (showProfessionalFields) {
+      specialties.forEach((s) => formData.append("specialties", s));
+    }
 
     startTransition(async () => {
       const result = await updateProfile(formData);
@@ -112,34 +117,42 @@ export function ProfileSettingsForm({
           <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="South Africa" />
         </div>
       </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium">Experience</label>
-        <select
-          value={experience}
-          onChange={(e) => setExperience(e.target.value as ExperienceLevel)}
-          className="flex h-10 w-full rounded-xl border border-border bg-card px-3 text-sm"
-        >
-          {experienceLevels.map((l) => (
-            <option key={l.value} value={l.value}>{l.label}</option>
-          ))}
-        </select>
-        <p className="mt-1 text-xs text-muted">Currently: {getExperienceLabel(experience)}</p>
-      </div>
-      <div>
-        <label className="mb-2 block text-sm font-medium">Specialties</label>
-        <div className="flex flex-wrap gap-2">
-          {SPECIALTIES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => toggleSpecialty(s)}
-              className="focus:outline-none"
+      {showProfessionalFields ? (
+        <>
+          <div>
+            <label className="mb-1 block text-sm font-medium">Experience</label>
+            <select
+              value={experience}
+              onChange={(e) => setExperience(e.target.value as ExperienceLevel)}
+              className="flex h-10 w-full rounded-xl border border-border bg-card px-3 text-sm"
             >
-              <Badge variant={specialties.includes(s) ? "default" : "outline"}>{s}</Badge>
-            </button>
-          ))}
-        </div>
-      </div>
+              {experienceLevels.map((l) => (
+                <option key={l.value} value={l.value}>{l.label}</option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-muted">Currently: {getExperienceLabel(experience)}</p>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium">Specialties</label>
+            <div className="flex flex-wrap gap-2">
+              {SPECIALTIES.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => toggleSpecialty(s)}
+                  className="focus:outline-none"
+                >
+                  <Badge variant={specialties.includes(s) ? "default" : "outline"}>{s}</Badge>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      ) : (
+        <p className="text-sm text-muted">
+          Enable &ldquo;Show my work&rdquo; or &ldquo;Find work&rdquo; above to edit experience and specialties.
+        </p>
+      )}
       <div>
         <label className="mb-1 block text-sm font-medium">Website</label>
         <Input
