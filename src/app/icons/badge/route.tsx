@@ -1,5 +1,5 @@
-import { renderNotificationBadge } from "@/lib/app-icon";
+import { NextResponse } from "next/server";
 
-export function GET() {
-  return renderNotificationBadge(96);
+export function GET(request: Request) {
+  return NextResponse.redirect(new URL("/icons/badge.png", request.url), 308);
 }

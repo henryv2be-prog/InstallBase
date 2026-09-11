@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && npx tsx scripts/generate-pwa-icons.mjs && next build",
+    "icons:generate": "npx tsx scripts/generate-pwa-icons.mjs",
     "start": "node scripts/start-production.mjs",
     "start:server": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "eslint",
