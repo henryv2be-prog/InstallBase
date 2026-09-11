@@ -1,0 +1,948 @@
+"use server";
+
+import { revalidatePath, revalidateTag } from "next/cache";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import { auth, signIn } from "@/lib/auth";
+import { roleForEmail } from "@/lib/admin-access";
+import { slugify } from "@/lib/utils";
+import { getUploadDir, uploadPublicPath } from "@/lib/uploads";
+import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
+import { getOrCreateConversation, getCommentPreview as fetchCommentPreview } from "@/lib/queries";
+import { notifyUser } from "@/lib/notify";
+import { revalidateActivityPaths, markNotificationsReadForUser } from "@/lib/notification-read";
+import { sendPushToUser } from "@/lib/push";
+import { isPushConfigured } from "@/lib/vapid";
+import { isBraggableType, normalizeComposerType } from "@/lib/brag";
+import {
+  applyReputationDelta,
+  calculateReputationLevel,
+  REPUTATION_POINTS,
+  syncPostBragScore,
+} from "@/lib/reputation";
+import type { ExperienceLevel } from "@/generated/prisma/client";
+import { requestPasswordReset, resetPasswordWithToken } from "@/lib/password-reset";
+import {
+  type SignupField,
+  firstSignupError,
+  validateAccountInput,
+  validateProfessionalSignupInput,
+  validatePassword,
+} from "@/lib/auth-validation";
+import { needsProfessionalDetails, purposeIdsToRoles } from "@/lib/platform-roles";
+import type { EmploymentStatus, PlatformRole } from "@/generated/prisma/client";
+import {
+  compactWorkDetails,
+  computeDefaultInPortfolio,
+  resolveComposerIntent,
+} from "@/lib/work-posts";
+
+async function getCurrentUserId() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+  return session.user.id;
+}
+
+export async function registerUser(formData: FormData) {
+  const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
+  const password = formData.get("password") as string | null ?? "";
+  const name = (formData.get("name") as string | null)?.trim() ?? "";
+  const username = (formData.get("username") as string | null)?.trim().toLowerCase() ?? "";
+  const city = (formData.get("city") as string | null)?.trim() ?? "";
+  const country = (formData.get("country") as string | null)?.trim() ?? "";
+  const experience = (formData.get("experience") as string | null) ?? "";
+  const specialties = formData.getAll("specialties") as string[];
+  const purposeIds = formData.getAll("purposes") as string[];
+  const platformRoles = purposeIdsToRoles(purposeIds);
+  const requireProfessional = needsProfessionalDetails(platformRoles);
+
+  const validationErrors = {
+    ...validateAccountInput({ name, username, email, password }),
+    ...validateProfessionalSignupInput({ city, country, experience }, requireProfessional),
+  };
+
+  const firstError = firstSignupError(validationErrors);
+  if (firstError) {
+    return {
+      error: firstError.message,
+      field: firstError.field,
+      errors: validationErrors,
+      requireProfessional,
+    };
+  }
+
+  try {
+    const [existingEmail, existingUsername] = await Promise.all([
+      prisma.user.findUnique({ where: { email }, select: { id: true } }),
+      prisma.profile.findUnique({ where: { username }, select: { id: true } }),
+    ]);
+
+    if (existingEmail) {
+      return { error: "An account with this email already exists", field: "email" as SignupField };
+    }
+    if (existingUsername) {
+      return { error: "This username is already taken", field: "username" as SignupField };
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name,
+        passwordHash,
+        role: roleForEmail(email),
+        profile: {
+          create: {
+            username,
+            city: city || null,
+            country: country || null,
+            experienceLevel: (experience || "APPRENTICE") as ExperienceLevel,
+            specialties,
+          },
+        },
+        reputation: { create: { score: 0 } },
+        platformRoles: {
+          create: platformRoles.map((role) => ({ role })),
+        },
+      },
+    });
+
+    await signIn("credentials", { email, password, redirect: false });
+    return { success: true, userId: user.id, platformRoles };
+  } catch (error) {
+    console.error("registerUser failed:", error);
+    return { error: "Could not create your account. Please try again in a moment." };
+  }
+}
+
+export async function createPost(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const mediaUrls = formData.getAll("mediaUrls") as string[];
+  const type = normalizeComposerType(formData.get("type") as string | null, mediaUrls);
+  const content = ((formData.get("content") as string) || "").trim();
+  const title = formData.get("title") as string | null;
+  const location = (formData.get("location") as string | null)?.trim() || null;
+  if (!content && mediaUrls.filter(Boolean).length === 0) {
+    return { error: "Add a photo or write something first" };
+  }
+  const tagNames = formData.getAll("tags") as string[];
+  const productIds = formData.getAll("productIds") as string[];
+  const postIntent = resolveComposerIntent(type, formData.get("postIntent") as string | null);
+  const inPortfolio = computeDefaultInPortfolio(type, postIntent);
+  const showExactLocation = formData.get("showExactLocation") === "true";
+  const workDateRaw = (formData.get("workDate") as string | null)?.trim();
+  const workDate = workDateRaw ? new Date(workDateRaw) : null;
+  const workDetails = compactWorkDetails({
+    trade: (formData.get("workTrade") as string | null)?.trim() || undefined,
+    projectType: (formData.get("workProjectType") as string | null)?.trim() || undefined,
+    deviceCount: (formData.get("workDeviceCount") as string | null)?.trim() || undefined,
+    skills: formData.getAll("workSkills").map((item) => String(item).trim()).filter(Boolean),
+    equipmentNotes: (formData.get("workEquipmentNotes") as string | null)?.trim() || undefined,
+  });
+
+  const hasMedia = mediaUrls.filter(Boolean).length > 0;
+
+  const categoryIds = new Set<string>();
+  for (const id of formData.getAll("categoryIds").map((item) => String(item).trim()).filter(Boolean)) {
+    categoryIds.add(id);
+  }
+  const workTrade = (formData.get("workTrade") as string | null)?.trim();
+  if (workTrade) {
+    const category = await prisma.category.findFirst({
+      where: {
+        OR: [
+          { name: { equals: workTrade, mode: "insensitive" } },
+          { slug: slugify(workTrade) },
+        ],
+      },
+      select: { id: true },
+    });
+    if (category) categoryIds.add(category.id);
+  }
+
+  const post = await prisma.post.create({
+    data: {
+      authorId: userId,
+      type,
+      postIntent,
+      content,
+      title: title || undefined,
+      location: location || undefined,
+      workDate: workDate && !Number.isNaN(workDate.getTime()) ? workDate : undefined,
+      workDetails: workDetails ?? undefined,
+      showExactLocation,
+      inPortfolio,
+      bragScore: 0,
+      media: {
+        create: mediaUrls.filter(Boolean).map((url, i) => ({
+          url,
+          order: i,
+          type: /\.(mp4|webm|mov)(\?|$)/i.test(url) ? "video" : "image",
+        })),
+      },
+      products: {
+        create: productIds.filter(Boolean).map((productId) => ({ productId })),
+      },
+      categories: {
+        create: [...categoryIds].map((categoryId) => ({ categoryId })),
+      },
+    },
+  });
+
+  for (const tagName of tagNames.filter(Boolean)) {
+    const slug = slugify(tagName);
+    const tag = await prisma.tag.upsert({
+      where: { slug },
+      create: { name: tagName, slug },
+      update: {},
+    });
+    await prisma.postTag.create({ data: { postId: post.id, tagId: tag.id } });
+  }
+
+  if (isBraggableType(type) && hasMedia) {
+    await prisma.profile.update({
+      where: { userId },
+      data: { bragCount: { increment: 1 } },
+    });
+  }
+
+  const authorProfile = await prisma.profile.findUnique({
+    where: { userId },
+    select: { username: true },
+  });
+
+  revalidatePath("/feed");
+  revalidatePath("/brags");
+  revalidatePath("/questions");
+  revalidatePath(`/post/${post.id}`);
+  if (authorProfile?.username) {
+    revalidatePath(`/profile/${authorProfile.username}`);
+  }
+  revalidateTag("posts", "max");
+  return { success: true, postId: post.id };
+}
+
+async function resolveCategoryIdForTrade(trade: string | null | undefined) {
+  const trimmed = trade?.trim();
+  if (!trimmed) return null;
+  const category = await prisma.category.findFirst({
+    where: {
+      OR: [
+        { name: { equals: trimmed, mode: "insensitive" } },
+        { slug: slugify(trimmed) },
+      ],
+    },
+    select: { id: true },
+  });
+  return category?.id ?? null;
+}
+
+export async function updatePostWorkSettings(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const postId = (formData.get("postId") as string | null)?.trim();
+  if (!postId) return { error: "Post not found" };
+
+  const existing = await prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      id: true,
+      authorId: true,
+      type: true,
+      author: { select: { profile: { select: { username: true } } } },
+    },
+  });
+
+  if (!existing || existing.authorId !== userId) {
+    return { error: "You can only edit your own posts" };
+  }
+
+  const inPortfolio = formData.get("inPortfolio") === "true";
+  const postIntent = resolveComposerIntent(existing.type, formData.get("postIntent") as string | null);
+  const showExactLocation = formData.get("showExactLocation") === "true";
+  const location = (formData.get("location") as string | null)?.trim() || null;
+  const workDateRaw = (formData.get("workDate") as string | null)?.trim();
+  const workDate = workDateRaw ? new Date(workDateRaw) : null;
+  const workDetails = compactWorkDetails({
+    trade: (formData.get("workTrade") as string | null)?.trim() || undefined,
+    projectType: (formData.get("workProjectType") as string | null)?.trim() || undefined,
+    deviceCount: (formData.get("workDeviceCount") as string | null)?.trim() || undefined,
+    skills: formData.getAll("workSkills").map((item) => String(item).trim()).filter(Boolean),
+    equipmentNotes: (formData.get("workEquipmentNotes") as string | null)?.trim() || undefined,
+  });
+  const categoryId = await resolveCategoryIdForTrade(formData.get("workTrade") as string | null);
+
+  await prisma.$transaction(async (tx) => {
+    await tx.postCategory.deleteMany({ where: { postId } });
+    if (categoryId) {
+      await tx.postCategory.create({ data: { postId, categoryId } });
+    }
+    await tx.post.update({
+      where: { id: postId },
+      data: {
+        postIntent,
+        inPortfolio,
+        location,
+        showExactLocation,
+        workDate: workDate && !Number.isNaN(workDate.getTime()) ? workDate : null,
+        workDetails: workDetails ?? undefined,
+      },
+    });
+  });
+
+  const username = existing.author.profile?.username;
+  revalidatePath(`/post/${postId}`);
+  revalidatePath("/feed");
+  if (username) revalidatePath(`/profile/${username}`);
+  revalidateTag("posts", "max");
+  return { success: true };
+}
+
+export async function toggleLike(postId: string) {
+  const userId = await getCurrentUserId();
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { authorId: true },
+  });
+  if (!post) throw new Error("Post not found");
+
+  const existing = await prisma.like.findUnique({
+    where: { postId_userId: { postId, userId } },
+  });
+
+  let liked = false;
+  if (existing) {
+    await prisma.like.delete({ where: { id: existing.id } });
+    liked = false;
+    if (post.authorId !== userId) {
+      await applyReputationDelta(post.authorId, {
+        score: -REPUTATION_POINTS.LIKE_RECEIVED,
+        likesReceived: -1,
+      });
+    }
+  } else {
+    await prisma.like.create({ data: { postId, userId } });
+    liked = true;
+    if (post.authorId !== userId) {
+      await applyReputationDelta(post.authorId, {
+        score: REPUTATION_POINTS.LIKE_RECEIVED,
+        likesReceived: 1,
+      });
+      await notifyUser({
+        userId: post.authorId,
+        actorId: userId,
+        type: "LIKE",
+        message: "liked your post",
+        link: `/post/${postId}`,
+      });
+    }
+  }
+
+  const likeCount = await prisma.like.count({ where: { postId } });
+
+  revalidatePath("/feed");
+  revalidatePath(`/post/${postId}`);
+  revalidatePath(`/profile`);
+  return { success: true, liked, likeCount };
+}
+
+export async function toggleBookmark(postId: string) {
+  const userId = await getCurrentUserId();
+  const existing = await prisma.bookmark.findUnique({
+    where: { postId_userId: { postId, userId } },
+  });
+
+  let saved = false;
+  if (existing) {
+    await prisma.bookmark.delete({ where: { id: existing.id } });
+    saved = false;
+  } else {
+    await prisma.bookmark.create({ data: { postId, userId } });
+    saved = true;
+  }
+
+  revalidatePath("/feed");
+  revalidatePath("/profile");
+  return { success: true, saved };
+}
+
+export async function toggleBragPoint(postId: string) {
+  const userId = await getCurrentUserId();
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { type: true, authorId: true },
+  });
+  if (!post || !isBraggableType(post.type)) {
+    return { error: "Brag points are for installation posts" };
+  }
+
+  const existing = await prisma.bragPoint.findUnique({
+    where: { postId_userId: { postId, userId } },
+  });
+
+  let bragged = false;
+  if (existing) {
+    await prisma.bragPoint.delete({ where: { id: existing.id } });
+    bragged = false;
+    if (post.authorId !== userId) {
+      await applyReputationDelta(post.authorId, {
+        score: -REPUTATION_POINTS.BRAG_RECEIVED,
+        bragEngagement: -1,
+      });
+    }
+  } else {
+    await prisma.bragPoint.create({ data: { postId, userId } });
+    bragged = true;
+    if (post.authorId !== userId) {
+      await applyReputationDelta(post.authorId, {
+        score: REPUTATION_POINTS.BRAG_RECEIVED,
+        bragEngagement: 1,
+      });
+      await notifyUser({
+        userId: post.authorId,
+        actorId: userId,
+        type: "BRAG_RANKING",
+        message: "gave brag points to your install",
+        link: `/post/${postId}`,
+      });
+    }
+  }
+
+  const updated = await syncPostBragScore(postId);
+
+  revalidatePath("/feed");
+  revalidatePath("/brags");
+  revalidatePath("/discover");
+  revalidatePath(`/post/${postId}`);
+  revalidatePath(`/profile`);
+  return { success: true, bragged, bragScore: updated.bragScore };
+}
+
+export async function addComment(postId: string, content: string) {
+  const userId = await getCurrentUserId();
+  await prisma.comment.create({
+    data: { postId, authorId: userId, content },
+  });
+
+  const post = await prisma.post.findUnique({ where: { id: postId } });
+  if (post && post.authorId !== userId) {
+    await notifyUser({
+      userId: post.authorId,
+      actorId: userId,
+      type: "COMMENT",
+      message: "commented on your post",
+      link: `/post/${postId}`,
+    });
+  }
+
+  revalidatePath("/feed");
+  revalidatePath(`/post/${postId}`);
+  return { success: true };
+}
+
+export async function getCommentPreview(postId: string, limit = 3) {
+  return fetchCommentPreview(postId, limit);
+}
+
+export async function toggleFollow(userId: string) {
+  const currentUserId = await getCurrentUserId();
+  if (currentUserId === userId) throw new Error("Cannot follow yourself");
+
+  const [existing, target, me] = await Promise.all([
+    prisma.follow.findUnique({
+      where: { followerId_followingId: { followerId: currentUserId, followingId: userId } },
+    }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      include: { profile: { select: { username: true } } },
+    }),
+    prisma.user.findUnique({
+      where: { id: currentUserId },
+      include: { profile: { select: { username: true } } },
+    }),
+  ]);
+
+  if (!target) throw new Error("User not found");
+
+  if (existing) {
+    await prisma.follow.delete({ where: { id: existing.id } });
+  } else {
+    await prisma.follow.create({
+      data: { followerId: currentUserId, followingId: userId },
+    });
+    await notifyUser({
+      userId,
+      actorId: currentUserId,
+      type: "FOLLOW",
+      message: "started following you",
+      link: me?.profile?.username ? `/profile/${me.profile.username}` : "/feed",
+    });
+  }
+
+  revalidatePath("/feed");
+  revalidatePath("/discover");
+  revalidatePath("/notifications");
+  if (target.profile?.username) {
+    revalidatePath(`/profile/${target.profile.username}`);
+    revalidatePath(`/profile/${target.profile.username}/follows`);
+  }
+  if (me?.profile?.username) {
+    revalidatePath(`/profile/${me.profile.username}`);
+    revalidatePath(`/profile/${me.profile.username}/follows`);
+  }
+
+  return { success: true, following: !existing };
+}
+
+export async function addAnswer(postId: string, content: string) {
+  const userId = await getCurrentUserId();
+  await prisma.answer.create({
+    data: { postId, authorId: userId, content },
+  });
+
+  const post = await prisma.post.findUnique({ where: { id: postId } });
+  if (post && post.authorId !== userId) {
+    await notifyUser({
+      userId: post.authorId,
+      actorId: userId,
+      type: "ANSWER",
+      message: "answered your question",
+      link: `/post/${postId}`,
+    });
+  }
+
+  revalidatePath(`/post/${postId}`);
+  revalidatePath("/questions");
+  return { success: true };
+}
+
+export async function markSolution(answerId: string, postId: string) {
+  const userId = await getCurrentUserId();
+  const post = await prisma.post.findUnique({ where: { id: postId } });
+  if (!post || post.authorId !== userId) throw new Error("Unauthorized");
+
+  await prisma.answer.updateMany({
+    where: { postId },
+    data: { isSolution: false },
+  });
+  await prisma.answer.update({
+    where: { id: answerId },
+    data: { isSolution: true },
+  });
+  await prisma.post.update({
+    where: { id: postId },
+    data: { solved: true },
+  });
+
+  const answer = await prisma.answer.findUnique({ where: { id: answerId } });
+  if (answer) {
+    await applyReputationDelta(answer.authorId, {
+      score: REPUTATION_POINTS.SOLUTION,
+      helpfulAnswers: 1,
+      solvedQuestions: 1,
+    });
+    await notifyUser({
+      userId: answer.authorId,
+      actorId: userId,
+      type: "SOLUTION",
+      message: "marked your answer as the solution",
+      link: `/post/${postId}`,
+    });
+  }
+
+  revalidatePath(`/post/${postId}`);
+  return { success: true };
+}
+
+export async function markHelpful(answerId: string) {
+  await prisma.answer.update({
+    where: { id: answerId },
+    data: { helpful: { increment: 1 } },
+  });
+  return { success: true };
+}
+
+async function notifyMessageRecipients(conversationId: string, senderId: string, text: string) {
+  const recipients = await prisma.conversationParticipant.findMany({
+    where: { conversationId, userId: { not: senderId } },
+    select: { userId: true },
+  });
+  for (const { userId: recipientId } of recipients) {
+    await notifyUser({
+      userId: recipientId,
+      actorId: senderId,
+      type: "MESSAGE",
+      message: "sent you a message",
+      link: `/messages/${conversationId}`,
+      pushTitle: "New message",
+      pushBody: text.length > 80 ? `${text.slice(0, 80)}…` : text,
+    });
+  }
+}
+
+export async function sendMessage(conversationId: string, content: string) {
+  const userId = await getCurrentUserId();
+  const text = content.trim();
+  if (!text) return { error: "Message cannot be empty" };
+
+  const participant = await prisma.conversationParticipant.findUnique({
+    where: { conversationId_userId: { conversationId, userId } },
+  });
+  if (!participant) return { error: "You are not part of this conversation" };
+
+  await prisma.message.create({
+    data: { conversationId, senderId: userId, content: text },
+  });
+  await prisma.conversation.update({
+    where: { id: conversationId },
+    data: { updatedAt: new Date() },
+  });
+
+  await notifyMessageRecipients(conversationId, userId, text);
+
+  revalidatePath("/messages");
+  revalidatePath(`/messages/${conversationId}`);
+  revalidatePath("/notifications");
+  return { success: true };
+}
+
+export async function startConversation(targetUserId: string, content: string) {
+  const userId = await getCurrentUserId();
+  if (userId === targetUserId) return { error: "You cannot message yourself" };
+
+  const text = content.trim();
+  if (!text) return { error: "Message cannot be empty" };
+
+  const conversation = await getOrCreateConversation(userId, targetUserId);
+
+  await prisma.message.create({
+    data: { conversationId: conversation.id, senderId: userId, content: text },
+  });
+  await prisma.conversation.update({
+    where: { id: conversation.id },
+    data: { updatedAt: new Date() },
+  });
+
+  await notifyMessageRecipients(conversation.id, userId, text);
+
+  revalidatePath("/messages");
+  revalidatePath(`/messages/${conversation.id}`);
+  revalidatePath("/notifications");
+  return { conversationId: conversation.id };
+}
+
+export async function markNotificationRead(notificationId: string) {
+  const userId = await getCurrentUserId();
+  await markNotificationsReadForUser(userId, { id: notificationId });
+  revalidateActivityPaths();
+  return { success: true };
+}
+
+export async function markNotificationsRead() {
+  const userId = await getCurrentUserId();
+  await prisma.notification.updateMany({
+    where: { userId, read: false },
+    data: { read: true },
+  });
+  revalidateActivityPaths();
+  return { success: true };
+}
+
+export async function reportContent(formData: FormData) {
+  const userId = await getCurrentUserId();
+  await prisma.report.create({
+    data: {
+      reporterId: userId,
+      postId: (formData.get("postId") as string) || undefined,
+      reportedUserId: (formData.get("reportedUserId") as string) || undefined,
+      reason: formData.get("reason") as "SPAM" | "FAKE_ACCOUNT" | "OFFENSIVE" | "UNSAFE_ADVICE" | "ADVERTISING" | "OTHER",
+      description: (formData.get("description") as string) || undefined,
+    },
+  });
+  return { success: true };
+}
+
+export async function adminSuspendUser(userId: string, suspended: boolean) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  await prisma.user.update({ where: { id: userId }, data: { suspended } });
+  revalidatePath("/admin");
+  return { success: true };
+}
+
+export async function adminDeletePost(postId: string) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  await prisma.post.delete({ where: { id: postId } });
+  revalidatePath("/admin");
+  revalidatePath("/feed");
+  return { success: true };
+}
+
+export async function adminResolveReport(reportId: string, status: "RESOLVED" | "DISMISSED") {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  await prisma.report.update({ where: { id: reportId }, data: { status } });
+  revalidatePath("/admin");
+  return { success: true };
+}
+
+export async function uploadImage(formData: FormData) {
+  const file = formData.get("file") as File;
+  if (!file) return { error: "No file provided" };
+
+  const allowed = /^(image\/(jpeg|jpg|png|gif|webp)|video\/(mp4|webm|quicktime))$/i;
+  if (/heic|heif/i.test(file.type) || /\.hei[cf]$/i.test(file.name || "")) {
+    return { error: "This iPhone photo needs to be converted. Add it again from the composer." };
+  }
+  if (!allowed.test(file.type)) {
+    return { error: "Please upload a photo (JPG, PNG, WebP) or video (MP4, WebM)" };
+  }
+
+  const limit = maxBytesForUpload(file);
+  if (file.size > limit) {
+    const kind = file.type.startsWith("video/") ? "Video" : "Photo";
+    return { error: `${kind} must be ${formatUploadLimit(limit)} or smaller` };
+  }
+
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "") || "upload";
+  const filename = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}-${safeName}`;
+  const fs = await import("fs/promises");
+  const path = await import("path");
+  const uploadDir = getUploadDir();
+  await fs.mkdir(uploadDir, { recursive: true });
+  await fs.writeFile(path.join(uploadDir, filename), buffer);
+  const isVideo = file.type.startsWith("video/");
+  return { url: uploadPublicPath(filename), type: isVideo ? "video" : "image" };
+}
+
+export async function savePushSubscription(input: {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+  userAgent?: string;
+}) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { error: "Your session expired. Refresh the page and sign in again." };
+    }
+
+    if (!input.endpoint || !input.keys?.p256dh || !input.keys?.auth) {
+      return { error: "Invalid subscription from this browser" };
+    }
+
+    const userAgent = input.userAgent?.slice(0, 500);
+
+    await prisma.pushSubscription.upsert({
+      where: { endpoint: input.endpoint },
+      create: {
+        userId: session.user.id,
+        endpoint: input.endpoint,
+        p256dh: input.keys.p256dh,
+        auth: input.keys.auth,
+        userAgent,
+      },
+      update: {
+        userId: session.user.id,
+        p256dh: input.keys.p256dh,
+        auth: input.keys.auth,
+        userAgent,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("savePushSubscription failed:", error);
+    return { error: "Could not save this device. Try again in a moment." };
+  }
+}
+
+export async function deletePushSubscription(endpoint: string) {
+  const userId = await getCurrentUserId();
+  await prisma.pushSubscription.deleteMany({
+    where: { userId, endpoint },
+  });
+  return { success: true };
+}
+
+export async function sendTestPush() {
+  const userId = await getCurrentUserId();
+
+  if (!isPushConfigured()) {
+    return { error: "Push is not configured on the server. Add VAPID keys and redeploy." };
+  }
+
+  const count = await prisma.pushSubscription.count({ where: { userId } });
+  if (count === 0) {
+    return { error: "No device is registered yet. Enable alerts first." };
+  }
+
+  const sent = await sendPushToUser(userId, {
+    title: "InstallBase",
+    body: "Alerts are working on this device.",
+    url: "/settings",
+    urgency: "high",
+  });
+
+  if (!sent) {
+    return { error: "Could not deliver a test alert. Try disabling and enabling alerts again." };
+  }
+
+  return { success: true, sent };
+}
+
+export async function updateProfile(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const name = (formData.get("name") as string | null)?.trim();
+  const bio = (formData.get("bio") as string | null)?.trim() || null;
+  const city = (formData.get("city") as string | null)?.trim() || null;
+  const country = (formData.get("country") as string | null)?.trim() || null;
+  const experience = formData.get("experience") as ExperienceLevel | null;
+  const specialties = formData.getAll("specialties") as string[];
+  const website = (formData.get("website") as string | null)?.trim() || null;
+  const includeProfessional = formData.get("includeProfessional") === "true";
+  const openToWork = formData.get("openToWork") === "true";
+  const availableForContract = formData.get("availableForContract") === "true";
+  const availableForSubcontract = formData.get("availableForSubcontract") === "true";
+  const willingToTravel = formData.get("willingToTravel") === "true";
+  const serviceRadiusRaw = (formData.get("serviceRadiusKm") as string | null)?.trim();
+  const serviceRadiusKm = serviceRadiusRaw ? Number.parseInt(serviceRadiusRaw, 10) : null;
+  const employmentStatus = (formData.get("employmentStatus") as EmploymentStatus | null) || null;
+  const certifications = formData
+    .getAll("certifications")
+    .map((item) => String(item).trim())
+    .filter(Boolean);
+
+  if (!name) return { error: "Name is required" };
+  if (includeProfessional && !experience) return { error: "Experience level is required" };
+
+  const profile = await prisma.profile.findUnique({ where: { userId } });
+  if (!profile) return { error: "Profile not found" };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { name },
+  });
+
+  await prisma.profile.update({
+    where: { userId },
+    data: {
+      bio,
+      city,
+      country,
+      website,
+      ...(includeProfessional
+        ? {
+            experienceLevel: experience!,
+            specialties,
+            openToWork,
+            availableForContract,
+            availableForSubcontract,
+            willingToTravel,
+            serviceRadiusKm:
+              serviceRadiusKm !== null && !Number.isNaN(serviceRadiusKm) ? serviceRadiusKm : null,
+            employmentStatus: employmentStatus || null,
+            certifications,
+          }
+        : {}),
+    },
+  });
+
+  revalidatePath("/settings");
+  revalidatePath(`/profile/${profile.username}`);
+  return { success: true };
+}
+
+export async function updatePlatformPurposes(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const purposeIds = formData.getAll("purposes") as string[];
+  const roles = purposeIdsToRoles(purposeIds);
+
+  await prisma.$transaction(async (tx) => {
+    await tx.userPlatformRole.deleteMany({ where: { userId } });
+    if (roles.length > 0) {
+      await tx.userPlatformRole.createMany({
+        data: roles.map((role) => ({ userId, role })),
+      });
+    }
+  });
+
+  revalidatePath("/settings");
+  revalidatePath("/feed");
+  return { success: true, roles: roles as PlatformRole[] };
+}
+
+export async function updateAvatar(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const file = formData.get("file") as File | null;
+  if (!file) return { error: "No file provided" };
+
+  const uploadForm = new FormData();
+  uploadForm.append("file", file);
+  const result = await uploadImage(uploadForm);
+  if (result.error || !result.url) return { error: result.error ?? "Upload failed" };
+
+  const profile = await prisma.profile.findUnique({ where: { userId } });
+  await prisma.user.update({
+    where: { id: userId },
+    data: { image: result.url },
+  });
+
+  if (profile) revalidatePath(`/profile/${profile.username}`);
+  revalidatePath("/settings");
+  revalidatePath("/feed");
+  revalidatePath("/profile");
+  return { success: true, url: result.url };
+}
+
+export async function changePassword(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const current = formData.get("currentPassword") as string;
+  const next = formData.get("newPassword") as string;
+
+  if (!current || !next) return { error: "Please fill in both password fields" };
+  const passwordError = validatePassword(next);
+  if (passwordError) return { error: passwordError };
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user?.passwordHash) return { error: "Password change is not available for this account" };
+
+  const valid = await bcrypt.compare(current, user.passwordHash);
+  if (!valid) return { error: "Current password is incorrect" };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: await bcrypt.hash(next, 12) },
+  });
+
+  return { success: true };
+}
+
+export async function requestPasswordResetAction(formData: FormData) {
+  const email = (formData.get("email") as string | null)?.trim();
+  if (!email) return { error: "Please enter your email address" };
+  return requestPasswordReset(email);
+}
+
+export async function resetPasswordAction(formData: FormData) {
+  const token = (formData.get("token") as string | null)?.trim();
+  const password = formData.get("password") as string | null;
+  if (!token || !password) return { error: "Please fill in all fields" };
+  return resetPasswordWithToken(token, password);
+}
+
+export async function pingPresence() {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+
+  const cutoff = new Date(Date.now() - 20_000);
+  await prisma.user.updateMany({
+    where: {
+      id: userId,
+      OR: [{ lastSeenAt: null }, { lastSeenAt: { lt: cutoff } }],
+    },
+    data: { lastSeenAt: new Date() },
+  });
+}

@@ -1,0 +1,35 @@
+import { cn } from "@/lib/utils";
+import { IB_MARK_BOX_CLASS, IbMark } from "@/components/ui/ib-mark";
+
+interface LogoProps {
+  size?: "sm" | "md" | "lg";
+  showText?: boolean;
+  className?: string;
+}
+
+const sizes = {
+  sm: { box: "h-8 w-8 text-xs", text: "text-base" },
+  md: { box: "h-9 w-9 text-sm", text: "text-lg" },
+  lg: { box: "h-11 w-11 text-base", text: "text-xl" },
+};
+
+export function Logo({ size = "md", showText = true, className }: LogoProps) {
+  const s = sizes[size];
+  return (
+    <div className={cn("flex items-center gap-2.5", className)}>
+      <div
+        className={cn(
+          "relative flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 font-bold text-white shadow-lg btn-glow",
+          s.box
+        )}
+      >
+        <IbMark className={cn("relative z-10 text-white", IB_MARK_BOX_CLASS)} />
+      </div>
+      {showText && (
+        <span className={cn("hidden font-bold tracking-tight min-[380px]:inline", s.text)}>
+          Install<span className="text-gradient">Base</span>
+        </span>
+      )}
+    </div>
+  );
+}
