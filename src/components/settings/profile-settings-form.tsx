@@ -193,7 +193,13 @@ export function ProfileSettingsForm({
             </div>
           </div>
           <div className="rounded-xl border border-border p-4 space-y-3">
-            <p className="text-sm font-medium">Availability</p>
+            <div>
+              <p className="text-sm font-medium">Profile preferences</p>
+              <p className="mt-1 text-xs text-muted">
+                Saved to your profile for future professional discovery on InstallBase. These
+                preferences are not shown publicly until matching and discovery features launch.
+              </p>
+            </div>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={openToWork} onChange={(e) => setOpenToWork(e.target.checked)} />
               Open to work
@@ -246,13 +252,16 @@ export function ProfileSettingsForm({
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">Certifications</label>
+              <label className="mb-1 block text-sm font-medium">Self-reported certifications</label>
               <Input
                 value={certificationsText}
                 onChange={(e) => setCertificationsText(e.target.value)}
                 placeholder="Hikvision certified, ECSA wireman..."
               />
-              <p className="mt-1 text-xs text-muted">Separate multiple certifications with commas.</p>
+              <p className="mt-1 text-xs text-muted">
+                Comma-separated. Shown on your profile as self-reported — not verified by
+                InstallBase.
+              </p>
             </div>
           </div>
         </>

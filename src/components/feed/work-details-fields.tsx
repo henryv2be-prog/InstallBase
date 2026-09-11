@@ -15,6 +15,7 @@ export type WorkDetailsFormState = {
   workDeviceCount: string;
   workDate: string;
   workEquipmentNotes: string;
+  location: string;
   showExactLocation: boolean;
 };
 
@@ -24,6 +25,7 @@ interface WorkDetailsFieldsProps {
   state: WorkDetailsFormState;
   onChange: (patch: Partial<WorkDetailsFormState>) => void;
   showIntentPicker?: boolean;
+  embedded?: boolean;
 }
 
 export function WorkDetailsFields({
@@ -32,20 +34,10 @@ export function WorkDetailsFields({
   state,
   onChange,
   showIntentPicker = true,
+  embedded = false,
 }: WorkDetailsFieldsProps) {
-  return (
-    <div className="mb-3 rounded-xl border border-border bg-card/40">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium"
-      >
-        <span>Add work details (optional)</span>
-        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
-      </button>
-
-      {open && (
-        <div className="space-y-3 border-t border-border px-4 py-4">
+  const fields = (
+    <div className="space-y-3">
           {showIntentPicker && (
             <div>
               <label className="mb-1 block text-xs font-medium text-muted">What type of post is this?</label>
@@ -118,6 +110,18 @@ export function WorkDetailsFields({
             />
           </div>
 
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted">Site location (optional)</label>
+            <Input
+              value={state.location}
+              onChange={(e) => onChange({ location: e.target.value })}
+              placeholder="City, area, or site reference"
+            />
+            <p className="mt-1 text-xs text-muted">
+              Your exact location stays private unless you enable &ldquo;Show exact location&rdquo; below.
+            </p>
+          </div>
+
           <label className="flex items-start gap-2 text-sm">
             <input
               type="checkbox"
@@ -128,12 +132,29 @@ export function WorkDetailsFields({
             <span>
               Show exact location on this post
               <span className="mt-0.5 block text-xs text-muted">
-                Leave unchecked to keep site addresses private. City/area from your profile is still used later for discovery.
+                Leave unchecked to keep site addresses private on the feed and your profile.
               </span>
             </span>
           </label>
-        </div>
-      )}
+    </div>
+  );
+
+  if (embedded) {
+    return <div className="rounded-xl border border-border bg-card/40 px-4 py-4">{fields}</div>;
+  }
+
+  return (
+    <div className="mb-3 rounded-xl border border-border bg-card/40">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium"
+      >
+        <span>Add work details (optional)</span>
+        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+      </button>
+
+      {open && <div className="space-y-3 border-t border-border px-4 py-4">{fields}</div>}
     </div>
   );
 }

@@ -5,7 +5,7 @@ import type { Prisma, PostType } from "@/generated/prisma/client";
 import { BRAG_CATEGORIES } from "@/lib/constants";
 import { bragHotScore, recencyMultiplier, startOfWeek } from "@/lib/ranking";
 import { braggablePostWhere, isBraggableType } from "@/lib/brag";
-import { getPostTradeLabel, PORTFOLIO_INTENTS } from "@/lib/work-posts";
+import { getPostTradeGroupLabel, isPortfolioPost } from "@/lib/work-posts";
 
 /** Card/list payload: counts instead of every like, comment, bookmark, and brag row. */
 export const postCardInclude = {
@@ -702,11 +702,7 @@ export async function getWorkPortfolio(userId: string, viewerId?: string) {
   const posts = await prisma.post.findMany({
     where: {
       authorId: userId,
-      OR: [
-        { inPortfolio: true },
-        { type: "PROJECT" },
-        { postIntent: { in: PORTFOLIO_INTENTS } },
-      ],
+      inPortfolio: true,
     },
     include: postCardInclude,
     orderBy: { createdAt: "desc" },
@@ -716,12 +712,14 @@ export async function getWorkPortfolio(userId: string, viewerId?: string) {
   const groupsMap = new Map<string, PostCardData[]>();
 
   for (const post of withState) {
-    const trade = getPostTradeLabel(post);
+    if (!isPortfolioPost(post)) continue;
+    const trade = getPostTradeGroupLabel(post);
     const existing = groupsMap.get(trade) ?? [];
     existing.push(post);
     groupsMap.set(trade, existing);
   }
 
+  const visiblePosts = withState.filter(isPortfolioPost);
   const groups: WorkPortfolioGroup[] = [...groupsMap.entries()]
     .map(([trade, groupPosts]) => ({
       trade,
@@ -731,8 +729,8 @@ export async function getWorkPortfolio(userId: string, viewerId?: string) {
     .sort((a, b) => b.count - a.count || a.trade.localeCompare(b.trade));
 
   return {
-    totalCount: withState.length,
+    totalCount: visiblePosts.length,
     groups,
-    posts: withState,
+    posts: visiblePosts,
   };
 }

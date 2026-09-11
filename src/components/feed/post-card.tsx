@@ -70,6 +70,7 @@ export function PostCard({
     showExactLocation: post.showExactLocation,
     postIntent: post.postIntent,
     type: post.type,
+    inPortfolio: post.inPortfolio,
   });
 
   const handleShare = async () => {
@@ -206,7 +207,9 @@ export function PostCard({
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {typeBadge.label && <Badge variant={typeBadge.variant}>{typeBadge.label}</Badge>}
-          {intentLabel && <Badge variant="outline">{intentLabel}</Badge>}
+          {intentLabel && (
+            <span className="text-xs text-muted-foreground">{intentLabel}</span>
+          )}
           {post.solved && <Badge variant="success">🟢 Solved</Badge>}
           {profile && (
             <ReputationBadge score={profile.reputationScore} level={profile.reputationLevel} />

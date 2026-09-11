@@ -159,23 +159,14 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
             ))}
           </div>
 
-          {(profile.openToWork ||
-            profile.availableForContract ||
-            profile.availableForSubcontract ||
-            profile.willingToTravel) && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {profile.openToWork && <Badge variant="success">Open to work</Badge>}
-              {profile.availableForContract && <Badge variant="outline">Contract</Badge>}
-              {profile.availableForSubcontract && <Badge variant="outline">Subcontract</Badge>}
-              {profile.willingToTravel && <Badge variant="outline">Willing to travel</Badge>}
-            </div>
-          )}
-
           {profile.certifications.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {profile.certifications.map((cert) => (
-                <Badge key={cert} variant="secondary">{cert}</Badge>
-              ))}
+            <div className="mt-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">Self-reported certifications</p>
+              <ul className="mt-2 space-y-1 text-sm text-foreground/80">
+                {profile.certifications.map((cert) => (
+                  <li key={cert}>{cert}</li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -188,10 +179,10 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
       <Tabs defaultValue="posts" className="mt-6">
         <TabsList className="w-full flex-wrap h-auto gap-1">
           <TabsTrigger value="posts">Posts ({tabCounts.posts})</TabsTrigger>
-          <TabsTrigger value="work">Work ({tabCounts.work})</TabsTrigger>
           <TabsTrigger value="brags">Brags ({tabCounts.brags})</TabsTrigger>
-          <TabsTrigger value="projects">Projects ({tabCounts.projects})</TabsTrigger>
           <TabsTrigger value="questions">Questions ({tabCounts.questions})</TabsTrigger>
+          <TabsTrigger value="work">Work shared ({tabCounts.work})</TabsTrigger>
+          <TabsTrigger value="projects">Projects ({tabCounts.projects})</TabsTrigger>
           {isOwnProfile && <TabsTrigger value="saved">Saved ({tabCounts.saved})</TabsTrigger>}
         </TabsList>
         <TabsContent value="posts">
@@ -208,6 +199,9 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
           />
         </TabsContent>
         <TabsContent value="work">
+          <p className="mb-4 text-sm text-muted">
+            Work shared here comes from posts on InstallBase. Full project write-ups live under Projects.
+          </p>
           <WorkPortfolio
             groups={workPortfolio.groups}
             totalCount={workPortfolio.totalCount}
@@ -232,6 +226,9 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
           />
         </TabsContent>
         <TabsContent value="projects">
+          <p className="mb-4 text-sm text-muted">
+            Full project pages are separate from day-to-day posts. Work shared from posts appears in the Work shared tab.
+          </p>
           <div className="space-y-4">
             {user.projects.length === 0 ? (
               <EmptyState

@@ -3,6 +3,8 @@ import { SPECIALTIES } from "@/lib/constants";
 
 export const PORTFOLIO_INTENTS: PostIntent[] = ["PROJECT_INSTALLATION", "SERVICE_REPAIR"];
 
+export const UNCATEGORISED_WORK_LABEL = "Uncategorised work";
+
 /** Intents users can pick in the composer today (marketplace intents stored for later phases). */
 export const COMPOSER_POST_INTENTS: {
   value: PostIntent;
@@ -50,6 +52,10 @@ export type WorkDetails = {
   equipmentNotes?: string;
 };
 
+export type PortfolioPostLike = {
+  inPortfolio: boolean;
+};
+
 export function parseWorkDetails(raw: unknown): WorkDetails {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
   const source = raw as Record<string, unknown>;
@@ -79,14 +85,23 @@ export function isPortfolioIntent(intent: PostIntent): boolean {
   return PORTFOLIO_INTENTS.includes(intent);
 }
 
-export function isPortfolioPost(input: {
-  type: PostType;
-  postIntent: PostIntent;
-  inPortfolio: boolean;
-}): boolean {
-  if (input.inPortfolio) return true;
-  if (input.type === "PROJECT") return true;
-  return isPortfolioIntent(input.postIntent);
+/** Whether type/intent makes a post eligible for the Work area by default. */
+export function isWorkEligible(type: PostType, intent: PostIntent): boolean {
+  if (type === "PROJECT") return true;
+  return isPortfolioIntent(intent);
+}
+
+/**
+ * Canonical Work-area membership. `inPortfolio` is the stored flag:
+ * set automatically on create from eligibility, then user-editable.
+ */
+export function isPortfolioPost(post: PortfolioPostLike): boolean {
+  return post.inPortfolio;
+}
+
+/** Default Work-area membership when a post is first created. */
+export function computeDefaultInPortfolio(type: PostType, intent: PostIntent): boolean {
+  return isWorkEligible(type, intent);
 }
 
 export function resolveComposerIntent(
@@ -100,9 +115,9 @@ export function resolveComposerIntent(
   return "GENERAL";
 }
 
+/** @deprecated Use computeDefaultInPortfolio */
 export function shouldIncludeInPortfolio(type: PostType, intent: PostIntent): boolean {
-  if (type === "PROJECT") return true;
-  return isPortfolioIntent(intent);
+  return computeDefaultInPortfolio(type, intent);
 }
 
 export function getPostIntentLabel(intent: PostIntent): string | null {
@@ -110,20 +125,29 @@ export function getPostIntentLabel(intent: PostIntent): string | null {
   return match?.label ?? null;
 }
 
+/** Structured trade/category only — never inferred from caption text. */
 export function getPostTradeLabel(input: {
   categories?: { category: { name: string } }[];
   workDetails?: unknown;
-}): string {
+}): string | null {
   const categoryName = input.categories?.[0]?.category.name;
   if (categoryName) return categoryName;
 
   const details = parseWorkDetails(input.workDetails);
-  if (details.trade && SPECIALTIES.includes(details.trade as (typeof SPECIALTIES)[number])) {
-    return details.trade;
-  }
   if (details.trade) return details.trade;
 
-  return "General Installation";
+  return null;
+}
+
+export function getPostTradeGroupLabel(input: {
+  categories?: { category: { name: string } }[];
+  workDetails?: unknown;
+}): string {
+  return getPostTradeLabel(input) ?? UNCATEGORISED_WORK_LABEL;
+}
+
+export function formatWorkPostCount(count: number): string {
+  return `${count} work post${count === 1 ? "" : "s"}`;
 }
 
 export function shouldShowPostLocation(input: {
@@ -131,10 +155,13 @@ export function shouldShowPostLocation(input: {
   showExactLocation: boolean;
   postIntent: PostIntent;
   type: PostType;
+  inPortfolio?: boolean;
 }): boolean {
   if (!input.location?.trim()) return false;
   if (input.showExactLocation) return true;
-  if (input.type === "PROJECT" || isPortfolioIntent(input.postIntent)) return false;
+  if (input.inPortfolio || input.type === "PROJECT" || isPortfolioIntent(input.postIntent)) {
+    return false;
+  }
   return true;
 }
 

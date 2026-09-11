@@ -1,6 +1,9 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  computeDefaultInPortfolio,
+  formatWorkPostCount,
+  getPostTradeGroupLabel,
   getPostTradeLabel,
   isPortfolioPost,
   resolveComposerIntent,
@@ -14,25 +17,17 @@ describe("work-posts", () => {
     assert.equal(resolveComposerIntent("POST", "SERVICE_REPAIR"), "SERVICE_REPAIR");
   });
 
-  it("detects portfolio posts", () => {
-    assert.equal(
-      isPortfolioPost({ type: "POST", postIntent: "GENERAL", inPortfolio: false }),
-      false
-    );
-    assert.equal(
-      isPortfolioPost({ type: "PROJECT", postIntent: "GENERAL", inPortfolio: false }),
-      true
-    );
-    assert.equal(
-      isPortfolioPost({ type: "POST", postIntent: "SERVICE_REPAIR", inPortfolio: false }),
-      true
-    );
+  it("detects portfolio posts from inPortfolio flag", () => {
+    assert.equal(isPortfolioPost({ inPortfolio: false }), false);
+    assert.equal(isPortfolioPost({ inPortfolio: true }), true);
   });
 
   it("includes portfolio when intent or legacy project type matches", () => {
     assert.equal(shouldIncludeInPortfolio("PROJECT", "GENERAL"), true);
     assert.equal(shouldIncludeInPortfolio("POST", "PROJECT_INSTALLATION"), true);
     assert.equal(shouldIncludeInPortfolio("POST", "GENERAL"), false);
+    assert.equal(computeDefaultInPortfolio("PROJECT", "GENERAL"), true);
+    assert.equal(computeDefaultInPortfolio("POST", "GENERAL"), false);
   });
 
   it("groups trade labels from categories and work details", () => {
@@ -46,6 +41,13 @@ describe("work-posts", () => {
       getPostTradeLabel({ workDetails: { trade: "CCTV" } }),
       "CCTV"
     );
+    assert.equal(getPostTradeLabel({}), null);
+    assert.equal(getPostTradeGroupLabel({}), "Uncategorised work");
+  });
+
+  it("formats work post counts", () => {
+    assert.equal(formatWorkPostCount(1), "1 work post");
+    assert.equal(formatWorkPostCount(8), "8 work posts");
   });
 
   it("hides exact work locations unless explicitly enabled", () => {
@@ -55,6 +57,7 @@ describe("work-posts", () => {
         showExactLocation: false,
         postIntent: "PROJECT_INSTALLATION",
         type: "POST",
+        inPortfolio: true,
       }),
       false
     );

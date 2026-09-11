@@ -33,8 +33,8 @@ import { needsProfessionalDetails, purposeIdsToRoles } from "@/lib/platform-role
 import type { EmploymentStatus, PlatformRole } from "@/generated/prisma/client";
 import {
   compactWorkDetails,
+  computeDefaultInPortfolio,
   resolveComposerIntent,
-  shouldIncludeInPortfolio,
 } from "@/lib/work-posts";
 
 async function getCurrentUserId() {
@@ -128,7 +128,7 @@ export async function createPost(formData: FormData) {
   const tagNames = formData.getAll("tags") as string[];
   const productIds = formData.getAll("productIds") as string[];
   const postIntent = resolveComposerIntent(type, formData.get("postIntent") as string | null);
-  const inPortfolio = shouldIncludeInPortfolio(type, postIntent);
+  const inPortfolio = computeDefaultInPortfolio(type, postIntent);
   const showExactLocation = formData.get("showExactLocation") === "true";
   const workDateRaw = (formData.get("workDate") as string | null)?.trim();
   const workDate = workDateRaw ? new Date(workDateRaw) : null;
@@ -214,11 +214,87 @@ export async function createPost(formData: FormData) {
   revalidatePath("/feed");
   revalidatePath("/brags");
   revalidatePath("/questions");
+  revalidatePath(`/post/${post.id}`);
   if (authorProfile?.username) {
     revalidatePath(`/profile/${authorProfile.username}`);
   }
   revalidateTag("posts", "max");
   return { success: true, postId: post.id };
+}
+
+async function resolveCategoryIdForTrade(trade: string | null | undefined) {
+  const trimmed = trade?.trim();
+  if (!trimmed) return null;
+  const category = await prisma.category.findFirst({
+    where: {
+      OR: [
+        { name: { equals: trimmed, mode: "insensitive" } },
+        { slug: slugify(trimmed) },
+      ],
+    },
+    select: { id: true },
+  });
+  return category?.id ?? null;
+}
+
+export async function updatePostWorkSettings(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const postId = (formData.get("postId") as string | null)?.trim();
+  if (!postId) return { error: "Post not found" };
+
+  const existing = await prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      id: true,
+      authorId: true,
+      type: true,
+      author: { select: { profile: { select: { username: true } } } },
+    },
+  });
+
+  if (!existing || existing.authorId !== userId) {
+    return { error: "You can only edit your own posts" };
+  }
+
+  const inPortfolio = formData.get("inPortfolio") === "true";
+  const postIntent = resolveComposerIntent(existing.type, formData.get("postIntent") as string | null);
+  const showExactLocation = formData.get("showExactLocation") === "true";
+  const location = (formData.get("location") as string | null)?.trim() || null;
+  const workDateRaw = (formData.get("workDate") as string | null)?.trim();
+  const workDate = workDateRaw ? new Date(workDateRaw) : null;
+  const workDetails = compactWorkDetails({
+    trade: (formData.get("workTrade") as string | null)?.trim() || undefined,
+    projectType: (formData.get("workProjectType") as string | null)?.trim() || undefined,
+    deviceCount: (formData.get("workDeviceCount") as string | null)?.trim() || undefined,
+    skills: formData.getAll("workSkills").map((item) => String(item).trim()).filter(Boolean),
+    equipmentNotes: (formData.get("workEquipmentNotes") as string | null)?.trim() || undefined,
+  });
+  const categoryId = await resolveCategoryIdForTrade(formData.get("workTrade") as string | null);
+
+  await prisma.$transaction(async (tx) => {
+    await tx.postCategory.deleteMany({ where: { postId } });
+    if (categoryId) {
+      await tx.postCategory.create({ data: { postId, categoryId } });
+    }
+    await tx.post.update({
+      where: { id: postId },
+      data: {
+        postIntent,
+        inPortfolio,
+        location,
+        showExactLocation,
+        workDate: workDate && !Number.isNaN(workDate.getTime()) ? workDate : null,
+        workDetails: workDetails ?? undefined,
+      },
+    });
+  });
+
+  const username = existing.author.profile?.username;
+  revalidatePath(`/post/${postId}`);
+  revalidatePath("/feed");
+  if (username) revalidatePath(`/profile/${username}`);
+  revalidateTag("posts", "max");
+  return { success: true };
 }
 
 export async function toggleLike(postId: string) {

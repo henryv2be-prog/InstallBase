@@ -1,9 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Briefcase } from "lucide-react";
+import { Camera } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Badge } from "@/components/ui/badge";
 import { RelativeTime } from "@/components/ui/relative-time";
+import { formatWorkPostCount } from "@/lib/work-posts";
 import type { WorkPortfolioGroup } from "@/lib/queries";
 
 interface WorkPortfolioProps {
@@ -22,14 +22,14 @@ export function WorkPortfolio({
   if (totalCount === 0) {
     return (
       <EmptyState
-        icon={Briefcase}
-        title="No work portfolio yet"
+        icon={Camera}
+        title="No work shared yet"
         description={
           isOwnProfile
-            ? "Post installation or service work with photos — tagged posts will appear here as evidence of what you do."
-            : `${ownerName} hasn't tagged any work posts yet.`
+            ? "When you post installation or service work, it can appear here as evidence of what you do — linked to your original posts."
+            : `${ownerName} hasn't shared tagged work posts yet.`
         }
-        action={isOwnProfile ? { label: "Share your work", href: "/create" } : undefined}
+        action={isOwnProfile ? { label: "Share something", href: "/create" } : undefined}
       />
     );
   }
@@ -37,19 +37,15 @@ export function WorkPortfolio({
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted">
-        Work posted by {isOwnProfile ? "you" : ownerName}. Each item links to the original post.
+        {formatWorkPostCount(totalCount)} showing work {isOwnProfile ? "you've" : `${ownerName} has`} posted on
+        InstallBase. Each item links to the original post — not a separate CV entry.
       </p>
 
       {groups.map((group) => (
         <section key={group.trade} className="glass-card rounded-2xl p-5">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-bold">{group.trade}</h3>
-              <p className="text-sm text-muted">
-                {group.count} project{group.count === 1 ? "" : "s"}
-              </p>
-            </div>
-            <Badge variant="secondary">{group.count}</Badge>
+          <div className="mb-4">
+            <h3 className="text-lg font-bold">{group.trade}</h3>
+            <p className="text-sm text-muted">{formatWorkPostCount(group.count)}</p>
           </div>
 
           <div className="space-y-3">
@@ -78,7 +74,7 @@ export function WorkPortfolio({
                   <div className="min-w-0 flex-1">
                     <p className="font-medium line-clamp-2">{title}</p>
                     <p className="mt-1 text-xs text-muted">
-                      Posted <RelativeTime date={post.createdAt} />
+                      Posted by {isOwnProfile ? "you" : ownerName} · <RelativeTime date={post.createdAt} />
                     </p>
                   </div>
                 </Link>
