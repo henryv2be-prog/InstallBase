@@ -37,7 +37,7 @@ function IbMarkSvg({
  * 80% safe zone so Android circle/squircle crops never clip it.
  */
 export function renderAppIcon(size: number, maskable = false) {
-  const markWidth = Math.round(size * (maskable ? 0.56 : 0.62));
+  const markWidth = Math.round(size * (maskable ? 0.66 : 0.74));
   const markHeight = Math.round(markWidth * (40 / 56));
 
   return new ImageResponse(
@@ -64,7 +64,7 @@ export function renderAppIcon(size: number, maskable = false) {
  * background. Color PNGs are flattened to a solid white square.
  */
 export function renderNotificationBadge(size = 96) {
-  const markWidth = Math.round(size * 0.62);
+  const markWidth = Math.round(size * 0.82);
   const markHeight = Math.round(markWidth * (40 / 56));
 
   return new ImageResponse(

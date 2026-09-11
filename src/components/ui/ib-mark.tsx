@@ -5,6 +5,9 @@ export const IB_MARK_VIEWBOX = "0 0 56 40";
 /** Cyan accent for the i-dot — reads on the blue gradient like the reference mark. */
 export const IB_MARK_ACCENT = "#67e8f9";
 
+/** Default in-app mark scale inside the blue rounded square. */
+export const IB_MARK_BOX_CLASS = "h-[68%] w-[84%]";
+
 interface IbMarkProps {
   className?: string;
   /** White silhouette for notification badges on transparent backgrounds. */
