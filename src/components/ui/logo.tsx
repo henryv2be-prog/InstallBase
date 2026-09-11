@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { IbMark } from "@/components/ui/ib-mark";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";
@@ -22,7 +23,7 @@ export function Logo({ size = "md", showText = true, className }: LogoProps) {
           s.box
         )}
       >
-        <span className="relative z-10 font-mono">IB</span>
+        <IbMark className="relative z-10 h-[58%] w-[72%] text-white" />
       </div>
       {showText && (
         <span className={cn("hidden font-bold tracking-tight min-[380px]:inline", s.text)}>

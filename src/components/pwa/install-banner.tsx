@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Download, Share, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { IbMark } from "@/components/ui/ib-mark";
 import {
   NOTIFY_PROMPT_DISMISS_KEY,
   isIosDevice,
@@ -63,8 +64,8 @@ export function PwaInstallBanner() {
   return (
     <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[60] px-3 md:bottom-4">
       <div className="mx-auto flex max-w-lg items-start gap-3 rounded-2xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-xl">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 font-mono text-sm font-bold text-white">
-          IB
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white">
+          <IbMark className="h-[58%] w-[72%]" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold">Install InstallBase</p>
