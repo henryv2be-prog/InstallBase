@@ -81,6 +81,13 @@ export default async function SettingsPage() {
             experience={profile.experienceLevel}
             specialties={profile.specialties}
             website={profile.website}
+            openToWork={profile.openToWork}
+            availableForContract={profile.availableForContract}
+            availableForSubcontract={profile.availableForSubcontract}
+            willingToTravel={profile.willingToTravel}
+            serviceRadiusKm={profile.serviceRadiusKm}
+            employmentStatus={profile.employmentStatus}
+            certifications={profile.certifications}
             showProfessionalFields={showProfessionalFields}
           />
           <div className="mt-4">

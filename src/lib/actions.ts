@@ -30,7 +30,12 @@ import {
   validatePassword,
 } from "@/lib/auth-validation";
 import { needsProfessionalDetails, purposeIdsToRoles } from "@/lib/platform-roles";
-import type { PlatformRole } from "@/generated/prisma/client";
+import type { EmploymentStatus, PlatformRole } from "@/generated/prisma/client";
+import {
+  compactWorkDetails,
+  resolveComposerIntent,
+  shouldIncludeInPortfolio,
+} from "@/lib/work-posts";
 
 async function getCurrentUserId() {
   const session = await auth();
@@ -116,22 +121,57 @@ export async function createPost(formData: FormData) {
   const type = normalizeComposerType(formData.get("type") as string | null, mediaUrls);
   const content = ((formData.get("content") as string) || "").trim();
   const title = formData.get("title") as string | null;
-  const location = formData.get("location") as string | null;
+  const location = (formData.get("location") as string | null)?.trim() || null;
   if (!content && mediaUrls.filter(Boolean).length === 0) {
     return { error: "Add a photo or write something first" };
   }
   const tagNames = formData.getAll("tags") as string[];
   const productIds = formData.getAll("productIds") as string[];
+  const postIntent = resolveComposerIntent(type, formData.get("postIntent") as string | null);
+  const inPortfolio = shouldIncludeInPortfolio(type, postIntent);
+  const showExactLocation = formData.get("showExactLocation") === "true";
+  const workDateRaw = (formData.get("workDate") as string | null)?.trim();
+  const workDate = workDateRaw ? new Date(workDateRaw) : null;
+  const workDetails = compactWorkDetails({
+    trade: (formData.get("workTrade") as string | null)?.trim() || undefined,
+    projectType: (formData.get("workProjectType") as string | null)?.trim() || undefined,
+    deviceCount: (formData.get("workDeviceCount") as string | null)?.trim() || undefined,
+    skills: formData.getAll("workSkills").map((item) => String(item).trim()).filter(Boolean),
+    equipmentNotes: (formData.get("workEquipmentNotes") as string | null)?.trim() || undefined,
+  });
 
   const hasMedia = mediaUrls.filter(Boolean).length > 0;
+
+  const categoryIds = new Set<string>();
+  for (const id of formData.getAll("categoryIds").map((item) => String(item).trim()).filter(Boolean)) {
+    categoryIds.add(id);
+  }
+  const workTrade = (formData.get("workTrade") as string | null)?.trim();
+  if (workTrade) {
+    const category = await prisma.category.findFirst({
+      where: {
+        OR: [
+          { name: { equals: workTrade, mode: "insensitive" } },
+          { slug: slugify(workTrade) },
+        ],
+      },
+      select: { id: true },
+    });
+    if (category) categoryIds.add(category.id);
+  }
 
   const post = await prisma.post.create({
     data: {
       authorId: userId,
       type,
+      postIntent,
       content,
       title: title || undefined,
       location: location || undefined,
+      workDate: workDate && !Number.isNaN(workDate.getTime()) ? workDate : undefined,
+      workDetails: workDetails ?? undefined,
+      showExactLocation,
+      inPortfolio,
       bragScore: 0,
       media: {
         create: mediaUrls.filter(Boolean).map((url, i) => ({
@@ -142,6 +182,9 @@ export async function createPost(formData: FormData) {
       },
       products: {
         create: productIds.filter(Boolean).map((productId) => ({ productId })),
+      },
+      categories: {
+        create: [...categoryIds].map((categoryId) => ({ categoryId })),
       },
     },
   });
@@ -163,9 +206,17 @@ export async function createPost(formData: FormData) {
     });
   }
 
+  const authorProfile = await prisma.profile.findUnique({
+    where: { userId },
+    select: { username: true },
+  });
+
   revalidatePath("/feed");
   revalidatePath("/brags");
   revalidatePath("/questions");
+  if (authorProfile?.username) {
+    revalidatePath(`/profile/${authorProfile.username}`);
+  }
   revalidateTag("posts", "max");
   return { success: true, postId: post.id };
 }
@@ -675,6 +726,17 @@ export async function updateProfile(formData: FormData) {
   const specialties = formData.getAll("specialties") as string[];
   const website = (formData.get("website") as string | null)?.trim() || null;
   const includeProfessional = formData.get("includeProfessional") === "true";
+  const openToWork = formData.get("openToWork") === "true";
+  const availableForContract = formData.get("availableForContract") === "true";
+  const availableForSubcontract = formData.get("availableForSubcontract") === "true";
+  const willingToTravel = formData.get("willingToTravel") === "true";
+  const serviceRadiusRaw = (formData.get("serviceRadiusKm") as string | null)?.trim();
+  const serviceRadiusKm = serviceRadiusRaw ? Number.parseInt(serviceRadiusRaw, 10) : null;
+  const employmentStatus = (formData.get("employmentStatus") as EmploymentStatus | null) || null;
+  const certifications = formData
+    .getAll("certifications")
+    .map((item) => String(item).trim())
+    .filter(Boolean);
 
   if (!name) return { error: "Name is required" };
   if (includeProfessional && !experience) return { error: "Experience level is required" };
@@ -698,6 +760,14 @@ export async function updateProfile(formData: FormData) {
         ? {
             experienceLevel: experience!,
             specialties,
+            openToWork,
+            availableForContract,
+            availableForSubcontract,
+            willingToTravel,
+            serviceRadiusKm:
+              serviceRadiusKm !== null && !Number.isNaN(serviceRadiusKm) ? serviceRadiusKm : null,
+            employmentStatus: employmentStatus || null,
+            certifications,
           }
         : {}),
     },

@@ -45,6 +45,27 @@ enum PostType {
   VIDEO
 }
 
+enum PostIntent {
+  GENERAL
+  PROJECT_INSTALLATION
+  SERVICE_REPAIR
+  PRODUCT_EQUIPMENT
+  TRAINING_CERTIFICATION
+  JOB_VACANCY
+  LOOKING_FOR_WORK
+  LOOKING_FOR_SUBCONTRACTORS
+  LOOKING_FOR_PROFESSIONAL
+}
+
+enum EmploymentStatus {
+  EMPLOYED
+  SELF_EMPLOYED
+  CONTRACTOR
+  APPRENTICE
+  STUDENT
+  BETWEEN_JOBS
+}
+
 enum ReportReason {
   SPAM
   FAKE_ACCOUNT
@@ -182,15 +203,23 @@ model Profile {
   verified        Boolean           @default(false)
   bragCount       Int               @default(0)
   helpfulAnswers  Int               @default(0)
-  coverImage      String?
-  website         String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  coverImage              String?
+  website                 String?
+  openToWork              Boolean           @default(false)
+  availableForContract    Boolean           @default(false)
+  availableForSubcontract Boolean           @default(false)
+  willingToTravel         Boolean           @default(false)
+  serviceRadiusKm         Int?
+  employmentStatus        EmploymentStatus?
+  certifications          String[]
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([username])
   @@index([city, country])
+  @@index([openToWork])
 }
 
 model Category {
@@ -241,19 +270,24 @@ model Tag {
 }
 
 model Post {
-  id          String    @id @default(cuid())
-  authorId    String
-  type        PostType  @default(POST)
-  title       String?
-  content     String
-  location    String?
-  solved      Boolean   @default(false)
-  featured    Boolean   @default(false)
-  bragScore   Int       @default(0)
-  bragDetails Json?
-  viewCount   Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                String     @id @default(cuid())
+  authorId          String
+  type              PostType   @default(POST)
+  postIntent        PostIntent @default(GENERAL)
+  title             String?
+  content           String
+  location          String?
+  workDate          DateTime?
+  workDetails       Json?
+  showExactLocation Boolean    @default(false)
+  inPortfolio       Boolean    @default(false)
+  solved            Boolean    @default(false)
+  featured          Boolean    @default(false)
+  bragScore         Int        @default(0)
+  bragDetails       Json?
+  viewCount         Int        @default(0)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
   media       PostMedia[]
@@ -270,6 +304,8 @@ model Post {
   @@index([authorId])
   @@index([type, createdAt])
   @@index([createdAt])
+  @@index([authorId, inPortfolio, createdAt])
+  @@index([postIntent, createdAt])
 }
 
 model PostMedia {

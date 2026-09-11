@@ -9,7 +9,7 @@ import { SPECIALTIES } from "@/lib/constants";
 import { updateProfile } from "@/lib/actions";
 import { getExperienceLabel } from "@/lib/utils";
 import { toast } from "sonner";
-import type { ExperienceLevel } from "@/generated/prisma/client";
+import type { EmploymentStatus, ExperienceLevel } from "@/generated/prisma/client";
 
 const experienceLevels: { value: ExperienceLevel; label: string }[] = [
   { value: "APPRENTICE", label: "Apprentice" },
@@ -17,6 +17,15 @@ const experienceLevels: { value: ExperienceLevel; label: string }[] = [
   { value: "THREE_TO_FIVE", label: "3–5 years" },
   { value: "FIVE_TO_TEN", label: "5–10 years" },
   { value: "TEN_PLUS", label: "10+ years" },
+];
+
+const employmentStatuses: { value: EmploymentStatus; label: string }[] = [
+  { value: "EMPLOYED", label: "Employed" },
+  { value: "SELF_EMPLOYED", label: "Self-employed" },
+  { value: "CONTRACTOR", label: "Contractor" },
+  { value: "APPRENTICE", label: "Apprentice" },
+  { value: "STUDENT", label: "Student" },
+  { value: "BETWEEN_JOBS", label: "Between jobs" },
 ];
 
 interface ProfileSettingsFormProps {
@@ -29,6 +38,13 @@ interface ProfileSettingsFormProps {
   experience: ExperienceLevel;
   specialties: string[];
   website: string | null;
+  openToWork: boolean;
+  availableForContract: boolean;
+  availableForSubcontract: boolean;
+  willingToTravel: boolean;
+  serviceRadiusKm: number | null;
+  employmentStatus: EmploymentStatus | null;
+  certifications: string[];
   showProfessionalFields: boolean;
 }
 
@@ -42,6 +58,13 @@ export function ProfileSettingsForm({
   experience: initialExperience,
   specialties: initialSpecialties,
   website: initialWebsite,
+  openToWork: initialOpenToWork,
+  availableForContract: initialAvailableForContract,
+  availableForSubcontract: initialAvailableForSubcontract,
+  willingToTravel: initialWillingToTravel,
+  serviceRadiusKm: initialServiceRadiusKm,
+  employmentStatus: initialEmploymentStatus,
+  certifications: initialCertifications,
   showProfessionalFields,
 }: ProfileSettingsFormProps) {
   const [pending, startTransition] = useTransition();
@@ -52,6 +75,17 @@ export function ProfileSettingsForm({
   const [experience, setExperience] = useState(initialExperience);
   const [specialties, setSpecialties] = useState<string[]>(initialSpecialties);
   const [website, setWebsite] = useState(initialWebsite ?? "");
+  const [openToWork, setOpenToWork] = useState(initialOpenToWork);
+  const [availableForContract, setAvailableForContract] = useState(initialAvailableForContract);
+  const [availableForSubcontract, setAvailableForSubcontract] = useState(initialAvailableForSubcontract);
+  const [willingToTravel, setWillingToTravel] = useState(initialWillingToTravel);
+  const [serviceRadiusKm, setServiceRadiusKm] = useState(
+    initialServiceRadiusKm !== null ? String(initialServiceRadiusKm) : ""
+  );
+  const [employmentStatus, setEmploymentStatus] = useState<EmploymentStatus | "">(
+    initialEmploymentStatus ?? ""
+  );
+  const [certificationsText, setCertificationsText] = useState(initialCertifications.join(", "));
 
   const toggleSpecialty = (s: string) => {
     setSpecialties((prev) =>
@@ -71,6 +105,17 @@ export function ProfileSettingsForm({
     formData.append("includeProfessional", showProfessionalFields ? "true" : "false");
     if (showProfessionalFields) {
       specialties.forEach((s) => formData.append("specialties", s));
+      formData.append("openToWork", openToWork ? "true" : "false");
+      formData.append("availableForContract", availableForContract ? "true" : "false");
+      formData.append("availableForSubcontract", availableForSubcontract ? "true" : "false");
+      formData.append("willingToTravel", willingToTravel ? "true" : "false");
+      if (serviceRadiusKm.trim()) formData.append("serviceRadiusKm", serviceRadiusKm.trim());
+      if (employmentStatus) formData.append("employmentStatus", employmentStatus);
+      certificationsText
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .forEach((cert) => formData.append("certifications", cert));
     }
 
     startTransition(async () => {
@@ -147,10 +192,73 @@ export function ProfileSettingsForm({
               ))}
             </div>
           </div>
+          <div className="rounded-xl border border-border p-4 space-y-3">
+            <p className="text-sm font-medium">Availability</p>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={openToWork} onChange={(e) => setOpenToWork(e.target.checked)} />
+              Open to work
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={availableForContract}
+                onChange={(e) => setAvailableForContract(e.target.checked)}
+              />
+              Available for contract work
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={availableForSubcontract}
+                onChange={(e) => setAvailableForSubcontract(e.target.checked)}
+              />
+              Available for subcontracting
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={willingToTravel}
+                onChange={(e) => setWillingToTravel(e.target.checked)}
+              />
+              Willing to travel
+            </label>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Service radius (km)</label>
+              <Input
+                type="number"
+                min={0}
+                value={serviceRadiusKm}
+                onChange={(e) => setServiceRadiusKm(e.target.value)}
+                placeholder="50"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Employment status</label>
+              <select
+                value={employmentStatus}
+                onChange={(e) => setEmploymentStatus(e.target.value as EmploymentStatus | "")}
+                className="flex h-10 w-full rounded-xl border border-border bg-card px-3 text-sm"
+              >
+                <option value="">Prefer not to say</option>
+                {employmentStatuses.map((status) => (
+                  <option key={status.value} value={status.value}>{status.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Certifications</label>
+              <Input
+                value={certificationsText}
+                onChange={(e) => setCertificationsText(e.target.value)}
+                placeholder="Hikvision certified, ECSA wireman..."
+              />
+              <p className="mt-1 text-xs text-muted">Separate multiple certifications with commas.</p>
+            </div>
+          </div>
         </>
       ) : (
         <p className="text-sm text-muted">
-          Enable &ldquo;Show my work&rdquo; or &ldquo;Find work&rdquo; above to edit experience and specialties.
+          Enable &ldquo;Show my work&rdquo; or &ldquo;Find work&rdquo; above to edit experience, specialties, and availability.
         </p>
       )}
       <div>

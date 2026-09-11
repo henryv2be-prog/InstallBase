@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import type { PostCardData } from "@/lib/queries";
 import { isBraggableType } from "@/lib/brag";
+import { getPostIntentLabel, shouldShowPostLocation } from "@/lib/work-posts";
 import { promptJoin } from "@/components/auth/guest-cta";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Camera } from "lucide-react";
@@ -62,6 +63,14 @@ export function PostCard({
   const canBrag = isBraggableType(post.type);
   const commentCount = post.type === "QUESTION" ? post._count.answers : post._count.comments;
   const reasonLabel = feedContext ? getFeedReasonLabel(post, feedContext, followingIds) : null;
+  const intentLabel =
+    post.postIntent && post.postIntent !== "GENERAL" ? getPostIntentLabel(post.postIntent) : null;
+  const showLocation = shouldShowPostLocation({
+    location: post.location,
+    showExactLocation: post.showExactLocation,
+    postIntent: post.postIntent,
+    type: post.type,
+  });
 
   const handleShare = async () => {
     const url = `${window.location.origin}/post/${post.id}`;
@@ -197,6 +206,7 @@ export function PostCard({
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {typeBadge.label && <Badge variant={typeBadge.variant}>{typeBadge.label}</Badge>}
+          {intentLabel && <Badge variant="outline">{intentLabel}</Badge>}
           {post.solved && <Badge variant="success">🟢 Solved</Badge>}
           {profile && (
             <ReputationBadge score={profile.reputationScore} level={profile.reputationLevel} />
@@ -211,7 +221,7 @@ export function PostCard({
           {post.content}
         </p>
 
-        {post.location && (
+        {showLocation && (
           <div className="mt-2 flex items-center gap-1 text-sm text-gray-500">
             <MapPin className="h-3.5 w-3.5" />
             {post.location}

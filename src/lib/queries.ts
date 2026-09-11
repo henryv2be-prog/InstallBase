@@ -5,6 +5,7 @@ import type { Prisma, PostType } from "@/generated/prisma/client";
 import { BRAG_CATEGORIES } from "@/lib/constants";
 import { bragHotScore, recencyMultiplier, startOfWeek } from "@/lib/ranking";
 import { braggablePostWhere, isBraggableType } from "@/lib/brag";
+import { getPostTradeLabel, PORTFOLIO_INTENTS } from "@/lib/work-posts";
 
 /** Card/list payload: counts instead of every like, comment, bookmark, and brag row. */
 export const postCardInclude = {
@@ -12,6 +13,7 @@ export const postCardInclude = {
   media: { orderBy: { order: "asc" as const } },
   tags: { include: { tag: true } },
   products: { include: { product: { include: { brand: true } } } },
+  categories: { include: { category: true } },
   _count: { select: { likes: true, comments: true, answers: true } },
 } satisfies Prisma.PostInclude;
 
@@ -688,4 +690,49 @@ export async function getUserPlatformRoles(userId: string) {
     orderBy: { createdAt: "asc" },
   });
   return rows.map((row) => row.role);
+}
+
+export type WorkPortfolioGroup = {
+  trade: string;
+  count: number;
+  posts: PostCardData[];
+};
+
+export async function getWorkPortfolio(userId: string, viewerId?: string) {
+  const posts = await prisma.post.findMany({
+    where: {
+      authorId: userId,
+      OR: [
+        { inPortfolio: true },
+        { type: "PROJECT" },
+        { postIntent: { in: PORTFOLIO_INTENTS } },
+      ],
+    },
+    include: postCardInclude,
+    orderBy: { createdAt: "desc" },
+  });
+
+  const withState = await withViewerState(posts, viewerId);
+  const groupsMap = new Map<string, PostCardData[]>();
+
+  for (const post of withState) {
+    const trade = getPostTradeLabel(post);
+    const existing = groupsMap.get(trade) ?? [];
+    existing.push(post);
+    groupsMap.set(trade, existing);
+  }
+
+  const groups: WorkPortfolioGroup[] = [...groupsMap.entries()]
+    .map(([trade, groupPosts]) => ({
+      trade,
+      count: groupPosts.length,
+      posts: groupPosts,
+    }))
+    .sort((a, b) => b.count - a.count || a.trade.localeCompare(b.trade));
+
+  return {
+    totalCount: withState.length,
+    groups,
+    posts: withState,
+  };
 }

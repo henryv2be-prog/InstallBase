@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { MapPin, MessageCircle } from "lucide-react";
-import { getProfileByUsername, getBookmarkedPosts } from "@/lib/queries";
+import { getProfileByUsername, getBookmarkedPosts, getWorkPortfolio } from "@/lib/queries";
 import { getSession } from "@/lib/session";
 import type { Session } from "next-auth";
 import { PresenceLabel } from "@/components/presence/presence-avatar";
@@ -16,6 +16,7 @@ import { FollowButton } from "@/components/profile/follow-button";
 import { signupHref } from "@/lib/auth-urls";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { WorkPortfolio } from "@/components/profile/work-portfolio";
 import { FolderKanban, Bookmark } from "lucide-react";
 
 interface ProfilePageProps {
@@ -42,8 +43,11 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
     ? await getBookmarkedPosts(session.user.id)
     : [];
 
+  const workPortfolio = await getWorkPortfolio(user.id, session?.user?.id);
+
   const tabCounts = {
     posts: normalPosts.length,
+    work: workPortfolio.totalCount,
     brags: bragPosts.length,
     projects: user.projects.length,
     questions: questionPosts.length,
@@ -155,6 +159,26 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
             ))}
           </div>
 
+          {(profile.openToWork ||
+            profile.availableForContract ||
+            profile.availableForSubcontract ||
+            profile.willingToTravel) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {profile.openToWork && <Badge variant="success">Open to work</Badge>}
+              {profile.availableForContract && <Badge variant="outline">Contract</Badge>}
+              {profile.availableForSubcontract && <Badge variant="outline">Subcontract</Badge>}
+              {profile.willingToTravel && <Badge variant="outline">Willing to travel</Badge>}
+            </div>
+          )}
+
+          {profile.certifications.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {profile.certifications.map((cert) => (
+                <Badge key={cert} variant="secondary">{cert}</Badge>
+              ))}
+            </div>
+          )}
+
           <p className="mt-2 text-sm text-muted">
             Experience: {getExperienceLabel(profile.experienceLevel)}
           </p>
@@ -164,6 +188,7 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
       <Tabs defaultValue="posts" className="mt-6">
         <TabsList className="w-full flex-wrap h-auto gap-1">
           <TabsTrigger value="posts">Posts ({tabCounts.posts})</TabsTrigger>
+          <TabsTrigger value="work">Work ({tabCounts.work})</TabsTrigger>
           <TabsTrigger value="brags">Brags ({tabCounts.brags})</TabsTrigger>
           <TabsTrigger value="projects">Projects ({tabCounts.projects})</TabsTrigger>
           <TabsTrigger value="questions">Questions ({tabCounts.questions})</TabsTrigger>
@@ -180,6 +205,14 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
                 : `${user.name ?? profile.username} hasn't shared any posts yet.`
             }
             emptyAction={isOwnProfile ? { label: "Create post", href: "/create" } : undefined}
+          />
+        </TabsContent>
+        <TabsContent value="work">
+          <WorkPortfolio
+            groups={workPortfolio.groups}
+            totalCount={workPortfolio.totalCount}
+            ownerName={user.name ?? profile.username}
+            isOwnProfile={isOwnProfile}
           />
         </TabsContent>
         <TabsContent value="brags">
@@ -203,11 +236,11 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
             {user.projects.length === 0 ? (
               <EmptyState
                 icon={FolderKanban}
-                title="No projects yet"
+                title="No project pages yet"
                 description={
                   isOwnProfile
-                    ? "Document a full job with equipment lists and photos."
-                    : `${user.name ?? profile.username} hasn't published any projects yet.`
+                    ? "Legacy full project write-ups live here. New work evidence is built from tagged posts in the Work tab."
+                    : `${user.name ?? profile.username} hasn't published any project pages yet.`
                 }
               />
             ) : (

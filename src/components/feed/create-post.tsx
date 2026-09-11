@@ -20,9 +20,13 @@ import { MAX_POST_MEDIA, prepareMediaFile } from "@/lib/prepare-media";
 import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { PostType } from "@/generated/prisma/client";
+import type { PostIntent, PostType } from "@/generated/prisma/client";
+import {
+  WorkDetailsFields,
+  type WorkDetailsFormState,
+} from "@/components/feed/work-details-fields";
 
-const DRAFT_KEY = "ib-create-draft-v2";
+const DRAFT_KEY = "ib-create-draft-v3";
 
 type MediaItem = {
   id: string;
@@ -39,7 +43,19 @@ type Draft = {
   title: string;
   location: string;
   media: { url: string; kind: "image" | "video" }[];
+  work: WorkDetailsFormState;
+  showWorkDetails: boolean;
 };
+
+const defaultWorkState = (): WorkDetailsFormState => ({
+  postIntent: "GENERAL",
+  workTrade: "",
+  workProjectType: "",
+  workDeviceCount: "",
+  workDate: "",
+  workEquipmentNotes: "",
+  showExactLocation: false,
+});
 
 function readDraft(): Draft | null {
   if (typeof window === "undefined") return null;
@@ -85,6 +101,8 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
+  const [work, setWork] = useState<WorkDetailsFormState>(defaultWorkState);
+  const [showWorkDetails, setShowWorkDetails] = useState(false);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const mediaRef = useRef(media);
@@ -97,6 +115,8 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       setContent(draft.content);
       setTitle(draft.title);
       setLocation(draft.location);
+      setWork(draft.work ?? defaultWorkState());
+      setShowWorkDetails(draft.showWorkDetails ?? false);
       setMedia(
         draft.media.map((item) => ({
           id: crypto.randomUUID(),
@@ -118,11 +138,22 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       content,
       title,
       location,
+      work,
+      showWorkDetails,
       media: media
         .filter((item) => item.status === "ready" && item.serverUrl)
         .map((item) => ({ url: item.serverUrl!, kind: item.kind })),
     });
-  }, [hydrated, type, content, title, location, media]);
+  }, [hydrated, type, content, title, location, work, showWorkDetails, media]);
+
+  useEffect(() => {
+    if (type === "PROJECT") {
+      setWork((prev) => ({ ...prev, postIntent: "PROJECT_INSTALLATION" }));
+      setShowWorkDetails(true);
+    } else if (type === "QUESTION") {
+      setWork((prev) => ({ ...prev, postIntent: "GENERAL" }));
+    }
+  }, [type]);
 
   useEffect(() => {
     return () => {
@@ -236,6 +267,8 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
     setContent("");
     setTitle("");
     setLocation("");
+    setWork(defaultWorkState());
+    setShowWorkDetails(false);
     setMedia([]);
     setType("POST");
     clearDraft();
@@ -258,6 +291,13 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       formData.append("content", content);
       if (title) formData.append("title", title);
       if (location) formData.append("location", location);
+      formData.append("postIntent", work.postIntent);
+      formData.append("showExactLocation", work.showExactLocation ? "true" : "false");
+      if (work.workTrade) formData.append("workTrade", work.workTrade);
+      if (work.workProjectType) formData.append("workProjectType", work.workProjectType);
+      if (work.workDeviceCount) formData.append("workDeviceCount", work.workDeviceCount);
+      if (work.workDate) formData.append("workDate", work.workDate);
+      if (work.workEquipmentNotes) formData.append("workEquipmentNotes", work.workEquipmentNotes);
       readyUrls.forEach((url) => formData.append("mediaUrls", url));
       try {
         const result = await createPost(formData);
@@ -443,6 +483,16 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
           onChange={(e) => setLocation(e.target.value)}
           className="mb-3"
         />
+
+        {(type === "PROJECT" || type === "POST" || type === "VIDEO") && (
+          <WorkDetailsFields
+            open={showWorkDetails}
+            onToggle={() => setShowWorkDetails((value) => !value)}
+            state={work}
+            onChange={(patch) => setWork((prev) => ({ ...prev, ...patch }))}
+            showIntentPicker={type !== "PROJECT"}
+          />
+        )}
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">
