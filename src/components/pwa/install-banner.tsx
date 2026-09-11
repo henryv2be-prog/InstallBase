@@ -9,6 +9,8 @@ import {
   NOTIFY_PROMPT_DISMISS_KEY,
   isIosDevice,
   isStandaloneDisplay,
+  isWrongDomain,
+  prefersManualHomeScreenInstall,
 } from "@/components/pwa/device";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -18,7 +20,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 const DISMISS_KEY = "ib-install-dismissed";
 
-export function PwaInstallBanner() {
+export function PwaInstallBanner({ canonicalHost }: { canonicalHost: string | null }) {
   const { status } = useSession();
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -47,8 +49,11 @@ export function PwaInstallBanner() {
     return () => window.removeEventListener("beforeinstallprompt", onPrompt);
   }, [status]);
 
-  if (standalone || dismissed || deferForNotify) return null;
-  if (!deferred && !isIOS) return null;
+  const manualInstall = prefersManualHomeScreenInstall();
+  const wrongDomain = isWrongDomain(canonicalHost);
+
+  if (standalone || dismissed || deferForNotify || wrongDomain) return null;
+  if (!deferred && !manualInstall) return null;
 
   const dismiss = () => {
     localStorage.setItem(DISMISS_KEY, "1");
@@ -69,15 +74,24 @@ export function PwaInstallBanner() {
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold">Install InstallBase</p>
-          {isIOS ? (
+          {manualInstall ? (
             <p className="mt-0.5 text-xs text-muted">
-              Tap <Share className="inline h-3 w-3" /> Share, then{" "}
-              <strong>Add to Home Screen</strong> for app-like use.
+              {isIOS ? (
+                <>
+                  Tap <Share className="inline h-3 w-3" /> Share, then{" "}
+                  <strong>Add to Home Screen</strong> for app-like use.
+                </>
+              ) : (
+                <>
+                  Tap the browser menu (⋮), then <strong>Add to Home screen</strong>. On Huawei, skip the
+                  &quot;Install app&quot; popup if it loops — the menu shortcut works better.
+                </>
+              )}
             </p>
           ) : (
             <p className="mt-0.5 text-xs text-muted">Add to your home screen for a faster, full-screen experience.</p>
           )}
-          {!isIOS && deferred && (
+          {!manualInstall && deferred && (
             <Button size="sm" className="mt-2" onClick={install}>
               <Download className="h-3.5 w-3.5" />
               Install

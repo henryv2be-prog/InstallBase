@@ -2,12 +2,14 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    id: "/",
     name: "InstallBase",
     short_name: "InstallBase",
     description: "Where installers share what they build.",
     start_url: "/feed",
     scope: "/",
     display: "standalone",
+    prefer_related_applications: false,
     orientation: "portrait",
     background_color: "#050810",
     theme_color: "#050810",

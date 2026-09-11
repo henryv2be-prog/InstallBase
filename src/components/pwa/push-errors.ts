@@ -1,9 +1,13 @@
-import { needsIosInstallForPush } from "@/components/pwa/device";
+import { likelyLacksGooglePlayServices, needsIosInstallForPush } from "@/components/pwa/device";
 
 /** Turn browser / server errors into actionable copy for installers. */
 export function describePushEnableError(error: unknown): string {
   if (needsIosInstallForPush()) {
     return "On iPhone, add InstallBase to your Home Screen first, then open it from that icon to enable alerts.";
+  }
+
+  if (likelyLacksGooglePlayServices()) {
+    return "This Huawei phone does not have Google Play Services, so Chrome cannot deliver web push alerts. In-app notifications still work when you open InstallBase.";
   }
 
   if (error instanceof Error) {
@@ -26,6 +30,9 @@ export function describePushEnableError(error: unknown): string {
     }
 
     if (message.includes("push service") || message.includes("registration failed")) {
+      if (likelyLacksGooglePlayServices()) {
+        return "Web push is not available on this Huawei device without Google Play Services. In-app notifications still work when you open InstallBase.";
+      }
       return "This browser could not register for push. Try Chrome or Edge, or reinstall the app from your home screen.";
     }
 

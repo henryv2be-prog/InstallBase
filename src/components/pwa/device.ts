@@ -1,4 +1,5 @@
 export const NOTIFY_PROMPT_DISMISS_KEY = "ib-notify-prompt";
+export const DOMAIN_PROMPT_DISMISS_KEY = "ib-domain-prompt";
 
 export function isIosDevice() {
   if (typeof navigator === "undefined") return false;
@@ -26,4 +27,30 @@ export function isPushApiAvailable() {
 /** iOS Safari can only receive Web Push after Add to Home Screen. */
 export function needsIosInstallForPush() {
   return isIosDevice() && !isStandaloneDisplay();
+}
+
+const HUAWEI_MODEL_PREFIX =
+  /Android [\d.]+; (?:MGA|ANA|JNY|MAR|ELS|VOG|LYA|CLT|EML|HMA|STK|YAL|JEF|CDY|TAS|BRQ|NOP|OCE|NAM|LIO|SEA|TNY|JSN|PAR|POT|COR|JKM|DUB|INE|EVR|HRY|PRA|ATU|BLL|LDN|FIG|KOB|DUA|AGS|BTK|BAL|GOA|RTE|CTR|FRL|MED|NIC|WLZ|JAD)-/i;
+
+export function isHuaweiDevice() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  return /Huawei|HONOR|HMSCore|HUAWEI|HarmonyOS/i.test(ua) || HUAWEI_MODEL_PREFIX.test(ua);
+}
+
+/** Huawei/Honor phones without GMS cannot use Chrome's FCM-backed Web Push. */
+export function likelyLacksGooglePlayServices() {
+  if (!isHuaweiDevice()) return false;
+  const ua = navigator.userAgent;
+  return !/; GMS\b|; google\b/i.test(ua);
+}
+
+export function isWrongDomain(canonicalHost: string | null | undefined) {
+  if (!canonicalHost || typeof window === "undefined") return false;
+  return window.location.hostname.toLowerCase() !== canonicalHost.toLowerCase();
+}
+
+/** EMUI/Huawei launchers often fail the native install prompt — manual A2HS is more reliable. */
+export function prefersManualHomeScreenInstall() {
+  return isIosDevice() || isHuaweiDevice();
 }

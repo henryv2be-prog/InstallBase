@@ -5,8 +5,10 @@ import "./globals.css";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { ThemeInit } from "@/components/providers/theme-init";
+import { CanonicalHostBanner } from "@/components/pwa/canonical-host-banner";
 import { PwaInstallBanner } from "@/components/pwa/install-banner";
 import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker-registrar";
+import { getCanonicalHost } from "@/lib/canonical-host";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -46,6 +48,7 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
+  const canonicalHost = getCanonicalHost();
 
   return (
     <html lang="en" suppressHydrationWarning className={`dark ${inter.variable} ${jetbrains.variable}`}>
@@ -53,8 +56,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeInit />
         <SessionProvider session={session}>
           <ServiceWorkerRegistrar />
+          <CanonicalHostBanner canonicalHost={canonicalHost} />
           {children}
-          <PwaInstallBanner />
+          <PwaInstallBanner canonicalHost={canonicalHost} />
           <ToastProvider />
         </SessionProvider>
       </body>
