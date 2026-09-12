@@ -6,6 +6,7 @@ import { BRAG_CATEGORIES } from "@/lib/constants";
 import { bragHotScore, recencyMultiplier, startOfWeek } from "@/lib/ranking";
 import { braggablePostWhere, isBraggableType } from "@/lib/brag";
 import { getPostTradeGroupLabel, isPortfolioPost } from "@/lib/work-posts";
+import { getLandingPageStats } from "@/lib/analytics/page-views";
 
 /** Card/list payload: counts instead of every like, comment, bookmark, and brag row. */
 export const postCardInclude = {
@@ -578,6 +579,7 @@ export async function getOrCreateConversation(userIdA: string, userIdB: string) 
 }
 
 export async function getAdminStats() {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
   const [
     users,
     activeUsers,
@@ -587,6 +589,7 @@ export async function getAdminStats() {
     comments,
     reports,
     newUsersWeek,
+    landingStats,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { posts: { some: {} } } }),
@@ -598,11 +601,33 @@ export async function getAdminStats() {
     prisma.comment.count(),
     prisma.report.count({ where: { status: "PENDING" } }),
     prisma.user.count({
-      where: { createdAt: { gte: new Date(Date.now() - 7 * 86400000) } },
+      where: { createdAt: { gte: sevenDaysAgo } },
     }),
+    getLandingPageStats(),
   ]);
 
-  return { users, activeUsers, posts, brags, questions, comments, reports, newUsersWeek };
+  const uniqueVisitorsWeek = landingStats.uniqueVisitorsWeek;
+  const signupRateWeek =
+    uniqueVisitorsWeek > 0
+      ? Math.round((newUsersWeek / uniqueVisitorsWeek) * 1000) / 10
+      : null;
+
+  return {
+    users,
+    activeUsers,
+    posts,
+    brags,
+    questions,
+    comments,
+    reports,
+    newUsersWeek,
+    landingViewsToday: landingStats.viewsToday,
+    landingUniqueVisitorsToday: landingStats.uniqueVisitorsToday,
+    landingViewsWeek: landingStats.viewsWeek,
+    landingUniqueVisitorsWeek: uniqueVisitorsWeek,
+    landingViewsAllTime: landingStats.viewsAllTime,
+    signupRateWeek,
+  };
 }
 
 export async function getAdminData() {

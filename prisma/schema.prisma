@@ -776,3 +776,26 @@ model AdSettings {
   provider           String   @default("internal")
   updatedAt          DateTime @updatedAt
 }
+
+// ─── Page analytics ────────────────────────────────────────────────────────
+
+model PageViewEvent {
+  id         String   @id @default(cuid())
+  pageKey    String
+  viewerKey  String?
+  deviceType String?
+  createdAt  DateTime @default(now())
+
+  @@index([pageKey, createdAt])
+  @@index([viewerKey, pageKey, createdAt])
+}
+
+model PageViewDailyStats {
+  id          String   @id @default(cuid())
+  pageKey     String
+  date        DateTime @db.Date
+  views       Int      @default(0)
+  uniqueViews Int      @default(0)
+
+  @@unique([pageKey, date])
+}

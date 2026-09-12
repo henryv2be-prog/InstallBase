@@ -19,6 +19,12 @@ interface AdminDashboardProps {
       comments: number;
       reports: number;
       newUsersWeek: number;
+      landingViewsToday: number;
+      landingUniqueVisitorsToday: number;
+      landingViewsWeek: number;
+      landingUniqueVisitorsWeek: number;
+      landingViewsAllTime: number;
+      signupRateWeek: number | null;
     };
     pendingReports: Array<{
       id: string;
@@ -62,6 +68,18 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
     { label: "New Users (7d)", value: stats.newUsersWeek },
   ];
 
+  const trafficCards = [
+    { label: "Landing Visits (7d)", value: stats.landingViewsWeek },
+    { label: "Landing Visitors (7d)", value: stats.landingUniqueVisitorsWeek },
+    { label: "Landing Visits Today", value: stats.landingViewsToday },
+    { label: "Landing Visitors Today", value: stats.landingUniqueVisitorsToday },
+    { label: "Landing Visits (All Time)", value: stats.landingViewsAllTime },
+    {
+      label: "Signup Rate (7d)",
+      value: stats.signupRateWeek === null ? "—" : `${stats.signupRateWeek}%`,
+    },
+  ];
+
   return (
     <div className="animate-fade-in">
       <h1 className="mb-6 text-2xl font-bold">Admin Dashboard</h1>
@@ -79,10 +97,32 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
             className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900"
           >
             <p className="text-sm text-gray-500">{stat.label}</p>
-            <p className="mt-1 text-3xl font-bold">{formatNumber(stat.value)}</p>
+            <p className="mt-1 text-3xl font-bold">
+              {typeof stat.value === "number" ? formatNumber(stat.value) : stat.value}
+            </p>
           </div>
         ))}
       </div>
+
+      <section className="mb-8">
+        <h2 className="mb-1 text-xl font-bold">Landing Page Traffic</h2>
+        <p className="mb-4 text-sm text-gray-500">
+          Compare guest visits to new signups. Signup rate = new users ÷ unique landing visitors (7d).
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {trafficCards.map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900"
+            >
+              <p className="text-sm text-gray-500">{stat.label}</p>
+              <p className="mt-1 text-3xl font-bold">
+                {typeof stat.value === "number" ? formatNumber(stat.value) : stat.value}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="mb-8">
         <h2 className="mb-4 text-xl font-bold">Moderation Queue</h2>

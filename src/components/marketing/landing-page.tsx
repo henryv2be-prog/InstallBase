@@ -14,7 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LandingSlideshow } from "@/components/marketing/landing-slideshow";
-import { SPECIALTIES } from "@/lib/constants";
+import { PageViewTracker } from "@/components/analytics/page-view-tracker";
+import { LANDING_PAGE_KEY, SPECIALTIES } from "@/lib/constants";
 
 const TRADES = [
   {
@@ -42,6 +43,7 @@ const TRADES = [
 export function LandingPage() {
   return (
     <div className="relative min-h-screen tech-bg">
+      <PageViewTracker pageKey={LANDING_PAGE_KEY} />
       <header className="sticky top-0 z-20 border-b border-border bg-card/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-6">
           <Link href="/">
