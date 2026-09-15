@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { getSession } from "@/lib/session";
 import { AppShell, AppShellFallback } from "@/components/layout/app-shell";
 import { AppPageSkeleton } from "@/components/layout/app-page-skeleton";
+import { AppProviders } from "@/components/layout/app-providers";
 import { NotificationPrompt } from "@/components/pwa/notification-prompt";
 import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { getVapidPublicKey } from "@/lib/vapid";
@@ -29,7 +30,9 @@ async function AppLayoutSession({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <AppShell user={user}>{children}</AppShell>
+      <AppProviders signedIn={Boolean(user)}>
+        <AppShell user={user}>{children}</AppShell>
+      </AppProviders>
       {user ? <PresenceHeartbeat /> : null}
       {user && vapidPublicKey ? <NotificationPrompt vapidPublicKey={vapidPublicKey} /> : null}
     </>

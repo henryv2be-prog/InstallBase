@@ -16,6 +16,7 @@ import { Logo } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
 import { ActivityCountBadge } from "@/components/layout/activity-count-badge";
+import { UploadProgressBanner } from "@/components/feed/upload-progress-banner";
 import { getInitials } from "@/lib/utils";
 
 const desktopNav = [
@@ -140,6 +141,8 @@ export function AppShell({ children, user }: AppShellProps) {
       <main className="relative z-10 mx-auto max-w-7xl px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:px-4 lg:px-6 md:pb-8 md:pt-6">
         {children}
       </main>
+
+      {signedIn ? <UploadProgressBanner /> : null}
 
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
         <div className="flex items-center justify-around px-1 py-1.5">

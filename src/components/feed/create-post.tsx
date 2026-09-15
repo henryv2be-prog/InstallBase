@@ -15,8 +15,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createPost, updatePost } from "@/lib/actions";
+import { updatePost } from "@/lib/actions";
 import { uploadMediaFile } from "@/lib/client-upload";
+import { useMediaUpload, type PendingPostPayload } from "@/components/feed/media-upload-context";
 import { MAX_POST_MEDIA, prepareMediaFile } from "@/lib/prepare-media";
 import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
 import { toast } from "sonner";
@@ -147,9 +148,10 @@ function hasWorkDetails(state: WorkDetailsFormState) {
 
 export function CreatePostCard({ userName, compact, editPost }: CreatePostCardProps) {
   const isEditing = Boolean(editPost);
+  const globalUpload = useMediaUpload();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [pending, startTransition] = useTransition();
+  const [editPending, startEditTransition] = useTransition();
   const [expanded, setExpanded] = useState(!compact || isEditing);
   const [type, setType] = useState<PostType>(editPost?.type ?? "POST");
   const [content, setContent] = useState(editPost?.content ?? "");
@@ -160,7 +162,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   const [showWorkDetails, setShowWorkDetails] = useState(
     editPost ? hasWorkDetails(buildWorkStateFromPost(editPost)) : false
   );
-  const [media, setMedia] = useState<MediaItem[]>(
+  const [editMedia, setEditMedia] = useState<MediaItem[]>(
     editPost
       ? editPost.media.map((item) => ({
           id: crypto.randomUUID(),
@@ -171,10 +173,22 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         }))
       : []
   );
-  const [postQueued, setPostQueued] = useState(false);
   const [hydrated, setHydrated] = useState(isEditing);
-  const mediaRef = useRef(media);
-  mediaRef.current = media;
+  const editMediaRef = useRef(editMedia);
+  editMediaRef.current = editMedia;
+
+  const media = isEditing ? editMedia : globalUpload.items;
+  const uploading = isEditing
+    ? editMedia.some((item) => item.status === "uploading")
+    : globalUpload.isUploading;
+  const failedCount = isEditing
+    ? editMedia.filter((item) => item.status === "error").length
+    : globalUpload.failedCount;
+  const readyUrls = isEditing
+    ? editMedia.filter((item) => item.status === "ready" && item.serverUrl).map((item) => item.serverUrl!)
+    : globalUpload.readyUrls;
+  const postQueued = !isEditing && globalUpload.postQueued;
+  const pending = isEditing ? editPending : globalUpload.isSubmitting;
 
   useEffect(() => {
     if (isEditing) return;
@@ -185,15 +199,9 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       setTitle(draft.title);
       setWork(draft.work ?? defaultWorkState());
       setShowWorkDetails(draft.showWorkDetails ?? false);
-      setMedia(
-        draft.media.map((item) => ({
-          id: crypto.randomUUID(),
-          previewUrl: item.url,
-          serverUrl: item.url,
-          kind: item.kind,
-          status: "ready",
-        }))
-      );
+      if (draft.media.length > 0) {
+        globalUpload.seedReadyMedia(draft.media);
+      }
       if (compact) setExpanded(true);
     }
     setHydrated(true);
@@ -223,23 +231,27 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   }, [isEditing, type]);
 
   useEffect(() => {
+    if (!isEditing && compact && globalUpload.items.length > 0) {
+      setExpanded(true);
+    }
+  }, [compact, isEditing, globalUpload.items.length]);
+
+  useEffect(() => {
+    if (isEditing) return;
     return () => {
-      for (const item of mediaRef.current) {
+      for (const item of editMediaRef.current) {
         if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
       }
     };
-  }, []);
+  }, [isEditing]);
 
-  const uploading = media.some((item) => item.status === "uploading");
-  const failedCount = media.filter((item) => item.status === "error").length;
-  const readyUrls = media.filter((item) => item.status === "ready" && item.serverUrl).map((item) => item.serverUrl!);
   const hasText = content.trim().length > 0 || title.trim().length > 0;
   const canPost =
     !pending &&
     failedCount === 0 &&
     (hasText || readyUrls.length > 0 || media.some((item) => item.status === "uploading"));
 
-  const uploadFile = async (id: string, file: File) => {
+  const uploadEditFile = async (id: string, file: File) => {
     try {
       const prepared = await prepareMediaFile(file);
       const limit = maxBytesForUpload(prepared);
@@ -250,15 +262,13 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
             : "Photo is still too large after compression"
         );
       }
-      const formData = new FormData();
-      formData.append("file", prepared);
       const result = await uploadMediaFile(prepared, (progress) => {
-        setMedia((prev) =>
+        setEditMedia((prev) =>
           prev.map((item) => (item.id === id ? { ...item, progress } : item))
         );
       });
       if ("error" in result) throw new Error(result.error);
-      setMedia((prev) =>
+      setEditMedia((prev) =>
         prev.map((item) =>
           item.id === id
             ? {
@@ -273,7 +283,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         )
       );
     } catch (error) {
-      setMedia((prev) =>
+      setEditMedia((prev) =>
         prev.map((item) =>
           item.id === id
             ? { ...item, status: "error", error: error instanceof Error ? error.message : "Upload failed" }
@@ -284,9 +294,15 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   };
 
   const addFiles = (fileList: FileList | File[]) => {
+    if (!isEditing) {
+      globalUpload.addFiles(fileList);
+      setExpanded(true);
+      return;
+    }
+
     const incoming = Array.from(fileList);
     if (incoming.length === 0) return;
-    const room = MAX_POST_MEDIA - media.length;
+    const room = MAX_POST_MEDIA - editMedia.length;
     if (room <= 0) {
       toast.error(`You can add up to ${MAX_POST_MEDIA} photos`);
       return;
@@ -303,10 +319,10 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       status: "uploading",
     }));
 
-    setMedia((prev) => [...prev, ...next]);
+    setEditMedia((prev) => [...prev, ...next]);
     setExpanded(true);
     for (const [index, item] of next.entries()) {
-      void uploadFile(item.id, chosen[index]);
+      void uploadEditFile(item.id, chosen[index]);
     }
   };
 
@@ -318,7 +334,11 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   };
 
   const removeMedia = (id: string) => {
-    setMedia((prev) => {
+    if (!isEditing) {
+      globalUpload.removeItem(id);
+      return;
+    }
+    setEditMedia((prev) => {
       const item = prev.find((m) => m.id === id);
       if (item?.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
       return prev.filter((m) => m.id !== id);
@@ -326,46 +346,61 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   };
 
   const retryMedia = (item: MediaItem) => {
+    if (!isEditing) {
+      globalUpload.retryItem(item.id);
+      return;
+    }
     if (!item.previewUrl.startsWith("blob:")) {
       toast.error("Choose the photo again to retry");
       fileRef.current?.click();
       return;
     }
-    setMedia((prev) => prev.map((m) => (m.id === item.id ? { ...m, status: "uploading", error: undefined, progress: 0 } : m)));
+    setEditMedia((prev) => prev.map((m) => (m.id === item.id ? { ...m, status: "uploading", error: undefined, progress: 0 } : m)));
     void fetch(item.previewUrl)
       .then((res) => res.blob())
       .then((blob) => {
         const name = item.kind === "video" ? "video.mp4" : "photo.jpg";
         const type = item.kind === "video" ? blob.type || "video/mp4" : blob.type || "image/jpeg";
-        return uploadFile(item.id, new File([blob], name, { type }));
+        return uploadEditFile(item.id, new File([blob], name, { type }));
       });
   };
 
+  const buildPayload = (): PendingPostPayload => ({
+    type,
+    content,
+    title,
+    work,
+    editPostId: editPost?.id,
+  });
+
   const resetComposer = () => {
-    for (const item of media) {
-      if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
+    if (isEditing) {
+      for (const item of editMedia) {
+        if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
+      }
+      setEditMedia([]);
+    } else {
+      globalUpload.clearItems();
+      globalUpload.cancelQueuedPost();
     }
     setContent("");
     setTitle("");
     setWork(defaultWorkState());
     setShowWorkDetails(false);
-    setMedia([]);
     setType("POST");
-    setPostQueued(false);
     clearDraft();
     if (compact) setExpanded(false);
   };
 
-  const performSubmit = () => {
+  const performEditSubmit = () => {
     if (!content.trim() && readyUrls.length === 0) {
       toast.error("Add a photo or write something first");
       return;
     }
-    const failed = media.filter((item) => item.status === "error").length;
-    startTransition(async () => {
+    const failed = editMedia.filter((item) => item.status === "error").length;
+    startEditTransition(async () => {
       const formData = new FormData();
-      if (editPost) formData.append("postId", editPost.id);
-      else formData.append("type", type);
+      formData.append("postId", editPost!.id);
       formData.append("content", content);
       if (title) formData.append("title", title);
       formData.append("postIntent", work.postIntent);
@@ -378,51 +413,37 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       if (work.workEquipmentNotes) formData.append("workEquipmentNotes", work.workEquipmentNotes);
       readyUrls.forEach((url) => formData.append("mediaUrls", url));
       try {
-        const result = editPost ? await updatePost(formData) : await createPost(formData);
+        const result = await updatePost(formData);
         if (result && "error" in result && result.error) {
           toast.error(result.error);
           return;
         }
-        toast.success(
-          editPost
-            ? "Post updated"
-            : failed
-              ? "Posted — some photos didn’t upload"
-              : "Posted!"
-        );
-        const postId = result && "postId" in result ? result.postId : editPost?.id;
-        if (!editPost) resetComposer();
-        if (postId) router.push(`/post/${postId}`);
-        else router.push("/feed");
+        toast.success(failed ? "Updated — some photos didn’t upload" : "Post updated");
+        resetComposer();
+        router.push(`/post/${editPost!.id}`);
         router.refresh();
       } catch {
-        toast.error(editPost ? "Failed to update post" : "Failed to create post");
+        toast.error("Failed to update post");
       }
     });
   };
 
-  useEffect(() => {
-    if (!postQueued || uploading || pending) return;
-    if (failedCount > 0) {
-      setPostQueued(false);
-      toast.error("Remove or retry failed uploads before posting");
-      return;
-    }
-    performSubmit();
-    setPostQueued(false);
-  }, [postQueued, uploading, pending, failedCount, readyUrls.length]);
-
   const handleSubmit = () => {
-    if (uploading) {
-      if (!hasText) {
-        toast.error("Write your question or caption while the video uploads");
+    if (isEditing) {
+      if (uploading) {
+        toast.error("Wait for uploads to finish before saving");
         return;
       }
-      setPostQueued(true);
-      toast.info("Publishing when uploads finish…");
+      performEditSubmit();
       return;
     }
-    performSubmit();
+
+    if (uploading && !hasText) {
+      toast.error("Write your question or caption while the video uploads");
+      return;
+    }
+
+    globalUpload.submitNow(buildPayload());
   };
 
   const fileInput = (
@@ -606,7 +627,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
             {postQueued && uploading
               ? "Uploads running — we'll publish as soon as they finish."
               : uploading
-                ? "Uploading in the background — you can write your post and tap Post now."
+                ? "Uploading in the background — keep browsing, or tap Post now."
                 : media.length > 0
                   ? `${readyUrls.length} of ${media.length} file${media.length === 1 ? "" : "s"} ready`
                   : "Photos are compressed on your phone. Videos up to 200MB upload over Wi‑Fi when possible."}
