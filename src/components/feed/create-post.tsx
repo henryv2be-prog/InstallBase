@@ -15,7 +15,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createPost, updatePost, uploadImage } from "@/lib/actions";
+import { createPost, updatePost } from "@/lib/actions";
+import { uploadMediaFile } from "@/lib/client-upload";
 import { MAX_POST_MEDIA, prepareMediaFile } from "@/lib/prepare-media";
 import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
 import { toast } from "sonner";
@@ -35,6 +36,7 @@ type MediaItem = {
   serverUrl?: string;
   kind: "image" | "video";
   status: "uploading" | "ready" | "error";
+  progress?: number;
   error?: string;
 };
 
@@ -169,6 +171,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         }))
       : []
   );
+  const [postQueued, setPostQueued] = useState(false);
   const [hydrated, setHydrated] = useState(isEditing);
   const mediaRef = useRef(media);
   mediaRef.current = media;
@@ -228,8 +231,13 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   }, []);
 
   const uploading = media.some((item) => item.status === "uploading");
+  const failedCount = media.filter((item) => item.status === "error").length;
   const readyUrls = media.filter((item) => item.status === "ready" && item.serverUrl).map((item) => item.serverUrl!);
-  const canPost = (content.trim().length > 0 || readyUrls.length > 0) && !uploading && !pending;
+  const hasText = content.trim().length > 0 || title.trim().length > 0;
+  const canPost =
+    !pending &&
+    failedCount === 0 &&
+    (hasText || readyUrls.length > 0 || media.some((item) => item.status === "uploading"));
 
   const uploadFile = async (id: string, file: File) => {
     try {
@@ -244,8 +252,12 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       }
       const formData = new FormData();
       formData.append("file", prepared);
-      const result = await uploadImage(formData);
-      if (result.error) throw new Error(result.error);
+      const result = await uploadMediaFile(prepared, (progress) => {
+        setMedia((prev) =>
+          prev.map((item) => (item.id === id ? { ...item, progress } : item))
+        );
+      });
+      if ("error" in result) throw new Error(result.error);
       setMedia((prev) =>
         prev.map((item) =>
           item.id === id
@@ -254,6 +266,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
                 status: "ready",
                 serverUrl: result.url,
                 kind: result.type === "video" ? "video" : "image",
+                progress: undefined,
                 error: undefined,
               }
             : item
@@ -318,10 +331,14 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       fileRef.current?.click();
       return;
     }
-    setMedia((prev) => prev.map((m) => (m.id === item.id ? { ...m, status: "uploading", error: undefined } : m)));
+    setMedia((prev) => prev.map((m) => (m.id === item.id ? { ...m, status: "uploading", error: undefined, progress: 0 } : m)));
     void fetch(item.previewUrl)
       .then((res) => res.blob())
-      .then((blob) => uploadFile(item.id, new File([blob], "photo.jpg", { type: blob.type || "image/jpeg" })));
+      .then((blob) => {
+        const name = item.kind === "video" ? "video.mp4" : "photo.jpg";
+        const type = item.kind === "video" ? blob.type || "video/mp4" : blob.type || "image/jpeg";
+        return uploadFile(item.id, new File([blob], name, { type }));
+      });
   };
 
   const resetComposer = () => {
@@ -334,15 +351,12 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
     setShowWorkDetails(false);
     setMedia([]);
     setType("POST");
+    setPostQueued(false);
     clearDraft();
     if (compact) setExpanded(false);
   };
 
-  const handleSubmit = () => {
-    if (uploading) {
-      toast.error("Wait for photos to finish uploading");
-      return;
-    }
+  const performSubmit = () => {
     if (!content.trim() && readyUrls.length === 0) {
       toast.error("Add a photo or write something first");
       return;
@@ -376,8 +390,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
               ? "Posted — some photos didn’t upload"
               : "Posted!"
         );
-        const postId =
-          result && "postId" in result ? result.postId : editPost?.id;
+        const postId = result && "postId" in result ? result.postId : editPost?.id;
         if (!editPost) resetComposer();
         if (postId) router.push(`/post/${postId}`);
         else router.push("/feed");
@@ -386,6 +399,30 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         toast.error(editPost ? "Failed to update post" : "Failed to create post");
       }
     });
+  };
+
+  useEffect(() => {
+    if (!postQueued || uploading || pending) return;
+    if (failedCount > 0) {
+      setPostQueued(false);
+      toast.error("Remove or retry failed uploads before posting");
+      return;
+    }
+    performSubmit();
+    setPostQueued(false);
+  }, [postQueued, uploading, pending, failedCount, readyUrls.length]);
+
+  const handleSubmit = () => {
+    if (uploading) {
+      if (!hasText) {
+        toast.error("Write your question or caption while the video uploads");
+        return;
+      }
+      setPostQueued(true);
+      toast.info("Publishing when uploads finish…");
+      return;
+    }
+    performSubmit();
   };
 
   const fileInput = (
@@ -496,8 +533,11 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
                 <img src={item.previewUrl} alt="" className="h-full w-full object-cover" />
               )}
               {item.status === "uploading" && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/45">
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/45 p-2 text-center">
                   <Loader2 className="h-6 w-6 animate-spin text-white" />
+                  {typeof item.progress === "number" && item.progress > 0 && (
+                    <p className="text-[10px] font-medium text-white">{item.progress}%</p>
+                  )}
                 </div>
               )}
               {item.status === "error" && (
@@ -563,22 +603,26 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">
-            {uploading
-              ? "Uploading photos — they’ll stay in your draft if you switch screens."
-              : media.length > 0
-                ? `${readyUrls.length} photo${readyUrls.length === 1 ? "" : "s"} ready`
-                : "Photos are compressed on your phone so they don’t get dropped."}
+            {postQueued && uploading
+              ? "Uploads running — we'll publish as soon as they finish."
+              : uploading
+                ? "Uploading in the background — you can write your post and tap Post now."
+                : media.length > 0
+                  ? `${readyUrls.length} of ${media.length} file${media.length === 1 ? "" : "s"} ready`
+                  : "Photos are compressed on your phone. Videos up to 200MB upload over Wi‑Fi when possible."}
           </p>
           <Button onClick={handleSubmit} disabled={!canPost} className="min-w-24">
             {pending
               ? isEditing
                 ? "Saving..."
                 : "Posting..."
-              : uploading
-                ? "Uploading..."
-                : isEditing
-                  ? "Save changes"
-                  : "Post"}
+              : postQueued && uploading
+                ? "Publishing soon..."
+                : uploading
+                  ? "Post anyway"
+                  : isEditing
+                    ? "Save changes"
+                    : "Post"}
           </Button>
         </div>
       </CardContent>

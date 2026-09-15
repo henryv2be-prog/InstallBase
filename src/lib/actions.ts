@@ -6,8 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth, signIn } from "@/lib/auth";
 import { roleForEmail } from "@/lib/admin-access";
 import { slugify } from "@/lib/utils";
-import { getUploadDir, uploadPublicPath } from "@/lib/uploads";
-import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
+import { saveUploadedFile } from "@/lib/save-upload";
 import { getOrCreateConversation, getCommentPreview as fetchCommentPreview } from "@/lib/queries";
 import { notifyUser } from "@/lib/notify";
 import { revalidateActivityPaths, markNotificationsReadForUser } from "@/lib/notification-read";
@@ -822,34 +821,10 @@ export async function adminResolveReport(reportId: string, status: "RESOLVED" | 
 }
 
 export async function uploadImage(formData: FormData) {
+  await getCurrentUserId();
   const file = formData.get("file") as File;
   if (!file) return { error: "No file provided" };
-
-  const allowed = /^(image\/(jpeg|jpg|png|gif|webp)|video\/(mp4|webm|quicktime))$/i;
-  if (/heic|heif/i.test(file.type) || /\.hei[cf]$/i.test(file.name || "")) {
-    return { error: "This iPhone photo needs to be converted. Add it again from the composer." };
-  }
-  if (!allowed.test(file.type)) {
-    return { error: "Please upload a photo (JPG, PNG, WebP) or video (MP4, WebM)" };
-  }
-
-  const limit = maxBytesForUpload(file);
-  if (file.size > limit) {
-    const kind = file.type.startsWith("video/") ? "Video" : "Photo";
-    return { error: `${kind} must be ${formatUploadLimit(limit)} or smaller` };
-  }
-
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "") || "upload";
-  const filename = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}-${safeName}`;
-  const fs = await import("fs/promises");
-  const path = await import("path");
-  const uploadDir = getUploadDir();
-  await fs.mkdir(uploadDir, { recursive: true });
-  await fs.writeFile(path.join(uploadDir, filename), buffer);
-  const isVideo = file.type.startsWith("video/");
-  return { url: uploadPublicPath(filename), type: isVideo ? "video" : "image" };
+  return saveUploadedFile(file);
 }
 
 export async function savePushSubscription(input: {
@@ -1016,7 +991,7 @@ export async function updateAvatar(formData: FormData) {
   const uploadForm = new FormData();
   uploadForm.append("file", file);
   const result = await uploadImage(uploadForm);
-  if (result.error || !result.url) return { error: result.error ?? "Upload failed" };
+  if ("error" in result) return { error: result.error };
 
   const profile = await prisma.profile.findUnique({ where: { userId } });
   await prisma.user.update({

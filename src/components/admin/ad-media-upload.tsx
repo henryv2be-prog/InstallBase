@@ -32,8 +32,8 @@ export function AdMediaUpload({ mediaUrl, mediaType, onChange, error }: AdMediaU
         const formData = new FormData();
         formData.append("file", prepared);
         const result = await uploadAdMedia(formData);
-        if (result.error || !result.url) {
-          toast.error(result.error ?? "Upload failed");
+        if ("error" in result) {
+          toast.error(result.error);
           return;
         }
         onChange(result.url, result.type ?? "image");
