@@ -71,23 +71,13 @@ export function LandingPage({
         <div className="pointer-events-none absolute -left-24 top-16 h-48 w-48 rounded-full bg-blue-500/10 blur-3xl sm:h-64 sm:w-64" />
         <div className="pointer-events-none absolute -right-24 top-32 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl sm:h-64 sm:w-64" />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-10 pt-8 sm:pb-14 sm:pt-10 lg:px-6 lg:pb-16 lg:pt-12">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-10 pt-8 sm:pb-12 sm:pt-10 lg:px-6 lg:pb-14 lg:pt-12">
           <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
             <div className="order-2 lg:order-1">
-              <p className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-cyan-400">
-                Professional installer community
-              </p>
               <h1 className="text-[2rem] font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.25rem]">
                 Your work is{" "}
                 <span className="text-gradient">your CV.</span>
               </h1>
-              <p className="mt-5 text-base leading-relaxed text-muted sm:text-lg">
-                InstallBase is a live feed of real installations, site questions, and bragged work
-                from CCTV, access, alarms, networking, electrical, solar and more.
-              </p>
-              <p className="mt-3 text-sm text-muted/90 sm:text-base">
-                Browse what people are posting below — then join to share your own jobs.
-              </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link href="/signup" className="w-full sm:w-auto">
                   <Button size="lg" className="w-full sm:w-auto">
@@ -110,6 +100,15 @@ export function LandingPage({
         </div>
       </section>
 
+      <section className="relative z-10 border-b border-border bg-card/20 py-8 sm:py-10">
+        <div className="mx-auto max-w-2xl px-4 text-center lg:px-6">
+          <p className="text-base leading-relaxed text-muted sm:text-lg">
+            Post the installs you&apos;ve already photographed, ask the questions you&apos;d normally
+            send to a WhatsApp group, and let other installers brag the work that deserves it.
+          </p>
+        </div>
+      </section>
+
       <section className="relative z-10 py-10 sm:py-14">
         <div className="mx-auto max-w-7xl px-4 lg:px-6">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -126,21 +125,17 @@ export function LandingPage({
       <section className="relative z-10 border-t border-border py-14 sm:py-16">
         <div className="mx-auto max-w-3xl px-4 text-center lg:px-6">
           <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-            Got a rack, panel, or install worth showing?
+            Ready to share your work?
           </h2>
-          <p className="mt-4 text-muted">
-            Post it to your profile. Ask the question you&apos;d normally send to a WhatsApp group.
-            Let other installers brag the photos that deserve it.
-          </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
             <Link href="/signup" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto">
-                Create your profile
+                Join InstallBase — It&apos;s Free
               </Button>
             </Link>
-            <Link href="/discover" className="w-full sm:w-auto">
+            <Link href="/feed" className="w-full sm:w-auto">
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Explore discover
+                Keep browsing
               </Button>
             </Link>
           </div>
@@ -151,9 +146,6 @@ export function LandingPage({
         <div className="mx-auto max-w-7xl px-4 text-center text-sm text-muted lg:px-6">
           <Logo size="sm" className="justify-center" />
           <p className="mt-2">Your work is your CV.</p>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-wider">
-            CCTV · Access · Alarms · Gates · Networking · Intercoms · Electrical · Solar
-          </p>
         </div>
       </footer>
     </div>
