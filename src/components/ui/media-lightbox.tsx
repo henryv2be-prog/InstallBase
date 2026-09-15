@@ -120,6 +120,11 @@ export function MediaLightbox({
   const [ty, setTy] = useState(0);
   const [drag, setDrag] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   indexRef.current = index;
   scaleRef.current = scale;
@@ -155,6 +160,8 @@ export function MediaLightbox({
   }, [items.length, onClose, onIndexChange]);
 
   useEffect(() => {
+    if (!mounted) return;
+
     const overlay = overlayRef.current;
     if (!overlay) return;
 
@@ -353,15 +360,9 @@ export function MediaLightbox({
       overlay.removeEventListener("touchcancel", onTouchEnd);
       overlay.removeEventListener("wheel", onWheel);
     };
-  }, [items.length, onClose, onIndexChange, resetTransform]);
+  }, [mounted, items.length, onClose, onIndexChange, resetTransform]);
 
   const active = items[index];
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   if (!active || !mounted) return null;
 
   const opacity = clamp(1 - Math.abs(drag.y) / 280, 0.4, 1);
