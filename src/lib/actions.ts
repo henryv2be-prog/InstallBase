@@ -17,6 +17,7 @@ import {
   applyReputationDelta,
   calculateReputationLevel,
   REPUTATION_POINTS,
+  syncMediaBragScore,
   syncPostBragScore,
 } from "@/lib/reputation";
 import type { ExperienceLevel } from "@/generated/prisma/client";
@@ -317,7 +318,7 @@ export async function updatePost(formData: FormData) {
       authorId: true,
       type: true,
       author: { select: { profile: { select: { username: true } } } },
-      media: { select: { id: true } },
+      media: { select: { id: true, url: true } },
     },
   });
 
@@ -350,12 +351,38 @@ export async function updatePost(formData: FormData) {
   const oldHadBragMedia = isBraggableType(existing.type) && existing.media.length > 0;
   const newHasBragMedia = isBraggableType(existing.type) && hasMedia;
 
+  const incomingUrls = mediaUrls.filter(Boolean);
+  const urlToExistingId = new Map(existing.media.map((item) => [item.url, item.id]));
+
   await prisma.$transaction(async (tx) => {
-    await tx.postMedia.deleteMany({ where: { postId } });
     await tx.postCategory.deleteMany({ where: { postId } });
     if (categoryId) {
       await tx.postCategory.create({ data: { postId, categoryId } });
     }
+
+    const keepIds = new Set<string>();
+    for (let i = 0; i < incomingUrls.length; i++) {
+      const url = incomingUrls[i];
+      const type = /\.(mp4|webm|mov)(\?|$)/i.test(url) ? "video" : "image";
+      const existingId = urlToExistingId.get(url);
+      if (existingId) {
+        keepIds.add(existingId);
+        await tx.postMedia.update({
+          where: { id: existingId },
+          data: { order: i, type },
+        });
+      } else {
+        await tx.postMedia.create({
+          data: { postId, url, order: i, type },
+        });
+      }
+    }
+
+    const removedIds = existing.media.map((item) => item.id).filter((id) => !keepIds.has(id));
+    if (removedIds.length > 0) {
+      await tx.postMedia.deleteMany({ where: { id: { in: removedIds } } });
+    }
+
     await tx.post.update({
       where: { id: postId },
       data: {
@@ -366,15 +393,10 @@ export async function updatePost(formData: FormData) {
         showExactLocation,
         workDate: workDate && !Number.isNaN(workDate.getTime()) ? workDate : null,
         workDetails: workDetails ?? undefined,
-        media: {
-          create: mediaUrls.filter(Boolean).map((url, i) => ({
-            url,
-            order: i,
-            type: /\.(mp4|webm|mov)(\?|$)/i.test(url) ? "video" : "image",
-          })),
-        },
       },
     });
+
+    await syncPostBragScore(postId, tx);
 
     if (oldHadBragMedia && !newHasBragMedia) {
       const profile = await tx.profile.findUnique({ where: { userId }, select: { bragCount: true } });
@@ -431,54 +453,6 @@ export async function deletePost(postId: string) {
   return { success: true };
 }
 
-export async function toggleLike(postId: string) {
-  const userId = await getCurrentUserId();
-  const post = await prisma.post.findUnique({
-    where: { id: postId },
-    select: { authorId: true },
-  });
-  if (!post) throw new Error("Post not found");
-
-  const existing = await prisma.like.findUnique({
-    where: { postId_userId: { postId, userId } },
-  });
-
-  let liked = false;
-  if (existing) {
-    await prisma.like.delete({ where: { id: existing.id } });
-    liked = false;
-    if (post.authorId !== userId) {
-      await applyReputationDelta(post.authorId, {
-        score: -REPUTATION_POINTS.LIKE_RECEIVED,
-        likesReceived: -1,
-      });
-    }
-  } else {
-    await prisma.like.create({ data: { postId, userId } });
-    liked = true;
-    if (post.authorId !== userId) {
-      await applyReputationDelta(post.authorId, {
-        score: REPUTATION_POINTS.LIKE_RECEIVED,
-        likesReceived: 1,
-      });
-      await notifyUser({
-        userId: post.authorId,
-        actorId: userId,
-        type: "LIKE",
-        message: "liked your post",
-        link: `/post/${postId}`,
-      });
-    }
-  }
-
-  const likeCount = await prisma.like.count({ where: { postId } });
-
-  revalidatePath("/feed");
-  revalidatePath(`/post/${postId}`);
-  revalidatePath(`/profile`);
-  return { success: true, liked, likeCount };
-}
-
 export async function toggleBookmark(postId: string) {
   const userId = await getCurrentUserId();
   const existing = await prisma.bookmark.findUnique({
@@ -499,40 +473,44 @@ export async function toggleBookmark(postId: string) {
   return { success: true, saved };
 }
 
-export async function toggleBragPoint(postId: string) {
+export async function toggleMediaBragPoint(postMediaId: string) {
   const userId = await getCurrentUserId();
-  const post = await prisma.post.findUnique({
-    where: { id: postId },
-    select: { type: true, authorId: true },
+  const media = await prisma.postMedia.findUnique({
+    where: { id: postMediaId },
+    select: {
+      id: true,
+      post: { select: { id: true, type: true, authorId: true } },
+    },
   });
-  if (!post || !isBraggableType(post.type)) {
-    return { error: "Brag points are for installation posts" };
+  if (!media || !isBraggableType(media.post.type)) {
+    return { error: "Brag points are for installation photos and videos" };
   }
 
-  const existing = await prisma.bragPoint.findUnique({
-    where: { postId_userId: { postId, userId } },
+  const postId = media.post.id;
+  const existing = await prisma.mediaBragPoint.findUnique({
+    where: { postMediaId_userId: { postMediaId, userId } },
   });
 
   let bragged = false;
   if (existing) {
-    await prisma.bragPoint.delete({ where: { id: existing.id } });
+    await prisma.mediaBragPoint.delete({ where: { id: existing.id } });
     bragged = false;
-    if (post.authorId !== userId) {
-      await applyReputationDelta(post.authorId, {
+    if (media.post.authorId !== userId) {
+      await applyReputationDelta(media.post.authorId, {
         score: -REPUTATION_POINTS.BRAG_RECEIVED,
         bragEngagement: -1,
       });
     }
   } else {
-    await prisma.bragPoint.create({ data: { postId, userId } });
+    await prisma.mediaBragPoint.create({ data: { postMediaId, userId } });
     bragged = true;
-    if (post.authorId !== userId) {
-      await applyReputationDelta(post.authorId, {
+    if (media.post.authorId !== userId) {
+      await applyReputationDelta(media.post.authorId, {
         score: REPUTATION_POINTS.BRAG_RECEIVED,
         bragEngagement: 1,
       });
       await notifyUser({
-        userId: post.authorId,
+        userId: media.post.authorId,
         actorId: userId,
         type: "BRAG_RANKING",
         message: "gave brag points to your install",
@@ -541,14 +519,20 @@ export async function toggleBragPoint(postId: string) {
     }
   }
 
-  const updated = await syncPostBragScore(postId);
+  const mediaUpdated = await syncMediaBragScore(postMediaId);
+  const postUpdated = await syncPostBragScore(postId);
 
   revalidatePath("/feed");
   revalidatePath("/brags");
   revalidatePath("/discover");
   revalidatePath(`/post/${postId}`);
   revalidatePath(`/profile`);
-  return { success: true, bragged, bragScore: updated.bragScore };
+  return {
+    success: true,
+    bragged,
+    mediaBragScore: mediaUpdated.bragScore,
+    postBragScore: postUpdated.bragScore,
+  };
 }
 
 export async function addComment(postId: string, content: string) {

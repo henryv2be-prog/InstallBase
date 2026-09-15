@@ -60,9 +60,8 @@ async function main() {
   await prisma.conversationParticipant.deleteMany();
   await prisma.conversation.deleteMany();
   await prisma.answer.deleteMany();
-  await prisma.bragPoint.deleteMany();
+  await prisma.mediaBragPoint.deleteMany();
   await prisma.bookmark.deleteMany();
-  await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.postTag.deleteMany();
   await prisma.postProduct.deleteMany();
@@ -292,17 +291,14 @@ async function main() {
     posts.push(post);
   }
 
-  // Likes, comments, brag points
+  // Comments and per-media brag points
   for (const post of posts) {
-    const likeCount = 5 + Math.floor(Math.random() * 30);
     const commentCount = 2 + Math.floor(Math.random() * 10);
     const shuffledUsers = [...users].sort(() => Math.random() - 0.5);
-
-    for (let i = 0; i < likeCount && i < shuffledUsers.length; i++) {
-      await prisma.like.create({
-        data: { postId: post.id, userId: shuffledUsers[i].id },
-      }).catch(() => {});
-    }
+    const fullPost = await prisma.post.findUnique({
+      where: { id: post.id },
+      include: { media: { orderBy: { order: "asc" } } },
+    });
 
     const comments = [
       "Great work! Clean install.",
@@ -327,13 +323,26 @@ async function main() {
       });
     }
 
-    if (post.type === "BRAG") {
-      const bragCount = 3 + Math.floor(Math.random() * 15);
-      for (let i = 0; i < bragCount && i < shuffledUsers.length; i++) {
-        await prisma.bragPoint.create({
-          data: { postId: post.id, userId: shuffledUsers[i].id },
-        }).catch(() => {});
+    if (fullPost && fullPost.type !== "QUESTION" && fullPost.media.length > 0) {
+      let postBragTotal = 0;
+      for (const media of fullPost.media) {
+        const bragCount = 1 + Math.floor(Math.random() * 8);
+        for (let i = 0; i < bragCount && i < shuffledUsers.length; i++) {
+          await prisma.mediaBragPoint.create({
+            data: { postMediaId: media.id, userId: shuffledUsers[i].id },
+          }).catch(() => {});
+        }
+        const mediaBragScore = await prisma.mediaBragPoint.count({ where: { postMediaId: media.id } });
+        await prisma.postMedia.update({
+          where: { id: media.id },
+          data: { bragScore: mediaBragScore },
+        });
+        postBragTotal += mediaBragScore;
       }
+      await prisma.post.update({
+        where: { id: post.id },
+        data: { bragScore: postBragTotal },
+      });
     }
   }
 
@@ -414,8 +423,8 @@ async function main() {
       data: {
         userId: users[i % users.length].id,
         actorId: users[(i + 5) % users.length].id,
-        type: ["LIKE", "COMMENT", "FOLLOW", "ANSWER", "BRAG_RANKING"][i % 5] as "LIKE" | "COMMENT" | "FOLLOW" | "ANSWER" | "BRAG_RANKING",
-        message: ["liked your post", "commented on your post", "started following you", "answered your question", "Your brag is trending!"][i % 5],
+        type: ["COMMENT", "FOLLOW", "ANSWER", "BRAG_RANKING", "BRAG_RANKING"][i % 5] as "COMMENT" | "FOLLOW" | "ANSWER" | "BRAG_RANKING",
+        message: ["commented on your post", "started following you", "answered your question", "gave brag points to your install", "Your brag is trending!"][i % 5],
         link: `/post/${posts[i % posts.length].id}`,
         read: i % 3 === 0,
       },

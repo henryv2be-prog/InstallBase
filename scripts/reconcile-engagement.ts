@@ -1,6 +1,6 @@
 /**
  * One-time repair: sync Profile.reputationScore from Reputation.score
- * and Post.bragScore from BragPoint counts.
+ * and Post.bragScore from MediaBragPoint counts.
  *
  * Run: npx tsx scripts/reconcile-engagement.ts
  */

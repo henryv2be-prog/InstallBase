@@ -112,9 +112,8 @@ model User {
   profile       Profile?
   posts         Post[]
   comments      Comment[]
-  likes         Like[]
   bookmarks     Bookmark[]
-  bragPoints    BragPoint[]
+  mediaBragPoints MediaBragPoint[]
   answers       Answer[]
   followers     Follow[]  @relation("Following")
   following     Follow[]  @relation("Follower")
@@ -292,9 +291,7 @@ model Post {
   author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
   media       PostMedia[]
   comments    Comment[]
-  likes       Like[]
   bookmarks   Bookmark[]
-  bragPoints  BragPoint[]
   answers     Answer[]
   tags        PostTag[]
   products    PostProduct[]
@@ -315,9 +312,11 @@ model PostMedia {
   type      String   @default("image")
   caption   String?
   order     Int      @default(0)
+  bragScore Int      @default(0)
   createdAt DateTime @default(now())
 
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post       Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
+  bragPoints MediaBragPoint[]
 
   @@index([postId])
 }
@@ -363,18 +362,6 @@ model Comment {
   @@index([postId])
 }
 
-model Like {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String
-  createdAt DateTime @default(now())
-
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-}
-
 model Bookmark {
   id        String   @id @default(cuid())
   postId    String
@@ -387,16 +374,18 @@ model Bookmark {
   @@unique([postId, userId])
 }
 
-model BragPoint {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String
-  createdAt DateTime @default(now())
+model MediaBragPoint {
+  id          String   @id @default(cuid())
+  postMediaId String
+  userId      String
+  createdAt   DateTime @default(now())
 
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postMedia PostMedia @relation(fields: [postMediaId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([postId, userId])
+  @@unique([postMediaId, userId])
+  @@index([postMediaId])
+  @@index([userId])
 }
 
 model Answer {

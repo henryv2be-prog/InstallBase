@@ -1,34 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
-  Heart,
   MessageCircle,
   Trophy,
   MapPin,
+  Camera,
 } from "lucide-react";
 import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
 import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { Button } from "@/components/ui/button";
-import { cn, getReputationLabel, getFeedReasonLabel } from "@/lib/utils";
+import { cn, getFeedReasonLabel } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { MediaGallery } from "@/components/ui/media-gallery";
 import { PostOptionsMenu } from "@/components/feed/post-options-menu";
 import { InlineComments } from "@/components/feed/inline-comments";
-import {
-  toggleLike,
-  toggleBookmark,
-  toggleBragPoint,
-} from "@/lib/actions";
+import { toggleBookmark } from "@/lib/actions";
 import { toast } from "sonner";
 import type { PostCardData } from "@/lib/queries";
 import { isBraggableType } from "@/lib/brag";
 import { getPostIntentLabel, shouldShowPostLocation } from "@/lib/work-posts";
 import { promptJoin } from "@/components/auth/guest-cta";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Camera } from "lucide-react";
 
 interface PostCardProps {
   post: PostCardData;
@@ -51,17 +45,9 @@ export function PostCard({
   followingIds,
 }: PostCardProps) {
   const compactBrag = bragPresentation === "compact";
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [commentsOpen, setCommentsOpen] = useState(false);
   const profile = post.author.profile;
-  const [liked, setLiked] = useState(
-    currentUserId ? post.likes.some((l) => l.userId === currentUserId) : false
-  );
-  const [likeCount, setLikeCount] = useState(post._count.likes);
-  const [bragged, setBragged] = useState(
-    currentUserId ? post.bragPoints.some((b) => b.userId === currentUserId) : false
-  );
   const [bragScore, setBragScore] = useState(post.bragScore);
   const isSaved = currentUserId ? post.bookmarks.some((b) => b.userId === currentUserId) : false;
   const canBrag = isBraggableType(post.type);
@@ -90,56 +76,6 @@ export function PostCard({
     } catch (error) {
       if ((error as Error).name !== "AbortError") toast.error("Could not share");
     }
-  };
-
-  const handleLike = () => {
-    if (!currentUserId) {
-      promptJoin("like posts");
-      return;
-    }
-    const wasLiked = liked;
-    setLiked(!wasLiked);
-    setLikeCount((count) => (wasLiked ? count - 1 : count + 1));
-    startTransition(async () => {
-      try {
-        const result = await toggleLike(post.id);
-        if (result.likeCount !== undefined) setLikeCount(result.likeCount);
-        if (result.liked !== undefined) setLiked(result.liked);
-        router.refresh();
-      } catch {
-        setLiked(wasLiked);
-        setLikeCount((count) => (wasLiked ? count + 1 : count - 1));
-        toast.error("Could not update like");
-      }
-    });
-  };
-
-  const handleBrag = () => {
-    if (!currentUserId) {
-      promptJoin("give brag points");
-      return;
-    }
-    const wasBragged = bragged;
-    setBragged(!wasBragged);
-    setBragScore((score) => (wasBragged ? score - 1 : score + 1));
-    startTransition(async () => {
-      try {
-        const result = await toggleBragPoint(post.id);
-        if (result.error) {
-          setBragged(wasBragged);
-          setBragScore((score) => (wasBragged ? score + 1 : score - 1));
-          toast.error(result.error);
-          return;
-        }
-        if (result.bragScore !== undefined) setBragScore(result.bragScore);
-        if (result.bragged !== undefined) setBragged(result.bragged);
-        router.refresh();
-      } catch {
-        setBragged(wasBragged);
-        setBragScore((score) => (wasBragged ? score + 1 : score - 1));
-        toast.error("Could not update brag points");
-      }
-    });
   };
 
   const handleBookmark = () => {
@@ -240,11 +176,17 @@ export function PostCard({
           <div className="mt-4">
             <MediaGallery
               items={post.media.map((m) => ({
+                id: m.id,
                 url: m.url,
                 type: m.type,
                 caption: m.caption,
+                bragScore: m.bragScore,
+                braggedByViewer: m.braggedByViewer,
               }))}
               limit={showFull ? undefined : 4}
+              canBrag={canBrag}
+              currentUserId={currentUserId}
+              onPostBragScoreChange={setBragScore}
             />
           </div>
         )}
@@ -276,19 +218,6 @@ export function PostCard({
 
         <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={pending}
-              onClick={handleLike}
-              className={cn(liked && "text-red-500")}
-              aria-label="Like"
-              title={currentUserId ? "Like" : "Join to like posts"}
-            >
-              <Heart className={cn("h-4 w-4", liked && "fill-current")} />
-              {likeCount}
-            </Button>
-
             {showInlineComments ? (
               <Button
                 variant="ghost"
@@ -308,19 +237,11 @@ export function PostCard({
               </Link>
             )}
 
-            {canBrag && (
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={pending}
-                onClick={handleBrag}
-                className={cn(bragged && (compactBrag ? "text-foreground" : "text-orange-500"))}
-                aria-label="Give brag points"
-                title={currentUserId ? "Give brag points" : "Join to give brag points"}
-              >
-                <Trophy className={cn("h-4 w-4", bragged && "fill-current")} />
+            {canBrag && bragScore > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 text-sm text-orange-500">
+                <Trophy className="h-4 w-4" />
                 {bragScore}
-              </Button>
+              </span>
             )}
           </div>
 
