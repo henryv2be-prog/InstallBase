@@ -27,7 +27,7 @@ export async function sendPushToUser(
     title: payload.title,
     body: payload.body,
     url: payload.url || "/notifications",
-    icon: "/icons/notification-icon.png",
+    icon: "/icons/icon-192.png",
     badge: "/icons/badge.png",
   });
 
