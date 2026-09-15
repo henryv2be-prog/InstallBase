@@ -1,10 +1,11 @@
-const CACHE = "installbase-v8";
+const CACHE = "installbase-v9";
 const PRECACHE = [
   "/login",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/icon-192-maskable.png",
   "/icons/icon-512-maskable.png",
+  "/icons/notification-icon.png",
   "/icons/badge.png",
 ];
 
@@ -62,7 +63,7 @@ self.addEventListener("push", (event) => {
         title: "InstallBase",
         body: "You have a new notification",
         url: "/notifications",
-        icon: "/icons/icon-192.png",
+        icon: "/icons/notification-icon.png",
         badge: "/icons/badge.png",
       };
       try {
@@ -80,7 +81,7 @@ self.addEventListener("push", (event) => {
 
       await self.registration.showNotification(data.title || "InstallBase", {
         body: data.body,
-        icon: data.icon || "/icons/icon-192.png",
+        icon: data.icon || "/icons/notification-icon.png",
         badge: data.badge || "/icons/badge.png",
         data: { url: data.url || "/notifications" },
       });

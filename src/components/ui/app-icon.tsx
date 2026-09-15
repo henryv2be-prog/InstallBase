@@ -36,7 +36,7 @@ export function AppIcon({ size = 36, className }: AppIconProps) {
       </defs>
       <rect width="512" height="512" rx={SQUIRCLE_RX} fill="url(#ib-bg)" />
       <rect width="512" height="512" rx={SQUIRCLE_RX} fill="url(#ib-sheen)" />
-      <g transform="translate(128 168) scale(4.5)">
+      <g transform="translate(116 156) scale(5)">
         <circle cx="9" cy="8" r="4.5" fill="#67e8f9" />
         <rect x="6.25" y="16" width="5.5" height="22" rx="2.75" fill="#ffffff" />
         <path
