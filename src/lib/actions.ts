@@ -297,6 +297,141 @@ export async function updatePostWorkSettings(formData: FormData) {
   return { success: true };
 }
 
+async function revalidatePostSurfaces(postId: string, username?: string | null) {
+  revalidatePath("/feed");
+  revalidatePath("/brags");
+  revalidatePath("/questions");
+  revalidatePath(`/post/${postId}`);
+  if (username) revalidatePath(`/profile/${username}`);
+  revalidateTag("posts", "max");
+}
+
+export async function updatePost(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const postId = (formData.get("postId") as string | null)?.trim();
+  if (!postId) return { error: "Post not found" };
+
+  const existing = await prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      id: true,
+      authorId: true,
+      type: true,
+      author: { select: { profile: { select: { username: true } } } },
+      media: { select: { id: true } },
+    },
+  });
+
+  if (!existing || existing.authorId !== userId) {
+    return { error: "You can only edit your own posts" };
+  }
+
+  const mediaUrls = formData.getAll("mediaUrls") as string[];
+  const content = ((formData.get("content") as string) || "").trim();
+  const title = formData.get("title") as string | null;
+  const location = (formData.get("location") as string | null)?.trim() || null;
+  if (!content && mediaUrls.filter(Boolean).length === 0) {
+    return { error: "Add a photo or write something first" };
+  }
+
+  const postIntent = resolveComposerIntent(existing.type, formData.get("postIntent") as string | null);
+  const showExactLocation = formData.get("showExactLocation") === "true";
+  const workDateRaw = (formData.get("workDate") as string | null)?.trim();
+  const workDate = workDateRaw ? new Date(workDateRaw) : null;
+  const workDetails = compactWorkDetails({
+    trade: (formData.get("workTrade") as string | null)?.trim() || undefined,
+    projectType: (formData.get("workProjectType") as string | null)?.trim() || undefined,
+    deviceCount: (formData.get("workDeviceCount") as string | null)?.trim() || undefined,
+    skills: formData.getAll("workSkills").map((item) => String(item).trim()).filter(Boolean),
+    equipmentNotes: (formData.get("workEquipmentNotes") as string | null)?.trim() || undefined,
+  });
+  const categoryId = await resolveCategoryIdForTrade(formData.get("workTrade") as string | null);
+
+  const hasMedia = mediaUrls.filter(Boolean).length > 0;
+  const oldHadBragMedia = isBraggableType(existing.type) && existing.media.length > 0;
+  const newHasBragMedia = isBraggableType(existing.type) && hasMedia;
+
+  await prisma.$transaction(async (tx) => {
+    await tx.postMedia.deleteMany({ where: { postId } });
+    await tx.postCategory.deleteMany({ where: { postId } });
+    if (categoryId) {
+      await tx.postCategory.create({ data: { postId, categoryId } });
+    }
+    await tx.post.update({
+      where: { id: postId },
+      data: {
+        content,
+        title: title || null,
+        postIntent,
+        location,
+        showExactLocation,
+        workDate: workDate && !Number.isNaN(workDate.getTime()) ? workDate : null,
+        workDetails: workDetails ?? undefined,
+        media: {
+          create: mediaUrls.filter(Boolean).map((url, i) => ({
+            url,
+            order: i,
+            type: /\.(mp4|webm|mov)(\?|$)/i.test(url) ? "video" : "image",
+          })),
+        },
+      },
+    });
+
+    if (oldHadBragMedia && !newHasBragMedia) {
+      const profile = await tx.profile.findUnique({ where: { userId }, select: { bragCount: true } });
+      if (profile && profile.bragCount > 0) {
+        await tx.profile.update({
+          where: { userId },
+          data: { bragCount: { decrement: 1 } },
+        });
+      }
+    } else if (!oldHadBragMedia && newHasBragMedia) {
+      await tx.profile.update({
+        where: { userId },
+        data: { bragCount: { increment: 1 } },
+      });
+    }
+  });
+
+  await revalidatePostSurfaces(postId, existing.author.profile?.username);
+  return { success: true, postId };
+}
+
+export async function deletePost(postId: string) {
+  const userId = await getCurrentUserId();
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      authorId: true,
+      type: true,
+      author: { select: { profile: { select: { username: true } } } },
+      media: { select: { id: true }, take: 1 },
+    },
+  });
+
+  if (!post || post.authorId !== userId) {
+    return { error: "You can only delete your own posts" };
+  }
+
+  const hadBragMedia = isBraggableType(post.type) && post.media.length > 0;
+
+  await prisma.$transaction(async (tx) => {
+    await tx.post.delete({ where: { id: postId } });
+    if (hadBragMedia) {
+      const profile = await tx.profile.findUnique({ where: { userId }, select: { bragCount: true } });
+      if (profile && profile.bragCount > 0) {
+        await tx.profile.update({
+          where: { userId },
+          data: { bragCount: { decrement: 1 } },
+        });
+      }
+    }
+  });
+
+  await revalidatePostSurfaces(postId, post.author.profile?.username);
+  return { success: true };
+}
+
 export async function toggleLike(postId: string) {
   const userId = await getCurrentUserId();
   const post = await prisma.post.findUnique({

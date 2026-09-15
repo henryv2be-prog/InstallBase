@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   MoreHorizontal,
   Link2,
@@ -8,10 +9,12 @@ import {
   ExternalLink,
   Bookmark,
   Share2,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { reportContent } from "@/lib/actions";
+import { deletePost, reportContent } from "@/lib/actions";
 import { useScrollSafeMenu } from "@/hooks/use-scroll-safe-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -42,8 +45,10 @@ export function PostOptionsMenu({
   onBookmark,
   onShare,
 }: PostOptionsMenuProps) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const { open, onOpenChange, triggerProps, pressing, requiresLongPress } = useScrollSafeMenu();
+  const isAuthor = Boolean(currentUserId && currentUserId === authorId);
 
   const copyLink = () => {
     const url = `${window.location.origin}/post/${postId}`;
@@ -68,6 +73,24 @@ export function PostOptionsMenu({
         toast.success("Report submitted — thanks for helping keep InstallBase safe");
       } catch {
         toast.error("Failed to submit report");
+      }
+    });
+  };
+
+  const handleDelete = () => {
+    if (!window.confirm("Delete this post? This cannot be undone.")) return;
+    startTransition(async () => {
+      try {
+        const result = await deletePost(postId);
+        if (result && "error" in result && result.error) {
+          toast.error(result.error);
+          return;
+        }
+        toast.success("Post deleted");
+        router.push("/feed");
+        router.refresh();
+      } catch {
+        toast.error("Failed to delete post");
       }
     });
   };
@@ -97,6 +120,27 @@ export function PostOptionsMenu({
           sideOffset={6}
           onCloseAutoFocus={(event) => event.preventDefault()}
         >
+          {isAuthor && (
+            <>
+              <DropdownMenu.Item asChild>
+                <Link
+                  href={`/post/${postId}/edit`}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edit post
+                </Link>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 outline-none hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                onSelect={handleDelete}
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete post
+              </DropdownMenu.Item>
+              <DropdownMenu.Separator className="my-1 h-px bg-border" />
+            </>
+          )}
           {onBookmark && (
             <DropdownMenu.Item
               className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800"

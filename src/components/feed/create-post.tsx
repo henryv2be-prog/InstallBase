@@ -15,12 +15,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createPost, uploadImage } from "@/lib/actions";
+import { createPost, updatePost, uploadImage } from "@/lib/actions";
 import { MAX_POST_MEDIA, prepareMediaFile } from "@/lib/prepare-media";
 import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { PostType } from "@/generated/prisma/client";
+import type { PostIntent, PostType } from "@/generated/prisma/client";
+import { parseWorkDetails } from "@/lib/work-posts";
 import {
   WorkDetailsFields,
   type WorkDetailsFormState,
@@ -95,28 +96,85 @@ function isVideoFile(file: File) {
   return file.type.startsWith("video/") || /\.(mp4|webm|mov)$/i.test(file.name);
 }
 
+interface EditPostInitial {
+  id: string;
+  type: PostType;
+  content: string;
+  title: string | null;
+  postIntent: PostIntent;
+  location: string | null;
+  showExactLocation: boolean;
+  workDate: Date | null;
+  workDetails: unknown;
+  categories: { category: { name: string } }[];
+  media: { url: string; type: string }[];
+}
+
 interface CreatePostCardProps {
   userName?: string | null;
   userImage?: string | null;
   compact?: boolean;
+  editPost?: EditPostInitial;
 }
 
-export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
+function buildWorkStateFromPost(post: EditPostInitial): WorkDetailsFormState {
+  const workDetails = parseWorkDetails(post.workDetails);
+  return {
+    postIntent: post.postIntent,
+    workTrade: workDetails.trade ?? post.categories[0]?.category.name ?? "",
+    workProjectType: workDetails.projectType ?? "",
+    workDeviceCount: workDetails.deviceCount ?? "",
+    workDate: post.workDate ? post.workDate.toISOString().slice(0, 10) : "",
+    workEquipmentNotes: workDetails.equipmentNotes ?? "",
+    location: post.location ?? "",
+    showExactLocation: post.showExactLocation,
+  };
+}
+
+function hasWorkDetails(state: WorkDetailsFormState) {
+  return Boolean(
+    state.workTrade.trim() ||
+      state.workProjectType.trim() ||
+      state.workDeviceCount.trim() ||
+      state.workDate.trim() ||
+      state.workEquipmentNotes.trim() ||
+      state.location.trim() ||
+      state.postIntent !== "GENERAL"
+  );
+}
+
+export function CreatePostCard({ userName, compact, editPost }: CreatePostCardProps) {
+  const isEditing = Boolean(editPost);
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, startTransition] = useTransition();
-  const [expanded, setExpanded] = useState(!compact);
-  const [type, setType] = useState<PostType>("POST");
-  const [content, setContent] = useState("");
-  const [title, setTitle] = useState("");
-  const [work, setWork] = useState<WorkDetailsFormState>(defaultWorkState);
-  const [showWorkDetails, setShowWorkDetails] = useState(false);
-  const [media, setMedia] = useState<MediaItem[]>([]);
-  const [hydrated, setHydrated] = useState(false);
+  const [expanded, setExpanded] = useState(!compact || isEditing);
+  const [type, setType] = useState<PostType>(editPost?.type ?? "POST");
+  const [content, setContent] = useState(editPost?.content ?? "");
+  const [title, setTitle] = useState(editPost?.title ?? "");
+  const [work, setWork] = useState<WorkDetailsFormState>(
+    editPost ? buildWorkStateFromPost(editPost) : defaultWorkState()
+  );
+  const [showWorkDetails, setShowWorkDetails] = useState(
+    editPost ? hasWorkDetails(buildWorkStateFromPost(editPost)) : false
+  );
+  const [media, setMedia] = useState<MediaItem[]>(
+    editPost
+      ? editPost.media.map((item) => ({
+          id: crypto.randomUUID(),
+          previewUrl: item.url,
+          serverUrl: item.url,
+          kind: item.type === "video" ? "video" : "image",
+          status: "ready" as const,
+        }))
+      : []
+  );
+  const [hydrated, setHydrated] = useState(isEditing);
   const mediaRef = useRef(media);
   mediaRef.current = media;
 
   useEffect(() => {
+    if (isEditing) return;
     const draft = readDraft();
     if (draft) {
       setType(draft.type === "BRAG" ? "POST" : draft.type);
@@ -139,7 +197,7 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   }, [compact]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isEditing) return;
     writeDraft({
       type,
       content,
@@ -150,15 +208,16 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
         .filter((item) => item.status === "ready" && item.serverUrl)
         .map((item) => ({ url: item.serverUrl!, kind: item.kind })),
     });
-  }, [hydrated, type, content, title, work, showWorkDetails, media]);
+  }, [hydrated, isEditing, type, content, title, work, showWorkDetails, media]);
 
   useEffect(() => {
+    if (isEditing) return;
     if (type === "PROJECT") {
       setWork((prev) => ({ ...prev, postIntent: "PROJECT_INSTALLATION" }));
     } else if (type === "QUESTION") {
       setWork((prev) => ({ ...prev, postIntent: "GENERAL" }));
     }
-  }, [type]);
+  }, [isEditing, type]);
 
   useEffect(() => {
     return () => {
@@ -291,7 +350,8 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
     const failed = media.filter((item) => item.status === "error").length;
     startTransition(async () => {
       const formData = new FormData();
-      formData.append("type", type);
+      if (editPost) formData.append("postId", editPost.id);
+      else formData.append("type", type);
       formData.append("content", content);
       if (title) formData.append("title", title);
       formData.append("postIntent", work.postIntent);
@@ -304,19 +364,26 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       if (work.workEquipmentNotes) formData.append("workEquipmentNotes", work.workEquipmentNotes);
       readyUrls.forEach((url) => formData.append("mediaUrls", url));
       try {
-        const result = await createPost(formData);
+        const result = editPost ? await updatePost(formData) : await createPost(formData);
         if (result && "error" in result && result.error) {
           toast.error(result.error);
           return;
         }
-        toast.success(failed ? "Posted — some photos didn’t upload" : "Posted!");
-        const postId = result && "postId" in result ? result.postId : undefined;
-        resetComposer();
+        toast.success(
+          editPost
+            ? "Post updated"
+            : failed
+              ? "Posted — some photos didn’t upload"
+              : "Posted!"
+        );
+        const postId =
+          result && "postId" in result ? result.postId : editPost?.id;
+        if (!editPost) resetComposer();
         if (postId) router.push(`/post/${postId}`);
         else router.push("/feed");
         router.refresh();
       } catch {
-        toast.error("Failed to create post");
+        toast.error(editPost ? "Failed to update post" : "Failed to create post");
       }
     });
   };
@@ -332,7 +399,7 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
     />
   );
 
-  if (compact && !expanded) {
+  if (compact && !expanded && !isEditing) {
     const openMedia = (e: React.MouseEvent) => {
       e.stopPropagation();
       setType("POST");
@@ -379,9 +446,10 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       {fileInput}
       <CardContent className={cn("p-5", compact && "pt-5")}>
         <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">
-          What&apos;s happening on your install?
+          {isEditing ? "Edit your post" : "What's happening on your install?"}
         </h2>
 
+        {!isEditing && (
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Button
             type="button"
@@ -413,6 +481,7 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
             Project
           </Button>
         </div>
+        )}
 
         <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
           {media.map((item) => (
@@ -501,7 +570,15 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
                 : "Photos are compressed on your phone so they don’t get dropped."}
           </p>
           <Button onClick={handleSubmit} disabled={!canPost} className="min-w-24">
-            {pending ? "Posting..." : uploading ? "Uploading..." : "Post"}
+            {pending
+              ? isEditing
+                ? "Saving..."
+                : "Posting..."
+              : uploading
+                ? "Uploading..."
+                : isEditing
+                  ? "Save changes"
+                  : "Post"}
           </Button>
         </div>
       </CardContent>
