@@ -1,92 +1,36 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const sourcePath = join(root, "assets", "app-icon-source.jpg");
+const iconSvg = readFileSync(join(root, "assets", "app-icon.svg"));
+const maskableSvg = readFileSync(join(root, "assets", "app-icon-maskable.svg"));
+const badgeSvg = readFileSync(join(root, "assets", "app-icon-badge.svg"));
 const outDir = join(root, "public", "icons");
 const appDir = join(root, "src", "app");
 
-/** Centre-crop the portrait source to a square app icon buffer. */
-async function loadSquareBuffer() {
-  const meta = await sharp(sourcePath).metadata();
-  const side = Math.min(meta.width, meta.height);
-  const left = Math.round((meta.width - side) / 2);
-  const top = Math.round((meta.height - side) / 2);
-
-  return sharp(sourcePath)
-    .extract({ left, top, width: side, height: side })
-    .png()
+/** Render the polished vector icon at an exact pixel size. */
+async function renderAppIcon(size) {
+  return sharp(iconSvg, { density: Math.max(192, size * 0.75) })
+    .resize(size, size, { fit: "fill" })
+    .png({ compressionLevel: 9, palette: false })
     .toBuffer();
 }
 
-async function renderAppIcon(size, maskable = false) {
-  const square = await loadSquareBuffer();
-  const source = sharp(square);
-
-  if (!maskable) {
-    return source.resize(size, size, { fit: "cover" }).png().toBuffer();
-  }
-
-  // Maskable: keep the mark inside Android's ~80% safe zone.
-  const inner = Math.round(size * 0.8);
-  const offset = Math.round((size - inner) / 2);
-  const icon = await source.resize(inner, inner, { fit: "cover" }).png().toBuffer();
-
-  return sharp({
-    create: {
-      width: size,
-      height: size,
-      channels: 4,
-      background: { r: 5, g: 8, b: 16, alpha: 1 },
-    },
-  })
-    .composite([{ input: icon, left: offset, top: offset }])
-    .png()
+/** Maskable variant: full-bleed gradient, mark in Android safe zone. */
+async function renderMaskableIcon(size) {
+  return sharp(maskableSvg, { density: Math.max(192, size * 0.75) })
+    .resize(size, size, { fit: "fill" })
+    .png({ compressionLevel: 9, palette: false })
     .toBuffer();
 }
 
-/**
- * Notification badge: white iB silhouette on transparent background.
- * Extracts bright mark pixels from the source icon.
- */
+/** Notification badge: white iB silhouette on transparent background. */
 async function renderNotificationBadge(size = 96) {
-  const square = await loadSquareBuffer();
-  const { data, info } = await sharp(square)
+  return sharp(badgeSvg, { density: 192 })
     .resize(size, size, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  const out = Buffer.alloc(data.length);
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
-    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    const sat = max === 0 ? 0 : (max - min) / max;
-
-    // White body of the mark, cyan dot, and soft glow edges.
-    const isMark = lum > 145 || (lum > 95 && sat > 0.25) || (lum > 80 && b > r + 20);
-    if (isMark) {
-      const alpha = Math.min(255, Math.round(Math.max(lum - 60, 40) * 1.4));
-      out[i] = 255;
-      out[i + 1] = 255;
-      out[i + 2] = 255;
-      out[i + 3] = alpha;
-    } else {
-      out[i] = 0;
-      out[i + 1] = 0;
-      out[i + 2] = 0;
-      out[i + 3] = 0;
-    }
-  }
-
-  return sharp(out, { raw: { width: info.width, height: info.height, channels: 4 } })
-    .png()
+    .png({ compressionLevel: 9 })
     .toBuffer();
 }
 
@@ -100,7 +44,7 @@ const targets = [
 ];
 
 for (const [filename, size, maskable] of targets) {
-  const bytes = await renderAppIcon(size, maskable);
+  const bytes = maskable ? await renderMaskableIcon(size) : await renderAppIcon(size);
   writeFileSync(join(outDir, filename), bytes);
   console.log(`→ wrote public/icons/${filename} (${bytes.length} bytes)`);
 }
