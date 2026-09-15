@@ -1,6 +1,7 @@
 import "server-only";
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
+import { iconUrl } from "@/lib/icon-version";
 import { getVapidPrivateKey, getVapidPublicKey, getVapidSubject, isPushConfigured } from "@/lib/vapid";
 
 function configureVapid() {
@@ -27,8 +28,8 @@ export async function sendPushToUser(
     title: payload.title,
     body: payload.body,
     url: payload.url || "/notifications",
-    icon: "/icons/icon-192.png",
-    badge: "/icons/badge.png",
+    icon: iconUrl("icon-192.png"),
+    badge: iconUrl("badge.png"),
   });
 
   const results = await Promise.all(

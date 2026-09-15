@@ -1,29 +1,24 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, copyFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createRequire } from "node:module";
 
-const require = createRequire(import.meta.url);
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "public", "icons");
 
-// Load the compiled app-icon module via tsx-compatible dynamic import.
 const { renderAppIcon, renderNotificationBadge } = await import(join(root, "src/lib/app-icon.tsx"));
 
-const targets = [
-  ["icon-192.png", 192, false],
-  ["icon-512.png", 512, false],
-  ["icon-192-maskable.png", 192, true],
-  ["icon-512-maskable.png", 512, true],
-];
+const sizes = [192, 512];
 
 mkdirSync(outDir, { recursive: true });
 
-for (const [filename, size, maskable] of targets) {
-  const response = renderAppIcon(size, maskable);
+for (const size of sizes) {
+  const filename = `icon-${size}.png`;
+  const response = renderAppIcon(size, false);
   const bytes = Buffer.from(await response.arrayBuffer());
   writeFileSync(join(outDir, filename), bytes);
-  console.log(`→ wrote public/icons/${filename} (${bytes.length} bytes)`);
+  // Maskable must match exactly — Android launchers pick either; mismatches look broken.
+  copyFileSync(join(outDir, filename), join(outDir, `icon-${size}-maskable.png`));
+  console.log(`→ wrote public/icons/${filename} + maskable (${bytes.length} bytes)`);
 }
 
 const badge = renderNotificationBadge(96);
