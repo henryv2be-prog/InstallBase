@@ -184,19 +184,36 @@ export async function getPostsByType(type: PostType, limit = 20, userId?: string
 }
 
 export async function getHotBrags(limit = 20, userId?: string) {
-  const candidateTake = Math.min(Math.max(limit * 3, 24), 40);
-  const candidates = await cachedRows(
-    ["hot-brag-candidates", String(candidateTake)],
-    () =>
-      prisma.post.findMany({
-        where: braggablePostWhere,
-        take: candidateTake,
-        select: { id: true, bragScore: true, createdAt: true },
-        orderBy: { createdAt: "desc" },
-      })
-  );
+  const poolSize = Math.max(limit * 4, 40);
+  const [scored, recent] = await Promise.all([
+    cachedRows(
+      ["hot-brag-scored", String(poolSize)],
+      () =>
+        prisma.post.findMany({
+          where: { ...braggablePostWhere, bragScore: { gt: 0 } },
+          take: poolSize,
+          select: { id: true, bragScore: true, createdAt: true },
+          orderBy: [{ bragScore: "desc" }, { createdAt: "desc" }],
+        })
+    ),
+    cachedRows(
+      ["hot-brag-recent", String(poolSize)],
+      () =>
+        prisma.post.findMany({
+          where: braggablePostWhere,
+          take: poolSize,
+          select: { id: true, bragScore: true, createdAt: true },
+          orderBy: { createdAt: "desc" },
+        })
+    ),
+  ]);
 
-  const topIds = candidates
+  const byId = new Map<string, { id: string; bragScore: number; createdAt: Date }>();
+  for (const row of [...scored, ...recent]) {
+    byId.set(row.id, row);
+  }
+
+  const topIds = [...byId.values()]
     .sort(
       (a, b) =>
         bragHotScore(b.bragScore, new Date(b.createdAt)) - bragHotScore(a.bragScore, new Date(a.createdAt))
@@ -211,8 +228,8 @@ export async function getHotBrags(limit = 20, userId?: string) {
     userId,
     ["posts-by-ids", ...topIds]
   );
-  const byId = new Map(posts.map((post) => [post.id, post]));
-  return topIds.map((id) => byId.get(id)).filter((post): post is NonNullable<typeof post> => Boolean(post));
+  const postsById = new Map(posts.map((post) => [post.id, post]));
+  return topIds.map((id) => postsById.get(id)).filter((post): post is NonNullable<typeof post> => Boolean(post));
 }
 
 export async function getAllTimeBrags(limit = 4, userId?: string) {
@@ -287,13 +304,34 @@ export async function getTrendingBrags(limit = 10, userId?: string) {
 export async function getBragLeaderboard(limit = 5) {
   return cachedRows(
     ["brag-leaderboard", String(limit)],
-    () =>
-      prisma.profile.findMany({
-        where: { bragCount: { gt: 0 } },
+    async () => {
+      const grouped = await prisma.post.groupBy({
+        by: ["authorId"],
+        where: { ...braggablePostWhere, bragScore: { gt: 0 } },
+        _sum: { bragScore: true },
+        orderBy: { _sum: { bragScore: "desc" } },
         take: limit,
-        orderBy: [{ bragCount: "desc" }, { reputationScore: "desc" }],
+      });
+
+      if (grouped.length === 0) return [];
+
+      const profiles = await prisma.profile.findMany({
+        where: { userId: { in: grouped.map((row) => row.authorId) } },
         include: { user: true },
-      }),
+      });
+      const byUserId = new Map(profiles.map((profile) => [profile.userId, profile]));
+
+      return grouped
+        .map((row) => {
+          const profile = byUserId.get(row.authorId);
+          if (!profile) return null;
+          return {
+            ...profile,
+            totalBragPoints: row._sum.bragScore ?? 0,
+          };
+        })
+        .filter((row): row is NonNullable<typeof row> => Boolean(row));
+    },
     60
   );
 }

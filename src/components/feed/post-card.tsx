@@ -35,9 +35,18 @@ interface PostCardProps {
   currentUserId?: string;
   showFull?: boolean;
   showInlineComments?: boolean;
+  /** Compact mode tones down brag chrome — used on leaderboard lists. */
+  bragPresentation?: "default" | "compact";
 }
 
-export function PostCard({ post, currentUserId, showFull = false, showInlineComments = false }: PostCardProps) {
+export function PostCard({
+  post,
+  currentUserId,
+  showFull = false,
+  showInlineComments = false,
+  bragPresentation = "default",
+}: PostCardProps) {
+  const compactBrag = bragPresentation === "compact";
   const [pending, startTransition] = useTransition();
   const [commentsOpen, setCommentsOpen] = useState(false);
   const profile = post.author.profile;
@@ -113,7 +122,8 @@ export function PostCard({ post, currentUserId, showFull = false, showInlineComm
     <article
       className={cn(
         "glass-card glow-border overflow-hidden transition-all duration-200 hover:shadow-lg",
-        post.bragScore > 0 && "border-orange-500/30 dark:border-orange-500/20"
+        post.bragScore > 0 && !compactBrag && "border-orange-500/30 dark:border-orange-500/20",
+        post.bragScore > 0 && compactBrag && "border-border"
       )}
     >
       <div className="p-5">
@@ -159,10 +169,15 @@ export function PostCard({ post, currentUserId, showFull = false, showInlineComm
         </p>
 
         {bragDetails && (
-          <ul className="mt-3 space-y-1 rounded-xl bg-orange-50 p-4 text-sm dark:bg-orange-950/30">
+          <ul
+            className={cn(
+              "mt-3 space-y-1 rounded-xl p-4 text-sm",
+              compactBrag ? "bg-foreground/5" : "bg-orange-50 dark:bg-orange-950/30"
+            )}
+          >
             {Object.entries(bragDetails).map(([key, value]) => (
               <li key={key} className="flex gap-2">
-                <span className="text-orange-600">•</span>
+                <span className={compactBrag ? "text-muted" : "text-orange-600"}>•</span>
                 <span>
                   <strong className="capitalize">{key.replace(/_/g, " ")}:</strong> {String(value)}
                 </span>
@@ -255,7 +270,7 @@ export function PostCard({ post, currentUserId, showFull = false, showInlineComm
                 size="sm"
                 disabled={pending}
                 onClick={() => handleAction(() => toggleBragPoint(post.id))}
-                className={cn(hasBragged && "text-orange-500")}
+                className={cn(hasBragged && (compactBrag ? "text-foreground" : "text-orange-500"))}
                 aria-label="Give brag points"
                 title="Give brag points"
               >
@@ -296,7 +311,7 @@ export function PostCard({ post, currentUserId, showFull = false, showInlineComm
           </DropdownMenu.Root>
         </div>
 
-        {canBrag && post.bragScore > 0 && (
+        {canBrag && post.bragScore > 0 && !compactBrag && (
           <div className="mt-2 text-center text-sm font-semibold text-orange-600">
             🏆 {post.bragScore} Brag Points
           </div>
@@ -319,10 +334,12 @@ export function PostFeed({
   posts,
   currentUserId,
   showInlineComments = false,
+  bragPresentation = "default",
 }: {
   posts: PostCardData[];
   currentUserId?: string;
   showInlineComments?: boolean;
+  bragPresentation?: "default" | "compact";
 }) {
   if (posts.length === 0) {
     return (
@@ -341,6 +358,7 @@ export function PostFeed({
           post={post}
           currentUserId={currentUserId}
           showInlineComments={showInlineComments}
+          bragPresentation={bragPresentation}
         />
       ))}
     </div>

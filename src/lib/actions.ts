@@ -227,6 +227,7 @@ export async function toggleBragPoint(postId: string) {
 
   revalidatePath("/feed");
   revalidatePath("/brags");
+  revalidatePath("/discover");
   return { success: true };
 }
 

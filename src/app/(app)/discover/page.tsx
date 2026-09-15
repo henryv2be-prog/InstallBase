@@ -10,6 +10,7 @@ import {
   getHotBrags,
   getAllTimeBrags,
   getBragOfWeek,
+  getBragLeaderboard,
 } from "@/lib/queries";
 import { FollowButton } from "@/components/profile/follow-button";
 import { PostCard, PostFeed } from "@/components/feed/post-card";
@@ -18,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatNumber } from "@/lib/utils";
 import { TrendingUp } from "lucide-react";
 import { DiscoverTabs } from "@/components/discover/discover-tabs";
+import { LeaderboardPanel } from "@/components/discover/leaderboard-panel";
 
 export const metadata = { title: "Explore" };
 
@@ -37,12 +39,13 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     ]);
   const followingSet = new Set(followingIds);
 
-  const [questions, projects, hotBrags, bragOfWeek, allTime] = await Promise.all([
+  const [questions, projects, hotBrags, bragOfWeek, allTime, fullBragLeaderboard] = await Promise.all([
     tab === "questions" ? getPostsByType("QUESTION", 30, userId) : Promise.resolve([]),
     tab === "projects" ? getProjects() : Promise.resolve([]),
     tab === "leaderboard" ? getHotBrags(20, userId) : Promise.resolve([]),
     tab === "leaderboard" ? getBragOfWeek(userId) : Promise.resolve([]),
     tab === "leaderboard" ? getAllTimeBrags(4, userId) : Promise.resolve([]),
+    tab === "leaderboard" ? getBragLeaderboard(10) : Promise.resolve([]),
   ]);
 
   return (
@@ -177,74 +180,28 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
         </section>
       )}
 
-      {(tab === "trending" || tab === "leaderboard") && (
+      {tab === "leaderboard" && (
+        <LeaderboardPanel
+          installers={fullBragLeaderboard}
+          bragOfWeek={bragOfWeek}
+          allTime={allTime}
+          hotBrags={hotBrags}
+          currentUserId={userId}
+        />
+      )}
+
+      {tab === "trending" && (
         <section>
-          <h2 className="mb-4 text-xl font-bold">🏆 Brag Leaderboard</h2>
-          {tab === "leaderboard" && (
-            <>
-              <p className="mb-4 text-sm text-muted">Resets every Sunday. Give brag points to lift this week&apos;s installs.</p>
-              <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {bragOfWeek.slice(0, 8).map(({ category, post }, i) =>
-                  post ? (
-                    <div key={post.id} className="overflow-hidden rounded-2xl border border-orange-200 bg-white dark:border-orange-900/50 dark:bg-gray-900">
-                      <div className="bg-orange-500 px-4 py-2 text-sm font-bold text-white">
-                        {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏆"} {category}
-                      </div>
-                      <div className="p-4">
-                        <Link href={`/profile/${post.author.profile?.username}`} className="text-sm font-semibold hover:text-blue-600">
-                          {post.author.name}
-                        </Link>
-                        <p className="mt-1 font-medium line-clamp-2">{post.title ?? post.content.slice(0, 80)}</p>
-                        <p className="mt-2 text-sm font-bold text-orange-600">🏆 {post.bragScore} points</p>
-                      </div>
-                    </div>
-                  ) : null
-                )}
-              </div>
-              {allTime.length > 0 && (
-                <div className="mb-8">
-                  <h3 className="mb-3 text-lg font-bold">All-time</h3>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {allTime.map((post) => (
-                      <Link key={post.id} href={`/post/${post.id}`} className="rounded-2xl border border-border bg-card p-4 hover:border-orange-400/50">
-                        <p className="text-sm font-semibold">{post.author.name}</p>
-                        <p className="mt-1 line-clamp-2 font-medium">{post.title ?? post.content.slice(0, 80)}</p>
-                        <p className="mt-2 text-sm font-bold text-orange-600">🏆 {post.bragScore} points</p>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <h3 className="mb-3 text-lg font-bold">Hot right now</h3>
-              <div className="mx-auto max-w-2xl">
-                <PostFeed posts={hotBrags} currentUserId={userId} />
-              </div>
-            </>
-          )}
-          {tab === "trending" && (
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-              {bragLeaderboard.map((installer, i) => (
-                <Link
-                  key={installer.id}
-                  href={`/profile/${installer.username}`}
-                  className="flex items-center gap-4 border-b border-gray-100 p-4 last:border-0 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
-                >
-                  <span className="w-8 text-lg font-bold text-gray-400">#{i + 1}</span>
-                  <PresenceAvatar src={installer.user.image} name={installer.user.name} lastSeenAt={installer.user.lastSeenAt} className="h-10 w-10" />
-                  <div className="flex-1">
-                    <p className="font-semibold">{installer.user.name}</p>
-                    <p className="text-sm text-gray-500">🏆 {installer.bragCount} brags</p>
-                  </div>
-                  <span className="font-bold text-orange-600">⭐ {installer.reputationScore}</span>
-                </Link>
-              ))}
-            </div>
-          )}
-          {tab === "trending" && (
-            <Link href="/discover?tab=leaderboard" className="mt-3 inline-block text-sm font-semibold text-blue-600 hover:underline">
-              View full leaderboard →
-            </Link>
-          )}
+          <LeaderboardPanel
+            installers={bragLeaderboard}
+            bragOfWeek={[]}
+            allTime={[]}
+            hotBrags={[]}
+            preview
+          />
+          <Link href="/discover?tab=leaderboard" className="mt-3 inline-block text-sm font-semibold text-blue-600 hover:underline">
+            View full leaderboard →
+          </Link>
         </section>
       )}
     </div>
