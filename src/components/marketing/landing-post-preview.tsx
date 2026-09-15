@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Trophy } from "lucide-react";
+import { MessageCircle, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { TRADE_PHOTOS } from "@/lib/constants";
@@ -138,10 +138,6 @@ export function LandingPostPreview({ post, className, compact = false }: Landing
 
         {!compact && (
           <div className="mt-3 flex items-center gap-4 text-xs text-muted">
-            <span className="inline-flex items-center gap-1">
-              <Heart className="h-3.5 w-3.5" />
-              Like
-            </span>
             <span className="inline-flex items-center gap-1">
               <MessageCircle className="h-3.5 w-3.5" />
               Comment

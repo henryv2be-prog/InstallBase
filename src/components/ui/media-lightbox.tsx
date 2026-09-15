@@ -1,14 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ChevronDown, Trophy } from "lucide-react";
 import { baseVideoUrl, isVideoMedia } from "@/lib/media";
-
-interface MediaItem {
-  url: string;
-  type?: string;
-  caption?: string | null;
-}
+import { cn } from "@/lib/utils";
+import type { MediaItem } from "@/components/ui/media-gallery";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
@@ -96,9 +92,20 @@ interface MediaLightboxProps {
   index: number;
   onClose: () => void;
   onIndexChange: (index: number) => void;
+  canBrag?: boolean;
+  bragPending?: boolean;
+  onBrag?: (index: number) => void;
 }
 
-export function MediaLightbox({ items, index, onClose, onIndexChange }: MediaLightboxProps) {
+export function MediaLightbox({
+  items,
+  index,
+  onClose,
+  onIndexChange,
+  canBrag = false,
+  bragPending = false,
+  onBrag,
+}: MediaLightboxProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const indexRef = useRef(index);
   const scaleRef = useRef(1);
@@ -470,6 +477,27 @@ export function MediaLightbox({ items, index, onClose, onIndexChange }: MediaLig
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 flex flex-col items-center gap-2 px-4">
+        {canBrag && active.id && onBrag && (
+          <button
+            type="button"
+            disabled={bragPending}
+            onClick={(event) => {
+              event.stopPropagation();
+              onBrag(index);
+            }}
+            className={cn(
+              "pointer-events-auto inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+              active.braggedByViewer
+                ? "bg-orange-500 text-white"
+                : "bg-white/15 text-white hover:bg-white/25"
+            )}
+            aria-label={active.braggedByViewer ? "Remove brag point" : "Give brag point"}
+          >
+            <Trophy className={cn("h-4 w-4", active.braggedByViewer && "fill-current")} />
+            {active.braggedByViewer ? "Bragged" : "Brag"}
+            {(active.bragScore ?? 0) > 0 && <span>· {active.bragScore}</span>}
+          </button>
+        )}
         {active.caption && <p className="text-center text-sm text-white/80">{active.caption}</p>}
         {items.length > 1 && (
           <div className="flex items-center gap-1.5">

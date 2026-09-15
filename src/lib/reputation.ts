@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import type { ReputationLevel } from "@/generated/prisma/client";
 
 export const REPUTATION_POINTS = {
-  LIKE_RECEIVED: 2,
   BRAG_RECEIVED: 5,
   SOLUTION: 25,
 } as const;
@@ -18,7 +18,6 @@ export function calculateReputationLevel(score: number): ReputationLevel {
 
 type ReputationDelta = {
   score: number;
-  likesReceived?: number;
   bragEngagement?: number;
   helpfulAnswers?: number;
   solvedQuestions?: number;
@@ -30,7 +29,6 @@ export async function applyReputationDelta(userId: string, delta: ReputationDelt
     where: { userId },
     data: {
       score: { increment: delta.score },
-      ...(delta.likesReceived !== undefined && { likesReceived: { increment: delta.likesReceived } }),
       ...(delta.bragEngagement !== undefined && { bragEngagement: { increment: delta.bragEngagement } }),
       ...(delta.helpfulAnswers !== undefined && { helpfulAnswers: { increment: delta.helpfulAnswers } }),
       ...(delta.solvedQuestions !== undefined && { solvedQuestions: { increment: delta.solvedQuestions } }),
@@ -50,12 +48,28 @@ export async function applyReputationDelta(userId: string, delta: ReputationDelt
   return updated;
 }
 
-/** Reconcile post.bragScore with actual BragPoint rows. */
-export async function syncPostBragScore(postId: string) {
-  const count = await prisma.bragPoint.count({ where: { postId } });
-  return prisma.post.update({
-    where: { id: postId },
+type DbClient = Prisma.TransactionClient | typeof prisma;
+
+/** Reconcile PostMedia.bragScore with MediaBragPoint rows. */
+export async function syncMediaBragScore(postMediaId: string, db: DbClient = prisma) {
+  const count = await db.mediaBragPoint.count({ where: { postMediaId } });
+  return db.postMedia.update({
+    where: { id: postMediaId },
     data: { bragScore: count },
+    select: { bragScore: true, postId: true },
+  });
+}
+
+/** Reconcile post.bragScore as the sum of its media brag scores. */
+export async function syncPostBragScore(postId: string, db: DbClient = prisma) {
+  const media = await db.postMedia.findMany({
+    where: { postId },
+    select: { bragScore: true },
+  });
+  const total = media.reduce((sum, item) => sum + item.bragScore, 0);
+  return db.post.update({
+    where: { id: postId },
+    data: { bragScore: total },
     select: { bragScore: true, authorId: true },
   });
 }
@@ -74,17 +88,27 @@ export async function reconcileAllReputationScores() {
   }
 }
 
-/** Repair all post bragScore fields from BragPoint counts. */
+/** Repair all media and post bragScore fields from MediaBragPoint counts. */
 export async function reconcileAllBragScores() {
-  const posts = await prisma.post.findMany({
+  const media = await prisma.postMedia.findMany({
     where: { bragPoints: { some: {} } },
-    select: { id: true, _count: { select: { bragPoints: true } } },
+    select: { id: true, postId: true, _count: { select: { bragPoints: true } } },
   });
 
-  for (const post of posts) {
+  const postTotals = new Map<string, number>();
+
+  for (const item of media) {
+    await prisma.postMedia.update({
+      where: { id: item.id },
+      data: { bragScore: item._count.bragPoints },
+    });
+    postTotals.set(item.postId, (postTotals.get(item.postId) ?? 0) + item._count.bragPoints);
+  }
+
+  for (const [postId, total] of postTotals) {
     await prisma.post.update({
-      where: { id: post.id },
-      data: { bragScore: post._count.bragPoints },
+      where: { id: postId },
+      data: { bragScore: total },
     });
   }
 }
