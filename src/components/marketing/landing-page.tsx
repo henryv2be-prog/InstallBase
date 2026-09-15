@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LandingHeroPreview } from "@/components/marketing/landing-hero-preview";
 import { LandingFeedWindow } from "@/components/marketing/landing-feed-window";
 import { LandingCommunityRail } from "@/components/marketing/landing-community-rail";
+import { LandingTrustBar, type LandingCommunityStats } from "@/components/marketing/landing-trust-bar";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { LANDING_PAGE_KEY } from "@/lib/constants";
 import type { PostCardData } from "@/lib/queries";
@@ -27,6 +28,7 @@ export interface LandingPageProps {
   questions: PostCardData[];
   trendingBrags: PostCardData[];
   installers: InstallerRow[];
+  stats: LandingCommunityStats;
 }
 
 export function LandingPage({
@@ -34,6 +36,7 @@ export function LandingPage({
   questions,
   trendingBrags,
   installers,
+  stats,
 }: LandingPageProps) {
   const heroPosts = feedPosts.filter((post) => post.media.length > 0);
 
@@ -51,7 +54,9 @@ export function LandingPage({
               <ThemeToggle />
             </div>
             <Link href="/feed" className="hidden sm:block">
-              <Button variant="ghost">Explore feed</Button>
+              <Button variant="ghost" className="text-muted">
+                Explore feed
+              </Button>
             </Link>
             <Link href="/login">
               <Button variant="ghost" size="sm" className="sm:h-10 sm:px-4 sm:text-sm">
@@ -71,13 +76,32 @@ export function LandingPage({
         <div className="pointer-events-none absolute -left-24 top-16 h-48 w-48 rounded-full bg-blue-500/10 blur-3xl sm:h-64 sm:w-64" />
         <div className="pointer-events-none absolute -right-24 top-32 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl sm:h-64 sm:w-64" />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-10 pt-8 sm:pb-12 sm:pt-10 lg:px-6 lg:pb-14 lg:pt-12">
-          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-8 pt-8 sm:pb-10 sm:pt-10 lg:px-6 lg:pb-12 lg:pt-12">
+          <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
             <div className="order-2 lg:order-1">
               <h1 className="text-[2rem] font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.25rem]">
                 Your work is{" "}
                 <span className="text-gradient">your CV.</span>
               </h1>
+              <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">
+                Build a public portfolio that clients and employers can actually see. Get site
+                answers faster than a WhatsApp group. Let good installs earn the recognition they
+                deserve.
+              </p>
+              <ul className="mt-4 space-y-2 text-sm text-foreground/85 sm:text-base">
+                <li className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 dark:bg-cyan-400" />
+                  <span>Turn the photos on your phone into a portfolio tied to your profile</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 dark:bg-cyan-400" />
+                  <span>Ask technical questions to installers who do the same work</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 dark:bg-cyan-400" />
+                  <span>Earn brag points when your installs stand out</span>
+                </li>
+              </ul>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link href="/signup" className="w-full sm:w-auto">
                   <Button size="lg" className="w-full sm:w-auto">
@@ -86,7 +110,7 @@ export function LandingPage({
                   </Button>
                 </Link>
                 <Link href="/feed" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  <Button size="lg" variant="ghost" className="w-full border border-border sm:w-auto">
                     Browse the feed
                   </Button>
                 </Link>
@@ -100,41 +124,39 @@ export function LandingPage({
         </div>
       </section>
 
-      <section className="relative z-10 border-b border-border bg-card/20 py-8 sm:py-10">
-        <div className="mx-auto max-w-2xl px-4 text-center lg:px-6">
-          <p className="text-base leading-relaxed text-muted sm:text-lg">
-            Post the installs you&apos;ve already photographed, ask the questions you&apos;d normally
-            send to a WhatsApp group, and let other installers brag the work that deserves it.
-          </p>
-        </div>
-      </section>
+      <LandingTrustBar stats={stats} />
 
-      <section className="relative z-10 py-10 sm:py-14">
+      <section className="relative z-10 py-8 sm:py-10">
         <div className="mx-auto max-w-7xl px-4 lg:px-6">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
             <LandingFeedWindow posts={feedPosts} />
             <LandingCommunityRail
               questions={questions}
               trendingBrags={trendingBrags}
               installers={installers}
+              stats={stats}
             />
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 border-t border-border py-14 sm:py-16">
+      <section className="relative z-10 border-t border-border py-12 sm:py-14">
         <div className="mx-auto max-w-3xl px-4 text-center lg:px-6">
           <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
             Ready to share your work?
           </h2>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
+          <p className="mt-3 text-muted">
+            Free to join. Post your first install in minutes.
+          </p>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
             <Link href="/signup" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto">
                 Join InstallBase — It&apos;s Free
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <Link href="/feed" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+              <Button size="lg" variant="ghost" className="w-full border border-border sm:w-auto">
                 Keep browsing
               </Button>
             </Link>

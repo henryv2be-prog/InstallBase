@@ -125,12 +125,15 @@ export function LandingPostPreview({ post, className, compact = false }: Landing
           {post.content}
         </p>
 
-        <div className="mt-3 overflow-hidden rounded-xl bg-slate-900/40 ring-1 ring-border">
+        <div className="mt-3 overflow-hidden rounded-xl bg-muted ring-1 ring-border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={post.image}
             alt={post.imageAlt}
-            className={cn("w-full object-cover", compact ? "aspect-[16/10]" : "aspect-[4/3]")}
+            className={cn(
+              "w-full bg-muted object-cover",
+              compact ? "aspect-[16/10]" : "aspect-[4/3]"
+            )}
             loading="lazy"
             decoding="async"
           />

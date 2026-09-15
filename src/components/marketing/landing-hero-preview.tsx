@@ -11,9 +11,11 @@ interface LandingHeroPreviewProps {
 function HeroCardStack({
   cards,
   className,
+  minHeight = "min-h-[420px] sm:min-h-[460px] lg:min-h-[520px]",
 }: {
   cards: ReactNode[];
   className?: string;
+  minHeight?: string;
 }) {
   const positions = [
     "left-0 top-0 z-10 w-[88%] rotate-[-1.5deg] sm:w-[78%]",
@@ -23,7 +25,7 @@ function HeroCardStack({
 
   return (
     <div className={cn("relative mx-auto w-full max-w-md lg:max-w-none", className)}>
-      <div className="relative min-h-[420px] sm:min-h-[460px] lg:min-h-[520px]">
+      <div className={cn("relative", minHeight)}>
         {cards.map((card, index) => (
           <div
             key={index}
@@ -42,31 +44,39 @@ function HeroCardStack({
 
 /** Stacked InstallBase post cards — live feed when available. */
 export function LandingHeroPreview({ posts = [] }: LandingHeroPreviewProps) {
-  const live = posts.filter((post) => post.media.length > 0).slice(0, 3);
-
-  if (live.length >= 3) {
-    return (
-      <HeroCardStack
-        cards={live.map((post) => (
-          <div key={post.id} className="origin-top scale-[0.94] sm:scale-100">
-            <PostCard post={post} bragPresentation="compact" showInlineComments={false} />
-          </div>
-        ))}
-      />
-    );
-  }
-
-  const featured = LANDING_EXAMPLE_POSTS[0];
-  const secondary = LANDING_EXAMPLE_POSTS[2];
-  const question = LANDING_EXAMPLE_POSTS[5];
+  const live = posts.filter((post) => post.media.length > 0);
+  const featured = live[0];
+  const featuredExample = LANDING_EXAMPLE_POSTS[0];
 
   return (
-    <HeroCardStack
-      cards={[
-        <LandingPostPreview key={featured.id} post={featured} />,
-        <LandingPostPreview key={secondary.id} post={secondary} compact />,
-        <LandingPostPreview key={question.id} post={question} compact />,
-      ]}
-    />
+    <>
+      <div className="sm:hidden">
+        {featured ? (
+          <PostCard post={featured} bragPresentation="compact" showInlineComments={false} />
+        ) : (
+          <LandingPostPreview post={featuredExample} />
+        )}
+      </div>
+
+      <div className="hidden sm:block">
+        {live.length >= 3 ? (
+          <HeroCardStack
+            cards={live.slice(0, 3).map((post) => (
+              <div key={post.id} className="origin-top scale-[0.94] sm:scale-100">
+                <PostCard post={post} bragPresentation="compact" showInlineComments={false} />
+              </div>
+            ))}
+          />
+        ) : (
+          <HeroCardStack
+            cards={[
+              <LandingPostPreview key={LANDING_EXAMPLE_POSTS[0].id} post={LANDING_EXAMPLE_POSTS[0]} />,
+              <LandingPostPreview key={LANDING_EXAMPLE_POSTS[2].id} post={LANDING_EXAMPLE_POSTS[2]} compact />,
+              <LandingPostPreview key={LANDING_EXAMPLE_POSTS[5].id} post={LANDING_EXAMPLE_POSTS[5]} compact />,
+            ]}
+          />
+        )}
+      </div>
+    </>
   );
 }
