@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Camera,
-  Trophy,
   HelpCircle,
   FolderKanban,
   ImagePlus,
@@ -16,16 +15,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createPost, uploadImage } from "@/lib/actions";
+import { updatePost } from "@/lib/actions";
+import { uploadMediaFile } from "@/lib/client-upload";
+import { useMediaUpload, type PendingPostPayload } from "@/components/feed/media-upload-context";
 import { MAX_POST_MEDIA, prepareMediaFile } from "@/lib/prepare-media";
 import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { PostType } from "@/generated/prisma/client";
+import type { PostIntent, PostType } from "@/generated/prisma/client";
+import { parseWorkDetails } from "@/lib/work-posts";
+import {
+  WorkDetailsFields,
+  type WorkDetailsFormState,
+} from "@/components/feed/work-details-fields";
 
-const DRAFT_KEY = "ib-create-draft-v1";
-
-type BragStats = { cameras: string; nvrs: string; fibre: string; storage: string };
+const DRAFT_KEY = "ib-create-draft-v4";
 
 type MediaItem = {
   id: string;
@@ -33,6 +37,7 @@ type MediaItem = {
   serverUrl?: string;
   kind: "image" | "video";
   status: "uploading" | "ready" | "error";
+  progress?: number;
   error?: string;
 };
 
@@ -40,24 +45,44 @@ type Draft = {
   type: PostType;
   content: string;
   title: string;
-  location: string;
-  bragStats: BragStats;
   media: { url: string; kind: "image" | "video" }[];
+  work: WorkDetailsFormState;
+  showWorkDetails: boolean;
 };
+
+const defaultWorkState = (): WorkDetailsFormState => ({
+  postIntent: "GENERAL",
+  workTrade: "",
+  workProjectType: "",
+  workDeviceCount: "",
+  workDate: "",
+  workEquipmentNotes: "",
+  location: "",
+  showExactLocation: false,
+});
 
 function readDraft(): Draft | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = sessionStorage.getItem(DRAFT_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as Draft;
+    const draft = JSON.parse(raw) as Draft & { location?: string };
+    if (draft.location && draft.work && !draft.work.location) {
+      draft.work.location = draft.location;
+    }
+    return draft;
   } catch {
     return null;
   }
 }
 
 function writeDraft(draft: Draft) {
-  const hasText = Boolean(draft.content.trim() || draft.title.trim() || draft.location.trim());
+  const hasText = Boolean(
+    draft.content.trim() ||
+      draft.title.trim() ||
+      draft.work.location.trim() ||
+      draft.work.workTrade.trim()
+  );
   const hasMedia = draft.media.length > 0;
   if (!hasText && !hasMedia && draft.type === "POST") {
     sessionStorage.removeItem(DRAFT_KEY);
@@ -74,76 +99,159 @@ function isVideoFile(file: File) {
   return file.type.startsWith("video/") || /\.(mp4|webm|mov)$/i.test(file.name);
 }
 
+interface EditPostInitial {
+  id: string;
+  type: PostType;
+  content: string;
+  title: string | null;
+  postIntent: PostIntent;
+  location: string | null;
+  showExactLocation: boolean;
+  workDate: Date | null;
+  workDetails: unknown;
+  categories: { category: { name: string } }[];
+  media: { url: string; type: string }[];
+}
+
 interface CreatePostCardProps {
   userName?: string | null;
   userImage?: string | null;
   compact?: boolean;
+  editPost?: EditPostInitial;
 }
 
-export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
+function buildWorkStateFromPost(post: EditPostInitial): WorkDetailsFormState {
+  const workDetails = parseWorkDetails(post.workDetails);
+  return {
+    postIntent: post.postIntent,
+    workTrade: workDetails.trade ?? post.categories[0]?.category.name ?? "",
+    workProjectType: workDetails.projectType ?? "",
+    workDeviceCount: workDetails.deviceCount ?? "",
+    workDate: post.workDate ? post.workDate.toISOString().slice(0, 10) : "",
+    workEquipmentNotes: workDetails.equipmentNotes ?? "",
+    location: post.location ?? "",
+    showExactLocation: post.showExactLocation,
+  };
+}
+
+function hasWorkDetails(state: WorkDetailsFormState) {
+  return Boolean(
+    state.workTrade.trim() ||
+      state.workProjectType.trim() ||
+      state.workDeviceCount.trim() ||
+      state.workDate.trim() ||
+      state.workEquipmentNotes.trim() ||
+      state.location.trim() ||
+      state.postIntent !== "GENERAL"
+  );
+}
+
+export function CreatePostCard({ userName, compact, editPost }: CreatePostCardProps) {
+  const isEditing = Boolean(editPost);
+  const globalUpload = useMediaUpload();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [pending, startTransition] = useTransition();
-  const [expanded, setExpanded] = useState(!compact);
-  const [type, setType] = useState<PostType>("POST");
-  const [content, setContent] = useState("");
-  const [title, setTitle] = useState("");
-  const [location, setLocation] = useState("");
-  const [bragStats, setBragStats] = useState<BragStats>({ cameras: "", nvrs: "", fibre: "", storage: "" });
-  const [media, setMedia] = useState<MediaItem[]>([]);
-  const [hydrated, setHydrated] = useState(false);
-  const mediaRef = useRef(media);
-  mediaRef.current = media;
+  const [editPending, startEditTransition] = useTransition();
+  const [expanded, setExpanded] = useState(!compact || isEditing);
+  const [type, setType] = useState<PostType>(editPost?.type ?? "POST");
+  const [content, setContent] = useState(editPost?.content ?? "");
+  const [title, setTitle] = useState(editPost?.title ?? "");
+  const [work, setWork] = useState<WorkDetailsFormState>(
+    editPost ? buildWorkStateFromPost(editPost) : defaultWorkState()
+  );
+  const [showWorkDetails, setShowWorkDetails] = useState(
+    editPost ? hasWorkDetails(buildWorkStateFromPost(editPost)) : false
+  );
+  const [editMedia, setEditMedia] = useState<MediaItem[]>(
+    editPost
+      ? editPost.media.map((item) => ({
+          id: crypto.randomUUID(),
+          previewUrl: item.url,
+          serverUrl: item.url,
+          kind: item.type === "video" ? "video" : "image",
+          status: "ready" as const,
+        }))
+      : []
+  );
+  const [hydrated, setHydrated] = useState(isEditing);
+  const editMediaRef = useRef(editMedia);
+  editMediaRef.current = editMedia;
+
+  const media = isEditing ? editMedia : globalUpload.items;
+  const uploading = isEditing
+    ? editMedia.some((item) => item.status === "uploading")
+    : globalUpload.isUploading;
+  const failedCount = isEditing
+    ? editMedia.filter((item) => item.status === "error").length
+    : globalUpload.failedCount;
+  const readyUrls = isEditing
+    ? editMedia.filter((item) => item.status === "ready" && item.serverUrl).map((item) => item.serverUrl!)
+    : globalUpload.readyUrls;
+  const postQueued = !isEditing && globalUpload.postQueued;
+  const pending = isEditing ? editPending : globalUpload.isSubmitting;
 
   useEffect(() => {
+    if (isEditing) return;
     const draft = readDraft();
     if (draft) {
       setType(draft.type === "BRAG" ? "POST" : draft.type);
       setContent(draft.content);
       setTitle(draft.title);
-      setLocation(draft.location);
-      setBragStats(draft.bragStats);
-      setMedia(
-        draft.media.map((item) => ({
-          id: crypto.randomUUID(),
-          previewUrl: item.url,
-          serverUrl: item.url,
-          kind: item.kind,
-          status: "ready",
-        }))
-      );
+      setWork(draft.work ?? defaultWorkState());
+      setShowWorkDetails(draft.showWorkDetails ?? false);
+      if (draft.media.length > 0) {
+        globalUpload.seedReadyMedia(draft.media);
+      }
       if (compact) setExpanded(true);
     }
     setHydrated(true);
   }, [compact]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isEditing) return;
     writeDraft({
       type,
       content,
       title,
-      location,
-      bragStats,
+      work,
+      showWorkDetails,
       media: media
         .filter((item) => item.status === "ready" && item.serverUrl)
         .map((item) => ({ url: item.serverUrl!, kind: item.kind })),
     });
-  }, [hydrated, type, content, title, location, bragStats, media]);
+  }, [hydrated, isEditing, type, content, title, work, showWorkDetails, media]);
 
   useEffect(() => {
+    if (isEditing) return;
+    if (type === "PROJECT") {
+      setWork((prev) => ({ ...prev, postIntent: "PROJECT_INSTALLATION" }));
+    } else if (type === "QUESTION") {
+      setWork((prev) => ({ ...prev, postIntent: "GENERAL" }));
+    }
+  }, [isEditing, type]);
+
+  useEffect(() => {
+    if (!isEditing && compact && globalUpload.items.length > 0) {
+      setExpanded(true);
+    }
+  }, [compact, isEditing, globalUpload.items.length]);
+
+  useEffect(() => {
+    if (isEditing) return;
     return () => {
-      for (const item of mediaRef.current) {
+      for (const item of editMediaRef.current) {
         if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
       }
     };
-  }, []);
+  }, [isEditing]);
 
-  const uploading = media.some((item) => item.status === "uploading");
-  const readyUrls = media.filter((item) => item.status === "ready" && item.serverUrl).map((item) => item.serverUrl!);
-  const canPost = (content.trim().length > 0 || readyUrls.length > 0) && !uploading && !pending;
+  const hasText = content.trim().length > 0 || title.trim().length > 0;
+  const canPost =
+    !pending &&
+    failedCount === 0 &&
+    (hasText || readyUrls.length > 0 || media.some((item) => item.status === "uploading"));
 
-  const uploadFile = async (id: string, file: File) => {
+  const uploadEditFile = async (id: string, file: File) => {
     try {
       const prepared = await prepareMediaFile(file);
       const limit = maxBytesForUpload(prepared);
@@ -154,11 +262,13 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
             : "Photo is still too large after compression"
         );
       }
-      const formData = new FormData();
-      formData.append("file", prepared);
-      const result = await uploadImage(formData);
-      if (result.error) throw new Error(result.error);
-      setMedia((prev) =>
+      const result = await uploadMediaFile(prepared, (progress) => {
+        setEditMedia((prev) =>
+          prev.map((item) => (item.id === id ? { ...item, progress } : item))
+        );
+      });
+      if ("error" in result) throw new Error(result.error);
+      setEditMedia((prev) =>
         prev.map((item) =>
           item.id === id
             ? {
@@ -166,13 +276,14 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
                 status: "ready",
                 serverUrl: result.url,
                 kind: result.type === "video" ? "video" : "image",
+                progress: undefined,
                 error: undefined,
               }
             : item
         )
       );
     } catch (error) {
-      setMedia((prev) =>
+      setEditMedia((prev) =>
         prev.map((item) =>
           item.id === id
             ? { ...item, status: "error", error: error instanceof Error ? error.message : "Upload failed" }
@@ -183,9 +294,15 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   };
 
   const addFiles = (fileList: FileList | File[]) => {
+    if (!isEditing) {
+      globalUpload.addFiles(fileList);
+      setExpanded(true);
+      return;
+    }
+
     const incoming = Array.from(fileList);
     if (incoming.length === 0) return;
-    const room = MAX_POST_MEDIA - media.length;
+    const room = MAX_POST_MEDIA - editMedia.length;
     if (room <= 0) {
       toast.error(`You can add up to ${MAX_POST_MEDIA} photos`);
       return;
@@ -202,10 +319,10 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
       status: "uploading",
     }));
 
-    setMedia((prev) => [...prev, ...next]);
+    setEditMedia((prev) => [...prev, ...next]);
     setExpanded(true);
     for (const [index, item] of next.entries()) {
-      void uploadFile(item.id, chosen[index]);
+      void uploadEditFile(item.id, chosen[index]);
     }
   };
 
@@ -217,7 +334,11 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   };
 
   const removeMedia = (id: string) => {
-    setMedia((prev) => {
+    if (!isEditing) {
+      globalUpload.removeItem(id);
+      return;
+    }
+    setEditMedia((prev) => {
       const item = prev.find((m) => m.id === id);
       if (item?.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
       return prev.filter((m) => m.id !== id);
@@ -225,70 +346,104 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   };
 
   const retryMedia = (item: MediaItem) => {
+    if (!isEditing) {
+      globalUpload.retryItem(item.id);
+      return;
+    }
     if (!item.previewUrl.startsWith("blob:")) {
       toast.error("Choose the photo again to retry");
       fileRef.current?.click();
       return;
     }
-    setMedia((prev) => prev.map((m) => (m.id === item.id ? { ...m, status: "uploading", error: undefined } : m)));
+    setEditMedia((prev) => prev.map((m) => (m.id === item.id ? { ...m, status: "uploading", error: undefined, progress: 0 } : m)));
     void fetch(item.previewUrl)
       .then((res) => res.blob())
-      .then((blob) => uploadFile(item.id, new File([blob], "photo.jpg", { type: blob.type || "image/jpeg" })));
+      .then((blob) => {
+        const name = item.kind === "video" ? "video.mp4" : "photo.jpg";
+        const type = item.kind === "video" ? blob.type || "video/mp4" : blob.type || "image/jpeg";
+        return uploadEditFile(item.id, new File([blob], name, { type }));
+      });
   };
 
+  const buildPayload = (): PendingPostPayload => ({
+    type,
+    content,
+    title,
+    work,
+    editPostId: editPost?.id,
+  });
+
   const resetComposer = () => {
-    for (const item of media) {
-      if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
+    if (isEditing) {
+      for (const item of editMedia) {
+        if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
+      }
+      setEditMedia([]);
+    } else {
+      globalUpload.clearItems();
+      globalUpload.cancelQueuedPost();
     }
     setContent("");
     setTitle("");
-    setLocation("");
-    setMedia([]);
-    setBragStats({ cameras: "", nvrs: "", fibre: "", storage: "" });
+    setWork(defaultWorkState());
+    setShowWorkDetails(false);
     setType("POST");
     clearDraft();
     if (compact) setExpanded(false);
   };
 
-  const handleSubmit = () => {
-    if (uploading) {
-      toast.error("Wait for photos to finish uploading");
-      return;
-    }
+  const performEditSubmit = () => {
     if (!content.trim() && readyUrls.length === 0) {
       toast.error("Add a photo or write something first");
       return;
     }
-    const failed = media.filter((item) => item.status === "error").length;
-    startTransition(async () => {
+    const failed = editMedia.filter((item) => item.status === "error").length;
+    startEditTransition(async () => {
       const formData = new FormData();
-      formData.append("type", type);
+      formData.append("postId", editPost!.id);
       formData.append("content", content);
       if (title) formData.append("title", title);
-      if (location) formData.append("location", location);
+      formData.append("postIntent", work.postIntent);
+      formData.append("showExactLocation", work.showExactLocation ? "true" : "false");
+      if (work.location.trim()) formData.append("location", work.location.trim());
+      if (work.workTrade) formData.append("workTrade", work.workTrade);
+      if (work.workProjectType) formData.append("workProjectType", work.workProjectType);
+      if (work.workDeviceCount) formData.append("workDeviceCount", work.workDeviceCount);
+      if (work.workDate) formData.append("workDate", work.workDate);
+      if (work.workEquipmentNotes) formData.append("workEquipmentNotes", work.workEquipmentNotes);
       readyUrls.forEach((url) => formData.append("mediaUrls", url));
-      const details = Object.fromEntries(
-        Object.entries(bragStats).filter(([, value]) => value.trim())
-      );
-      if (type !== "QUESTION" && Object.keys(details).length > 0) {
-        formData.append("bragDetails", JSON.stringify(details));
-      }
       try {
-        const result = await createPost(formData);
+        const result = await updatePost(formData);
         if (result && "error" in result && result.error) {
           toast.error(result.error);
           return;
         }
-        toast.success(failed ? "Posted — some photos didn’t upload" : "Posted!");
-        const postId = result && "postId" in result ? result.postId : undefined;
+        toast.success(failed ? "Updated — some photos didn’t upload" : "Post updated");
         resetComposer();
-        if (postId) router.push(`/post/${postId}`);
-        else router.push("/feed");
+        router.push(`/post/${editPost!.id}`);
         router.refresh();
       } catch {
-        toast.error("Failed to create post");
+        toast.error("Failed to update post");
       }
     });
+  };
+
+  const handleSubmit = () => {
+    if (isEditing) {
+      if (uploading) {
+        toast.error("Wait for uploads to finish before saving");
+        return;
+      }
+      performEditSubmit();
+      return;
+    }
+
+    if (uploading && !hasText) {
+      toast.error("Write your question or caption while the video uploads");
+      return;
+    }
+
+    globalUpload.submitNow(buildPayload());
   };
 
   const fileInput = (
@@ -302,17 +457,42 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
     />
   );
 
-  if (compact && !expanded) {
+  if (compact && !expanded && !isEditing) {
+    const openMedia = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setType("POST");
+      setExpanded(true);
+    };
+    const openQuestion = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setType("QUESTION");
+      setExpanded(true);
+    };
+
     return (
-      <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => setExpanded(true)}>
+      <Card className="glass-card cursor-pointer transition-shadow hover:shadow-md" onClick={() => setExpanded(true)}>
         {fileInput}
         <CardContent className="p-4">
-          <p className="text-gray-500">
+          <p className="text-muted">
             What&apos;s happening on your install, {userName?.split(" ")[0] ?? "installer"}?
           </p>
-          <div className="mt-3 flex gap-3 text-sm text-muted">
-            <span className="flex items-center gap-1 text-blue-600"><Camera className="h-4 w-4" /> Photo</span>
-            <span className="flex items-center gap-1"><HelpCircle className="h-4 w-4" /> Ask</span>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={openMedia}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border bg-card/60 px-3 py-2 text-sm font-medium text-primary hover:bg-card"
+            >
+              <Camera className="h-4 w-4" />
+              Photo or Video
+            </button>
+            <button
+              type="button"
+              onClick={openQuestion}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border bg-card/60 px-3 py-2 text-sm font-medium text-muted hover:bg-card hover:text-foreground"
+            >
+              <HelpCircle className="h-4 w-4" />
+              Ask
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -320,13 +500,14 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
   }
 
   return (
-    <Card>
+    <Card className="glass-card">
       {fileInput}
       <CardContent className={cn("p-5", compact && "pt-5")}>
         <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">
-          What&apos;s happening on your install?
+          {isEditing ? "Edit your post" : "What's happening on your install?"}
         </h2>
 
+        {!isEditing && (
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Button
             type="button"
@@ -358,6 +539,7 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
             Project
           </Button>
         </div>
+        )}
 
         <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
           {media.map((item) => (
@@ -372,8 +554,11 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
                 <img src={item.previewUrl} alt="" className="h-full w-full object-cover" />
               )}
               {item.status === "uploading" && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/45">
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/45 p-2 text-center">
                   <Loader2 className="h-6 w-6 animate-spin text-white" />
+                  {typeof item.progress === "number" && item.progress > 0 && (
+                    <p className="text-[10px] font-medium text-white">{item.progress}%</p>
+                  )}
                 </div>
               )}
               {item.status === "error" && (
@@ -406,7 +591,7 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
               className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border bg-card/40 text-muted hover:border-blue-500/50 hover:text-foreground"
             >
               <ImagePlus className="h-6 w-6" />
-              <span className="text-[11px] font-medium">{media.length === 0 ? "Add photos" : "Add more"}</span>
+              <span className="text-[11px] font-medium">{media.length === 0 ? "Add photo or video" : "Add more"}</span>
             </button>
           )}
         </div>
@@ -426,37 +611,39 @@ export function CreatePostCard({ userName, compact }: CreatePostCardProps) {
             className="mb-3"
           />
         )}
-        <Input
-          placeholder="Location (optional)"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="mb-3"
-        />
-        {type !== "QUESTION" && (
-          <div className="mb-3">
-            <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-orange-600">
-              <Trophy className="h-3.5 w-3.5" />
-              Job stats (optional) — every install can get brag points
-            </p>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <Input placeholder="Cameras" value={bragStats.cameras} onChange={(e) => setBragStats({ ...bragStats, cameras: e.target.value })} />
-              <Input placeholder="NVRs" value={bragStats.nvrs} onChange={(e) => setBragStats({ ...bragStats, nvrs: e.target.value })} />
-              <Input placeholder="Fibre" value={bragStats.fibre} onChange={(e) => setBragStats({ ...bragStats, fibre: e.target.value })} />
-              <Input placeholder="Storage" value={bragStats.storage} onChange={(e) => setBragStats({ ...bragStats, storage: e.target.value })} />
-            </div>
-          </div>
+
+        {(type === "PROJECT" || type === "POST" || type === "VIDEO") && (
+          <WorkDetailsFields
+            open={showWorkDetails}
+            onToggle={() => setShowWorkDetails((value) => !value)}
+            state={work}
+            onChange={(patch) => setWork((prev) => ({ ...prev, ...patch }))}
+            showIntentPicker={type !== "PROJECT"}
+          />
         )}
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">
-            {uploading
-              ? "Uploading photos — they’ll stay in your draft if you switch screens."
-              : media.length > 0
-                ? `${readyUrls.length} photo${readyUrls.length === 1 ? "" : "s"} ready`
-                : "Photos are compressed on your phone so they don’t get dropped."}
+            {postQueued && uploading
+              ? "Uploads running — we'll publish as soon as they finish."
+              : uploading
+                ? "Uploading in the background — keep browsing, or tap Post now."
+                : media.length > 0
+                  ? `${readyUrls.length} of ${media.length} file${media.length === 1 ? "" : "s"} ready`
+                  : "Photos are compressed on your phone. Videos up to 200MB upload over Wi‑Fi when possible."}
           </p>
           <Button onClick={handleSubmit} disabled={!canPost} className="min-w-24">
-            {pending ? "Posting..." : uploading ? "Uploading..." : "Post"}
+            {pending
+              ? isEditing
+                ? "Saving..."
+                : "Posting..."
+              : postQueued && uploading
+                ? "Publishing soon..."
+                : uploading
+                  ? "Post anyway"
+                  : isEditing
+                    ? "Save changes"
+                    : "Post"}
           </Button>
         </div>
       </CardContent>

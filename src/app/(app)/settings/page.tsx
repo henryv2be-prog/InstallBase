@@ -5,13 +5,20 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { InstallInstructions } from "@/components/pwa/install-instructions";
 import { PushNotificationToggle } from "@/components/pwa/push-toggle";
 import { ProfileSettingsForm } from "@/components/settings/profile-settings-form";
+import { PlatformPurposesForm } from "@/components/settings/platform-purposes-form";
+import { AvatarUpload } from "@/components/settings/avatar-upload";
+import { PasswordChangeForm } from "@/components/settings/password-change-form";
 import { getVapidPublicKey } from "@/lib/vapid";
+import { getUserPlatformRoles } from "@/lib/queries";
+import { needsProfessionalDetails } from "@/lib/platform-roles";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
 import { LogoutButton } from "@/components/auth/logout-button";
 
 export const metadata = { title: "Settings" };
+export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -36,6 +43,8 @@ export default async function SettingsPage() {
   if (!user?.profile) redirect("/login");
 
   const profile = user.profile;
+  const platformRoles = await getUserPlatformRoles(user.id);
+  const showProfessionalFields = needsProfessionalDetails(platformRoles);
   const vapidPublicKey = getVapidPublicKey();
 
   return (
@@ -50,9 +59,19 @@ export default async function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
+          <CardTitle>How I use InstallBase</CardTitle>
         </CardHeader>
         <CardContent>
+          <PlatformPurposesForm initialRoles={platformRoles} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <AvatarUpload name={user.name} image={user.image} />
           <ProfileSettingsForm
             name={user.name ?? ""}
             username={profile.username}
@@ -63,6 +82,14 @@ export default async function SettingsPage() {
             experience={profile.experienceLevel}
             specialties={profile.specialties}
             website={profile.website}
+            openToWork={profile.openToWork}
+            availableForContract={profile.availableForContract}
+            availableForSubcontract={profile.availableForSubcontract}
+            willingToTravel={profile.willingToTravel}
+            serviceRadiusKm={profile.serviceRadiusKm}
+            employmentStatus={profile.employmentStatus}
+            certifications={profile.certifications}
+            showProfessionalFields={showProfessionalFields}
           />
           <div className="mt-4">
             <Link href={`/profile/${profile.username}`}>
@@ -90,10 +117,7 @@ export default async function SettingsPage() {
           <CardTitle>Install app</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted">
-          <p>
-            InstallBase can run like a native app. On iPhone, tap Share → Add to Home Screen.
-            On Android, use the browser menu → Install app / Add to Home screen.
-          </p>
+          <InstallInstructions />
         </CardContent>
       </Card>
 
@@ -102,6 +126,7 @@ export default async function SettingsPage() {
           <CardTitle>Account</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <PasswordChangeForm />
           <p className="text-sm text-muted">Sign out of InstallBase on this device.</p>
           <LogoutButton />
         </CardContent>

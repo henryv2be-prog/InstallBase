@@ -64,6 +64,13 @@
 
 html {
   -webkit-tap-highlight-color: transparent;
+  background: #050810;
+  color-scheme: dark;
+}
+
+html.light {
+  background: #f0f4f8;
+  color-scheme: light;
 }
 
 body {
@@ -183,12 +190,38 @@ body {
   animation: fade-in 0.35s ease-out;
 }
 
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  .animate-fade-in {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation: none;
+  }
+}
+
 .animate-pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+.brag-accent {
+  color: var(--brag);
+}
+
+.brag-card {
+  border-color: color-mix(in srgb, var(--brag) 40%, var(--border));
+  background: color-mix(in srgb, var(--brag) 6%, var(--card));
+}
+
+.brag-card-header {
+  background: linear-gradient(90deg, var(--brag), color-mix(in srgb, var(--brag) 70%, #fbbf24));
+  color: white;
 }
 
 .safe-top {

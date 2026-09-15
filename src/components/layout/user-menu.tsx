@@ -5,7 +5,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Settings, LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
-import { signOut } from "next-auth/react";
+import { logout } from "@/lib/logout";
 import { useTransition } from "react";
 
 interface UserMenuProps {
@@ -50,7 +50,10 @@ export function UserMenu({ name, image, username }: UserMenuProps) {
           <DropdownMenu.Item
             className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 outline-none hover:bg-red-50 dark:hover:bg-red-950/30"
             disabled={pending}
-            onSelect={() => startTransition(() => signOut({ callbackUrl: "/" }))}
+            onSelect={(event) => {
+              event.preventDefault();
+              startTransition(() => logout("/"));
+            }}
           >
             <LogOut className="h-4 w-4" />
             {pending ? "Logging out..." : "Log out"}

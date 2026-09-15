@@ -1,12 +1,5 @@
-import { PostSkeleton } from "@/components/ui/skeleton";
+import { AppPageSkeleton } from "@/components/layout/app-page-skeleton";
 
 export default function AppLoading() {
-  return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      <div className="h-8 w-40 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800" />
-      <div className="h-4 w-64 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800" />
-      <PostSkeleton />
-      <PostSkeleton />
-    </div>
-  );
+  return <AppPageSkeleton />;
 }

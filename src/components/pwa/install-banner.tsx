@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Download, Share, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { IB_MARK_BOX_CLASS, IbMark } from "@/components/ui/ib-mark";
 import {
   NOTIFY_PROMPT_DISMISS_KEY,
   isIosDevice,
   isStandaloneDisplay,
+  prefersManualHomeScreenInstall,
 } from "@/components/pwa/device";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -46,8 +48,10 @@ export function PwaInstallBanner() {
     return () => window.removeEventListener("beforeinstallprompt", onPrompt);
   }, [status]);
 
+  const manualInstall = prefersManualHomeScreenInstall();
+
   if (standalone || dismissed || deferForNotify) return null;
-  if (!deferred && !isIOS) return null;
+  if (!deferred && !manualInstall) return null;
 
   const dismiss = () => {
     localStorage.setItem(DISMISS_KEY, "1");
@@ -63,20 +67,29 @@ export function PwaInstallBanner() {
   return (
     <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[60] px-3 md:bottom-4">
       <div className="mx-auto flex max-w-lg items-start gap-3 rounded-2xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-xl">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 font-mono text-sm font-bold text-white">
-          IB
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white">
+          <IbMark className={IB_MARK_BOX_CLASS} />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold">Install InstallBase</p>
-          {isIOS ? (
+          {manualInstall ? (
             <p className="mt-0.5 text-xs text-muted">
-              Tap <Share className="inline h-3 w-3" /> Share, then{" "}
-              <strong>Add to Home Screen</strong> for app-like use.
+              {isIOS ? (
+                <>
+                  Tap <Share className="inline h-3 w-3" /> Share, then{" "}
+                  <strong>Add to Home Screen</strong> for app-like use.
+                </>
+              ) : (
+                <>
+                  Tap the browser menu (⋮), then <strong>Add to Home screen</strong>. On Huawei, skip the
+                  &quot;Install app&quot; popup if it loops — the menu shortcut works better.
+                </>
+              )}
             </p>
           ) : (
             <p className="mt-0.5 text-xs text-muted">Add to your home screen for a faster, full-screen experience.</p>
           )}
-          {!isIOS && deferred && (
+          {!manualInstall && deferred && (
             <Button size="sm" className="mt-2" onClick={install}>
               <Download className="h-3.5 w-3.5" />
               Install

@@ -1,19 +1,38 @@
-import { auth } from "@/lib/auth";
-import { AppShell } from "@/components/layout/app-shell";
+import { Suspense } from "react";
+import { getSession } from "@/lib/session";
+import { AppShell, AppShellFallback } from "@/components/layout/app-shell";
+import { AppPageSkeleton } from "@/components/layout/app-page-skeleton";
+import { AppProviders } from "@/components/layout/app-providers";
 import { NotificationPrompt } from "@/components/pwa/notification-prompt";
 import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { getVapidPublicKey } from "@/lib/vapid";
-import { getActivityCounts } from "@/lib/queries";
 
-export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+export const dynamic = "force-dynamic";
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense
+      fallback={
+        <AppShellFallback>
+          <AppPageSkeleton />
+        </AppShellFallback>
+      }
+    >
+      <AppLayoutSession>{children}</AppLayoutSession>
+    </Suspense>
+  );
+}
+
+async function AppLayoutSession({ children }: { children: React.ReactNode }) {
+  const session = await getSession();
   const user = session?.user ?? null;
   const vapidPublicKey = getVapidPublicKey();
-  const activityCount = user?.id ? (await getActivityCounts(user.id)).total : 0;
 
   return (
     <>
-      <AppShell user={user} activityCount={activityCount}>{children}</AppShell>
+      <AppProviders signedIn={Boolean(user)}>
+        <AppShell user={user}>{children}</AppShell>
+      </AppProviders>
       {user ? <PresenceHeartbeat /> : null}
       {user && vapidPublicKey ? <NotificationPrompt vapidPublicKey={vapidPublicKey} /> : null}
     </>

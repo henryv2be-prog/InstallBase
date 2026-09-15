@@ -1,7 +1,7 @@
 "use client";
 
-import { useTransition, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { toggleFollow } from "@/lib/actions";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ interface FollowButtonProps {
   currentUserId?: string;
   initialFollowing?: boolean;
   followsYou?: boolean;
+  targetName?: string;
 }
 
 export function FollowButton({
@@ -21,6 +22,7 @@ export function FollowButton({
   currentUserId,
   initialFollowing = false,
   followsYou = false,
+  targetName,
 }: FollowButtonProps) {
   const [following, setFollowing] = useState(initialFollowing);
   const [pending, startTransition] = useTransition();
@@ -29,8 +31,9 @@ export function FollowButton({
   if (currentUserId === userId) return null;
 
   if (!currentUserId) {
+    const label = targetName ? `Join to follow ${targetName}` : "Join to follow";
     return (
-      <Button size="sm" asChild>
+      <Button size="sm" asChild title={label}>
         <Link href={signupHref()}>
           <UserPlus className="h-4 w-4" />
           Follow
@@ -49,6 +52,7 @@ export function FollowButton({
         const result = await toggleFollow(userId);
         setFollowing(result.following ?? !previous);
         router.refresh();
+        if (!previous) toast.success("Following — see their posts in your Following feed");
       } catch {
         setFollowing(previous);
         toast.error("Failed to update follow");

@@ -12,6 +12,14 @@ enum UserRole {
   ADMIN
 }
 
+enum PlatformRole {
+  PROFESSIONAL
+  COMPANY_REP
+  EMPLOYER
+  CUSTOMER
+  SEEKING_WORK
+}
+
 enum ExperienceLevel {
   APPRENTICE
   ONE_TO_THREE
@@ -35,6 +43,27 @@ enum PostType {
   QUESTION
   PROJECT
   VIDEO
+}
+
+enum PostIntent {
+  GENERAL
+  PROJECT_INSTALLATION
+  SERVICE_REPAIR
+  PRODUCT_EQUIPMENT
+  TRAINING_CERTIFICATION
+  JOB_VACANCY
+  LOOKING_FOR_WORK
+  LOOKING_FOR_SUBCONTRACTORS
+  LOOKING_FOR_PROFESSIONAL
+}
+
+enum EmploymentStatus {
+  EMPLOYED
+  SELF_EMPLOYED
+  CONTRACTOR
+  APPRENTICE
+  STUDENT
+  BETWEEN_JOBS
 }
 
 enum ReportReason {
@@ -98,6 +127,19 @@ model User {
   projects      Project[]
   reputation    Reputation?
   pushSubscriptions PushSubscription[]
+  passwordResetTokens PasswordResetToken[]
+  platformRoles     UserPlatformRole[]
+}
+
+model UserPlatformRole {
+  userId    String
+  role      PlatformRole
+  createdAt DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, role])
+  @@index([role])
 }
 
 model Account {
@@ -135,6 +177,18 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 model Profile {
   id              String            @id @default(cuid())
   userId          String            @unique
@@ -149,15 +203,23 @@ model Profile {
   verified        Boolean           @default(false)
   bragCount       Int               @default(0)
   helpfulAnswers  Int               @default(0)
-  coverImage      String?
-  website         String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  coverImage              String?
+  website                 String?
+  openToWork              Boolean           @default(false)
+  availableForContract    Boolean           @default(false)
+  availableForSubcontract Boolean           @default(false)
+  willingToTravel         Boolean           @default(false)
+  serviceRadiusKm         Int?
+  employmentStatus        EmploymentStatus?
+  certifications          String[]
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([username])
   @@index([city, country])
+  @@index([openToWork])
 }
 
 model Category {
@@ -208,19 +270,24 @@ model Tag {
 }
 
 model Post {
-  id          String    @id @default(cuid())
-  authorId    String
-  type        PostType  @default(POST)
-  title       String?
-  content     String
-  location    String?
-  solved      Boolean   @default(false)
-  featured    Boolean   @default(false)
-  bragScore   Int       @default(0)
-  bragDetails Json?
-  viewCount   Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                String     @id @default(cuid())
+  authorId          String
+  type              PostType   @default(POST)
+  postIntent        PostIntent @default(GENERAL)
+  title             String?
+  content           String
+  location          String?
+  workDate          DateTime?
+  workDetails       Json?
+  showExactLocation Boolean    @default(false)
+  inPortfolio       Boolean    @default(false)
+  solved            Boolean    @default(false)
+  featured          Boolean    @default(false)
+  bragScore         Int        @default(0)
+  bragDetails       Json?
+  viewCount         Int        @default(0)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
   media       PostMedia[]
@@ -237,6 +304,8 @@ model Post {
   @@index([authorId])
   @@index([type, createdAt])
   @@index([createdAt])
+  @@index([authorId, inPortfolio, createdAt])
+  @@index([postIntent, createdAt])
 }
 
 model PostMedia {
@@ -511,4 +580,222 @@ model PushSubscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// ─── Advertising ───────────────────────────────────────────────────────────
+
+enum AdType {
+  IMAGE
+  BANNER
+  SPONSORED_POST
+  SPONSORED_PRODUCT
+  SPONSORED_ARTICLE
+  VIDEO
+}
+
+enum AdStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+  COMPLETED
+}
+
+enum PricingModel {
+  CPM
+  CPC
+  FLAT_RATE
+  MONTHLY
+  PACKAGE
+}
+
+enum AdDeviceTarget {
+  ALL
+  MOBILE
+  DESKTOP
+  TABLET
+}
+
+enum AdEventType {
+  IMPRESSION
+  CLICK
+}
+
+model Advertiser {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  description  String?
+  logoUrl      String?
+  website      String?
+  contactEmail String?
+  contactPhone String?
+  companyType  String?
+  userId       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  campaigns      AdCampaign[]
+  advertisements Advertisement[]
+
+  @@index([userId])
+}
+
+model AdInventory {
+  id            String         @id @default(cuid())
+  placementKey  String         @unique
+  name          String
+  description   String?
+  format        String         @default("card")
+  width         Int?
+  height        Int?
+  deviceSupport AdDeviceTarget @default(ALL)
+  enabled       Boolean        @default(true)
+  pricingConfig Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model AdCampaign {
+  id           String         @id @default(cuid())
+  advertiserId String
+  name         String
+  description  String?
+  status       CampaignStatus @default(DRAFT)
+  pricingModel PricingModel?
+  budget       Decimal?       @db.Decimal(12, 2)
+  spent        Decimal        @default(0) @db.Decimal(12, 2)
+  startDate    DateTime?
+  endDate      DateTime?
+  priority     Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  advertiser     Advertiser      @relation(fields: [advertiserId], references: [id], onDelete: Cascade)
+  advertisements Advertisement[]
+  events         AdEvent[]
+  dailyStats     AdDailyStats[]
+
+  @@index([advertiserId])
+  @@index([status, startDate, endDate])
+}
+
+model Advertisement {
+  id                 String   @id @default(cuid())
+  campaignId         String
+  advertiserId       String
+  title              String
+  description        String?
+  type               AdType
+  placements         String[]
+  status             AdStatus @default(DRAFT)
+  mediaUrl           String?
+  mediaType          String?
+  destinationUrl     String
+  ctaText            String?
+  isInternalLink     Boolean  @default(false)
+  sponsoredProductId String?
+  sponsoredPostId    String?
+  priority           Int      @default(0)
+  impressions        Int      @default(0)
+  clicks             Int      @default(0)
+  uniqueImpressions  Int      @default(0)
+  uniqueClicks       Int      @default(0)
+  startDate          DateTime?
+  endDate            DateTime?
+  targetingRules     Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  campaign   AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  advertiser Advertiser @relation(fields: [advertiserId], references: [id], onDelete: Cascade)
+  events     AdEvent[]
+  dailyStats AdDailyStats[]
+
+  @@index([campaignId])
+  @@index([advertiserId])
+  @@index([status])
+  @@index([status, startDate, endDate])
+}
+
+model AdEvent {
+  id              String      @id @default(cuid())
+  advertisementId String
+  campaignId      String
+  placementKey    String
+  eventType       AdEventType
+  viewerKey       String?
+  deviceType      String?
+  createdAt       DateTime    @default(now())
+
+  advertisement Advertisement @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+  campaign      AdCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([advertisementId, eventType, createdAt])
+  @@index([campaignId, createdAt])
+  @@index([placementKey, createdAt])
+  @@index([viewerKey, advertisementId, eventType, createdAt])
+}
+
+model AdDailyStats {
+  id                String   @id @default(cuid())
+  advertisementId   String
+  campaignId        String
+  placementKey      String
+  date              DateTime @db.Date
+  impressions       Int      @default(0)
+  clicks            Int      @default(0)
+  uniqueImpressions Int      @default(0)
+  uniqueClicks      Int      @default(0)
+
+  advertisement Advertisement @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+  campaign      AdCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([advertisementId, placementKey, date])
+  @@index([campaignId, date])
+}
+
+model AdSettings {
+  id                 String   @id @default("global")
+  adsEnabled         Boolean  @default(true)
+  sponsoredEnabled   Boolean  @default(true)
+  analyticsEnabled   Boolean  @default(true)
+  maxFeedAds         Int      @default(3)
+  minPostsBetweenAds Int      @default(4)
+  maxPageAds         Int      @default(5)
+  mobileMaxFeedAds   Int      @default(2)
+  desktopMaxFeedAds  Int      @default(3)
+  defaultPriority    Int      @default(0)
+  provider           String   @default("internal")
+  updatedAt          DateTime @updatedAt
+}
+
+// ─── Page analytics ────────────────────────────────────────────────────────
+
+model PageViewEvent {
+  id         String   @id @default(cuid())
+  pageKey    String
+  viewerKey  String?
+  deviceType String?
+  createdAt  DateTime @default(now())
+
+  @@index([pageKey, createdAt])
+  @@index([viewerKey, pageKey, createdAt])
+}
+
+model PageViewDailyStats {
+  id          String   @id @default(cuid())
+  pageKey     String
+  date        DateTime @db.Date
+  views       Int      @default(0)
+  uniqueViews Int      @default(0)
+
+  @@unique([pageKey, date])
 }

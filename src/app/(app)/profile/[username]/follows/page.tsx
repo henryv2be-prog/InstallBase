@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getProfileByUsername, getFollowersOf, getFollowingOf, getFollowingIds } from "@/lib/queries";
 import { InstallerRow } from "@/components/profile/installer-row";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FollowsPageProps {
@@ -39,19 +41,19 @@ export default async function FollowsPage({ params, searchParams }: FollowsPageP
 
   return (
     <div className="mx-auto max-w-lg animate-fade-in">
-      <Link href={`/profile/${username}`} className="text-sm font-medium text-blue-600 hover:underline">
+      <Link href={`/profile/${username}`} className="text-sm font-medium text-primary hover:underline">
         ← @{username}
       </Link>
       <h1 className="mt-3 text-2xl font-bold">{profile.user.name}</h1>
 
-      <div className="mt-4 flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
+      <div className="mt-4 flex rounded-xl border border-border bg-card/60 p-1">
         <Link
           href={`/profile/${username}/follows?list=followers`}
           className={cn(
             "flex-1 rounded-lg py-2 text-center text-sm font-medium",
             tab === "followers"
-              ? "bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-white"
-              : "text-gray-500"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted"
           )}
         >
           Followers · {followers.length}
@@ -61,8 +63,8 @@ export default async function FollowsPage({ params, searchParams }: FollowsPageP
           className={cn(
             "flex-1 rounded-lg py-2 text-center text-sm font-medium",
             tab === "following"
-              ? "bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-white"
-              : "text-gray-500"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted"
           )}
         >
           Following · {following.length}
@@ -71,9 +73,16 @@ export default async function FollowsPage({ params, searchParams }: FollowsPageP
 
       <div className="mt-4 space-y-2">
         {(tab === "following" ? following : followers).length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-gray-300 p-10 text-center text-gray-500 dark:border-gray-700">
-            {tab === "following" ? "Not following anyone yet" : "No followers yet"}
-          </p>
+          <EmptyState
+            icon={Users}
+            title={tab === "following" ? "Not following anyone yet" : "No followers yet"}
+            description={
+              tab === "following"
+                ? "Find installers on Explore and follow people whose work you respect."
+                : "Share great installs to attract followers from the community."
+            }
+            action={tab === "following" ? { label: "Find installers", href: "/discover?tab=people" } : undefined}
+          />
         ) : tab === "following" ? (
           following.map((row) => (
             <InstallerRow

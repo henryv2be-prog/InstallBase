@@ -1,4 +1,6 @@
-import { cn, formatNumber } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+
+export { ReputationBadge } from "@/components/ui/reputation-badge";
 
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: "default" | "secondary" | "brag" | "question" | "success" | "outline";
@@ -21,14 +23,6 @@ export function Badge({ className, variant = "default", ...props }: BadgeProps) 
       )}
       {...props}
     />
-  );
-}
-
-export function ReputationBadge({ score }: { score: number; level?: string }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-amber-700 ring-1 ring-amber-500/25 dark:text-amber-400">
-      ⭐ {formatNumber(score)}
-    </span>
   );
 }
 

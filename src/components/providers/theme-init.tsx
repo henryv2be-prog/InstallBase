@@ -6,8 +6,11 @@ export type Theme = "light" | "dark";
 
 export function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  root.classList.remove("light", "dark");
-  root.classList.add(theme);
+  const already = root.classList.contains(theme) && !root.classList.contains(theme === "dark" ? "light" : "dark");
+  if (!already) {
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+  }
   localStorage.setItem("installbase-theme", theme);
 }
 

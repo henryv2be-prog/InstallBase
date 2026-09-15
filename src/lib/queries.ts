@@ -5,6 +5,8 @@ import type { Prisma, PostType } from "@/generated/prisma/client";
 import { BRAG_CATEGORIES } from "@/lib/constants";
 import { bragHotScore, recencyMultiplier, startOfWeek } from "@/lib/ranking";
 import { braggablePostWhere, isBraggableType } from "@/lib/brag";
+import { getPostTradeGroupLabel, isPortfolioPost } from "@/lib/work-posts";
+import { getLandingPageStats } from "@/lib/analytics/page-views";
 
 /** Card/list payload: counts instead of every like, comment, bookmark, and brag row. */
 export const postCardInclude = {
@@ -12,6 +14,7 @@ export const postCardInclude = {
   media: { orderBy: { order: "asc" as const } },
   tags: { include: { tag: true } },
   products: { include: { product: { include: { brand: true } } } },
+  categories: { include: { category: true } },
   _count: { select: { likes: true, comments: true, answers: true } },
 } satisfies Prisma.PostInclude;
 
@@ -88,13 +91,13 @@ async function loadPostCards(
   return withViewerState(posts, userId);
 }
 
-export async function getFollowingIds(userId: string) {
+export const getFollowingIds = cache(async function getFollowingIds(userId: string) {
   const follows = await prisma.follow.findMany({
     where: { followerId: userId },
     select: { followingId: true },
   });
   return follows.map((f) => f.followingId);
-}
+});
 
 export async function isFollowing(followerId: string, followingId: string) {
   const row = await prisma.follow.findUnique({
@@ -183,6 +186,18 @@ export async function getPostsByType(type: PostType, limit = 20, userId?: string
   );
 }
 
+export async function getPopularQuestions(limit = 6, userId?: string) {
+  return loadPostCards(
+    {
+      where: { type: "QUESTION" },
+      take: limit,
+      orderBy: { comments: { _count: "desc" } },
+    },
+    userId,
+    ["questions-popular", String(limit)]
+  );
+}
+
 export async function getHotBrags(limit = 20, userId?: string) {
   const poolSize = Math.max(limit * 4, 40);
   const [scored, recent] = await Promise.all([
@@ -267,7 +282,7 @@ export async function getProfileByUsername(username: string, viewerId?: string) 
               posts: {
                 include: postCardInclude,
                 orderBy: { createdAt: "desc" },
-                take: 20,
+                take: 12,
               },
               projects: { include: { media: true }, orderBy: { createdAt: "desc" } },
               _count: { select: { followers: true, following: true } },
@@ -388,44 +403,48 @@ export async function getBragOfWeek(userId?: string) {
 export async function getDiscoverData(userId?: string) {
   const [trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products, jobs] = await Promise.all([
     getTrendingBrags(6, userId),
-    loadPostCards(
-      {
-        where: { type: "QUESTION" },
-        take: 6,
-        orderBy: { comments: { _count: "desc" } },
-      },
-      userId,
-      ["questions-popular", "6"]
-    ),
-    cachedRows(
-      ["discover-installers"],
-      () =>
-        prisma.profile.findMany({
-          take: 8,
-          orderBy: { reputationScore: "desc" },
-          include: { user: true },
-        }),
-      60
-    ),
+    getPopularQuestions(6, userId),
+    getTopInstallers(),
     getBragLeaderboard(5),
-    cachedRows(
-      ["discover-products"],
-      () =>
-        prisma.product.findMany({
-          take: 8,
-          include: { brand: true, _count: { select: { postProducts: true } } },
-          orderBy: { postProducts: { _count: "desc" } },
-        }),
-      60
-    ),
-    cachedRows(
-      ["discover-jobs"],
-      () => prisma.job.findMany({ where: { active: true }, take: 4, orderBy: { createdAt: "desc" } }),
-      60
-    ),
+    getPopularProducts(),
+    getActiveJobs(),
   ]);
 
   return { trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products, jobs };
+}
+
+export async function getTopInstallers() {
+  return cachedRows(
+    ["discover-installers"],
+    () =>
+      prisma.profile.findMany({
+        take: 8,
+        orderBy: { reputationScore: "desc" },
+        include: { user: true },
+      }),
+    60
+  );
+}
+
+export async function getPopularProducts() {
+  return cachedRows(
+    ["discover-products"],
+    () =>
+      prisma.product.findMany({
+        take: 8,
+        include: { brand: true, _count: { select: { postProducts: true } } },
+        orderBy: { postProducts: { _count: "desc" } },
+      }),
+    60
+  );
+}
+
+export async function getActiveJobs() {
+  return cachedRows(
+    ["discover-jobs"],
+    () => prisma.job.findMany({ where: { active: true }, take: 4, orderBy: { createdAt: "desc" } }),
+    60
+  );
 }
 
 export async function searchAll(query: string, userId?: string) {
@@ -512,7 +531,7 @@ export async function getNotifications(userId: string) {
   });
 }
 
-export async function getActivityCounts(userId: string) {
+export const getActivityCounts = cache(async function getActivityCounts(userId: string) {
   const [notifications, messages] = await Promise.all([
     prisma.notification.count({ where: { userId, read: false } }),
     prisma.message.count({
@@ -524,7 +543,7 @@ export async function getActivityCounts(userId: string) {
     }),
   ]);
   return { notifications, messages, total: notifications + messages };
-}
+});
 
 export async function getBookmarkedPosts(userId: string, limit = 30) {
   const bookmarks = await prisma.bookmark.findMany({
@@ -535,6 +554,19 @@ export async function getBookmarkedPosts(userId: string, limit = 30) {
   });
   const posts = bookmarks.map((b) => b.post);
   return withViewerState(posts, userId);
+}
+
+export async function getCommentPreview(postId: string, limit = 3) {
+  return prisma.comment.findMany({
+    where: { postId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: { author: { include: { profile: true } } },
+  });
+}
+
+export async function getSuggestedSearchTerms() {
+  return ["Hikvision", "PoE", "ANPR", "Ubiquiti", "CCTV", "access control"];
 }
 
 export async function getConversations(userId: string) {
@@ -585,6 +617,7 @@ export async function getOrCreateConversation(userIdA: string, userIdB: string) 
 }
 
 export async function getAdminStats() {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
   const [
     users,
     activeUsers,
@@ -594,6 +627,7 @@ export async function getAdminStats() {
     comments,
     reports,
     newUsersWeek,
+    landingStats,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { posts: { some: {} } } }),
@@ -605,11 +639,33 @@ export async function getAdminStats() {
     prisma.comment.count(),
     prisma.report.count({ where: { status: "PENDING" } }),
     prisma.user.count({
-      where: { createdAt: { gte: new Date(Date.now() - 7 * 86400000) } },
+      where: { createdAt: { gte: sevenDaysAgo } },
     }),
+    getLandingPageStats(),
   ]);
 
-  return { users, activeUsers, posts, brags, questions, comments, reports, newUsersWeek };
+  const uniqueVisitorsWeek = landingStats.uniqueVisitorsWeek;
+  const signupRateWeek =
+    uniqueVisitorsWeek > 0
+      ? Math.round((newUsersWeek / uniqueVisitorsWeek) * 1000) / 10
+      : null;
+
+  return {
+    users,
+    activeUsers,
+    posts,
+    brags,
+    questions,
+    comments,
+    reports,
+    newUsersWeek,
+    landingViewsToday: landingStats.viewsToday,
+    landingUniqueVisitorsToday: landingStats.uniqueVisitorsToday,
+    landingViewsWeek: landingStats.viewsWeek,
+    landingUniqueVisitorsWeek: uniqueVisitorsWeek,
+    landingViewsAllTime: landingStats.viewsAllTime,
+    signupRateWeek,
+  };
 }
 
 export async function getAdminData() {
@@ -688,4 +744,56 @@ export async function getAllProducts() {
     include: { brand: true },
     orderBy: { name: "asc" },
   });
+}
+
+export async function getUserPlatformRoles(userId: string) {
+  const rows = await prisma.userPlatformRole.findMany({
+    where: { userId },
+    select: { role: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return rows.map((row) => row.role);
+}
+
+export type WorkPortfolioGroup = {
+  trade: string;
+  count: number;
+  posts: PostCardData[];
+};
+
+export async function getWorkPortfolio(userId: string, viewerId?: string) {
+  const posts = await prisma.post.findMany({
+    where: {
+      authorId: userId,
+      inPortfolio: true,
+    },
+    include: postCardInclude,
+    orderBy: { createdAt: "desc" },
+  });
+
+  const withState = await withViewerState(posts, viewerId);
+  const groupsMap = new Map<string, PostCardData[]>();
+
+  for (const post of withState) {
+    if (!isPortfolioPost(post)) continue;
+    const trade = getPostTradeGroupLabel(post);
+    const existing = groupsMap.get(trade) ?? [];
+    existing.push(post);
+    groupsMap.set(trade, existing);
+  }
+
+  const visiblePosts = withState.filter(isPortfolioPost);
+  const groups: WorkPortfolioGroup[] = [...groupsMap.entries()]
+    .map(([trade, groupPosts]) => ({
+      trade,
+      count: groupPosts.length,
+      posts: groupPosts,
+    }))
+    .sort((a, b) => b.count - a.count || a.trade.localeCompare(b.trade));
+
+  return {
+    totalCount: visiblePosts.length,
+    groups,
+    posts: visiblePosts,
+  };
 }

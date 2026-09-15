@@ -21,6 +21,8 @@ export const BRAG_CATEGORIES = [
   "Best Small Installation",
 ] as const;
 
+export const LANDING_PAGE_KEY = "landing";
+
 function unsplash(id: string, w = 900) {
   return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
 }

@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 import { DEMO_IMAGES } from "../src/lib/constants";
+import { logDemoAdSeedResult, seedDemoAdCampaign } from "./seed-demo-ad";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -35,6 +36,16 @@ const installers = [
 ];
 
 async function main() {
+  const demoAdOnly =
+    process.env.SEED_DEMO_AD_ONLY === "true" || process.env.SEED_DEMO_AD_ONLY === "1";
+
+  if (demoAdOnly) {
+    console.log("Seeding Hikvision demo ad campaign only (SEED_DEMO_AD_ONLY)…");
+    const result = await seedDemoAdCampaign(prisma);
+    logDemoAdSeedResult(result);
+    return;
+  }
+
   if (process.env.NODE_ENV === "production" && process.env.ALLOW_SEED !== "true") {
     console.error("Refusing to seed production database. Set ALLOW_SEED=true to override.");
     process.exit(1);
@@ -132,7 +143,7 @@ async function main() {
           : `${installer.username}@installbase.io`,
         name: installer.name,
         passwordHash,
-        role: installer.username === "admin" ? "ADMIN" : "USER",
+        role: "USER",
         image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${installer.username}`,
         profile: {
           create: {
@@ -459,12 +470,16 @@ async function main() {
     },
   });
 
+  // Sample advertising (internal provider demo)
+  const demoAd = await seedDemoAdCampaign(prisma);
+  logDemoAdSeedResult(demoAd);
+
   console.log("✅ Seed complete!");
   console.log(`   ${users.length} installers`);
   console.log(`   ${posts.length} posts`);
   console.log(`   ${products.length} products`);
   console.log(`   Demo login: demo@installbase.io / InstallBase123!`);
-  console.log(`   Admin login: admin@installbase.io / InstallBase123!`);
+  console.log(`   Admin login: admin@installbase.io / InstallBase123! (set ADMIN_EMAILS=admin@installbase.io)`);
 }
 
 main()

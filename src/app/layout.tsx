@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { getSession } from "@/lib/session";
 import "./globals.css";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
@@ -43,12 +45,17 @@ export const viewport: Viewport = {
   themeColor: "#050810",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await getSession();
+
   return (
     <html lang="en" suppressHydrationWarning className={`dark ${inter.variable} ${jetbrains.variable}`}>
-      <body className="min-h-dvh font-sans text-foreground antialiased">
+      <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
+        <Script id="pwa-sw-register" strategy="beforeInteractive">
+          {`if("serviceWorker"in navigator){navigator.serviceWorker.register("/sw.js",{scope:"/",updateViaCache:"none"});}`}
+        </Script>
         <ThemeInit />
-        <SessionProvider>
+        <SessionProvider session={session}>
           <ServiceWorkerRegistrar />
           {children}
           <PwaInstallBanner />

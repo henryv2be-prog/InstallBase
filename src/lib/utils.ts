@@ -52,3 +52,23 @@ export function getExperienceLabel(level: string) {
   };
   return labels[level] ?? level;
 }
+
+export function getFeedReasonLabel(
+  post: {
+    authorId: string;
+    bragScore: number;
+    author: { profile: { specialties: string[] } | null };
+    tags: { tag: { name: string } }[];
+  },
+  context: "following" | "popular",
+  followingIds?: Set<string>
+) {
+  if (context === "following") return "From someone you follow";
+  if (followingIds?.has(post.authorId)) return "From someone you follow";
+  const specialty = post.author.profile?.specialties?.[0];
+  if (specialty) return `Popular in ${specialty}`;
+  const tag = post.tags[0]?.tag.name;
+  if (tag) return `Trending in #${tag}`;
+  if (post.bragScore >= 5) return "Trending install";
+  return null;
+}

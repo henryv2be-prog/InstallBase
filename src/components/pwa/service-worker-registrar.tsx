@@ -9,7 +9,7 @@ export function ServiceWorkerRegistrar() {
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
-    navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch((error) => {
+    navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).catch((error) => {
       console.error("Service worker registration failed:", error);
     });
   }, []);
@@ -20,7 +20,7 @@ export function ServiceWorkerRegistrar() {
 
     let cancelled = false;
     (async () => {
-      await navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => undefined);
+      await navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).catch(() => undefined);
       if (cancelled) return;
       await syncLocalPushSubscription();
     })().catch((error) => {
