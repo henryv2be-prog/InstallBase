@@ -414,6 +414,40 @@ export async function getBragOfWeek(userId?: string) {
   }));
 }
 
+export async function getLandingCommunityStats() {
+  return cachedRows(
+    ["landing-community-stats"],
+    async () => {
+      const weekAgo = new Date(Date.now() - 7 * 86400000);
+      const [installersSharing, installsThisWeek, questionsAnswered, bragTotals] = await Promise.all([
+        prisma.user.count({
+          where: { posts: { some: { media: { some: {} } } } },
+        }),
+        prisma.post.count({
+          where: {
+            createdAt: { gte: weekAgo },
+            media: { some: {} },
+            type: { not: "QUESTION" },
+          },
+        }),
+        prisma.answer.count(),
+        prisma.post.aggregate({
+          where: braggablePostWhere,
+          _sum: { bragScore: true },
+        }),
+      ]);
+
+      return {
+        installersSharing,
+        installsThisWeek,
+        questionsAnswered,
+        totalBragPoints: bragTotals._sum.bragScore ?? 0,
+      };
+    },
+    120
+  );
+}
+
 export async function getDiscoverData(userId?: string) {
   const [trendingBrags, trendingQuestions, topInstallers, bragLeaderboard, products, jobs] = await Promise.all([
     getTrendingBrags(6, userId),

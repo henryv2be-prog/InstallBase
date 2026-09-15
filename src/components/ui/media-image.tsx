@@ -23,7 +23,11 @@ export function MediaImage({ src, alt, fill, className, sizes }: MediaImageProps
         alt={alt}
         loading="lazy"
         decoding="async"
-        className={cn(fill && "absolute inset-0 h-full w-full object-cover", className)}
+        className={cn(
+          "bg-muted",
+          fill && "absolute inset-0 h-full w-full object-cover",
+          className
+        )}
       />
     );
   }
@@ -33,7 +37,7 @@ export function MediaImage({ src, alt, fill, className, sizes }: MediaImageProps
       src={src}
       alt={alt}
       fill={fill}
-      className={className}
+      className={cn("bg-muted", className)}
       sizes={sizes}
     />
   );
