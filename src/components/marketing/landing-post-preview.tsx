@@ -106,7 +106,7 @@ export function LandingPostPreview({ post, className, compact = false }: Landing
           </div>
           <div className="min-w-0">
             <p className="font-semibold leading-tight">{post.trade}</p>
-            <p className="text-xs text-muted">Example post</p>
+            <p className="text-xs text-muted">@{post.trade.toLowerCase().replace(/\s+/g, "")}</p>
           </div>
         </div>
 

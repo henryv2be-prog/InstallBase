@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { LandingPage } from "@/components/marketing/landing-page";
-import { getFeedPosts } from "@/lib/queries";
+import {
+  getBragLeaderboard,
+  getFeedPosts,
+  getPopularQuestions,
+  getTrendingBrags,
+} from "@/lib/queries";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
@@ -14,13 +19,31 @@ export default async function HomePage() {
   const session = await auth();
   if (session?.user) redirect("/feed");
 
-  let showcasePosts: Awaited<ReturnType<typeof getFeedPosts>> = [];
+  let feedPosts: Awaited<ReturnType<typeof getFeedPosts>> = [];
+  let questions: Awaited<ReturnType<typeof getPopularQuestions>> = [];
+  let trendingBrags: Awaited<ReturnType<typeof getTrendingBrags>> = [];
+  let installers: Awaited<ReturnType<typeof getBragLeaderboard>> = [];
+
   try {
-    const posts = await getFeedPosts(undefined, 6);
-    showcasePosts = posts.filter((post) => post.media.length > 0).slice(0, 6);
+    [feedPosts, questions, trendingBrags, installers] = await Promise.all([
+      getFeedPosts(undefined, 12),
+      getPopularQuestions(4),
+      getTrendingBrags(4),
+      getBragLeaderboard(5),
+    ]);
   } catch {
-    showcasePosts = [];
+    feedPosts = [];
+    questions = [];
+    trendingBrags = [];
+    installers = [];
   }
 
-  return <LandingPage showcasePosts={showcasePosts} />;
+  return (
+    <LandingPage
+      feedPosts={feedPosts}
+      questions={questions}
+      trendingBrags={trendingBrags}
+      installers={installers}
+    />
+  );
 }
