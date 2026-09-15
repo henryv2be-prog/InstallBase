@@ -7,8 +7,8 @@
   },
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "build": "prisma generate && npx tsx scripts/generate-pwa-icons.mjs && next build",
-    "icons:generate": "npx tsx scripts/generate-pwa-icons.mjs",
+    "build": "prisma generate && node scripts/generate-pwa-icons.mjs && next build",
+    "icons:generate": "node scripts/generate-pwa-icons.mjs",
     "start": "node scripts/start-production.mjs",
     "start:server": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "eslint",
@@ -68,6 +68,7 @@
     "@types/web-push": "^3.6.4",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "tsx": "^4.23.12",
     "typescript": "^5"
