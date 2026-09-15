@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight, ChevronDown, Trophy } from "lucide-react";
 import { baseVideoUrl, isVideoMedia } from "@/lib/media";
 import { cn } from "@/lib/utils";
@@ -355,11 +356,17 @@ export function MediaLightbox({
   }, [items.length, onClose, onIndexChange, resetTransform]);
 
   const active = items[index];
-  if (!active) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!active || !mounted) return null;
 
   const opacity = clamp(1 - Math.abs(drag.y) / 280, 0.4, 1);
 
-  return (
+  return createPortal(
     <div
       ref={overlayRef}
       className="fixed inset-0 z-[200] touch-none overscroll-none"
@@ -476,7 +483,7 @@ export function MediaLightbox({
         )}
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 flex flex-col items-center gap-2 px-4">
+      <div className="pointer-events-none absolute inset-x-0 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-40 flex flex-col items-center gap-2 px-4 pb-2">
         {canBrag && active.id && onBrag && (
           <button
             type="button"
@@ -515,6 +522,7 @@ export function MediaLightbox({
             : "Tap Close, swipe down, or press back to exit"}
         </p>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
