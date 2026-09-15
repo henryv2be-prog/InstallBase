@@ -1,4 +1,4 @@
-const CACHE = "installbase-v7";
+const CACHE = "installbase-v8";
 const PRECACHE = [
   "/login",
   "/icons/icon-192.png",

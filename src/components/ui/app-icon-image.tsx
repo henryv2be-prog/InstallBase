@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { AppIcon } from "@/components/ui/app-icon";
 
 interface AppIconImageProps {
   size?: number;
@@ -7,17 +6,7 @@ interface AppIconImageProps {
   priority?: boolean;
 }
 
-/** InstallBase app icon — same asset used for favicon, PWA, and notifications. */
-export function AppIconImage({ size = 36, className, priority = false }: AppIconImageProps) {
-  return (
-    <Image
-      src="/icons/icon-192.png"
-      alt=""
-      width={size}
-      height={size}
-      priority={priority}
-      className={cn("rounded-xl object-cover", className)}
-      sizes={`${size}px`}
-    />
-  );
+/** @deprecated Use AppIcon directly. Kept for compatibility — renders inline SVG, not a raster. */
+export function AppIconImage({ size = 36, className }: AppIconImageProps) {
+  return <AppIcon size={size} className={className} />;
 }
