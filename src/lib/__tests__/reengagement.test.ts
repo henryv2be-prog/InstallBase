@@ -12,6 +12,11 @@ import {
   getReengagementConfig,
   startOfCalendarDay,
 } from "../reengagement/config";
+import {
+  isAutoRunEnabled,
+  markSchedulerRunComplete,
+  shouldRunScheduledJob,
+} from "../reengagement/scheduler-shared";
 
 function activity(overrides: Partial<CommunityActivity> = {}): CommunityActivity {
   return {
@@ -132,6 +137,52 @@ describe("reengagement activity thresholds", () => {
     assert.equal(hasMeaningfulActivity(activity(), 1), false);
     assert.equal(hasMeaningfulActivity(activity({ questions: 1 }), 1), true);
     assert.equal(totalActivityCount(activity({ posts: 2, bragPoints: 3 })), 5);
+  });
+});
+
+describe("reengagement scheduler", () => {
+  it("respects DAILY_REENGAGEMENT_AUTO_RUN", () => {
+    const original = process.env.DAILY_REENGAGEMENT_AUTO_RUN;
+    process.env.DAILY_REENGAGEMENT_AUTO_RUN = "true";
+    assert.equal(isAutoRunEnabled(), true);
+    process.env.DAILY_REENGAGEMENT_AUTO_RUN = "false";
+    assert.equal(isAutoRunEnabled(), false);
+    process.env.DAILY_REENGAGEMENT_AUTO_RUN = original;
+  });
+
+  it("runs once per calendar day inside the send window", () => {
+    const hour = process.env.DAILY_REENGAGEMENT_HOUR;
+    const minute = process.env.DAILY_REENGAGEMENT_MINUTE;
+    const timezone = process.env.DAILY_REENGAGEMENT_TIMEZONE;
+    process.env.DAILY_REENGAGEMENT_HOUR = "9";
+    process.env.DAILY_REENGAGEMENT_MINUTE = "0";
+    process.env.DAILY_REENGAGEMENT_TIMEZONE = "UTC";
+
+    const inWindow = new Date("2026-09-16T09:05:00Z");
+    const first = shouldRunScheduledJob(inWindow, null);
+    assert.equal(first.run, true);
+    assert.equal(first.today, "2026-09-16");
+
+    const second = shouldRunScheduledJob(inWindow, first.today);
+    assert.equal(second.run, false);
+
+    const outside = new Date("2026-09-16T15:00:00Z");
+    assert.equal(shouldRunScheduledJob(outside, null).run, false);
+
+    process.env.DAILY_REENGAGEMENT_HOUR = hour;
+    process.env.DAILY_REENGAGEMENT_MINUTE = minute;
+    process.env.DAILY_REENGAGEMENT_TIMEZONE = timezone;
+  });
+
+  it("marks a completed scheduler run for the day", () => {
+    assert.equal(
+      markSchedulerRunComplete({ skipped: "outside_send_window", eligibleUsers: 0, sent: 0, skippedUsers: {}, dryRun: false }, "2026-09-16"),
+      null
+    );
+    assert.equal(
+      markSchedulerRunComplete({ eligibleUsers: 2, sent: 1, skippedUsers: {}, dryRun: false }, "2026-09-16"),
+      "2026-09-16"
+    );
   });
 });
 
