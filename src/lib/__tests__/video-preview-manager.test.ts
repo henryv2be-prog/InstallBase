@@ -7,24 +7,30 @@ import {
 } from "../video-preview-manager";
 
 describe("video-preview-manager", () => {
-  it("pauses the previous preview when a new one is claimed", () => {
+  it("allows two concurrent previews before pausing the oldest", () => {
     let pausedA = false;
     let pausedB = false;
+    let pausedC = false;
 
-    const unregisterA = registerVideoPreview("a", () => {
+    registerVideoPreview("a", () => {
       pausedA = true;
     });
     registerVideoPreview("b", () => {
       pausedB = true;
     });
+    registerVideoPreview("c", () => {
+      pausedC = true;
+    });
 
     claimVideoPreview("a");
     claimVideoPreview("b");
+    claimVideoPreview("c");
 
     assert.equal(pausedA, true);
     assert.equal(pausedB, false);
+    assert.equal(pausedC, false);
 
-    unregisterA();
     releaseVideoPreview("b");
+    releaseVideoPreview("c");
   });
 });
