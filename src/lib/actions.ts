@@ -36,6 +36,7 @@ import {
   computeDefaultInPortfolio,
   resolveComposerIntent,
 } from "@/lib/work-posts";
+import { memberTierForSignupRank } from "@/lib/membership";
 
 async function getCurrentUserId() {
   const session = await auth();
@@ -85,6 +86,8 @@ export async function registerUser(formData: FormData) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
+    const existingUserCount = await prisma.user.count();
+    const memberTier = memberTierForSignupRank(existingUserCount + 1);
     const user = await prisma.user.create({
       data: {
         email,
@@ -98,6 +101,7 @@ export async function registerUser(formData: FormData) {
             country: country || null,
             experienceLevel: (experience || "APPRENTICE") as ExperienceLevel,
             specialties,
+            memberTier,
           },
         },
         reputation: { create: { score: 0 } },

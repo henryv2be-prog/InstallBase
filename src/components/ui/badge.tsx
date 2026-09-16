@@ -1,4 +1,6 @@
+import type { MemberTier } from "@/generated/prisma/client";
 import { cn } from "@/lib/utils";
+import { getMemberTierLabel } from "@/lib/membership";
 
 export { ReputationBadge } from "@/components/ui/reputation-badge";
 
@@ -32,6 +34,37 @@ export function VerifiedBadge() {
       <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
+    </span>
+  );
+}
+
+export function MemberTierBadge({
+  tier,
+  compact = false,
+  className,
+}: {
+  tier: MemberTier;
+  compact?: boolean;
+  className?: string;
+}) {
+  const label = getMemberTierLabel(tier);
+  if (!label) return null;
+
+  const isFounding = tier === "FOUNDING_MEMBER";
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full font-mono font-semibold uppercase tracking-wide ring-1",
+        compact ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-0.5 text-[11px]",
+        isFounding
+          ? "bg-amber-500/15 text-amber-800 ring-amber-500/25 dark:text-amber-300"
+          : "bg-slate-500/10 text-slate-700 ring-slate-500/20 dark:text-slate-300",
+        className
+      )}
+      title={label}
+    >
+      {isFounding ? "Founding Member" : "Early Builder"}
     </span>
   );
 }

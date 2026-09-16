@@ -1,6 +1,8 @@
+import type { MemberTier } from "@/generated/prisma/client";
 import Link from "next/link";
 import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { FollowButton } from "@/components/profile/follow-button";
+import { MemberTierBadge } from "@/components/ui/badge";
 
 interface InstallerRowProps {
   userId: string;
@@ -11,6 +13,7 @@ interface InstallerRowProps {
   currentUserId?: string;
   isFollowing?: boolean;
   followsYou?: boolean;
+  memberTier?: MemberTier | null;
 }
 
 export function InstallerRow({
@@ -22,6 +25,7 @@ export function InstallerRow({
   currentUserId,
   isFollowing = false,
   followsYou = false,
+  memberTier,
 }: InstallerRowProps) {
   const isSelf = currentUserId === userId;
 
@@ -30,7 +34,10 @@ export function InstallerRow({
       <Link href={username ? `/profile/${username}` : "#"} className="flex min-w-0 flex-1 items-center gap-3">
         <PresenceAvatar src={image} name={name} lastSeenAt={lastSeenAt} />
         <div className="min-w-0">
-          <p className="truncate font-semibold">{name}</p>
+          <div className="flex min-w-0 items-center gap-2">
+            <p className="truncate font-semibold">{name}</p>
+            {memberTier && <MemberTierBadge tier={memberTier} compact />}
+          </div>
           {username && <p className="truncate text-sm text-muted">@{username}</p>}
         </div>
       </Link>
