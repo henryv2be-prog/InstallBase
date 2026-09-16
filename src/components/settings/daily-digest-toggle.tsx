@@ -29,8 +29,9 @@ export function DailyDigestToggle({ enabled }: { enabled: boolean }) {
       <div>
         <p className="text-sm font-medium">Daily community updates</p>
         <p className="mt-1 text-sm text-muted">
-          One push per day when there is new installer activity and you have not opened InstallBase yet.
-          Transactional alerts for messages and interactions are unaffected.
+          At most one push per day summarising new installs, questions, and community activity — only when you have not
+          opened InstallBase yet. Turn this off here if the daily reminder is not for you. Messages and other alerts
+          stay on.
         </p>
       </div>
       <Button variant="outline" onClick={toggle} disabled={pending}>
