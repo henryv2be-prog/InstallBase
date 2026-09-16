@@ -7,6 +7,7 @@ import { AdminStatCard } from "@/components/admin/admin-stat-card";
 import { adminSuspendUser, adminDeletePost, adminResolveReport } from "@/lib/actions";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
+import { ReengagementDebugPanel } from "@/components/admin/reengagement-debug";
 
 interface AdminDashboardProps {
   data: {
@@ -206,6 +207,8 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
           </div>
         )}
       </section>
+
+      <ReengagementDebugPanel />
 
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
         <section>

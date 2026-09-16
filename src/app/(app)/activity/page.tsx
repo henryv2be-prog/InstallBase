@@ -77,33 +77,49 @@ async function NotificationsList({ userId }: { userId: string }) {
   const todayNotifications = notifications.filter((n) => isToday(n.createdAt));
   const earlierNotifications = notifications.filter((n) => !isToday(n.createdAt));
 
-  const renderNotification = (notification: (typeof notifications)[number]) => (
-    <NotificationItem
-      key={notification.id}
-      id={notification.id}
-      href={notification.link ?? "#"}
-      read={notification.read}
-      className={`flex items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${
-        notification.read
-          ? "border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
-          : "border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30"
-      }`}
-    >
-      <Avatar className="h-10 w-10">
-        <AvatarImage src={notification.actor?.image ?? undefined} />
-        <AvatarFallback>{getInitials(notification.actor?.name ?? "S")}</AvatarFallback>
-      </Avatar>
-      <div className="flex-1">
-        <p className="text-sm">
-          <span className="font-semibold">{notification.actor?.name ?? "Someone"}</span>{" "}
-          {notification.message}
-        </p>
-        <p className="text-xs text-gray-500">
-          <RelativeTime date={notification.createdAt} />
-        </p>
-      </div>
-    </NotificationItem>
-  );
+  const renderNotification = (notification: (typeof notifications)[number]) => {
+    const isDigest = notification.type === "DAILY_REENGAGEMENT";
+
+    return (
+      <NotificationItem
+        key={notification.id}
+        id={notification.id}
+        href={notification.link ?? "#"}
+        read={notification.read}
+        className={`flex items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${
+          notification.read
+            ? "border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+            : "border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30"
+        }`}
+      >
+        {isDigest ? (
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-lg dark:bg-blue-950">
+            🔧
+          </div>
+        ) : (
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={notification.actor?.image ?? undefined} />
+            <AvatarFallback>{getInitials(notification.actor?.name ?? "Someone")}</AvatarFallback>
+          </Avatar>
+        )}
+        <div className="flex-1">
+          <p className="text-sm">
+            {isDigest ? (
+              <span>{notification.message}</span>
+            ) : (
+              <>
+                <span className="font-semibold">{notification.actor?.name ?? "Someone"}</span>{" "}
+                {notification.message}
+              </>
+            )}
+          </p>
+          <p className="text-xs text-gray-500">
+            <RelativeTime date={notification.createdAt} />
+          </p>
+        </div>
+      </NotificationItem>
+    );
+  };
 
   return (
     <>

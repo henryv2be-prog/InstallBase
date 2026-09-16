@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { InstallInstructions } from "@/components/pwa/install-instructions";
 import { PushNotificationToggle } from "@/components/pwa/push-toggle";
+import { DailyDigestToggle } from "@/components/settings/daily-digest-toggle";
 import { ProfileSettingsForm } from "@/components/settings/profile-settings-form";
 import { PlatformPurposesForm } from "@/components/settings/platform-purposes-form";
 import { AvatarUpload } from "@/components/settings/avatar-upload";
@@ -103,12 +104,13 @@ export default async function SettingsPage() {
         <CardHeader>
           <CardTitle>Notifications</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           {vapidPublicKey ? (
             <PushNotificationToggle vapidPublicKey={vapidPublicKey} />
           ) : (
             <p className="text-sm text-muted">Push notifications are not configured on this server.</p>
           )}
+          <DailyDigestToggle enabled={user.dailyDigestEnabled} />
         </CardContent>
       </Card>
 

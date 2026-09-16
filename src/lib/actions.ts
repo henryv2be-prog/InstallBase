@@ -861,6 +861,29 @@ export async function deletePushSubscription(endpoint: string) {
   return { success: true };
 }
 
+export async function updateDailyDigestPreference(enabled: boolean): Promise<{ success: true } | { error: string }> {
+  try {
+    const userId = await getCurrentUserId();
+    await prisma.user.update({
+      where: { id: userId },
+      data: { dailyDigestEnabled: enabled },
+    });
+    revalidatePath("/settings");
+    return { success: true };
+  } catch {
+    return { error: "Could not update your preference. Try again." };
+  }
+}
+
+export async function adminRunDailyReengagement(dryRun = true) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+
+  const { runDailyReengagement } = await import("@/lib/reengagement");
+  const result = await runDailyReengagement({ dryRun, force: true });
+  return result;
+}
+
 export async function sendTestPush() {
   const userId = await getCurrentUserId();
 
