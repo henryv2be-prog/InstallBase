@@ -18,17 +18,18 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Users } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { ReengagementOpenTracker } from "@/components/reengagement/open-tracker";
 
 export const metadata = { title: "Feed" };
 export const dynamic = "force-dynamic";
 
 interface FeedPageProps {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; ref?: string; nid?: string }>;
 }
 
 export default async function FeedPage({ searchParams }: FeedPageProps) {
   const session = await getSession();
-  const { tab } = await searchParams;
+  const { tab, ref, nid } = await searchParams;
   const userId = session?.user?.id;
 
   const followingIds = userId ? await getFollowingIds(userId) : [];
@@ -47,6 +48,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
 
   return (
     <PullToRefresh>
+      <ReengagementOpenTracker refParam={ref} notificationId={nid} />
       <div className="mx-auto max-w-2xl space-y-4 animate-fade-in">
         {userId ? <WelcomeModal platformRoles={platformRoles} /> : null}
         {userId ? <BragTooltip /> : null}

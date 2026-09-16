@@ -92,6 +92,7 @@ enum NotificationType {
   BRAG_RANKING
   PROJECT_COMMENT
   MESSAGE
+  DAILY_REENGAGEMENT
 }
 
 model User {
@@ -106,6 +107,8 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   lastSeenAt    DateTime?
+  dailyDigestEnabled Boolean @default(true)
+  lastDailyReengagementAt DateTime?
 
   accounts      Account[]
   sessions      Session[]

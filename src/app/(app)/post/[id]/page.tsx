@@ -7,12 +7,13 @@ import { PostWorkSettings } from "@/components/feed/post-work-settings";
 import { QuestionAnswers } from "@/components/feed/question-answers";
 import { CommentSection } from "@/components/feed/comment-section";
 import { BackLink } from "@/components/ui/back-link";
+import { ReengagementOpenTracker } from "@/components/reengagement/open-tracker";
 
 export const dynamic = "force-dynamic";
 
 interface PostPageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ from?: string }>;
+  searchParams: Promise<{ from?: string; ref?: string; nid?: string }>;
 }
 
 export async function generateMetadata({ params }: PostPageProps) {
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: PostPageProps) {
 
 export default async function PostDetailPage({ params, searchParams }: PostPageProps) {
   const { id } = await params;
-  const { from } = await searchParams;
+  const { from, ref, nid } = await searchParams;
   const session = await getSession();
   const post = await getPost(id, session?.user?.id);
   if (!post) notFound();
@@ -34,6 +35,7 @@ export default async function PostDetailPage({ params, searchParams }: PostPageP
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 animate-fade-in">
+      <ReengagementOpenTracker refParam={ref} notificationId={nid} />
       {from === "activity" && <BackLink href="/activity" label="Back to Activity" />}
       <PostCard post={post} currentUserId={session?.user?.id} showFull />
       {post.authorId === session?.user?.id && (
