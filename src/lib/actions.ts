@@ -801,6 +801,46 @@ export async function adminDeletePost(postId: string) {
   return { success: true };
 }
 
+export async function adminDeleteUser(userId: string): Promise<{ success: true } | { error: string }> {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  if (!session.user.id) return { error: "Not signed in" };
+  if (session.user.id === userId) return { error: "You cannot delete your own account from admin." };
+
+  const target = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, role: true, profile: { select: { username: true } } },
+  });
+  if (!target) return { error: "User not found" };
+  if (target.role === "ADMIN") return { error: "Admin accounts cannot be deleted here." };
+
+  await prisma.user.delete({ where: { id: userId } });
+
+  const { backfillMemberTiers } = await import("@/lib/membership-backfill");
+  await backfillMemberTiers();
+
+  revalidatePath("/admin");
+  revalidatePath("/feed");
+  revalidatePath("/discover");
+  if (target.profile?.username) {
+    revalidatePath(`/profile/${target.profile.username}`);
+  }
+
+  return { success: true };
+}
+
+export async function adminBackfillMemberTiers() {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+
+  const { backfillMemberTiers } = await import("@/lib/membership-backfill");
+  const result = await backfillMemberTiers();
+  revalidatePath("/admin");
+  revalidatePath("/feed");
+  revalidatePath("/discover");
+  return result;
+}
+
 export async function adminResolveReport(reportId: string, status: "RESOLVED" | "DISMISSED") {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");

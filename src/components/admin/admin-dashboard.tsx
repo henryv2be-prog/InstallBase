@@ -1,13 +1,22 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { AdminStatCard } from "@/components/admin/admin-stat-card";
-import { adminSuspendUser, adminDeletePost, adminResolveReport } from "@/lib/actions";
+import {
+  adminBackfillMemberTiers,
+  adminDeletePost,
+  adminDeleteUser,
+  adminResolveReport,
+  adminSuspendUser,
+} from "@/lib/actions";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
 import { ReengagementDebugPanel } from "@/components/admin/reengagement-debug";
+import { MemberTierBadge } from "@/components/ui/badge";
+import { getMemberTierLabel } from "@/lib/membership";
+import type { MemberTier } from "@/generated/prisma/client";
 
 interface AdminDashboardProps {
   data: {
@@ -39,9 +48,10 @@ interface AdminDashboardProps {
       id: string;
       name: string | null;
       email: string;
+      role: string;
       suspended: boolean;
       createdAt: Date;
-      profile: { username: string } | null;
+      profile: { username: string; memberTier: MemberTier | null } | null;
     }>;
     recentPosts: Array<{
       id: string;
@@ -53,8 +63,9 @@ interface AdminDashboardProps {
   };
 }
 
-export function AdminDashboard({ data }: AdminDashboardProps) {
+export function AdminDashboard({ data, currentUserId }: AdminDashboardProps & { currentUserId: string }) {
   const [pending, startTransition] = useTransition();
+  const [confirmDeleteUserId, setConfirmDeleteUserId] = useState<string | null>(null);
   const router = useRouter();
   const { stats, pendingReports, recentUsers, recentPosts } = data;
 
@@ -212,33 +223,129 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
 
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
         <section>
-          <h2 className="mb-4 text-lg font-bold sm:text-xl">Recent users</h2>
-          <div className="space-y-2">
-            {recentUsers.map((user) => (
-              <div
-                key={user.id}
-                className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="min-w-0">
-                  <p className="truncate font-semibold">{user.name}</p>
-                  <p className="truncate text-sm text-muted">@{user.profile?.username}</p>
-                </div>
-                <Button
-                  size="sm"
-                  variant={user.suspended ? "default" : "destructive"}
-                  className="w-full shrink-0 sm:w-auto"
-                  disabled={pending}
-                  onClick={() =>
-                    startTransition(async () => {
-                      await adminSuspendUser(user.id, !user.suspended);
-                      router.refresh();
-                    })
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-bold sm:text-xl">Recent users</h2>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={pending}
+              onClick={() =>
+                startTransition(async () => {
+                  try {
+                    const result = await adminBackfillMemberTiers();
+                    toast.success(`Recalculated badges for ${result.profilesUpdated} profile(s)`);
+                    router.refresh();
+                  } catch {
+                    toast.error("Could not recalculate member badges");
                   }
+                })
+              }
+            >
+              Recalculate badges
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {recentUsers.map((user) => {
+              const isSelf = user.id === currentUserId;
+              const isAdmin = user.role === "ADMIN";
+              const canDelete = !isSelf && !isAdmin;
+
+              return (
+                <div
+                  key={user.id}
+                  className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3"
                 >
-                  {user.suspended ? "Unsuspend" : "Suspend"}
-                </Button>
-              </div>
-            ))}
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate font-semibold">{user.name}</p>
+                        {user.profile?.memberTier && (
+                          <MemberTierBadge tier={user.profile.memberTier} compact />
+                        )}
+                        {isAdmin && (
+                          <span className="rounded-full bg-slate-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                            Admin
+                          </span>
+                        )}
+                      </div>
+                      <p className="truncate text-sm text-muted">@{user.profile?.username}</p>
+                      <p className="truncate text-xs text-muted">{user.email}</p>
+                      {user.profile?.memberTier && (
+                        <p className="text-xs text-muted">{getMemberTierLabel(user.profile.memberTier)}</p>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant={user.suspended ? "default" : "outline"}
+                        className="shrink-0"
+                        disabled={pending || isSelf}
+                        onClick={() =>
+                          startTransition(async () => {
+                            await adminSuspendUser(user.id, !user.suspended);
+                            router.refresh();
+                          })
+                        }
+                      >
+                        {user.suspended ? "Unsuspend" : "Suspend"}
+                      </Button>
+                      {canDelete && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="shrink-0"
+                          disabled={pending}
+                          onClick={() => setConfirmDeleteUserId(user.id)}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {confirmDeleteUserId === user.id && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/50 dark:bg-red-950/30">
+                      <p className="text-sm font-semibold text-red-950 dark:text-red-100">
+                        Delete @{user.profile?.username}?
+                      </p>
+                      <p className="mt-1 text-sm text-red-900/90 dark:text-red-100/80">
+                        This permanently removes the account, profile, posts, and messages. Founding Member and Early
+                        Builder badges are recalculated for remaining users automatically.
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={pending}
+                          onClick={() => setConfirmDeleteUserId(null)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={pending}
+                          onClick={() =>
+                            startTransition(async () => {
+                              const result = await adminDeleteUser(user.id);
+                              if ("error" in result) {
+                                toast.error(result.error);
+                                return;
+                              }
+                              setConfirmDeleteUserId(null);
+                              toast.success("User deleted and member badges recalculated");
+                              router.refresh();
+                            })
+                          }
+                        >
+                          {pending ? "Deleting…" : "Delete permanently"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
 

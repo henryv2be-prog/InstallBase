@@ -36,3 +36,11 @@ export function feedBoostForMemberTier(tier: MemberTier | null | undefined): num
   if (!tier) return 0;
   return MEMBER_TIER_FEED_BOOST[tier] ?? 0;
 }
+
+export function buildMemberTierMap(userIdsInSignupOrder: string[]): Map<string, MemberTier | null> {
+  const map = new Map<string, MemberTier | null>();
+  for (let index = 0; index < userIdsInSignupOrder.length; index++) {
+    map.set(userIdsInSignupOrder[index], memberTierForSignupRank(index + 1));
+  }
+  return map;
+}

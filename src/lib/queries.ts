@@ -822,7 +822,15 @@ export async function getAdminData() {
       take: 20,
     }),
     prisma.user.findMany({
-      include: { profile: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        suspended: true,
+        createdAt: true,
+        profile: { select: { username: true, memberTier: true } },
+      },
       orderBy: { createdAt: "desc" },
       take: 20,
     }),

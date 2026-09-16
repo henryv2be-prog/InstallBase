@@ -10,5 +10,5 @@ export default async function AdminPage() {
   if (session?.user?.role !== "ADMIN") redirect("/feed");
 
   const data = await getAdminData();
-  return <AdminDashboard data={data} />;
+  return <AdminDashboard data={data} currentUserId={session.user.id} />;
 }
