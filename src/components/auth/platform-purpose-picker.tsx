@@ -106,7 +106,6 @@ export function PlatformPurposePicker({
             <label key={purpose.id} className={cn(cardClass, "cursor-pointer")}>
               <input
                 type="checkbox"
-                name={name}
                 value={purpose.id}
                 checked={selected}
                 onChange={() => toggle(purpose.id)}
