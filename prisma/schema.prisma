@@ -37,6 +37,11 @@ enum ReputationLevel {
   MASTER
 }
 
+enum MemberTier {
+  FOUNDING_MEMBER
+  EARLY_BUILDER
+}
+
 enum PostType {
   POST
   BRAG
@@ -203,6 +208,7 @@ model Profile {
   reputationScore Int               @default(0)
   reputationLevel ReputationLevel   @default(APPRENTICE)
   verified        Boolean           @default(false)
+  memberTier      MemberTier?
   bragCount       Int               @default(0)
   helpfulAnswers  Int               @default(0)
   coverImage              String?

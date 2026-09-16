@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTopInstallers, getFollowingIds } from "@/lib/queries";
 import { FollowButton } from "@/components/profile/follow-button";
 import { PresenceAvatar } from "@/components/presence/presence-avatar";
+import { MemberTierBadge } from "@/components/ui/badge";
 
 export async function FollowSuggestions({ userId }: { userId: string }) {
   const [topInstallers, followingIds] = await Promise.all([
@@ -29,7 +30,10 @@ export async function FollowSuggestions({ userId }: { userId: string }) {
                 lastSeenAt={installer.user.lastSeenAt}
               />
               <div className="min-w-0">
-                <p className="truncate font-semibold">{installer.user.name}</p>
+                <div className="flex min-w-0 items-center gap-2">
+                  <p className="truncate font-semibold">{installer.user.name}</p>
+                  {installer.memberTier && <MemberTierBadge tier={installer.memberTier} compact />}
+                </div>
                 <p className="truncate text-sm text-muted">@{installer.username}</p>
               </div>
             </Link>

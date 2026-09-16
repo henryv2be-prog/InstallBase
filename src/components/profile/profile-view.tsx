@@ -7,7 +7,8 @@ import { getSession } from "@/lib/session";
 import type { Session } from "next-auth";
 import { PresenceLabel } from "@/components/presence/presence-avatar";
 import { EditableProfileAvatar } from "@/components/profile/editable-profile-avatar";
-import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
+import { Badge, MemberTierBadge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
+import { getMemberTierNote } from "@/lib/membership";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PostFeed } from "@/components/feed/post-card";
@@ -76,11 +77,15 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
 
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl font-bold">{user.name}</h1>
                 {profile.verified && <VerifiedBadge />}
+                {profile.memberTier && <MemberTierBadge tier={profile.memberTier} />}
               </div>
               <p className="text-muted">@{profile.username}</p>
+              {profile.memberTier && (
+                <p className="mt-1 text-sm text-muted">{getMemberTierNote(profile.memberTier)}</p>
+              )}
               <PresenceLabel lastSeenAt={user.lastSeenAt} className="mt-1 block text-sm" />
               {(profile.city || profile.country) && (
                 <p className="mt-1 flex items-center gap-1 text-sm text-muted">

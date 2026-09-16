@@ -7,6 +7,7 @@ import { bragHotScore, recencyMultiplier, startOfWeek } from "@/lib/ranking";
 import { braggablePostWhere, isBraggableType } from "@/lib/brag";
 import { getPostTradeGroupLabel, isPortfolioPost } from "@/lib/work-posts";
 import { getLandingPageStats } from "@/lib/analytics/page-views";
+import { feedBoostForMemberTier } from "@/lib/membership";
 import {
   FEED_PAGE_SIZE,
   type FeedCursor,
@@ -270,6 +271,7 @@ async function scorePopularFeedPosts(userId?: string, limit = FEED_PAGE_SIZE) {
     score += post.bragScore * 2 * recencyMultiplier(post.createdAt);
     if (followingIds.includes(post.authorId)) score += 50;
     if (post.type === "QUESTION" && !post.solved) score += 15;
+    score += feedBoostForMemberTier(post.author.profile?.memberTier);
     return { post, score };
   });
 

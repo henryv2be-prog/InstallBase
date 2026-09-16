@@ -8,7 +8,7 @@ import {
   MapPin,
   Camera,
 } from "lucide-react";
-import { Badge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
+import { Badge, MemberTierBadge, ReputationBadge, VerifiedBadge } from "@/components/ui/badge";
 import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { Button } from "@/components/ui/button";
 import { cn, getFeedReasonLabel } from "@/lib/utils";
@@ -140,6 +140,7 @@ export function PostCard({
                   {post.author.name}
                 </span>
                 {profile?.verified && <VerifiedBadge />}
+                {profile?.memberTier && <MemberTierBadge tier={profile.memberTier} compact />}
               </div>
               <div className="flex items-center gap-2 text-sm text-muted">
                 <span>@{profile?.username}</span>

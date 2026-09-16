@@ -18,7 +18,7 @@ import {
 import { FollowButton } from "@/components/profile/follow-button";
 import { PostCard, PostFeed } from "@/components/feed/post-card";
 import { PresenceAvatar } from "@/components/presence/presence-avatar";
-import { Badge } from "@/components/ui/badge";
+import { Badge, MemberTierBadge } from "@/components/ui/badge";
 import { formatNumber } from "@/lib/utils";
 import { TrendingUp, HelpCircle, FolderKanban } from "lucide-react";
 import { DiscoverTabs } from "@/components/discover/discover-tabs";
@@ -185,7 +185,10 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                     lastSeenAt={installer.user.lastSeenAt}
                   />
                   <div className="min-w-0">
-                    <p className="truncate font-semibold">{installer.user.name}</p>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <p className="truncate font-semibold">{installer.user.name}</p>
+                      {installer.memberTier && <MemberTierBadge tier={installer.memberTier} compact />}
+                    </div>
                     <p className="text-sm text-muted">@{installer.username}</p>
                   </div>
                 </Link>
