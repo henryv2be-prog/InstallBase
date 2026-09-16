@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Settings, LogOut, User } from "lucide-react";
+import { Settings, LogOut, User, Shield, Megaphone } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { logout } from "@/lib/logout";
@@ -12,9 +12,10 @@ interface UserMenuProps {
   name?: string | null;
   image?: string | null;
   username?: string;
+  isAdmin?: boolean;
 }
 
-export function UserMenu({ name, image, username }: UserMenuProps) {
+export function UserMenu({ name, image, username, isAdmin }: UserMenuProps) {
   const [pending, startTransition] = useTransition();
   const profileHref = username ? `/profile/${username}` : "/profile";
 
@@ -46,6 +47,23 @@ export function UserMenu({ name, image, username }: UserMenuProps) {
               Settings
             </Link>
           </DropdownMenu.Item>
+          {isAdmin && (
+            <>
+              <DropdownMenu.Separator className="my-1 h-px bg-border" />
+              <DropdownMenu.Item asChild>
+                <Link href="/admin" className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <Shield className="h-4 w-4" />
+                  Admin dashboard
+                </Link>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
+                <Link href="/admin/ads" className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <Megaphone className="h-4 w-4" />
+                  Advertising
+                </Link>
+              </DropdownMenu.Item>
+            </>
+          )}
           <DropdownMenu.Separator className="my-1 h-px bg-border" />
           <DropdownMenu.Item
             className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 outline-none hover:bg-red-50 dark:hover:bg-red-950/30"

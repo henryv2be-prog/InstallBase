@@ -8,14 +8,14 @@ import { braggablePostWhere, isBraggableType } from "@/lib/brag";
 import { getPostTradeGroupLabel, isPortfolioPost } from "@/lib/work-posts";
 import { getLandingPageStats } from "@/lib/analytics/page-views";
 
-/** Card/list payload: counts instead of every like, comment, bookmark, and brag row. */
+/** Card/list payload: counts instead of every comment, bookmark, and brag row. */
 export const postCardInclude = {
   author: { include: { profile: true, reputation: true } },
   media: { orderBy: { order: "asc" as const } },
   tags: { include: { tag: true } },
   products: { include: { product: { include: { brand: true } } } },
   categories: { include: { category: true } },
-  _count: { select: { likes: true, comments: true, answers: true } },
+  _count: { select: { comments: true, answers: true } },
 } satisfies Prisma.PostInclude;
 
 export const postInclude = {
@@ -32,44 +32,59 @@ export const postInclude = {
 
 type PostCardRow = Prisma.PostGetPayload<{ include: typeof postCardInclude }>;
 
-export type PostCardData = PostCardRow & {
-  likes: { userId: string }[];
-  bookmarks: { userId: string }[];
-  bragPoints: { userId: string }[];
+export type PostMediaWithViewerState = PostCardRow["media"][number] & {
+  braggedByViewer: boolean;
 };
 
-export type PostDetailData = Prisma.PostGetPayload<{ include: typeof postInclude }> & {
-  likes: { userId: string }[];
+export type PostCardData = Omit<PostCardRow, "media"> & {
   bookmarks: { userId: string }[];
-  bragPoints: { userId: string }[];
+  media: PostMediaWithViewerState[];
 };
 
-async function withViewerState<T extends { id: string }>(
+type PostDetailRow = Prisma.PostGetPayload<{ include: typeof postInclude }>;
+
+export type PostDetailData = Omit<PostDetailRow, "media"> & {
+  bookmarks: { userId: string }[];
+  media: PostMediaWithViewerState[];
+};
+
+async function withViewerState<T extends { id: string; media: { id: string }[] }>(
   posts: T[],
   userId?: string
-): Promise<(T & { likes: { userId: string }[]; bookmarks: { userId: string }[]; bragPoints: { userId: string }[] })[]> {
+): Promise<(T & { bookmarks: { userId: string }[]; media: (T["media"][number] & { braggedByViewer: boolean })[] })[]> {
   if (posts.length === 0) return [];
 
+  const mediaIds = posts.flatMap((post) => post.media.map((item) => item.id));
+
   if (!userId) {
-    return posts.map((post) => ({ ...post, likes: [], bookmarks: [], bragPoints: [] }));
+    return posts.map((post) => ({
+      ...post,
+      bookmarks: [],
+      media: post.media.map((item) => ({ ...item, braggedByViewer: false })),
+    }));
   }
 
   const ids = posts.map((post) => post.id);
-  const [likes, bookmarks, bragPoints] = await Promise.all([
-    prisma.like.findMany({ where: { userId, postId: { in: ids } }, select: { postId: true, userId: true } }),
+  const [bookmarks, mediaBrags] = await Promise.all([
     prisma.bookmark.findMany({ where: { userId, postId: { in: ids } }, select: { postId: true, userId: true } }),
-    prisma.bragPoint.findMany({ where: { userId, postId: { in: ids } }, select: { postId: true, userId: true } }),
+    mediaIds.length > 0
+      ? prisma.mediaBragPoint.findMany({
+          where: { userId, postMediaId: { in: mediaIds } },
+          select: { postMediaId: true },
+        })
+      : Promise.resolve([]),
   ]);
 
-  const liked = new Set(likes.map((row) => row.postId));
   const saved = new Set(bookmarks.map((row) => row.postId));
-  const bragged = new Set(bragPoints.map((row) => row.postId));
+  const braggedMedia = new Set(mediaBrags.map((row) => row.postMediaId));
 
   return posts.map((post) => ({
     ...post,
-    likes: liked.has(post.id) ? [{ userId }] : [],
     bookmarks: saved.has(post.id) ? [{ userId }] : [],
-    bragPoints: bragged.has(post.id) ? [{ userId }] : [],
+    media: post.media.map((item) => ({
+      ...item,
+      braggedByViewer: braggedMedia.has(item.id),
+    })),
   }));
 }
 
@@ -160,7 +175,6 @@ export async function getFeedPosts(userId?: string, limit = 20) {
     let score = 0;
     const ageHours = (Date.now() - new Date(post.createdAt).getTime()) / 3600000;
     score += Math.max(0, 100 - ageHours * 2);
-    score += post._count.likes * 3;
     score += post._count.comments * 5;
     score += post.bragScore * 2 * recencyMultiplier(post.createdAt);
     if (followingIds.includes(post.authorId)) score += 50;
@@ -398,6 +412,40 @@ export async function getBragOfWeek(userId?: string) {
     category: BRAG_CATEGORIES[i % BRAG_CATEGORIES.length],
     post,
   }));
+}
+
+export async function getLandingCommunityStats() {
+  return cachedRows(
+    ["landing-community-stats"],
+    async () => {
+      const weekAgo = new Date(Date.now() - 7 * 86400000);
+      const [installersSharing, installsThisWeek, questionsAnswered, bragTotals] = await Promise.all([
+        prisma.user.count({
+          where: { posts: { some: { media: { some: {} } } } },
+        }),
+        prisma.post.count({
+          where: {
+            createdAt: { gte: weekAgo },
+            media: { some: {} },
+            type: { not: "QUESTION" },
+          },
+        }),
+        prisma.answer.count(),
+        prisma.post.aggregate({
+          where: braggablePostWhere,
+          _sum: { bragScore: true },
+        }),
+      ]);
+
+      return {
+        installersSharing,
+        installsThisWeek,
+        questionsAnswered,
+        totalBragPoints: bragTotals._sum.bragScore ?? 0,
+      };
+    },
+    120
+  );
 }
 
 export async function getDiscoverData(userId?: string) {

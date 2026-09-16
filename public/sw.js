@@ -1,11 +1,12 @@
-const CACHE = "installbase-v6";
+const CACHE = "installbase-v11";
+const ICON_V = "11";
 const PRECACHE = [
   "/login",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png",
-  "/icons/icon-192-maskable.png",
-  "/icons/icon-512-maskable.png",
-  "/icons/badge.png",
+  `/icons/icon-192.png?v=${ICON_V}`,
+  `/icons/icon-512.png?v=${ICON_V}`,
+  `/icons/icon-192-maskable.png?v=${ICON_V}`,
+  `/icons/icon-512-maskable.png?v=${ICON_V}`,
+  `/icons/badge.png?v=${ICON_V}`,
 ];
 
 self.addEventListener("install", (event) => {
@@ -62,8 +63,8 @@ self.addEventListener("push", (event) => {
         title: "InstallBase",
         body: "You have a new notification",
         url: "/notifications",
-        icon: "/icons/icon-192.png",
-        badge: "/icons/badge.png",
+        icon: `/icons/icon-192.png?v=${ICON_V}`,
+        badge: `/icons/badge.png?v=${ICON_V}`,
       };
       try {
         if (event.data) {
@@ -80,8 +81,8 @@ self.addEventListener("push", (event) => {
 
       await self.registration.showNotification(data.title || "InstallBase", {
         body: data.body,
-        icon: data.icon || "/icons/icon-192.png",
-        badge: data.badge || "/icons/badge.png",
+        icon: data.icon || `/icons/icon-192.png?v=${ICON_V}`,
+        badge: data.badge || `/icons/badge.png?v=${ICON_V}`,
         data: { url: data.url || "/notifications" },
       });
     })()

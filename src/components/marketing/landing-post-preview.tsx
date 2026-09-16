@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Trophy } from "lucide-react";
+import { MessageCircle, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { TRADE_PHOTOS } from "@/lib/constants";
@@ -106,7 +106,7 @@ export function LandingPostPreview({ post, className, compact = false }: Landing
           </div>
           <div className="min-w-0">
             <p className="font-semibold leading-tight">{post.trade}</p>
-            <p className="text-xs text-muted">Example post</p>
+            <p className="text-xs text-muted">@{post.trade.toLowerCase().replace(/\s+/g, "")}</p>
           </div>
         </div>
 
@@ -125,12 +125,15 @@ export function LandingPostPreview({ post, className, compact = false }: Landing
           {post.content}
         </p>
 
-        <div className="mt-3 overflow-hidden rounded-xl bg-slate-900/40 ring-1 ring-border">
+        <div className="mt-3 overflow-hidden rounded-xl bg-muted ring-1 ring-border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={post.image}
             alt={post.imageAlt}
-            className={cn("w-full object-cover", compact ? "aspect-[16/10]" : "aspect-[4/3]")}
+            className={cn(
+              "w-full bg-muted object-cover",
+              compact ? "aspect-[16/10]" : "aspect-[4/3]"
+            )}
             loading="lazy"
             decoding="async"
           />
@@ -138,10 +141,6 @@ export function LandingPostPreview({ post, className, compact = false }: Landing
 
         {!compact && (
           <div className="mt-3 flex items-center gap-4 text-xs text-muted">
-            <span className="inline-flex items-center gap-1">
-              <Heart className="h-3.5 w-3.5" />
-              Like
-            </span>
             <span className="inline-flex items-center gap-1">
               <MessageCircle className="h-3.5 w-3.5" />
               Comment

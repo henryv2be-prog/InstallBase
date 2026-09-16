@@ -36,7 +36,7 @@ export default async function ActivityPage({ searchParams }: ActivityPageProps) 
         <h1 className="mb-4 text-2xl font-bold">Activity</h1>
         <GuestJoinCard
           title="Activity is for members"
-          body="Join free to get notified when someone likes, comments, or messages you."
+          body="Join free to get notified when someone comments, brags your work, or messages you."
           next="/activity"
         />
       </div>
