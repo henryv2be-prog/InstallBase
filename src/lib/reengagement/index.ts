@@ -20,4 +20,10 @@ export {
   type EligibleUser,
 } from "./eligibility";
 export { runDailyReengagement, type ReengagementRunResult, type ReengagementRunOptions } from "./send";
+export {
+  isAutoRunEnabled,
+  shouldRunScheduledJob,
+  markSchedulerRunComplete,
+  startReengagementScheduler,
+} from "./scheduler";
 export { recordReengagementOpen, countReengagementSent, countReengagementOpens } from "./analytics";
