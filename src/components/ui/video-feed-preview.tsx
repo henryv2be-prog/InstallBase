@@ -1,32 +1,54 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Play } from "lucide-react";
 import { baseVideoUrl, formatVideoDuration } from "@/lib/media";
+import {
+  claimVideoPreview,
+  registerVideoPreview,
+  releaseVideoPreview,
+} from "@/lib/video-preview-manager";
 import { cn } from "@/lib/utils";
 
 interface VideoFeedPreviewProps {
   url: string;
   className?: string;
-  /** Skip in-view autoplay previews — used for off-screen infinite-feed cards. */
-  deferMotionPreview?: boolean;
 }
 
 /** Paused first-frame preview in the feed; muted playback on hover (desktop) or when in view (mobile). */
-export function VideoFeedPreview({ url, className, deferMotionPreview = false }: VideoFeedPreviewProps) {
+export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
+  const previewId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const previewingRef = useRef(false);
 
+  const [nearViewport, setNearViewport] = useState(false);
   const [durationLabel, setDurationLabel] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [canHoverPreview, setCanHoverPreview] = useState(false);
   const [motionPreviewEnabled, setMotionPreviewEnabled] = useState(true);
 
-  const showPosterFrame = useCallback(() => {
+  const unloadVideo = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    video.pause();
+    if (video.src) {
+      video.removeAttribute("src");
+      video.load();
+    }
+    previewingRef.current = false;
+    setPreviewing(false);
+    setReady(false);
+    setDurationLabel(null);
+    releaseVideoPreview(previewId);
+  }, [previewId]);
+
+  const showPosterFrame = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || !video.src) return;
+
     video.pause();
     try {
       video.currentTime = 0.1;
@@ -36,23 +58,30 @@ export function VideoFeedPreview({ url, className, deferMotionPreview = false }:
     previewingRef.current = false;
     setPreviewing(false);
     setReady(true);
-  }, []);
+    releaseVideoPreview(previewId);
+  }, [previewId]);
 
   const startPreview = useCallback(async () => {
     const video = videoRef.current;
-    if (!video || previewingRef.current) return;
+    if (!video?.src || previewingRef.current) return;
 
     video.muted = true;
     video.loop = true;
 
     try {
+      claimVideoPreview(previewId);
       await video.play();
       previewingRef.current = true;
       setPreviewing(true);
     } catch {
       showPosterFrame();
     }
-  }, [showPosterFrame]);
+  }, [previewId, showPosterFrame]);
+
+  useEffect(() => {
+    const pause = () => showPosterFrame();
+    return registerVideoPreview(previewId, pause);
+  }, [previewId, showPosterFrame]);
 
   useEffect(() => {
     const hoverQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -75,8 +104,29 @@ export function VideoFeedPreview({ url, className, deferMotionPreview = false }:
   }, []);
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const shouldAttach = entry.isIntersecting;
+        setNearViewport(shouldAttach);
+        if (!shouldAttach && entry.intersectionRatio === 0) {
+          unloadVideo();
+        }
+      },
+      { rootMargin: "280px 0px", threshold: [0, 0.01] }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [unloadVideo]);
+
+  useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    if (!nearViewport) return;
 
     previewingRef.current = false;
     setPreviewing(false);
@@ -96,10 +146,10 @@ export function VideoFeedPreview({ url, className, deferMotionPreview = false }:
       video.removeEventListener("loadedmetadata", onLoadedMetadata);
       video.pause();
     };
-  }, [showPosterFrame, url]);
+  }, [nearViewport, showPosterFrame, url]);
 
   useEffect(() => {
-    if (deferMotionPreview || canHoverPreview || !motionPreviewEnabled) return;
+    if (!nearViewport || canHoverPreview || !motionPreviewEnabled) return;
 
     const container = containerRef.current;
     if (!container) return;
@@ -117,10 +167,10 @@ export function VideoFeedPreview({ url, className, deferMotionPreview = false }:
 
     observer.observe(container);
     return () => observer.disconnect();
-  }, [canHoverPreview, deferMotionPreview, motionPreviewEnabled, showPosterFrame, startPreview]);
+  }, [canHoverPreview, motionPreviewEnabled, nearViewport, showPosterFrame, startPreview]);
 
   const handlePointerEnter = () => {
-    if (!canHoverPreview) return;
+    if (!canHoverPreview || !nearViewport) return;
     void startPreview();
   };
 
@@ -144,7 +194,7 @@ export function VideoFeedPreview({ url, className, deferMotionPreview = false }:
         )}
         muted
         playsInline
-        preload="metadata"
+        preload="none"
         disablePictureInPicture
         aria-hidden="true"
         tabIndex={-1}
