@@ -19,7 +19,13 @@ export {
   isEligibleForReengagement,
   type EligibleUser,
 } from "./eligibility";
-export { runDailyReengagement, type ReengagementRunResult, type ReengagementRunOptions } from "./send";
+export {
+  runDailyReengagement,
+  sendReengagementPreviewToUser,
+  type ReengagementRunResult,
+  type ReengagementRunOptions,
+  type ReengagementPreviewResult,
+} from "./send";
 export {
   isAutoRunEnabled,
   shouldRunScheduledJob,

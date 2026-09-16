@@ -884,6 +884,21 @@ export async function adminRunDailyReengagement(dryRun = true) {
   return result;
 }
 
+export async function adminSendTestReengagement():
+  Promise<
+    | { success: true; preview: boolean; content: { title: string; body: string; url: string } }
+    | { error: string }
+  > {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  if (!session.user.id) return { error: "Not signed in" };
+
+  const { sendReengagementPreviewToUser } = await import("@/lib/reengagement");
+  const result = await sendReengagementPreviewToUser(session.user.id);
+  if ("error" in result) return { error: result.error };
+  return { success: true, preview: result.preview, content: result.content };
+}
+
 export async function sendTestPush() {
   const userId = await getCurrentUserId();
 

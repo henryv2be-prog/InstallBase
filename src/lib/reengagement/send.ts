@@ -29,6 +29,76 @@ export type ReengagementRunOptions = {
   now?: Date;
 };
 
+export type ReengagementPreviewResult =
+  | {
+      success: true;
+      sent: number;
+      preview: boolean;
+      content: { title: string; body: string; url: string };
+    }
+  | { error: string };
+
+const SAMPLE_PREVIEW_CONTENT = {
+  title: "🔧 InstallBase today",
+  body: "2 new posts, 1 question and 5 Brag points. See what's happening →",
+  message: "2 new posts, 1 question and 5 Brag points. See what's happening →",
+  url: "/feed?ref=daily-reengagement",
+};
+
+export async function sendReengagementPreviewToUser(
+  userId: string
+): Promise<ReengagementPreviewResult> {
+  if (!isPushConfigured()) {
+    return { error: "Push is not configured on the server. Add VAPID keys and redeploy." };
+  }
+
+  const subscriptionCount = await prisma.pushSubscription.count({ where: { userId } });
+  if (subscriptionCount === 0) {
+    return { error: "No device is registered yet. Enable alerts in Settings first." };
+  }
+
+  const config = getReengagementConfig();
+  const now = new Date();
+  const since = new Date(now.getTime() - config.activityWindowHours * 60 * 60 * 1000);
+  const activity = await getCommunityActivity(since);
+  const hasActivity = hasMeaningfulActivity(activity, config.minActivityCount);
+  const content = buildReengagementContent(activity, now.getUTCDate()) ?? SAMPLE_PREVIEW_CONTENT;
+
+  const notification = await prisma.notification.create({
+    data: {
+      userId,
+      type: "DAILY_REENGAGEMENT",
+      message: hasActivity ? content.message : `${content.message} (preview)`,
+      link: content.url,
+    },
+  });
+
+  const linkWithId = content.url.includes("?")
+    ? `${content.url}&nid=${notification.id}`
+    : `${content.url}?nid=${notification.id}`;
+
+  const sent = await sendPushToUser(userId, {
+    title: content.title,
+    body: content.body,
+    url: linkWithId,
+    urgency: "normal",
+  }).catch((error) => {
+    console.error("Re-engagement preview push failed:", userId, error);
+    return 0;
+  });
+
+  if (!sent) {
+    return { error: "Could not deliver the preview. Try disabling and re-enabling alerts." };
+  }
+
+  return {
+    success: true,
+    sent,
+    preview: !hasActivity,
+    content: { title: content.title, body: content.body, url: linkWithId },
+  };
+}
+
 export async function runDailyReengagement(
   options: ReengagementRunOptions = {}
 ): Promise<ReengagementRunResult> {
