@@ -4,7 +4,7 @@ import { getTargetingContext } from "@/lib/advertising/context";
 import { getAdSettings } from "@/lib/advertising/settings";
 import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 import type { PostCardData } from "@/lib/queries";
-import { InfinitePostFeed } from "@/components/feed/infinite-post-feed";
+import { InfiniteFeedShell } from "@/components/feed/infinite-feed-shell";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Camera } from "lucide-react";
 import { headers } from "next/headers";
@@ -73,7 +73,7 @@ export async function PostFeedWithAds(props: PostFeedWithAdsProps) {
     : [];
 
   return (
-    <InfinitePostFeed
+    <InfiniteFeedShell
       initialPosts={posts}
       initialCursor={nextCursor}
       initialHasMore={hasMore}

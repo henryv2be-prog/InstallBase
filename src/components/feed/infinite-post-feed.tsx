@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import type { AdCreative } from "@/lib/advertising/types";
+import { FEED_MAX_LOADED_POSTS } from "@/lib/feed-pagination";
 import type { PostCardData } from "@/lib/queries";
 import { PostCard } from "@/components/feed/post-card";
 import { FeedWithAds } from "@/components/ads/feed-with-ads";
 import { Button } from "@/components/ui/button";
-import { FEED_REFRESH_EVENT } from "@/lib/feed-refresh";
+import { FEED_REFRESH_EVENT, requestFeedReset } from "@/lib/feed-refresh";
 
 interface InfinitePostFeedProps {
   initialPosts: PostCardData[];
@@ -34,6 +36,7 @@ export function InfinitePostFeed({
   betweenAds,
   minPostsBetweenAds,
 }: InfinitePostFeedProps) {
+  const router = useRouter();
   const [posts, setPosts] = useState(initialPosts);
   const [cursor, setCursor] = useState(initialCursor);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -41,9 +44,15 @@ export function InfinitePostFeed({
   const [error, setError] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const tabRef = useRef(tab);
+  const loadingRef = useRef(false);
+  const postsCountRef = useRef(initialPosts.length);
   const latestInitialRef = useRef({ initialPosts, initialCursor, initialHasMore });
 
   latestInitialRef.current = { initialPosts, initialCursor, initialHasMore };
+  postsCountRef.current = posts.length;
+
+  const atPostLimit = posts.length >= FEED_MAX_LOADED_POSTS;
+  const canLoadMore = hasMore && !atPostLimit;
 
   useEffect(() => {
     const tabChanged = tabRef.current !== tab;
@@ -60,7 +69,7 @@ export function InfinitePostFeed({
     setPosts((current) => {
       const initialIds = new Set(initialPosts.map((post) => post.id));
       const loadedMore = current.filter((post) => !initialIds.has(post.id));
-      return [...initialPosts, ...loadedMore];
+      return [...initialPosts, ...loadedMore].slice(0, FEED_MAX_LOADED_POSTS);
     });
     setCursor(initialCursor);
     setHasMore(initialHasMore);
@@ -80,8 +89,10 @@ export function InfinitePostFeed({
   }, []);
 
   const loadMore = useCallback(async () => {
-    if (!hasMore || loading || !cursor) return;
+    if (!canLoadMore || loadingRef.current || !cursor) return;
+    if (postsCountRef.current >= FEED_MAX_LOADED_POSTS) return;
 
+    loadingRef.current = true;
     setLoading(true);
     setError(null);
 
@@ -101,33 +112,41 @@ export function InfinitePostFeed({
       setPosts((current) => {
         const seen = new Set(current.map((post) => post.id));
         const next = data.posts.filter((post) => !seen.has(post.id));
-        return [...current, ...next];
+        return [...current, ...next].slice(0, FEED_MAX_LOADED_POSTS);
       });
       setCursor(data.nextCursor);
       setHasMore(data.hasMore);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Could not load more posts");
     } finally {
+      loadingRef.current = false;
       setLoading(false);
     }
-  }, [cursor, hasMore, loading, tab]);
+  }, [canLoadMore, cursor, tab]);
 
   useEffect(() => {
     const node = sentinelRef.current;
-    if (!node || !hasMore) return;
+    if (!node || !canLoadMore) return;
+
+    let loadTimer: ReturnType<typeof setTimeout> | null = null;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (!entry.isIntersecting) return;
+        if (loadTimer) clearTimeout(loadTimer);
+        loadTimer = setTimeout(() => {
           void loadMore();
-        }
+        }, 150);
       },
-      { rootMargin: "240px" }
+      { rootMargin: "160px" }
     );
 
     observer.observe(node);
-    return () => observer.disconnect();
-  }, [hasMore, loadMore]);
+    return () => {
+      if (loadTimer) clearTimeout(loadTimer);
+      observer.disconnect();
+    };
+  }, [canLoadMore, loadMore]);
 
   const initialCount = initialPosts.length;
   const initialNodes = posts.slice(0, initialCount).map((post) => (
@@ -138,6 +157,7 @@ export function InfinitePostFeed({
       showInlineComments={showInlineComments}
       feedContext={feedContext}
       followingIds={followingIds}
+      deferHeavyContent={false}
     />
   ));
 
@@ -146,9 +166,10 @@ export function InfinitePostFeed({
       key={post.id}
       post={post}
       currentUserId={currentUserId}
-      showInlineComments={showInlineComments}
+      showInlineComments={false}
       feedContext={feedContext}
       followingIds={followingIds}
+      deferHeavyContent
     />
   ));
 
@@ -160,7 +181,7 @@ export function InfinitePostFeed({
 
       {loadedMoreNodes.length > 0 && <div className="space-y-4">{loadedMoreNodes}</div>}
 
-      {hasMore && (
+      {canLoadMore && (
         <div ref={sentinelRef} className="flex min-h-12 items-center justify-center py-2">
           {loading ? (
             <Loader2 className="h-5 w-5 animate-spin text-muted" aria-label="Loading more posts" />
@@ -175,7 +196,28 @@ export function InfinitePostFeed({
         </div>
       )}
 
-      {!hasMore && posts.length > 0 && (
+      {atPostLimit && hasMore && (
+        <div className="rounded-xl border border-border bg-card/60 px-4 py-3 text-center">
+          <p className="text-sm text-muted">
+            Showing the latest {FEED_MAX_LOADED_POSTS} posts to keep things fast.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-3"
+            onClick={() => {
+              requestFeedReset();
+              router.refresh();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
+            Back to top & refresh
+          </Button>
+        </div>
+      )}
+
+      {!hasMore && posts.length > 0 && !atPostLimit && (
         <p className="py-4 text-center text-xs text-muted">You&apos;re all caught up</p>
       )}
     </div>
