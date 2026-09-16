@@ -33,6 +33,8 @@ interface PostCardProps {
   bragPresentation?: "default" | "compact";
   feedContext?: "following" | "popular";
   followingIds?: Set<string>;
+  /** Off-screen feed cards skip heavy paint until scrolled near. */
+  deferHeavyContent?: boolean;
 }
 
 export function PostCard({
@@ -43,6 +45,7 @@ export function PostCard({
   bragPresentation = "default",
   feedContext,
   followingIds,
+  deferHeavyContent = false,
 }: PostCardProps) {
   const compactBrag = bragPresentation === "compact";
   const [, startTransition] = useTransition();
@@ -115,7 +118,8 @@ export function PostCard({
       className={cn(
         "glass-card glow-border overflow-hidden transition-all duration-200 hover:shadow-lg",
         bragScore > 0 && !compactBrag && "border-orange-500/30 dark:border-orange-500/20",
-        bragScore > 0 && compactBrag && "border-border"
+        bragScore > 0 && compactBrag && "border-border",
+        deferHeavyContent && "[content-visibility:auto] [contain-intrinsic-size:auto_26rem]"
       )}
     >
       <div className="p-5">
@@ -187,6 +191,7 @@ export function PostCard({
               canBrag={canBrag}
               currentUserId={currentUserId}
               onPostBragScoreChange={setBragScore}
+              deferMotionPreview={deferHeavyContent}
             />
           </div>
         )}

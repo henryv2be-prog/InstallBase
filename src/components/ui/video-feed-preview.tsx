@@ -8,10 +8,12 @@ import { cn } from "@/lib/utils";
 interface VideoFeedPreviewProps {
   url: string;
   className?: string;
+  /** Skip in-view autoplay previews — used for off-screen infinite-feed cards. */
+  deferMotionPreview?: boolean;
 }
 
 /** Paused first-frame preview in the feed; muted playback on hover (desktop) or when in view (mobile). */
-export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
+export function VideoFeedPreview({ url, className, deferMotionPreview = false }: VideoFeedPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const previewingRef = useRef(false);
@@ -97,7 +99,7 @@ export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
   }, [showPosterFrame, url]);
 
   useEffect(() => {
-    if (canHoverPreview || !motionPreviewEnabled) return;
+    if (deferMotionPreview || canHoverPreview || !motionPreviewEnabled) return;
 
     const container = containerRef.current;
     if (!container) return;
@@ -115,7 +117,7 @@ export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
 
     observer.observe(container);
     return () => observer.disconnect();
-  }, [canHoverPreview, motionPreviewEnabled, showPosterFrame, startPreview]);
+  }, [canHoverPreview, deferMotionPreview, motionPreviewEnabled, showPosterFrame, startPreview]);
 
   const handlePointerEnter = () => {
     if (!canHoverPreview) return;

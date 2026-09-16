@@ -1,6 +1,10 @@
 import type { Prisma } from "@/generated/prisma/client";
 
 export const FEED_PAGE_SIZE = 20;
+/** Cap client-side feed length to avoid mobile browser memory crashes. */
+export const FEED_MAX_LOADED_POSTS = 60;
+/** Bound popular-tab exclude id lists carried in cursors. */
+export const FEED_MAX_CURSOR_EXCLUDE_IDS = 80;
 
 export type FeedTab = "popular" | "following";
 
@@ -20,7 +24,9 @@ export function toFeedCursor(post: { id: string; createdAt: Date | string }, exc
   return {
     createdAt: new Date(post.createdAt).toISOString(),
     id: post.id,
-    excludeIds,
+    excludeIds: excludeIds?.length
+      ? excludeIds.slice(-FEED_MAX_CURSOR_EXCLUDE_IDS)
+      : undefined,
   };
 }
 
