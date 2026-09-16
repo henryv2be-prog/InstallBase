@@ -4,14 +4,16 @@ import { getTargetingContext } from "@/lib/advertising/context";
 import { getAdSettings } from "@/lib/advertising/settings";
 import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 import type { PostCardData } from "@/lib/queries";
-import { PostCard } from "@/components/feed/post-card";
-import { FeedWithAds } from "@/components/ads/feed-with-ads";
+import { InfinitePostFeed } from "@/components/feed/infinite-post-feed";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Camera } from "lucide-react";
 import { headers } from "next/headers";
 
 interface PostFeedWithAdsProps {
   posts: PostCardData[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  tab: "popular" | "following";
   currentUserId?: string;
   showInlineComments?: boolean;
   feedContext?: "following" | "popular";
@@ -31,6 +33,9 @@ function detectDevice(userAgent: string): "mobile" | "desktop" | "tablet" {
 export async function PostFeedWithAds(props: PostFeedWithAdsProps) {
   const {
     posts,
+    nextCursor,
+    hasMore,
+    tab,
     currentUserId,
     showInlineComments,
     feedContext,
@@ -67,23 +72,18 @@ export async function PostFeedWithAds(props: PostFeedWithAdsProps) {
       })
     : [];
 
-  const postNodes = posts.map((post) => (
-    <PostCard
-      key={post.id}
-      post={post}
+  return (
+    <InfinitePostFeed
+      initialPosts={posts}
+      initialCursor={nextCursor}
+      initialHasMore={hasMore}
+      tab={tab}
       currentUserId={currentUserId}
       showInlineComments={showInlineComments}
       feedContext={feedContext}
       followingIds={followingIds}
-    />
-  ));
-
-  return (
-    <FeedWithAds
       betweenAds={betweenAds}
       minPostsBetweenAds={settings.minPostsBetweenAds}
-    >
-      {postNodes}
-    </FeedWithAds>
+    />
   );
 }

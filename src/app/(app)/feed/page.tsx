@@ -1,5 +1,10 @@
 import { getSession } from "@/lib/session";
-import { getFeedPosts, getFollowingFeedPosts, getFollowingIds, getUserPlatformRoles } from "@/lib/queries";
+import {
+  getFollowingFeedPage,
+  getFollowingIds,
+  getPopularFeedPage,
+  getUserPlatformRoles,
+} from "@/lib/queries";
 import { CreatePostCard } from "@/components/feed/create-post";
 import { PostFeedWithAds } from "@/components/feed/post-feed-with-ads";
 import { AdSlot } from "@/components/ads/ad-slot";
@@ -32,10 +37,11 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   const followingTab =
     tab === "following" || (tab !== "popular" && !!userId && followingIds.length > 0);
 
-  const posts =
+  const feedPage =
     followingTab && userId
-      ? await getFollowingFeedPosts(userId)
-      : await getFeedPosts(userId);
+      ? await getFollowingFeedPage(userId)
+      : await getPopularFeedPage(userId);
+  const { posts, nextCursor, hasMore } = feedPage;
 
   const showFollowSuggestions = userId && followingIds.length === 0;
 
@@ -120,6 +126,9 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             <AdSlot placement={AD_PLACEMENTS.FEED_TOP} className="mb-2" />
             <PostFeedWithAds
               posts={posts}
+              nextCursor={nextCursor}
+              hasMore={hasMore}
+              tab={followingTab ? "following" : "popular"}
               currentUserId={userId}
               showInlineComments
               feedContext={followingTab ? "following" : "popular"}
