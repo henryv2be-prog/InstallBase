@@ -27,7 +27,6 @@ interface MediaGalleryProps {
   canBrag?: boolean;
   currentUserId?: string;
   onPostBragScoreChange?: (score: number) => void;
-  deferMotionPreview?: boolean;
 }
 
 export function MediaGallery({
@@ -37,7 +36,6 @@ export function MediaGallery({
   canBrag = false,
   currentUserId,
   onPostBragScoreChange,
-  deferMotionPreview = false,
 }: MediaGalleryProps) {
   const [pending, startTransition] = useTransition();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -161,7 +159,7 @@ export function MediaGallery({
               }
             >
               {isVideoMedia(media.type, media.url) ? (
-                <VideoFeedPreview url={media.url} deferMotionPreview={deferMotionPreview} />
+                <VideoFeedPreview url={media.url} />
               ) : (
                 <MediaImage
                   src={media.url}

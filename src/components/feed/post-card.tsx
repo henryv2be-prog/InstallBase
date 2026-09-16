@@ -191,7 +191,6 @@ export function PostCard({
               canBrag={canBrag}
               currentUserId={currentUserId}
               onPostBragScoreChange={setBragScore}
-              deferMotionPreview={deferHeavyContent}
             />
           </div>
         )}
