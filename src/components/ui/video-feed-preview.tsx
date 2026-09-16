@@ -10,9 +10,46 @@ import {
 } from "@/lib/video-preview-manager";
 import { cn } from "@/lib/utils";
 
+/** Roughly two feed cards ahead + behind for attach; delayed unload when scrolled away. */
+const VIDEO_ATTACH_ROOT_MARGIN = "560px 0px 360px 0px";
+const VIDEO_UNLOAD_DELAY_MS = 3000;
+const VIDEO_PLAY_VISIBLE_RATIO = 0.35;
+
 interface VideoFeedPreviewProps {
   url: string;
   className?: string;
+}
+
+function waitForVideoReady(video: HTMLVideoElement, timeoutMs = 4000) {
+  if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+    return Promise.resolve();
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    const onReady = () => {
+      cleanup();
+      resolve();
+    };
+    const onError = () => {
+      cleanup();
+      reject(new Error("Video failed to load"));
+    };
+    const timer = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("Video load timed out"));
+    }, timeoutMs);
+
+    const cleanup = () => {
+      video.removeEventListener("loadeddata", onReady);
+      video.removeEventListener("canplay", onReady);
+      video.removeEventListener("error", onError);
+      window.clearTimeout(timer);
+    };
+
+    video.addEventListener("loadeddata", onReady, { once: true });
+    video.addEventListener("canplay", onReady, { once: true });
+    video.addEventListener("error", onError, { once: true });
+  });
 }
 
 /** Paused first-frame preview in the feed; muted playback on hover (desktop) or when in view (mobile). */
@@ -21,6 +58,7 @@ export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const previewingRef = useRef(false);
+  const unloadTimerRef = useRef<number | null>(null);
 
   const [nearViewport, setNearViewport] = useState(false);
   const [durationLabel, setDurationLabel] = useState<string | null>(null);
@@ -29,10 +67,18 @@ export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
   const [canHoverPreview, setCanHoverPreview] = useState(false);
   const [motionPreviewEnabled, setMotionPreviewEnabled] = useState(true);
 
+  const clearUnloadTimer = useCallback(() => {
+    if (unloadTimerRef.current) {
+      window.clearTimeout(unloadTimerRef.current);
+      unloadTimerRef.current = null;
+    }
+  }, []);
+
   const unloadVideo = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
 
+    clearUnloadTimer();
     video.pause();
     if (video.src) {
       video.removeAttribute("src");
@@ -43,7 +89,7 @@ export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
     setReady(false);
     setDurationLabel(null);
     releaseVideoPreview(previewId);
-  }, [previewId]);
+  }, [clearUnloadTimer, previewId]);
 
   const showPosterFrame = useCallback(() => {
     const video = videoRef.current;
@@ -69,6 +115,7 @@ export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
     video.loop = true;
 
     try {
+      await waitForVideoReady(video);
       claimVideoPreview(previewId);
       await video.play();
       previewingRef.current = true;
@@ -109,18 +156,29 @@ export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const shouldAttach = entry.isIntersecting;
-        setNearViewport(shouldAttach);
-        if (!shouldAttach && entry.intersectionRatio === 0) {
-          unloadVideo();
+        if (entry.isIntersecting) {
+          clearUnloadTimer();
+          setNearViewport(true);
+          return;
+        }
+
+        if (entry.intersectionRatio === 0) {
+          clearUnloadTimer();
+          unloadTimerRef.current = window.setTimeout(() => {
+            setNearViewport(false);
+            unloadVideo();
+          }, VIDEO_UNLOAD_DELAY_MS);
         }
       },
-      { rootMargin: "280px 0px", threshold: [0, 0.01] }
+      { rootMargin: VIDEO_ATTACH_ROOT_MARGIN, threshold: [0, 0.01] }
     );
 
     observer.observe(container);
-    return () => observer.disconnect();
-  }, [unloadVideo]);
+    return () => {
+      clearUnloadTimer();
+      observer.disconnect();
+    };
+  }, [clearUnloadTimer, unloadVideo]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -139,6 +197,7 @@ export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
     };
 
     video.src = baseVideoUrl(url);
+    video.preload = "metadata";
     video.load();
     video.addEventListener("loadedmetadata", onLoadedMetadata);
 
@@ -156,13 +215,13 @@ export function VideoFeedPreview({ url, className }: VideoFeedPreviewProps) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
+        if (entry.isIntersecting && entry.intersectionRatio >= VIDEO_PLAY_VISIBLE_RATIO) {
           void startPreview();
         } else {
           showPosterFrame();
         }
       },
-      { threshold: [0, 0.55, 0.9] }
+      { threshold: [0, VIDEO_PLAY_VISIBLE_RATIO, 0.75] }
     );
 
     observer.observe(container);

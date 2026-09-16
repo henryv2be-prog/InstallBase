@@ -1,27 +1,38 @@
-/** Only one muted feed preview should play at a time. */
+/** Limit concurrent muted feed previews to keep mobile browsers stable. */
+
+export const MAX_ACTIVE_VIDEO_PREVIEWS = 2;
 
 type PreviewHandle = {
   pause: () => void;
 };
 
 const previews = new Map<string, PreviewHandle>();
-let activeId: string | null = null;
+const activeIds: string[] = [];
+
+function removeActiveId(id: string) {
+  const index = activeIds.indexOf(id);
+  if (index >= 0) activeIds.splice(index, 1);
+}
 
 export function registerVideoPreview(id: string, pause: () => void) {
   previews.set(id, { pause });
   return () => {
     previews.delete(id);
-    if (activeId === id) activeId = null;
+    removeActiveId(id);
   };
 }
 
 export function claimVideoPreview(id: string) {
-  if (activeId && activeId !== id) {
-    previews.get(activeId)?.pause();
+  if (activeIds.includes(id)) return;
+
+  while (activeIds.length >= MAX_ACTIVE_VIDEO_PREVIEWS) {
+    const oldest = activeIds.shift();
+    if (oldest) previews.get(oldest)?.pause();
   }
-  activeId = id;
+
+  activeIds.push(id);
 }
 
 export function releaseVideoPreview(id: string) {
-  if (activeId === id) activeId = null;
+  removeActiveId(id);
 }
