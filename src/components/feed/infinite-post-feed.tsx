@@ -7,6 +7,7 @@ import type { PostCardData } from "@/lib/queries";
 import { PostCard } from "@/components/feed/post-card";
 import { FeedWithAds } from "@/components/ads/feed-with-ads";
 import { Button } from "@/components/ui/button";
+import { FEED_REFRESH_EVENT } from "@/lib/feed-refresh";
 
 interface InfinitePostFeedProps {
   initialPosts: PostCardData[];
@@ -39,13 +40,44 @@ export function InfinitePostFeed({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const tabRef = useRef(tab);
+  const latestInitialRef = useRef({ initialPosts, initialCursor, initialHasMore });
+
+  latestInitialRef.current = { initialPosts, initialCursor, initialHasMore };
 
   useEffect(() => {
-    setPosts(initialPosts);
+    const tabChanged = tabRef.current !== tab;
+    tabRef.current = tab;
+
+    if (tabChanged) {
+      setPosts(initialPosts);
+      setCursor(initialCursor);
+      setHasMore(initialHasMore);
+      setError(null);
+      return;
+    }
+
+    setPosts((current) => {
+      const initialIds = new Set(initialPosts.map((post) => post.id));
+      const loadedMore = current.filter((post) => !initialIds.has(post.id));
+      return [...initialPosts, ...loadedMore];
+    });
     setCursor(initialCursor);
     setHasMore(initialHasMore);
-    setError(null);
   }, [initialPosts, initialCursor, initialHasMore, tab]);
+
+  useEffect(() => {
+    const resetFeed = () => {
+      const { initialPosts, initialCursor, initialHasMore } = latestInitialRef.current;
+      setPosts(initialPosts);
+      setCursor(initialCursor);
+      setHasMore(initialHasMore);
+      setError(null);
+    };
+
+    window.addEventListener(FEED_REFRESH_EVENT, resetFeed);
+    return () => window.removeEventListener(FEED_REFRESH_EVENT, resetFeed);
+  }, []);
 
   const loadMore = useCallback(async () => {
     if (!hasMore || loading || !cursor) return;

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
+import { requestFeedReset } from "@/lib/feed-refresh";
 
 export function PullToRefresh({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -25,6 +26,7 @@ export function PullToRefresh({ children }: { children: React.ReactNode }) {
       setRefreshing(true);
       router.refresh();
       setTimeout(() => {
+        requestFeedReset();
         setRefreshing(false);
         setPull(0);
       }, 600);

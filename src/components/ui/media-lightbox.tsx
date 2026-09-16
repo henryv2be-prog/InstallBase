@@ -484,7 +484,11 @@ export function MediaLightbox({
         )}
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-40 flex flex-col items-center gap-2 px-4 pb-2">
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-40 flex flex-col items-center gap-2 px-4 pb-2"
+        onClick={(event) => event.stopPropagation()}
+        onPointerDown={(event) => event.stopPropagation()}
+      >
         {canBrag && active.id && onBrag && (
           <button
             type="button"
@@ -493,6 +497,7 @@ export function MediaLightbox({
               event.stopPropagation();
               onBrag(index);
             }}
+            onPointerDown={(event) => event.stopPropagation()}
             className={cn(
               "pointer-events-auto inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
               active.braggedByViewer
