@@ -522,7 +522,8 @@ export async function toggleMediaBragPoint(postMediaId: string) {
   const mediaUpdated = await syncMediaBragScore(postMediaId);
   const postUpdated = await syncPostBragScore(postId);
 
-  revalidatePath("/feed");
+  // Avoid revalidating /feed here — it refreshes the route and drops infinitely
+  // scrolled posts from the client, which closes an open media lightbox.
   revalidatePath("/brags");
   revalidatePath("/discover");
   revalidatePath(`/post/${postId}`);

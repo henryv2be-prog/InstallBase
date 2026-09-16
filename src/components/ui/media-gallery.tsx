@@ -42,8 +42,20 @@ export function MediaGallery({
   const [mediaState, setMediaState] = useState(items);
 
   useEffect(() => {
-    setMediaState(items);
-  }, [items]);
+    setMediaState((current) => {
+      if (activeIndex === null) return items;
+      const byKey = new Map(current.map((media) => [media.id ?? media.url, media]));
+      return items.map((item) => {
+        const existing = byKey.get(item.id ?? item.url);
+        if (!existing) return item;
+        return {
+          ...item,
+          bragScore: existing.bragScore,
+          braggedByViewer: existing.braggedByViewer,
+        };
+      });
+    });
+  }, [items, activeIndex]);
 
   const visible = limit ? mediaState.slice(0, limit) : mediaState;
   const hiddenCount = limit && mediaState.length > limit ? mediaState.length - limit : 0;
