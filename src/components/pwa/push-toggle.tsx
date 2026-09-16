@@ -14,13 +14,20 @@ import { enablePushNotifications } from "@/components/pwa/enable-push";
 import { describePushEnableError } from "@/components/pwa/push-errors";
 import { syncLocalPushSubscription } from "@/components/pwa/push-utils";
 
-export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: string }) {
+export function PushNotificationToggle({
+  vapidPublicKey,
+  onPreferDailyDigestOff,
+}: {
+  vapidPublicKey: string;
+  onPreferDailyDigestOff?: () => void;
+}) {
   const [checked, setChecked] = useState(false);
   const [supported, setSupported] = useState(false);
   const [needsIosInstall, setNeedsIosInstall] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [subscribed, setSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [showDisableWarning, setShowDisableWarning] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +119,7 @@ export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: str
         await sub.unsubscribe();
       }
       setSubscribed(false);
+      setShowDisableWarning(false);
       toast.success("Alerts turned off on this device");
     } catch {
       toast.error("Could not disable notifications");
@@ -145,15 +153,20 @@ export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: str
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted">
-        Get a phone notification when someone messages you, follows you, or interacts with your posts.
+        Get a phone notification when someone messages you, follows you, or interacts with your posts. This does not
+        include the once-a-day community digest — that is controlled separately below.
         {permission === "denied" && " Notifications are blocked in browser settings — allow them for this site, then try again."}
       </p>
       <div className="flex flex-wrap gap-2">
         {subscribed ? (
           <>
-            <Button variant="outline" onClick={disable} disabled={busy}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDisableWarning(true)}
+              disabled={busy || showDisableWarning}
+            >
               <BellOff className="h-4 w-4" />
-              {busy ? "Updating..." : "Disable alerts"}
+              Disable alerts
             </Button>
             <Button variant="outline" onClick={test} disabled={busy}>
               <Send className="h-4 w-4" />
@@ -167,6 +180,42 @@ export function PushNotificationToggle({ vapidPublicKey }: { vapidPublicKey: str
           </Button>
         )}
       </div>
+
+      {showDisableWarning ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/30">
+          <p className="text-sm font-semibold text-amber-950 dark:text-amber-100">
+            You will stop getting message alerts
+          </p>
+          <p className="mt-1 text-sm text-amber-900/90 dark:text-amber-100/80">
+            Disabling alerts turns off <strong>all</strong> phone notifications on this device — including direct
+            messages, follows, and comments. You will still see these in Activity when you open InstallBase.
+          </p>
+          <p className="mt-2 text-sm text-amber-900/90 dark:text-amber-100/80">
+            If you only want fewer notifications, turn off <strong>Daily community updates</strong> instead — your
+            message alerts will keep working.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {onPreferDailyDigestOff ? (
+              <Button
+                size="sm"
+                onClick={() => {
+                  setShowDisableWarning(false);
+                  onPreferDailyDigestOff();
+                }}
+                disabled={busy}
+              >
+                Turn off daily updates only
+              </Button>
+            ) : null}
+            <Button size="sm" variant="outline" onClick={() => setShowDisableWarning(false)} disabled={busy}>
+              Keep alerts on
+            </Button>
+            <Button size="sm" variant="destructive" onClick={disable} disabled={busy}>
+              {busy ? "Disabling…" : "Disable all alerts"}
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
