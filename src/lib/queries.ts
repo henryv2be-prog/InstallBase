@@ -7,6 +7,14 @@ import { bragHotScore, recencyMultiplier, startOfWeek } from "@/lib/ranking";
 import { braggablePostWhere, isBraggableType } from "@/lib/brag";
 import { getPostTradeGroupLabel, isPortfolioPost } from "@/lib/work-posts";
 import { getLandingPageStats } from "@/lib/analytics/page-views";
+import {
+  FEED_PAGE_SIZE,
+  type FeedCursor,
+  type FeedPageResult,
+  encodeFeedCursor,
+  feedCursorWhere,
+  toFeedCursor,
+} from "@/lib/feed-pagination";
 
 /** Card/list payload: counts instead of every comment, bookmark, and brag row. */
 export const postCardInclude = {
@@ -142,22 +150,105 @@ export async function getFollowingOf(userId: string) {
   });
 }
 
-export async function getFollowingFeedPosts(userId: string, limit = 30) {
-  const followingIds = await getFollowingIds(userId);
-  if (followingIds.length === 0) return [];
-
-  return loadPostCards(
-    {
-      where: { authorId: { in: followingIds } },
-      take: limit,
-      orderBy: { createdAt: "desc" },
-    },
-    userId,
-    ["following-feed", userId, String(limit)]
-  );
+export async function getFollowingFeedPosts(userId: string, limit = FEED_PAGE_SIZE) {
+  const { posts } = await getFollowingFeedPage(userId, limit);
+  return posts;
 }
 
-export async function getFeedPosts(userId?: string, limit = 20) {
+export async function getFeedPosts(userId?: string, limit = FEED_PAGE_SIZE) {
+  const { posts } = await getPopularFeedPage(userId, limit);
+  return posts;
+}
+
+export async function getFollowingFeedPage(
+  userId: string,
+  limit = FEED_PAGE_SIZE,
+  cursor?: FeedCursor | null
+): Promise<FeedPageResult<PostCardData>> {
+  const followingIds = await getFollowingIds(userId);
+  if (followingIds.length === 0) {
+    return { posts: [], nextCursor: null, hasMore: false };
+  }
+
+  const rows = await prisma.post.findMany({
+    where: {
+      authorId: { in: followingIds },
+      ...(cursor ? feedCursorWhere(cursor) : {}),
+    },
+    include: postCardInclude,
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: limit + 1,
+  });
+
+  const hasMore = rows.length > limit;
+  const page = hasMore ? rows.slice(0, limit) : rows;
+  const posts = await withViewerState(page, userId);
+  const last = page[page.length - 1];
+
+  return {
+    posts,
+    hasMore,
+    nextCursor: hasMore && last ? encodeFeedCursor(toFeedCursor(last)) : null,
+  };
+}
+
+export async function getPopularFeedPage(
+  userId?: string,
+  limit = FEED_PAGE_SIZE,
+  cursor?: FeedCursor | null
+): Promise<FeedPageResult<PostCardData>> {
+  if (!cursor) {
+    const posts = await scorePopularFeedPosts(userId, limit);
+    if (posts.length === 0) {
+      return { posts: [], nextCursor: null, hasMore: false };
+    }
+
+    const oldest = posts.reduce((current, post) =>
+      new Date(post.createdAt) < new Date(current.createdAt) ? post : current
+    );
+    const excludeIds = posts.map((post) => post.id);
+    const remaining = await prisma.post.count({
+      where: {
+        id: { notIn: excludeIds },
+        ...feedCursorWhere(toFeedCursor(oldest)),
+      },
+    });
+
+    return {
+      posts,
+      hasMore: remaining > 0,
+      nextCursor: remaining > 0 ? encodeFeedCursor(toFeedCursor(oldest, excludeIds)) : null,
+    };
+  }
+
+  const excludeIds = cursor.excludeIds ?? [];
+  const rows = await prisma.post.findMany({
+    where: {
+      id: { notIn: excludeIds },
+      ...feedCursorWhere(cursor),
+    },
+    include: postCardInclude,
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: limit + 1,
+  });
+
+  const hasMore = rows.length > limit;
+  const page = hasMore ? rows.slice(0, limit) : rows;
+  const posts = await withViewerState(page, userId);
+  const last = page[page.length - 1];
+  const nextExcludeIds = [...excludeIds, ...page.map((post) => post.id)];
+
+  return {
+    posts,
+    hasMore,
+    nextCursor:
+      hasMore && last
+        ? encodeFeedCursor(toFeedCursor(last, nextExcludeIds))
+        : null,
+  };
+}
+
+async function scorePopularFeedPosts(userId?: string, limit = FEED_PAGE_SIZE) {
   const take = Math.min(limit + 8, 28);
   const [followingIds, posts] = await Promise.all([
     userId ? getFollowingIds(userId) : Promise.resolve([] as string[]),
