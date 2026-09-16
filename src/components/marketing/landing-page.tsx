@@ -81,17 +81,17 @@ export function LandingPage({
             <div className="order-2 lg:order-1">
               <h1 className="text-[2rem] font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.25rem]">
                 Your work is{" "}
-                <span className="text-gradient">your CV.</span>
+                <span className="text-gradient">your reputation.</span>
               </h1>
               <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">
-                Build a public portfolio that clients and employers can actually see. Get site
-                answers faster than a WhatsApp group. Let good installs earn the recognition they
-                deserve.
+                Share the work you do, solve problems, and learn from other installers. Whether
+                you&apos;re independent or part of a team, build a reputation for doing things
+                right.
               </p>
               <ul className="mt-4 space-y-2 text-sm text-foreground/85 sm:text-base">
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 dark:bg-cyan-400" />
-                  <span>Turn the photos on your phone into a portfolio tied to your profile</span>
+                  <span>Document quality installs from site — tied to your profile</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 dark:bg-cyan-400" />
@@ -167,7 +167,7 @@ export function LandingPage({
       <footer className="relative z-10 border-t border-border py-8">
         <div className="mx-auto max-w-7xl px-4 text-center text-sm text-muted lg:px-6">
           <Logo size="sm" className="justify-center" />
-          <p className="mt-2">Your work is your CV.</p>
+          <p className="mt-2">Your work is your reputation.</p>
         </div>
       </footer>
     </div>

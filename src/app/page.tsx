@@ -11,9 +11,9 @@ import {
 } from "@/lib/queries";
 import { redirect } from "next/navigation";
 
-const title = "InstallBase — Your Work Is Your CV | Installer Portfolio & Community";
+const title = "InstallBase — Your Work Is Your Reputation | Installer Community";
 const description =
-  "Your work is your CV. InstallBase is where technicians and installers build a public portfolio, get faster answers than WhatsApp groups, and earn recognition for real installation work.";
+  "Your work is your reputation. InstallBase is where installers share real work, solve problems together, and build professional credibility in the trade.";
 
 export const metadata: Metadata = {
   title,
