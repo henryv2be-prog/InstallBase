@@ -22,7 +22,7 @@ export default async function SignupPage({
       <Link href="/" className="relative z-10 mb-8">
         <Logo size="lg" />
       </Link>
-      <div className="relative z-10 w-full max-w-lg animate-fade-in">
+      <div className="relative z-10 w-full max-w-xl animate-fade-in">
         <SignupForm next={next} />
         <p className="mt-6 text-center text-sm text-muted">
           Or{" "}

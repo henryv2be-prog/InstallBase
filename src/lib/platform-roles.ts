@@ -5,37 +5,32 @@ export const PLATFORM_PURPOSES = [
   {
     id: "show_work",
     role: "PROFESSIONAL" as const,
-    emoji: "👷",
     title: "Show my work",
-    description: "I work in the industry and want to build my professional profile.",
+    description: "Share installs, build your portfolio, and earn brag points.",
   },
   {
     id: "find_work",
     role: "SEEKING_WORK" as const,
-    emoji: "💼",
     title: "Find work",
-    description: "I'm looking for employment, contract or subcontract work.",
+    description: "Look for employment, contracts, or subcontract opportunities.",
   },
   {
     id: "company_rep",
     role: "COMPANY_REP" as const,
-    emoji: "🏢",
     title: "Represent a company",
-    description: "I represent or run an installation/business/company.",
+    description: "Promote your business and connect with installers.",
   },
   {
     id: "hire",
     role: "EMPLOYER" as const,
-    emoji: "🔎",
     title: "Hire professionals",
-    description: "I'm looking for people to employ or subcontract.",
+    description: "Find skilled people to employ or bring onto jobs.",
   },
   {
     id: "find_pro",
     role: "CUSTOMER" as const,
-    emoji: "🛠️",
     title: "Find a professional",
-    description: "I'm looking for someone to do installation or technical work.",
+    description: "Get installation or technical work done by someone trusted.",
   },
 ] as const;
 
