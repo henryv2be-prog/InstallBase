@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useTransition, type ReactNode } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +24,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { AdRenderer } from "@/components/ads/ad-renderer";
 import { AdMediaUpload } from "@/components/admin/ad-media-upload";
+import { AdminAdActions } from "@/components/admin/admin-ad-actions";
+import { AdminStatCard } from "@/components/admin/admin-stat-card";
 import type { AdCreative } from "@/lib/advertising/types";
 
 type Overview = Awaited<ReturnType<typeof import("@/lib/advertising/queries").getAdAdminOverview>>;
@@ -163,17 +164,12 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
 
   return (
     <div className="animate-fade-in space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Advertising</h1>
-          <p className="text-sm text-muted">Manage campaigns, creatives, inventory and settings</p>
-        </div>
-        <Link href="/admin">
-          <Button variant="outline" size="sm">← Admin home</Button>
-        </Link>
+      <div>
+        <h1 className="text-2xl font-bold sm:text-3xl">Advertising</h1>
+        <p className="mt-1 text-sm text-muted">Campaigns, creatives, inventory and settings</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         {[
           { label: "Active campaigns", value: overview.activeCampaigns },
           { label: "Total impressions", value: overview.totalImpressions },
@@ -182,23 +178,20 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
           { label: "Active advertisers", value: overview.advertisers },
           { label: "Revenue-ready", value: overview.revenueReady },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs text-muted">{stat.label}</p>
-            <p className="mt-1 text-2xl font-bold">
-              {typeof stat.value === "number" ? formatNumber(stat.value) : stat.value}
-            </p>
-          </div>
+          <AdminStatCard key={stat.label} label={stat.label} value={stat.value} />
         ))}
       </div>
 
       <Tabs defaultValue="ads">
-        <TabsList className="flex-wrap h-auto">
-          <TabsTrigger value="ads">Advertisements</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="advertisers">Advertisers</TabsTrigger>
-          <TabsTrigger value="inventory">Inventory</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-        </TabsList>
+        <div className="-mx-3 overflow-x-auto px-3 sm:mx-0 sm:px-0">
+          <TabsList className="inline-flex h-auto w-max min-w-full flex-nowrap justify-start gap-1 p-1 sm:min-w-0">
+            <TabsTrigger value="ads" className="shrink-0">Ads</TabsTrigger>
+            <TabsTrigger value="campaigns" className="shrink-0">Campaigns</TabsTrigger>
+            <TabsTrigger value="advertisers" className="shrink-0">Advertisers</TabsTrigger>
+            <TabsTrigger value="inventory" className="shrink-0">Inventory</TabsTrigger>
+            <TabsTrigger value="settings" className="shrink-0">Settings</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="ads" className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -230,14 +223,17 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
             </div>
           </div>
 
+          <details className="rounded-2xl border border-border bg-card">
+            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+              Create advertisement
+            </summary>
           <form
-            className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-2"
+            className="grid gap-3 border-t border-border p-4 md:grid-cols-2"
             onSubmit={(e) => {
               e.preventDefault();
               run(() => upsertAdvertisement(new FormData(e.currentTarget)), { clearAdErrors: true });
             }}
           >
-            <h3 className="md:col-span-2 font-semibold">Create advertisement</h3>
             {list.campaigns.length === 0 && (
               <p className="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
                 Create an advertiser and campaign first, then you can add an advertisement.
@@ -372,6 +368,7 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
               </Button>
             </div>
           </form>
+          </details>
 
           <div className="space-y-3">
             {filteredAds.length === 0 && (
@@ -406,33 +403,20 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
                       </p>
                     </div>
                   </div>
-                  <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[220px]">
-                    <div className="flex flex-wrap gap-2">
-                      <Button size="sm" variant="outline" onClick={() => setPreviewAd(ad)}>Preview</Button>
-                      <Button size="sm" variant="outline" disabled={pending} onClick={() => run(() => duplicateAdvertisement(ad.id))}>Duplicate</Button>
-                      {ad.status !== "ACTIVE" && (
-                        <Button size="sm" disabled={pending} onClick={() => run(() => updateAdStatus(ad.id, "ACTIVE"))}>Activate</Button>
-                      )}
-                      {ad.status === "ACTIVE" && (
-                        <Button size="sm" variant="outline" disabled={pending} onClick={() => run(() => updateAdStatus(ad.id, "PAUSED"))}>Pause</Button>
-                      )}
-                      {ad.status !== "ARCHIVED" && (
-                        <Button size="sm" variant="outline" disabled={pending} onClick={() => run(() => updateAdStatus(ad.id, "ARCHIVED"))}>Archive</Button>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="w-full sm:w-auto"
-                      disabled={pending}
-                      onClick={() => {
-                        if (!window.confirm(`Delete "${ad.title}"? This cannot be undone.`)) return;
-                        run(() => deleteAdvertisement(ad.id));
-                      }}
-                    >
-                      Delete ad
-                    </Button>
-                  </div>
+                  <AdminAdActions
+                    pending={pending}
+                    status={ad.status}
+                    title={ad.title}
+                    onPreview={() => setPreviewAd(ad)}
+                    onDuplicate={() => run(() => duplicateAdvertisement(ad.id))}
+                    onActivate={() => run(() => updateAdStatus(ad.id, "ACTIVE"))}
+                    onPause={() => run(() => updateAdStatus(ad.id, "PAUSED"))}
+                    onArchive={() => run(() => updateAdStatus(ad.id, "ARCHIVED"))}
+                    onDelete={() => {
+                      if (!window.confirm(`Delete "${ad.title}"? This cannot be undone.`)) return;
+                      run(() => deleteAdvertisement(ad.id));
+                    }}
+                  />
                 </div>
               </div>
             ))}
@@ -440,37 +424,59 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
         </TabsContent>
 
         <TabsContent value="campaigns" className="space-y-4">
+          <details className="rounded-2xl border border-border bg-card">
+            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+              Create campaign
+            </summary>
           <form
-            className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-2"
+            className="grid gap-3 border-t border-border p-4 md:grid-cols-2"
             onSubmit={(e) => {
               e.preventDefault();
               run(() => upsertCampaign(new FormData(e.currentTarget)));
             }}
           >
-            <h3 className="md:col-span-2 font-semibold">Create campaign</h3>
-            <select name="advertiserId" required className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
-              <option value="">Advertiser</option>
-              {list.advertisers.map((a) => (
-                <option key={a.id} value={a.id}>{a.name}</option>
-              ))}
-            </select>
-            <Input name="name" placeholder="Campaign name" required />
-            <select name="status" className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
-              {CAMPAIGN_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <select name="pricingModel" className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
-              <option value="">Pricing model</option>
-              {PRICING_MODELS.map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
-            <Input name="budget" type="number" step="0.01" placeholder="Budget" />
-            <Input name="priority" type="number" placeholder="Priority" defaultValue="0" />
-            <Input name="startDate" type="datetime-local" />
-            <Input name="endDate" type="datetime-local" />
-            <Textarea name="description" placeholder="Description" className="md:col-span-2" rows={2} />
+            <FormField label="Advertiser *">
+              <select name="advertiserId" required className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+                <option value="">Select advertiser…</option>
+                {list.advertisers.map((a) => (
+                  <option key={a.id} value={a.id}>{a.name}</option>
+                ))}
+              </select>
+            </FormField>
+            <FormField label="Campaign name *">
+              <Input name="name" placeholder="e.g. Q1 CCTV promo" required />
+            </FormField>
+            <FormField label="Status">
+              <select name="status" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+                {CAMPAIGN_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </FormField>
+            <FormField label="Pricing model">
+              <select name="pricingModel" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+                <option value="">None</option>
+                {PRICING_MODELS.map((p) => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </FormField>
+            <FormField label="Budget">
+              <Input name="budget" type="number" step="0.01" placeholder="0.00" />
+            </FormField>
+            <FormField label="Priority">
+              <Input name="priority" type="number" placeholder="0" defaultValue="0" />
+            </FormField>
+            <FormField label="Start date">
+              <Input name="startDate" type="datetime-local" />
+            </FormField>
+            <FormField label="End date">
+              <Input name="endDate" type="datetime-local" />
+            </FormField>
+            <FormField label="Description" className="md:col-span-2">
+              <Textarea name="description" placeholder="Optional notes" rows={2} />
+            </FormField>
             <div className="md:col-span-2">
               <Button type="submit" disabled={pending}>Create campaign</Button>
             </div>
           </form>
+          </details>
 
           {list.campaigns.map((campaign) => (
             <div key={campaign.id} className="rounded-2xl border border-border bg-card p-4">
@@ -493,24 +499,40 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
         </TabsContent>
 
         <TabsContent value="advertisers" className="space-y-4">
+          <details className="rounded-2xl border border-border bg-card">
+            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+              Create advertiser
+            </summary>
           <form
-            className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-2"
+            className="grid gap-3 border-t border-border p-4 md:grid-cols-2"
             onSubmit={(e) => {
               e.preventDefault();
               run(() => upsertAdvertiser(new FormData(e.currentTarget)));
             }}
           >
-            <h3 className="md:col-span-2 font-semibold">Create advertiser</h3>
-            <Input name="name" placeholder="Company name" required className="md:col-span-2" />
-            <Input name="website" placeholder="Website" />
-            <Input name="contactEmail" placeholder="Contact email" />
-            <Input name="companyType" placeholder="Company type (e.g. Manufacturer)" />
-            <Input name="logoUrl" placeholder="Logo URL" />
-            <Textarea name="description" placeholder="Description" className="md:col-span-2" rows={2} />
+            <FormField label="Company name *" className="md:col-span-2">
+              <Input name="name" placeholder="e.g. Acme Security" required />
+            </FormField>
+            <FormField label="Website">
+              <Input name="website" placeholder="https://example.com" />
+            </FormField>
+            <FormField label="Contact email">
+              <Input name="contactEmail" type="email" placeholder="sales@example.com" />
+            </FormField>
+            <FormField label="Company type">
+              <Input name="companyType" placeholder="Manufacturer, distributor…" />
+            </FormField>
+            <FormField label="Logo URL">
+              <Input name="logoUrl" placeholder="https://… or /uploads/…" />
+            </FormField>
+            <FormField label="Description" className="md:col-span-2">
+              <Textarea name="description" placeholder="Short company bio" rows={2} />
+            </FormField>
             <div className="md:col-span-2">
               <Button type="submit" disabled={pending}>Create advertiser</Button>
             </div>
           </form>
+          </details>
 
           {list.advertisers.map((advertiser) => (
             <div key={advertiser.id} className="rounded-2xl border border-border bg-card p-4">

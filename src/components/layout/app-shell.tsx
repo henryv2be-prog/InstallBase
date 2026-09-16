@@ -8,6 +8,8 @@ import {
   Plus,
   Search,
   Bell,
+  Shield,
+  Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -52,6 +54,8 @@ interface AppShellProps {
 export function AppShell({ children, user }: AppShellProps) {
   const pathname = usePathname();
   const signedIn = Boolean(user);
+  const isAdmin = user?.role === "ADMIN";
+  const isAdminRoute = pathname.startsWith("/admin");
   const mobileNavItems = signedIn ? memberMobileNav : guestMobileNav;
 
   return (
@@ -107,13 +111,30 @@ export function AppShell({ children, user }: AppShellProps) {
                     Create
                   </Button>
                 </Link>
-                {user?.role === "ADMIN" && (
-                  <Link href="/admin" className="hidden sm:block">
-                    <Button variant="ghost" size="sm">Admin</Button>
-                  </Link>
+                {isAdmin && (
+                  <>
+                    <Link href="/admin" className="sm:hidden">
+                      <Button variant="ghost" size="icon" aria-label="Admin dashboard">
+                        <Shield className="h-5 w-5" />
+                      </Button>
+                    </Link>
+                    <Link href="/admin/ads" className="sm:hidden">
+                      <Button variant="ghost" size="icon" aria-label="Advertising admin">
+                        <Megaphone className="h-5 w-5" />
+                      </Button>
+                    </Link>
+                    <Link href="/admin" className="hidden sm:block">
+                      <Button variant="ghost" size="sm">Admin</Button>
+                    </Link>
+                  </>
                 )}
                 <div className="hidden sm:block">
-                  <UserMenu name={user?.name} image={user?.image} username={user?.username} />
+                  <UserMenu
+                    name={user?.name}
+                    image={user?.image}
+                    username={user?.username}
+                    isAdmin={isAdmin}
+                  />
                 </div>
               </>
             ) : (
@@ -138,13 +159,25 @@ export function AppShell({ children, user }: AppShellProps) {
         )}
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:px-4 lg:px-6 md:pb-8 md:pt-6">
+      <main
+        className={cn(
+          "relative z-10 mx-auto max-w-7xl px-3 pt-4 sm:px-4 lg:px-6 md:pt-6",
+          isAdminRoute
+            ? "pb-6 md:pb-8"
+            : "pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-8"
+        )}
+      >
         {children}
       </main>
 
       {signedIn ? <UploadProgressBanner /> : null}
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
+      <nav
+        className={cn(
+          "fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden",
+          isAdminRoute && "hidden"
+        )}
+      >
         <div className="flex items-center justify-around px-1 py-1.5">
           {mobileNavItems.map((item) => {
             if (item.href === "/profile") {
