@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   EARLY_BUILDER_MAX_RANK,
   FOUNDING_MEMBER_MAX_RANK,
+  buildMemberTierMap,
   feedBoostForMemberTier,
   getMemberTierLabel,
   getMemberTierNote,
@@ -34,5 +35,17 @@ describe("membership tiers", () => {
   it("gives founding members a slightly larger feed boost", () => {
     assert.ok(feedBoostForMemberTier("FOUNDING_MEMBER") > feedBoostForMemberTier("EARLY_BUILDER"));
     assert.equal(feedBoostForMemberTier(null), 0);
+  });
+
+  it("rebuilds tier assignments after signup order changes", () => {
+    const userIds = Array.from({ length: 52 }, (_, index) => `user-${index + 1}`);
+    const map = buildMemberTierMap(userIds);
+
+    assert.equal(map.get("user-1"), "FOUNDING_MEMBER");
+    assert.equal(map.get("user-10"), "FOUNDING_MEMBER");
+    assert.equal(map.get("user-11"), "EARLY_BUILDER");
+    assert.equal(map.get("user-50"), "EARLY_BUILDER");
+    assert.equal(map.get("user-51"), null);
+    assert.equal(map.get("user-52"), null);
   });
 });
