@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { MediaImage } from "@/components/ui/media-image";
 import { MediaLightbox } from "@/components/ui/media-lightbox";
 import { VideoFeedPreview } from "@/components/ui/video-feed-preview";
@@ -38,7 +37,6 @@ export function MediaGallery({
   currentUserId,
   onPostBragScoreChange,
 }: MediaGalleryProps) {
-  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [mediaState, setMediaState] = useState(items);
@@ -107,7 +105,6 @@ export function MediaGallery({
         if (result.postBragScore !== undefined) {
           onPostBragScoreChange?.(result.postBragScore);
         }
-        router.refresh();
       } catch {
         setMediaState((prev) =>
           prev.map((media, i) =>
