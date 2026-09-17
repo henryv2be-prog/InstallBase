@@ -38,7 +38,7 @@ export function LandingPage({
   installers,
   stats,
 }: LandingPageProps) {
-  const heroPosts = feedPosts.filter((post) => post.media.length > 0);
+  const heroPosts = [...feedPosts, ...trendingBrags, ...questions];
 
   return (
     <div className="relative min-h-screen tech-bg">
