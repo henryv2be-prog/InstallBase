@@ -51,7 +51,7 @@ export default async function HomePage() {
 
   try {
     [feedPosts, questions, trendingBrags, installers, stats] = await Promise.all([
-      getFeedPosts(undefined, 6),
+      getFeedPosts(undefined, 12),
       getPopularQuestions(2),
       getTrendingBrags(2),
       getBragLeaderboard(4),
