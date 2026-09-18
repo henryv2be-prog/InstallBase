@@ -47,6 +47,7 @@ type MediaUploadContextValue = {
   failedCount: number;
   addFiles: (files: FileList | File[]) => void;
   removeItem: (id: string) => void;
+  moveItem: (id: string, direction: "up" | "down") => void;
   retryItem: (id: string) => void;
   clearItems: () => void;
   seedReadyMedia: (entries: { url: string; kind: "image" | "video" }[]) => void;
@@ -193,6 +194,19 @@ export function MediaUploadProvider({ children }: { children: ReactNode }) {
     [revokePreview]
   );
 
+  const moveItem = useCallback((id: string, direction: "up" | "down") => {
+    setItems((prev) => {
+      const index = prev.findIndex((entry) => entry.id === id);
+      if (index < 0) return prev;
+      const target = direction === "up" ? index - 1 : index + 1;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      const [row] = next.splice(index, 1);
+      next.splice(target, 0, row);
+      return next;
+    });
+  }, []);
+
   const retryItem = useCallback(
     (id: string) => {
       const file = filesRef.current.get(id);
@@ -324,6 +338,7 @@ export function MediaUploadProvider({ children }: { children: ReactNode }) {
       failedCount,
       addFiles,
       removeItem,
+      moveItem,
       retryItem,
       clearItems,
       seedReadyMedia,
@@ -340,6 +355,7 @@ export function MediaUploadProvider({ children }: { children: ReactNode }) {
       failedCount,
       addFiles,
       removeItem,
+      moveItem,
       retryItem,
       clearItems,
       seedReadyMedia,

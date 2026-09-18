@@ -16,6 +16,7 @@ import {
   feedCursorWhere,
   toFeedCursor,
 } from "@/lib/feed-pagination";
+import { publishedFeedWhere } from "@/lib/feed-published";
 
 /** Card/list payload: counts instead of every comment, bookmark, and brag row. */
 export const postCardInclude = {
@@ -109,8 +110,9 @@ async function loadPostCards(
   userId: string | undefined,
   cacheKey: string[]
 ) {
+  const where = { ...publishedFeedWhere, ...(args.where ?? {}) };
   const posts = await cachedRows(cacheKey, () =>
-    prisma.post.findMany({ ...args, include: postCardInclude })
+    prisma.post.findMany({ ...args, where, include: postCardInclude })
   );
   return withViewerState(posts, userId);
 }
@@ -173,6 +175,7 @@ export async function getFollowingFeedPage(
 
   const rows = await prisma.post.findMany({
     where: {
+      ...publishedFeedWhere,
       authorId: { in: followingIds },
       ...(cursor ? feedCursorWhere(cursor) : {}),
     },
@@ -210,6 +213,7 @@ export async function getPopularFeedPage(
     const excludeIds = posts.map((post) => post.id);
     const remaining = await prisma.post.count({
       where: {
+        ...publishedFeedWhere,
         id: { notIn: excludeIds },
         ...feedCursorWhere(toFeedCursor(oldest)),
       },
@@ -225,6 +229,7 @@ export async function getPopularFeedPage(
   const excludeIds = cursor.excludeIds ?? [];
   const rows = await prisma.post.findMany({
     where: {
+      ...publishedFeedWhere,
       id: { notIn: excludeIds },
       ...feedCursorWhere(cursor),
     },
@@ -312,7 +317,7 @@ export async function getHotBrags(limit = 20, userId?: string) {
       ["hot-brag-scored", String(poolSize)],
       () =>
         prisma.post.findMany({
-          where: { ...braggablePostWhere, bragScore: { gt: 0 } },
+          where: { ...publishedFeedWhere, ...braggablePostWhere, bragScore: { gt: 0 } },
           take: poolSize,
           select: { id: true, bragScore: true, createdAt: true },
           orderBy: [{ bragScore: "desc" }, { createdAt: "desc" }],
@@ -322,7 +327,7 @@ export async function getHotBrags(limit = 20, userId?: string) {
       ["hot-brag-recent", String(poolSize)],
       () =>
         prisma.post.findMany({
-          where: braggablePostWhere,
+          where: { ...publishedFeedWhere, ...braggablePostWhere },
           take: poolSize,
           select: { id: true, bragScore: true, createdAt: true },
           orderBy: { createdAt: "desc" },
@@ -372,6 +377,7 @@ export const getPost = cache(async function getPost(id: string, userId?: string)
     include: postInclude,
   });
   if (!post) return null;
+  if (!post.published && post.authorId !== userId) return null;
   const [withState] = await withViewerState([post], userId);
   return withState;
 });
@@ -387,6 +393,7 @@ export async function getProfileByUsername(username: string, viewerId?: string) 
             include: {
               reputation: true,
               posts: {
+                where: publishedFeedWhere,
                 include: postCardInclude,
                 orderBy: { createdAt: "desc" },
                 take: 12,
@@ -913,6 +920,7 @@ export type WorkPortfolioGroup = {
 export async function getWorkPortfolio(userId: string, viewerId?: string) {
   const posts = await prisma.post.findMany({
     where: {
+      ...publishedFeedWhere,
       authorId: userId,
       inPortfolio: true,
     },
