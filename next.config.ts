@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["web-push"],
+  serverExternalPackages: [
+    "web-push",
+    "@ffmpeg-installer/ffmpeg",
+    "@ffprobe-installer/ffprobe",
+    "ffmpeg-static",
+    "ffprobe-static",
+  ],
   experimental: {
     serverActions: {
       bodySizeLimit: "200mb",
