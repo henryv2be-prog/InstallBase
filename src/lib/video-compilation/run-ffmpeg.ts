@@ -1,16 +1,20 @@
 import { spawn } from "child_process";
-import ffmpegStatic from "ffmpeg-static";
+import { resolveFfmpegBinary } from "@/lib/video-compilation/ffmpeg-path";
 
 export function ffmpegBinary(): string {
-  const fromEnv = process.env.FFMPEG_PATH?.trim();
-  if (fromEnv) return fromEnv;
-  if (ffmpegStatic) return ffmpegStatic;
-  throw new Error("FFmpeg is not available on this server");
+  return resolveFfmpegBinary();
 }
 
 export function runFfmpeg(args: string[], timeoutMs = 600_000): Promise<void> {
   return new Promise((resolve, reject) => {
-    const bin = ffmpegBinary();
+    let bin: string;
+    try {
+      bin = ffmpegBinary();
+    } catch {
+      reject(new Error("Video tools are not ready — try again later or post as photos"));
+      return;
+    }
+
     const child = spawn(bin, args, { stdio: ["ignore", "pipe", "pipe"] });
     let stderr = "";
     const timer = setTimeout(() => {
@@ -23,9 +27,9 @@ export function runFfmpeg(args: string[], timeoutMs = 600_000): Promise<void> {
       if (stderr.length > 32_000) stderr = stderr.slice(-32_000);
     });
 
-    child.on("error", (error) => {
+    child.on("error", () => {
       clearTimeout(timer);
-      reject(error);
+      reject(new Error("Video tools are not ready — try again later or post as photos"));
     });
 
     child.on("close", (code) => {

@@ -1,15 +1,17 @@
 import { spawn } from "child_process";
-import ffprobeStatic from "ffprobe-static";
-function ffprobeBinary(): string {
-  const fromEnv = process.env.FFPROBE_PATH?.trim();
-  if (fromEnv) return fromEnv;
-  return ffprobeStatic.path;
-}
+import { resolveFfprobeBinary } from "@/lib/video-compilation/ffmpeg-path";
 
 export async function probeVideoDurationSec(filePath: string): Promise<number> {
+  let bin: string;
+  try {
+    bin = resolveFfprobeBinary();
+  } catch {
+    throw new Error("Could not read video length");
+  }
+
   return new Promise((resolve, reject) => {
     const child = spawn(
-      ffprobeBinary(),
+      bin,
       [
         "-v",
         "error",
