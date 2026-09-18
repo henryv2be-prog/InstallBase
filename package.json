@@ -21,7 +21,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "node scripts/migrate-deploy.mjs",
     "db:generate": "prisma generate",
-    "postinstall": "prisma generate"
+    "postinstall": "node scripts/postinstall.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
