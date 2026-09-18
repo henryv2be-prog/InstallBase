@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { cn, getFeedReasonLabel } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { MediaGallery } from "@/components/ui/media-gallery";
+import { CompiledInstallFeedMedia } from "@/components/feed/compiled-install-feed-media";
+import { mediaForFeedDisplay } from "@/lib/video-compilation/feed-media";
 import { PostOptionsMenu } from "@/components/feed/post-options-menu";
 import { InlineComments } from "@/components/feed/inline-comments";
 import { toggleBookmark } from "@/lib/actions";
@@ -179,20 +181,29 @@ export function PostCard({
 
         {post.media.length > 0 && (
           <div className="mt-4">
-            <MediaGallery
-              items={post.media.map((m) => ({
-                id: m.id,
-                url: m.url,
-                type: m.type,
-                caption: m.caption,
-                bragScore: m.bragScore,
-                braggedByViewer: m.braggedByViewer,
-              }))}
-              limit={showFull ? undefined : 4}
-              canBrag={canBrag}
-              currentUserId={currentUserId}
-              onPostBragScoreChange={setBragScore}
-            />
+            {post.videoCompilationStatus === "READY" && post.generatedVideoUrl ? (
+              <CompiledInstallFeedMedia
+                post={post}
+                canBrag={canBrag}
+                currentUserId={currentUserId}
+                onPostBragScoreChange={setBragScore}
+              />
+            ) : (
+              <MediaGallery
+                items={mediaForFeedDisplay(post).map((m) => ({
+                  id: m.id,
+                  url: m.url,
+                  type: m.type,
+                  caption: m.caption,
+                  bragScore: m.bragScore,
+                  braggedByViewer: m.braggedByViewer,
+                }))}
+                limit={showFull ? undefined : 4}
+                canBrag={canBrag}
+                currentUserId={currentUserId}
+                onPostBragScoreChange={setBragScore}
+              />
+            )}
           </div>
         )}
 

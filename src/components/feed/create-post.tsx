@@ -10,12 +10,19 @@ import {
   X,
   Loader2,
   RotateCcw,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { updatePost } from "@/lib/actions";
+import {
+  deleteInstallVideoDraft,
+  publishInstallVideoAsCarousel,
+  publishInstallVideoPost,
+  updatePost,
+} from "@/lib/actions";
 import { uploadMediaFile } from "@/lib/client-upload";
 import { useMediaUpload, type PendingPostPayload } from "@/components/feed/media-upload-context";
 import { MAX_POST_MEDIA, prepareMediaFile } from "@/lib/prepare-media";
@@ -28,6 +35,9 @@ import {
   WorkDetailsFields,
   type WorkDetailsFormState,
 } from "@/components/feed/work-details-fields";
+import { shouldAutoCompileInstallVideo } from "@/lib/video-compilation/eligibility";
+import { InstallVideoPreviewStage } from "@/components/feed/install-video-preview-stage";
+import { useInstallVideoCompilation } from "@/hooks/use-install-video-compilation";
 
 const DRAFT_KEY = "ib-create-draft-v4";
 
@@ -174,6 +184,11 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       : []
   );
   const [hydrated, setHydrated] = useState(isEditing);
+  const [installVideoStep, setInstallVideoStep] = useState<"compose" | "preview">("compose");
+  const [installVideoPostId, setInstallVideoPostId] = useState<string | null>(null);
+  const [installVideoPosting, setInstallVideoPosting] = useState(false);
+  const installCompilation = useInstallVideoCompilation(installVideoPostId);
+  const autoCompileStartedRef = useRef(false);
   const editMediaRef = useRef(editMedia);
   editMediaRef.current = editMedia;
 
@@ -246,10 +261,150 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   }, [isEditing]);
 
   const hasText = content.trim().length > 0 || title.trim().length > 0;
+  const installVideoEligible =
+    !isEditing &&
+    (type === "POST" || type === "VIDEO") &&
+    shouldAutoCompileInstallVideo(
+      media.map((item) => ({
+        kind: item.kind,
+        status: item.status,
+      }))
+    );
+
   const canPost =
     !pending &&
     failedCount === 0 &&
     (hasText || readyUrls.length > 0 || media.some((item) => item.status === "uploading"));
+
+  const buildInstallVideoDraftPayload = () => ({
+    content,
+    title,
+    postIntent: work.postIntent,
+    location: work.location,
+    showExactLocation: work.showExactLocation,
+    workTrade: work.workTrade,
+    workProjectType: work.workProjectType,
+    workDeviceCount: work.workDeviceCount,
+    workDate: work.workDate,
+    workEquipmentNotes: work.workEquipmentNotes,
+    type,
+  });
+
+  const startInstallVideoCompilation = async () => {
+    if (uploading) {
+      toast.error("Wait for uploads to finish first");
+      return;
+    }
+    const readyItems = media.filter((item) => item.status === "ready" && item.serverUrl);
+    if (readyItems.length < 2) {
+      toast.error("Add at least two photos or videos");
+      return;
+    }
+
+    setInstallVideoPosting(true);
+    try {
+      const response = await fetch("/api/install-video/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          postId: installVideoPostId ?? undefined,
+          media: readyItems.map((item, order) => ({
+            url: item.serverUrl!,
+            type: item.kind,
+            order,
+          })),
+          draft: buildInstallVideoDraftPayload(),
+        }),
+      });
+      const data = (await response.json()) as { postId?: string; error?: string };
+      if (!response.ok || !data.postId) {
+        toast.error(data.error ?? "Could not start video generation");
+        return;
+      }
+      setInstallVideoPostId(data.postId);
+      setInstallVideoStep("preview");
+      toast.success("Building your install video…");
+    } catch {
+      toast.error("Could not start video generation");
+    } finally {
+      setInstallVideoPosting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!hydrated || isEditing || installVideoStep !== "compose") return;
+    if (!installVideoEligible || uploading || installVideoPostId || autoCompileStartedRef.current) return;
+    autoCompileStartedRef.current = true;
+    void startInstallVideoCompilation();
+  }, [
+    hydrated,
+    isEditing,
+    installVideoStep,
+    installVideoEligible,
+    uploading,
+    installVideoPostId,
+    readyUrls.length,
+  ]);
+
+  const publishInstallVideo = async () => {
+    if (!installVideoPostId) return;
+    setInstallVideoPosting(true);
+    try {
+      const formData = new FormData();
+      formData.append("postId", installVideoPostId);
+      formData.append("content", content);
+      if (title) formData.append("title", title);
+      formData.append("postIntent", work.postIntent);
+      formData.append("showExactLocation", work.showExactLocation ? "true" : "false");
+      if (work.location.trim()) formData.append("location", work.location.trim());
+      if (work.workTrade) formData.append("workTrade", work.workTrade);
+      if (work.workProjectType) formData.append("workProjectType", work.workProjectType);
+      if (work.workDeviceCount) formData.append("workDeviceCount", work.workDeviceCount);
+      if (work.workDate) formData.append("workDate", work.workDate);
+      if (work.workEquipmentNotes) formData.append("workEquipmentNotes", work.workEquipmentNotes);
+
+      const result = await publishInstallVideoPost(formData);
+      if (result && "error" in result && result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Posted!");
+      resetComposer();
+      router.push(`/post/${installVideoPostId}`);
+      router.refresh();
+    } catch {
+      toast.error("Failed to publish");
+    } finally {
+      setInstallVideoPosting(false);
+    }
+  };
+
+  const publishAsCarouselFallback = async () => {
+    if (!installVideoPostId) return;
+    setInstallVideoPosting(true);
+    try {
+      const formData = new FormData();
+      formData.append("postId", installVideoPostId);
+      formData.append("content", content);
+      const result = await publishInstallVideoAsCarousel(formData);
+      if (result && "error" in result && result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Posted as photos");
+      resetComposer();
+      router.push(`/post/${result.postId}`);
+      router.refresh();
+    } catch {
+      toast.error("Failed to publish");
+    } finally {
+      setInstallVideoPosting(false);
+    }
+  };
+
+  const exitInstallVideoPreview = async () => {
+    setInstallVideoStep("compose");
+  };
 
   const uploadEditFile = async (id: string, file: File) => {
     try {
@@ -374,6 +529,12 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   });
 
   const resetComposer = () => {
+    if (installVideoPostId) {
+      void deleteInstallVideoDraft(installVideoPostId);
+    }
+    setInstallVideoStep("compose");
+    setInstallVideoPostId(null);
+    autoCompileStartedRef.current = false;
     if (isEditing) {
       for (const item of editMedia) {
         if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
@@ -443,6 +604,11 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       return;
     }
 
+    if (installVideoEligible && !uploading) {
+      void startInstallVideoCompilation();
+      return;
+    }
+
     globalUpload.submitNow(buildPayload());
   };
 
@@ -504,9 +670,36 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       {fileInput}
       <CardContent className={cn("p-5", compact && "pt-5")}>
         <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">
-          {isEditing ? "Edit your post" : "What's happening on your install?"}
+          {isEditing
+            ? "Edit your post"
+            : installVideoStep === "preview"
+              ? "Preview install video"
+              : "What's happening on your install?"}
         </h2>
 
+        {installVideoStep === "preview" && !isEditing ? (
+          <>
+          <Textarea
+            placeholder="Add a caption for your install…"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            rows={2}
+            className="mb-3"
+          />
+          <InstallVideoPreviewStage
+            status={installCompilation.status}
+            videoUrl={installCompilation.videoUrl}
+            posterUrl={installCompilation.posterUrl}
+            error={installCompilation.error}
+            onBack={() => void exitInstallVideoPreview()}
+            onRegenerate={() => void installCompilation.regenerate()}
+            onPost={() => void publishInstallVideo()}
+            onPostAsPhotos={() => void publishAsCarouselFallback()}
+            posting={installVideoPosting}
+          />
+          </>
+        ) : (
+          <>
         {!isEditing && (
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Button
@@ -542,7 +735,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         )}
 
         <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {media.map((item) => (
+          {media.map((item, index) => (
             <div
               key={item.id}
               className="relative aspect-square overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800"
@@ -571,6 +764,28 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
                     aria-label="Retry upload"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+              {!isEditing && installVideoEligible && media.length > 1 && (
+                <div className="absolute bottom-1 left-1 flex flex-col gap-0.5">
+                  <button
+                    type="button"
+                    disabled={index === 0}
+                    onClick={() => globalUpload.moveItem(item.id, "up")}
+                    className="rounded-full bg-black/70 p-0.5 text-white disabled:opacity-30"
+                    aria-label="Move earlier"
+                  >
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={index === media.length - 1}
+                    onClick={() => globalUpload.moveItem(item.id, "down")}
+                    className="rounded-full bg-black/70 p-0.5 text-white disabled:opacity-30"
+                    aria-label="Move later"
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" />
                   </button>
                 </div>
               )}
@@ -624,28 +839,40 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">
-            {postQueued && uploading
-              ? "Uploads running — we'll publish as soon as they finish."
-              : uploading
-                ? "Uploading in the background — keep browsing, or tap Post now."
-                : media.length > 0
-                  ? `${readyUrls.length} of ${media.length} file${media.length === 1 ? "" : "s"} ready`
-                  : "Photos are compressed on your phone. Videos up to 200MB upload over Wi‑Fi when possible."}
+            {installVideoEligible && !uploading
+              ? "We’ll turn these into a vertical install video — preview before you post."
+              : postQueued && uploading
+                ? "Uploads running — we'll publish as soon as they finish."
+                : uploading
+                  ? "Uploading in the background — keep browsing, or tap Post now."
+                  : media.length > 0
+                    ? `${readyUrls.length} of ${media.length} file${media.length === 1 ? "" : "s"} ready`
+                    : "Photos are compressed on your phone. Videos up to 200MB upload over Wi‑Fi when possible."}
           </p>
-          <Button onClick={handleSubmit} disabled={!canPost} className="min-w-24">
+          <Button
+            onClick={handleSubmit}
+            disabled={!canPost || installVideoPosting}
+            className="min-w-24"
+          >
             {pending
               ? isEditing
                 ? "Saving..."
                 : "Posting..."
-              : postQueued && uploading
-                ? "Publishing soon..."
-                : uploading
-                  ? "Post anyway"
-                  : isEditing
-                    ? "Save changes"
-                    : "Post"}
+              : installVideoPosting
+                ? "Starting..."
+                : postQueued && uploading
+                  ? "Publishing soon..."
+                  : uploading
+                    ? "Post anyway"
+                    : isEditing
+                      ? "Save changes"
+                      : installVideoEligible
+                        ? "Create install video"
+                        : "Post"}
           </Button>
         </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
