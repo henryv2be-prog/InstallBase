@@ -1109,6 +1109,138 @@ export async function resetPasswordAction(formData: FormData) {
   return resetPasswordWithToken(token, password);
 }
 
+export async function publishInstallVideoPost(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const postId = (formData.get("postId") as string | null)?.trim();
+  if (!postId) return { error: "Post not found" };
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      id: true,
+      authorId: true,
+      videoCompilationStatus: true,
+      type: true,
+      media: { select: { id: true, mediaRole: true } },
+    },
+  });
+
+  if (!post || post.authorId !== userId) {
+    return { error: "You can only publish your own post" };
+  }
+
+  if (post.videoCompilationStatus !== "READY") {
+    return { error: "Your install video is still being prepared" };
+  }
+
+  const content = ((formData.get("content") as string) || "").trim();
+  const title = (formData.get("title") as string | null)?.trim() || null;
+  const location = (formData.get("location") as string | null)?.trim() || null;
+  const postIntent = resolveComposerIntent(post.type, formData.get("postIntent") as string | null);
+  const showExactLocation = formData.get("showExactLocation") === "true";
+  const workDateRaw = (formData.get("workDate") as string | null)?.trim();
+  const workDate = workDateRaw ? new Date(workDateRaw) : null;
+  const workDetails = compactWorkDetails({
+    trade: (formData.get("workTrade") as string | null)?.trim() || undefined,
+    projectType: (formData.get("workProjectType") as string | null)?.trim() || undefined,
+    deviceCount: (formData.get("workDeviceCount") as string | null)?.trim() || undefined,
+    skills: formData.getAll("workSkills").map((item) => String(item).trim()).filter(Boolean),
+    equipmentNotes: (formData.get("workEquipmentNotes") as string | null)?.trim() || undefined,
+  });
+
+  await prisma.post.update({
+    where: { id: postId },
+    data: {
+      published: true,
+      content,
+      title,
+      location,
+      postIntent,
+      showExactLocation,
+      workDate: workDate && !Number.isNaN(workDate.getTime()) ? workDate : null,
+      workDetails: workDetails ?? undefined,
+      type: "VIDEO",
+    },
+  });
+
+  if (isBraggableType("VIDEO")) {
+    await prisma.profile.update({
+      where: { userId },
+      data: { bragCount: { increment: 1 } },
+    });
+  }
+
+  revalidatePath("/feed");
+  revalidatePath("/brags");
+  revalidatePath(`/post/${postId}`);
+  revalidateTag("posts", "max");
+  return { success: true, postId };
+}
+
+export async function publishInstallVideoAsCarousel(formData: FormData) {
+  const userId = await getCurrentUserId();
+  const postId = (formData.get("postId") as string | null)?.trim();
+  if (!postId) return { error: "Post not found" };
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { id: true, authorId: true, media: { where: { mediaRole: "SOURCE" } } },
+  });
+
+  if (!post || post.authorId !== userId) {
+    return { error: "You can only publish your own post" };
+  }
+
+  if (post.media.length === 0) {
+    return { error: "Add a photo first" };
+  }
+
+  const content = ((formData.get("content") as string) || "").trim();
+  const mediaUrls = post.media.map((m) => m.url);
+  const type = normalizeComposerType("POST", mediaUrls);
+
+  await prisma.$transaction(async (tx) => {
+    await tx.postMedia.deleteMany({ where: { postId, mediaRole: "COMPILED" } });
+    await tx.post.update({
+      where: { id: postId },
+      data: {
+        published: true,
+        content,
+        type,
+        videoCompilationStatus: "NONE",
+        generatedVideoUrl: null,
+        generatedVideoPosterUrl: null,
+        videoCompilationError: null,
+      },
+    });
+  });
+
+  if (isBraggableType(type)) {
+    await prisma.profile.update({
+      where: { userId },
+      data: { bragCount: { increment: 1 } },
+    });
+  }
+
+  revalidatePath("/feed");
+  revalidatePath(`/post/${postId}`);
+  revalidateTag("posts", "max");
+  return { success: true, postId };
+}
+
+export async function deleteInstallVideoDraft(postId: string) {
+  const userId = await getCurrentUserId();
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { id: true, authorId: true, published: true },
+  });
+  if (!post || post.authorId !== userId || post.published) {
+    return { error: "Draft not found" };
+  }
+  await prisma.post.delete({ where: { id: postId } });
+  return { success: true };
+}
+
 export async function pingPresence() {
   const session = await auth();
   const userId = session?.user?.id;

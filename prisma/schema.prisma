@@ -50,6 +50,19 @@ enum PostType {
   VIDEO
 }
 
+enum VideoCompilationStatus {
+  NONE
+  QUEUED
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum PostMediaRole {
+  SOURCE
+  COMPILED
+}
+
 enum PostIntent {
   GENERAL
   PROJECT_INSTALLATION
@@ -294,6 +307,11 @@ model Post {
   bragScore         Int        @default(0)
   bragDetails       Json?
   viewCount         Int        @default(0)
+  published         Boolean    @default(true)
+  videoCompilationStatus VideoCompilationStatus @default(NONE)
+  generatedVideoUrl      String?
+  generatedVideoPosterUrl String?
+  videoCompilationError  String?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
@@ -319,6 +337,7 @@ model PostMedia {
   postId    String
   url       String
   type      String   @default("image")
+  mediaRole PostMediaRole @default(SOURCE)
   caption   String?
   order     Int      @default(0)
   bragScore Int      @default(0)
