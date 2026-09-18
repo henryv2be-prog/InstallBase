@@ -1,6 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { compileInstallationVideo } from "@/lib/video-compilation/compile";
+import { logFfmpegAvailability } from "@/lib/video-compilation/ffmpeg-path";
+import { userFacingCompilationError } from "@/lib/video-compilation/user-error";
 import { revalidatePath } from "next/cache";
 
 const GLOBAL_KEY = "__installbaseVideoCompilationQueue";
@@ -101,10 +103,7 @@ async function drainQueue() {
 
       revalidatePath(`/post/${processing.id}`);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "We couldn’t build your install video — your photos are still saved";
+      const message = userFacingCompilationError(error);
       await prisma.post.update({
         where: { id: postId },
         data: {
@@ -117,5 +116,6 @@ async function drainQueue() {
 }
 
 export function startVideoCompilationScheduler() {
+  logFfmpegAvailability();
   kickVideoCompilationQueue();
 }

@@ -46,6 +46,20 @@ if (missing.length > 0) {
 
 console.log("Environment variables OK.");
 
+console.log("\n→ Checking ffmpeg (install video)");
+const ffmpegCheck = spawnSync("ffmpeg", ["-version"], {
+  encoding: "utf8",
+  stdio: ["ignore", "pipe", "pipe"],
+});
+if (ffmpegCheck.status === 0) {
+  const firstLine = ffmpegCheck.stdout?.split("\n")[0] ?? "ffmpeg ok";
+  console.log(`   ${firstLine.trim()}`);
+} else {
+  console.warn(
+    "   ⚠ ffmpeg not on PATH — install video posts will fail until ffmpeg is installed (nixpacks) or FFMPEG_PATH is set"
+  );
+}
+
 console.log("\n→ Preparing upload storage");
 setupUploadVolume();
 
