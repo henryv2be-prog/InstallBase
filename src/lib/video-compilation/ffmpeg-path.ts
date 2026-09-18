@@ -29,6 +29,21 @@ function commandOnPath(name: string): string | null {
   }
 }
 
+/** @ffmpeg-installer/* ships platform binaries inside node_modules (works on Railway). */
+function npmInstallerBinary(tool: "ffmpeg" | "ffprobe"): string | null {
+  try {
+    const mod =
+      tool === "ffmpeg"
+        ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+          (require("@ffmpeg-installer/ffmpeg") as { path: string })
+        : // eslint-disable-next-line @typescript-eslint/no-require-imports
+          (require("@ffprobe-installer/ffprobe") as { path: string });
+    return mod.path && isExecutable(mod.path) ? mod.path : null;
+  } catch {
+    return null;
+  }
+}
+
 function resolveBinary(
   tool: "ffmpeg" | "ffprobe",
   envVar: "FFMPEG_PATH" | "FFPROBE_PATH",
@@ -44,6 +59,9 @@ function resolveBinary(
   for (const candidate of commonPaths) {
     if (isExecutable(candidate)) return candidate;
   }
+
+  const fromInstaller = npmInstallerBinary(tool);
+  if (fromInstaller) return fromInstaller;
 
   if (staticPath && isExecutable(staticPath)) return staticPath;
 
@@ -71,7 +89,7 @@ export function logFfmpegAvailability() {
     console.info(`[install-video] ffmpeg: ${ffmpeg}`);
   } catch {
     console.error(
-      "[install-video] ffmpeg not found — set FFMPEG_PATH or install ffmpeg (nixpacks aptPkgs / nixPkgs)"
+      "[install-video] ffmpeg not found — set FFMPEG_PATH or ensure @ffmpeg-installer/ffmpeg is installed"
     );
   }
 }

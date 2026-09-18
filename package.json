@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "build": "prisma generate && npx tsx scripts/generate-pwa-icons.mjs && next build",
+    "build": "node scripts/ensure-ffmpeg.mjs && prisma generate && npx tsx scripts/generate-pwa-icons.mjs && next build",
     "icons:generate": "npx tsx scripts/generate-pwa-icons.mjs",
     "start": "node scripts/start-production.mjs",
     "start:server": "next start -H 0.0.0.0 -p ${PORT:-3000}",
@@ -25,6 +25,8 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
     "@hookform/resolvers": "^5.9.1",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
