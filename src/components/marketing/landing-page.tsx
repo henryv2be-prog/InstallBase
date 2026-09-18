@@ -76,9 +76,9 @@ export function LandingPage({
         <div className="pointer-events-none absolute -left-24 top-16 h-48 w-48 rounded-full bg-blue-500/10 blur-3xl sm:h-64 sm:w-64" />
         <div className="pointer-events-none absolute -right-24 top-32 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl sm:h-64 sm:w-64" />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-8 pt-8 sm:pb-10 sm:pt-10 lg:px-6 lg:pb-12 lg:pt-12">
-          <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
-            <div className="order-2 lg:order-1">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-8 pt-6 sm:pb-10 sm:pt-10 lg:px-6 lg:pb-12 lg:pt-12">
+          <div className="grid items-center gap-5 sm:gap-8 lg:grid-cols-2 lg:gap-14">
+            <div className="relative z-20 lg:col-start-1 lg:row-start-1">
               <h1 className="text-[2rem] font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.25rem]">
                 Your work is{" "}
                 <span className="text-gradient">your reputation.</span>
@@ -88,7 +88,14 @@ export function LandingPage({
                 you&apos;re independent or part of a team, build a reputation for doing things
                 right.
               </p>
-              <ul className="mt-4 space-y-2 text-sm text-foreground/85 sm:text-base">
+            </div>
+
+            <div className="relative z-10 mx-auto w-full max-w-[17.5rem] sm:max-w-md lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:max-w-none">
+              <LandingHeroPreview posts={heroPosts} />
+            </div>
+
+            <div className="relative z-20 lg:col-start-1 lg:row-start-2">
+              <ul className="space-y-2 text-sm text-foreground/85 sm:text-base">
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 dark:bg-cyan-400" />
                   <span>Document quality installs from site — tied to your profile</span>
@@ -115,10 +122,6 @@ export function LandingPage({
                   </Button>
                 </Link>
               </div>
-            </div>
-
-            <div className="order-1 lg:order-2">
-              <LandingHeroPreview posts={heroPosts} />
             </div>
           </div>
         </div>
