@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { LandingHeroPreview } from "@/components/marketing/landing-hero-preview";
+import { LandingHeroShowcase } from "@/components/marketing/landing-hero-showcase";
 import { LandingFeedWindow } from "@/components/marketing/landing-feed-window";
 import { LandingCommunityRail } from "@/components/marketing/landing-community-rail";
 import { LandingTrustBar, type LandingCommunityStats } from "@/components/marketing/landing-trust-bar";
@@ -90,8 +90,8 @@ export function LandingPage({
               </p>
             </div>
 
-            <div className="relative z-10 mx-auto w-full max-w-[17.5rem] sm:max-w-md lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:max-w-none">
-              <LandingHeroPreview posts={heroPosts} />
+            <div className="relative z-10 w-full lg:col-start-2 lg:row-span-2 lg:row-start-1">
+              <LandingHeroShowcase posts={heroPosts} />
             </div>
 
             <div className="relative z-20 lg:col-start-1 lg:row-start-2">
