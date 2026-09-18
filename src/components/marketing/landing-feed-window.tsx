@@ -8,7 +8,7 @@ import {
 } from "@/components/marketing/landing-post-preview";
 import type { PostCardData } from "@/lib/queries";
 
-const PREVIEW_LIMIT = 4;
+const PREVIEW_LIMIT = 2;
 
 interface LandingFeedWindowProps {
   posts: PostCardData[];
@@ -48,7 +48,7 @@ export function LandingFeedWindow({ posts }: LandingFeedWindowProps) {
           </div>
         </div>
 
-        <div className="space-y-3 p-3 sm:space-y-4 sm:p-4">
+        <div className="space-y-3 p-3 sm:p-4">
           {hasLivePosts
             ? livePosts.map((post) => (
                 <PostCard
@@ -61,10 +61,10 @@ export function LandingFeedWindow({ posts }: LandingFeedWindowProps) {
             : examples.map((post) => <LandingPostPreview key={post.id} post={post} compact />)}
         </div>
 
-        <div className="border-t border-border bg-card/50 px-4 py-4 text-center">
+        <div className="border-t border-border bg-card/50 px-4 py-3 text-center sm:py-4">
           <p className="mb-3 text-sm text-muted">
             {hasLivePosts
-              ? "This is a preview — the full feed has more installs, questions, and bragged work."
+              ? "A quick preview — open the feed for everything installers are sharing."
               : "Join to see the live community feed."}
           </p>
           <Link href="/feed">
