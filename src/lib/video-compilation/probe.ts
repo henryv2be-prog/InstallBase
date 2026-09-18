@@ -45,6 +45,3 @@ export async function probeVideoDurationSec(filePath: string): Promise<number> {
     });
   });
 }
-
-/** Fallback when ffprobe fails — ffmpeg still required for compile. */
-export { ffmpegBinary };
