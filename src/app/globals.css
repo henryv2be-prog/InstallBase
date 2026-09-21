@@ -278,16 +278,16 @@ body {
 
 .immersive-feed-root {
   --immersive-watch-subnav-h: 2.75rem;
-  --immersive-tabbar-h: var(--app-mobile-nav-watch-total);
+  /* Slides fill the viewport; glass nav overlays the bottom */
   --immersive-slide-h: calc(
-    100dvh - var(--app-header-h) - env(safe-area-inset-top) - var(--immersive-tabbar-h) -
-      var(--immersive-watch-subnav-h)
+    100dvh - var(--app-header-h) - env(safe-area-inset-top) - var(--immersive-watch-subnav-h)
   );
 }
 
 @media (max-width: 1023px) {
   .immersive-feed-root {
-    --immersive-overlay-bottom-pad: calc(var(--immersive-tabbar-h) + 0.5rem);
+    /* One offset only — sit post meta/actions just above the floating dock */
+    --immersive-overlay-bottom-pad: calc(var(--app-mobile-nav-watch-total) + 0.375rem);
   }
 }
 
