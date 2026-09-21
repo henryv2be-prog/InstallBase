@@ -6,6 +6,12 @@
   --app-header-h: 3.5rem;
   /* Mobile bottom tab bar (icons + labels); safe-area added in shell padding */
   --app-mobile-nav-reserve: 4.75rem;
+  /* Glass dock on watch: lift above home indicator / Android gesture bar */
+  --app-mobile-nav-glass-dock-h: 3.625rem;
+  --app-mobile-nav-watch-edge: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  --app-mobile-nav-watch-total: calc(
+    var(--app-mobile-nav-glass-dock-h) + var(--app-mobile-nav-watch-edge)
+  );
   --background: #050810;
   --foreground: #f1f5f9;
   --card: rgba(15, 23, 42, 0.72);
@@ -240,6 +246,7 @@ body {
 /* Floating mobile tab bar over immersive watch feed */
 .mobile-nav-glass-dock {
   overflow: visible;
+  min-height: var(--app-mobile-nav-glass-dock-h);
   background: rgba(8, 12, 22, 0.42);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -271,11 +278,10 @@ body {
 
 .immersive-feed-root {
   --immersive-watch-subnav-h: 2.75rem;
-  /* Floating glass dock sits over the feed; reserve its footprint in slide height */
-  --immersive-tabbar-h: calc(var(--app-mobile-nav-reserve) + 0.5rem);
+  --immersive-tabbar-h: var(--app-mobile-nav-watch-total);
   --immersive-slide-h: calc(
     100dvh - var(--app-header-h) - env(safe-area-inset-top) - var(--immersive-tabbar-h) -
-      env(safe-area-inset-bottom) - var(--immersive-watch-subnav-h)
+      var(--immersive-watch-subnav-h)
   );
 }
 

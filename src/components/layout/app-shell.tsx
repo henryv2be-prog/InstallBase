@@ -180,7 +180,7 @@ export function AppShell({ children, user }: AppShellProps) {
         className={cn(
           "fixed bottom-0 left-0 right-0 z-[60] md:hidden",
           isImmersiveWatch
-            ? "pointer-events-none border-0 bg-transparent px-3 pb-[max(0.625rem,env(safe-area-inset-bottom))]"
+            ? "pointer-events-none border-0 bg-transparent px-3 pb-[var(--app-mobile-nav-watch-edge)]"
             : "border-t border-border bg-card/95 pb-[max(0.25rem,env(safe-area-inset-bottom))] backdrop-blur-xl",
           isAdminRoute && "hidden"
         )}
@@ -188,14 +188,14 @@ export function AppShell({ children, user }: AppShellProps) {
         <div
           className={cn(
             isImmersiveWatch
-              ? "mobile-nav-glass-dock pointer-events-auto mx-auto flex max-w-lg items-stretch justify-between gap-1 rounded-2xl p-1"
+              ? "mobile-nav-glass-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5"
               : "mx-auto flex min-h-[var(--app-mobile-nav-reserve)] max-w-lg items-center justify-around px-2 pt-1"
           )}
         >
           {mobileNavItems.map((item) => {
             const glassTab = cn(
-              "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 transition-all duration-200",
-              isImmersiveWatch && "mobile-nav-glass-btn min-h-[3rem]"
+              "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 transition-all duration-200",
+              isImmersiveWatch && "mobile-nav-glass-btn min-h-[2.875rem]"
             );
 
             if (item.href === "/profile") {
