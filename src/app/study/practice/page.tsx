@@ -19,9 +19,8 @@ export default async function StudyPracticePage() {
   return (
     <StudyShell title="Practice quizzes" subtitle="Check what you know" backHref="/study/dashboard" backLabel="Dashboard">
       <p className="mb-4 text-sm text-[var(--study-muted)]">
-        Each quiz updates your mastery for that subtopic. Questions are{" "}
-        <strong className="font-medium text-[var(--study-text)]">practice only</strong>, not official NSC
-        papers.
+        Choose <strong className="font-medium text-emerald-200">Official NSC</strong> for DBE past-paper
+        questions (with paper &amp; question reference) or practice for extra drills.
       </p>
 
       <div className="space-y-4">
@@ -42,17 +41,28 @@ export default async function StudyPracticePage() {
                             {sub.masteryPct != null ? `${Math.round(sub.masteryPct)}%` : "—"}
                           </span>
                           {sub.questionsAttempted > 0
-                            ? ` · ${sub.questionsAttempted} questions answered`
+                            ? ` · ${sub.questionsAttempted} answered`
                             : " · estimate only"}
+                          {sub.officialCount > 0 ? ` · ${sub.officialCount} official NSC` : ""}
                         </p>
                       </div>
                       {sub.questionCount > 0 ? (
-                        <Link
-                          href={`/study/practice/${sub.id}`}
-                          className="study-btn study-btn-primary shrink-0 px-4 py-2 text-sm"
-                        >
-                          Quiz
-                        </Link>
+                        <div className="flex shrink-0 flex-col gap-2">
+                          {sub.officialCount > 0 ? (
+                            <Link
+                              href={`/study/practice/${sub.id}?mode=official`}
+                              className="study-btn study-btn-primary px-4 py-2 text-sm"
+                            >
+                              Official NSC
+                            </Link>
+                          ) : null}
+                          <Link
+                            href={`/study/practice/${sub.id}`}
+                            className="study-btn study-btn-ghost px-4 py-2 text-sm"
+                          >
+                            Quiz
+                          </Link>
+                        </div>
                       ) : (
                         <span className="study-pill bg-white/5 text-[var(--study-muted)]">Soon</span>
                       )}

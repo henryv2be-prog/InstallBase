@@ -1,12 +1,24 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { StudyContentSourceKind, StudyQuestionType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { answersMatch, buildShortAnswerPatterns } from "@/study/lib/answer-check";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { updateMasteryAfterQuiz } from "@/study/lib/update-mastery-after-quiz";
-import { QUIZ_SIZE, type QuizAnswerInput, type QuizQuestionClient } from "@/study/lib/quiz-types";
+import { QUIZ_SIZE, type QuizAnswerInput, type QuizMode, type QuizQuestionClient } from "@/study/lib/quiz-types";
 
-export async function startSubtopicQuiz(subtopicId: string) {
+function sourceFilter(mode: QuizMode) {
+  if (mode === "official") {
+    return { sourceKind: StudyContentSourceKind.OFFICIAL_PAST_PAPER };
+  }
+  if (mode === "practice") {
+    return { sourceKind: StudyContentSourceKind.PRACTICE };
+  }
+  return {};
+}
+
+export async function startSubtopicQuiz(subtopicId: string, mode: QuizMode = "all") {
   const learner = await getStudyLearnerForRequest();
   if (!isLearnerOnboarded(learner)) {
     return { ok: false as const, error: "Complete onboarding first." };
@@ -28,15 +40,18 @@ export async function startSubtopicQuiz(subtopicId: string) {
   }
 
   const pool = await prisma.studyQuestion.findMany({
-    where: { subtopicId, active: true },
+    where: { subtopicId, active: true, ...sourceFilter(mode) },
     orderBy: { createdAt: "asc" },
   });
 
   if (pool.length === 0) {
-    return {
-      ok: false as const,
-      error: "No practice questions for this topic yet. Try another subtopic.",
-    };
+    const label =
+      mode === "official"
+        ? "No official NSC questions for this topic yet."
+        : mode === "practice"
+          ? "No practice questions for this topic yet."
+          : "No questions for this topic yet.";
+    return { ok: false as const, error: label };
   }
 
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
@@ -48,6 +63,7 @@ export async function startSubtopicQuiz(subtopicId: string) {
 
   return {
     ok: true as const,
+    mode,
     sessionId: session.id,
     subtopicName: subtopic.name,
     topicName: subtopic.topic.name,
@@ -56,6 +72,12 @@ export async function startSubtopicQuiz(subtopicId: string) {
     questions: selected.map(
       (q): QuizQuestionClient => ({
         id: q.id,
+        type: q.type,
+        sourceKind: q.sourceKind,
+        sourceYear: q.sourceYear,
+        sourcePaperNumber: q.sourcePaperNumber,
+        sourceQuestionRef: q.sourceQuestionRef,
+        officialSourceUrl: q.officialSourceUrl,
         prompt: q.prompt,
         options: q.options as { id: string; text: string }[],
         difficulty: q.difficulty,
@@ -102,11 +124,27 @@ export async function completeSubtopicQuiz(sessionId: string, answers: QuizAnswe
     correctOptionId: string;
     isCorrect: boolean;
     explanation: string | null;
+    sourceKind: StudyContentSourceKind;
+    isOfficial: boolean;
+    sourceYear: number | null;
+    sourcePaperNumber: number | null;
+    sourceQuestionRef: string | null;
   }[] = [];
 
   for (const answer of answers) {
     const question = questions.find((q) => q.id === answer.questionId)!;
-    const isCorrect = question.correctOptionId === answer.selectedOptionId;
+    let isCorrect = false;
+
+    if (question.type === StudyQuestionType.SHORT_ANSWER) {
+      const patterns = buildShortAnswerPatterns(
+        question.correctAnswerText ?? "",
+        question.acceptableAnswers as string[] | undefined,
+      );
+      isCorrect = answersMatch(answer.selectedOptionId, patterns);
+    } else {
+      isCorrect = question.correctOptionId === answer.selectedOptionId;
+    }
+
     if (isCorrect) correct += 1;
 
     await prisma.studyQuestionAttempt.create({
@@ -123,9 +161,17 @@ export async function completeSubtopicQuiz(sessionId: string, answers: QuizAnswe
       questionId: question.id,
       prompt: question.prompt,
       selectedOptionId: answer.selectedOptionId,
-      correctOptionId: question.correctOptionId,
+      correctOptionId:
+        question.type === StudyQuestionType.SHORT_ANSWER
+          ? (question.correctAnswerText ?? "")
+          : question.correctOptionId,
       isCorrect,
       explanation: question.explanation,
+      sourceKind: question.sourceKind,
+      isOfficial: question.sourceKind === StudyContentSourceKind.OFFICIAL_PAST_PAPER,
+      sourceYear: question.sourceYear,
+      sourcePaperNumber: question.sourcePaperNumber,
+      sourceQuestionRef: question.sourceQuestionRef,
     });
   }
 

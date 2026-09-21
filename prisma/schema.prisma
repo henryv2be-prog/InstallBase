@@ -822,6 +822,7 @@ model PageViewDailyStats {
 
 enum StudyQuestionType {
   MULTIPLE_CHOICE
+  SHORT_ANSWER
 }
 
 enum StudyContentSourceKind {
@@ -985,10 +986,15 @@ model StudyQuestion {
   options         Json
   correctOptionId String
   explanation     String?                @db.Text
-  sourceKind      StudyContentSourceKind
-  sourceLabel     String?
-  sourceYear      Int?
-  active          Boolean                @default(true)
+  sourceKind         StudyContentSourceKind
+  sourceLabel        String?
+  sourceYear         Int?
+  sourcePaperNumber  Int?
+  sourceQuestionRef  String?
+  officialSourceUrl  String?
+  correctAnswerText  String?
+  acceptableAnswers  Json?
+  active             Boolean                @default(true)
   createdAt       DateTime               @default(now())
   updatedAt       DateTime               @updatedAt
 

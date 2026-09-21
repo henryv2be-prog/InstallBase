@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { QuestionSourceBadge } from "@/study/components/question-source-badge";
 import { completeSubtopicQuiz } from "@/study/lib/quiz-actions";
 import type { QuizQuestionClient } from "@/study/lib/quiz-types";
 
@@ -37,9 +38,14 @@ export function QuizRunner({ sessionId, subjectName, topicName, subtopicName, qu
     setAnswers((prev) => ({ ...prev, [current.id]: optionId }));
   }
 
+  function setShortAnswer(value: string) {
+    if (!current) return;
+    setAnswers((prev) => ({ ...prev, [current.id]: value }));
+  }
+
   function next() {
-    if (!selected) {
-      setError("Choose an answer to continue.");
+    if (!selected?.trim()) {
+      setError("Enter or choose an answer to continue.");
       return;
     }
     setError(null);
@@ -79,20 +85,26 @@ export function QuizRunner({ sessionId, subjectName, topicName, subtopicName, qu
             </span>{" "}
             <span className="text-xs">({summary.questionsAttemptedTotal} questions total)</span>
           </p>
-          <p className="mt-2 text-xs text-[var(--study-muted)]">
-            Mastery becomes more reliable as you answer more questions.
-          </p>
         </section>
 
         <ul className="mb-4 space-y-3">
           {summary.results.map((r) => (
-            <li key={r.questionId} className="study-card p-4">
-              <p className="text-sm font-medium">{r.prompt}</p>
-              <p className={`mt-2 text-sm ${r.isCorrect ? "text-[var(--study-success)]" : "text-[#fecaca]"}`}>
+            <li key={r.questionId} className="study-card space-y-2 p-4">
+              <QuestionSourceBadge
+                isOfficial={r.isOfficial}
+                sourceYear={r.sourceYear}
+                sourcePaperNumber={r.sourcePaperNumber}
+                sourceQuestionRef={r.sourceQuestionRef}
+              />
+              <p className="text-sm font-medium whitespace-pre-line">{r.prompt}</p>
+              <p className={`text-sm ${r.isCorrect ? "text-[var(--study-success)]" : "text-[#fecaca]"}`}>
                 {r.isCorrect ? "✓ Correct" : "✗ Incorrect"}
+                {!r.isCorrect ? (
+                  <span className="block text-[var(--study-muted)]">Expected: {r.correctOptionId}</span>
+                ) : null}
               </p>
               {r.explanation ? (
-                <p className="mt-2 text-sm text-[var(--study-muted)]">{r.explanation}</p>
+                <p className="text-sm text-[var(--study-muted)]">{r.explanation}</p>
               ) : null}
             </li>
           ))}
@@ -107,19 +119,27 @@ export function QuizRunner({ sessionId, subjectName, topicName, subtopicName, qu
 
   if (!current) return null;
 
+  const isShort = current.type === "SHORT_ANSWER";
+
   return (
     <div className="flex flex-1 flex-col">
       <p className="mb-2 text-xs text-[var(--study-muted)]">
         {subjectName} · {topicName}
       </p>
-      <p className="mb-4 text-sm font-semibold text-[#c7d2fe]">{subtopicName}</p>
+      <p className="mb-3 text-sm font-semibold text-[#c7d2fe]">{subtopicName}</p>
+      <QuestionSourceBadge
+        isOfficial={current.sourceKind === "OFFICIAL_PAST_PAPER"}
+        sourceYear={current.sourceYear}
+        sourcePaperNumber={current.sourcePaperNumber}
+        sourceQuestionRef={current.sourceQuestionRef}
+      />
 
-      <div className="mb-4">
+      <div className="mb-4 mt-3">
         <div className="mb-2 flex justify-between text-xs font-medium text-[var(--study-muted)]">
           <span>
             Question {index + 1} of {questions.length}
           </span>
-          <span>Practice quiz</span>
+          <span>{isShort ? "NSC short answer" : "Multiple choice"}</span>
         </div>
         <div className="study-progress-track">
           <div className="study-progress-fill" style={{ width: `${progress}%` }} />
@@ -127,28 +147,39 @@ export function QuizRunner({ sessionId, subjectName, topicName, subtopicName, qu
       </div>
 
       <section className="study-card mb-4 flex-1 p-5">
-        <p className="text-base font-medium leading-relaxed">{current.prompt}</p>
-        <ul className="mt-5 space-y-3">
-          {current.options.map((opt) => {
-            const active = selected === opt.id;
-            return (
-              <li key={opt.id}>
-                <button
-                  type="button"
-                  onClick={() => choose(opt.id)}
-                  className={`study-quiz-option study-touch-target w-full text-left ${active ? "study-quiz-option--active" : ""}`}
-                >
-                  {opt.text}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        <p className="text-base font-medium leading-relaxed whitespace-pre-line">{current.prompt}</p>
+        {isShort ? (
+          <label className="mt-5 block space-y-2">
+            <span className="text-sm font-medium text-[var(--study-muted)]">Your answer</span>
+            <input
+              className="study-input study-touch-target"
+              value={selected ?? ""}
+              onChange={(e) => setShortAnswer(e.target.value)}
+              placeholder="e.g. x = 5 or x = -1"
+              autoComplete="off"
+            />
+          </label>
+        ) : (
+          <ul className="mt-5 space-y-3">
+            {current.options.map((opt) => {
+              const active = selected === opt.id;
+              return (
+                <li key={opt.id}>
+                  <button
+                    type="button"
+                    onClick={() => choose(opt.id)}
+                    className={`study-quiz-option study-touch-target w-full text-left ${active ? "study-quiz-option--active" : ""}`}
+                  >
+                    {opt.text}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
 
-      {error ? (
-        <p className="mb-3 text-sm text-[#fecaca]">{error}</p>
-      ) : null}
+      {error ? <p className="mb-3 text-sm text-[#fecaca]">{error}</p> : null}
 
       <button
         type="button"

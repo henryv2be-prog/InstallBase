@@ -5,13 +5,25 @@ import { StudyShell } from "@/study/components/study-shell";
 import { ensurePracticeQuestions } from "@/study/lib/seed-questions";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { prisma } from "@/lib/prisma";
+import type { QuizMode } from "@/study/lib/quiz-types";
+import { StudyContentSourceKind } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ subtopicId: string }> };
+type Props = {
+  params: Promise<{ subtopicId: string }>;
+  searchParams: Promise<{ mode?: string }>;
+};
 
-export default async function StudyQuizPage({ params }: Props) {
+function parseMode(raw: string | undefined): QuizMode {
+  if (raw === "official" || raw === "practice") return raw;
+  return "all";
+}
+
+export default async function StudyQuizPage({ params, searchParams }: Props) {
   const { subtopicId } = await params;
+  const { mode: modeParam } = await searchParams;
+  const initialMode = parseMode(modeParam);
   const learner = await getStudyLearnerForRequest();
   if (!isLearnerOnboarded(learner)) {
     redirect("/study/onboarding");
@@ -23,7 +35,7 @@ export default async function StudyQuizPage({ params }: Props) {
     where: { id: subtopicId },
     include: {
       topic: { include: { curriculum: { include: { subject: true } } } },
-      _count: { select: { questions: { where: { active: true } } } },
+      questions: { where: { active: true }, select: { sourceKind: true } },
     },
   });
 
@@ -52,7 +64,7 @@ export default async function StudyQuizPage({ params }: Props) {
 
   return (
     <StudyShell title="Quick quiz" backHref="/study/practice" backLabel="Practice">
-      {subtopic._count.questions === 0 ? (
+      {subtopic.questions.length === 0 ? (
         <>
           <div className="study-card p-5 text-sm text-[var(--study-muted)]">
             Practice questions for this subtopic are not available yet.
@@ -67,9 +79,17 @@ export default async function StudyQuizPage({ params }: Props) {
           subjectName={subtopic.topic.curriculum.subject.name}
           topicName={subtopic.topic.name}
           subtopicName={subtopic.name}
-          questionCount={subtopic._count.questions}
+          questionCount={subtopic.questions.length}
+          officialCount={
+            subtopic.questions.filter((q) => q.sourceKind === StudyContentSourceKind.OFFICIAL_PAST_PAPER)
+              .length
+          }
+          practiceCount={
+            subtopic.questions.filter((q) => q.sourceKind === StudyContentSourceKind.PRACTICE).length
+          }
           masteryPct={mastery?.masteryPct ?? null}
           questionsAttempted={mastery?.questionsAttempted ?? 0}
+          initialMode={initialMode}
         />
       )}
     </StudyShell>
