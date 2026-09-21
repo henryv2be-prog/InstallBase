@@ -9,6 +9,7 @@ import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learn
 import { prisma } from "@/lib/prisma";
 import type { QuizMode } from "@/study/lib/quiz-types";
 import { StudyContentSourceKind, StudyOfficialVerificationStatus } from "@/generated/prisma/client";
+import { isPracticeLikeSourceKind } from "@/study/lib/question-source-kinds";
 
 export const dynamic = "force-dynamic";
 
@@ -97,7 +98,7 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
             ).length
           }
           practiceCount={
-            subtopic.questions.filter((q) => q.sourceKind === StudyContentSourceKind.PRACTICE).length
+            subtopic.questions.filter((q) => isPracticeLikeSourceKind(q.sourceKind)).length
           }
           masteryPct={mastery?.masteryPct ?? null}
           questionsAttempted={mastery?.questionsAttempted ?? 0}

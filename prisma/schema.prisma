@@ -829,6 +829,7 @@ enum StudyContentSourceKind {
   OFFICIAL_CURRICULUM
   OFFICIAL_PAST_PAPER
   PRACTICE
+  GENERATED_PRACTICE
   PROTOTYPE
 }
 
@@ -1092,6 +1093,7 @@ model StudyQuestion {
   correctAnswerText  String?
   acceptableAnswers  Json?
   verificationStatus StudyOfficialVerificationStatus?
+  generatorMeta      Json?
   active             Boolean                          @default(true)
   createdAt          DateTime                         @default(now())
   updatedAt          DateTime                         @updatedAt

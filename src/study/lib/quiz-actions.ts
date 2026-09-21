@@ -14,6 +14,11 @@ import { markRecommendationFollowed } from "@/study/lib/recommendation/service";
 import { getStudyLocale } from "@/study/i18n/get-locale";
 import { localizeFromSubtopicGraph } from "@/study/i18n/localize-content";
 import { getWeakestMasteries } from "@/study/lib/queries";
+import {
+  isOfficialVerifiedSource,
+  isPracticeLikeSourceKind,
+  PRACTICE_LIKE_SOURCE_KINDS,
+} from "@/study/lib/question-source-kinds";
 import { QUIZ_SIZE, type QuizAnswerInput, type QuizMode, type QuizQuestionClient } from "@/study/lib/quiz-types";
 
 export async function evaluateQuizAnswer(questionId: string, selectedOptionId: string) {
@@ -59,7 +64,7 @@ function sourceFilter(mode: QuizMode) {
     };
   }
   if (mode === "practice") {
-    return { sourceKind: StudyContentSourceKind.PRACTICE };
+    return { sourceKind: { in: [...PRACTICE_LIKE_SOURCE_KINDS] } };
   }
   return {};
 }
@@ -100,7 +105,16 @@ export async function startSubtopicQuiz(subtopicId: string, mode: QuizMode = "al
     return { ok: false as const, error: label };
   }
 
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const masteryRow = await prisma.studyMastery.findUnique({
+    where: { learnerId_subtopicId: { learnerId: learner.id, subtopicId } },
+  });
+  const preferHarder = (masteryRow?.masteryPct ?? 0) >= 70;
+  const shuffled = [...pool].sort((a, b) => {
+    if (preferHarder && a.difficulty !== b.difficulty) {
+      return b.difficulty - a.difficulty;
+    }
+    return Math.random() - 0.5;
+  });
   const selected = shuffled.slice(0, Math.min(QUIZ_SIZE, shuffled.length));
 
   const session = await prisma.studyAssessmentSession.create({

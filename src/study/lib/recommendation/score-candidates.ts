@@ -99,6 +99,16 @@ function pickAction(
     return StudyRecommendationAction.TRY_HARDER_QUESTIONS;
   }
 
+  if (
+    topic.avgDifficultyCorrect != null &&
+    topic.avgDifficultyCorrect <= 2.5 &&
+    topic.masteryPct >= 72 &&
+    recentAvg != null &&
+    recentAvg >= 75
+  ) {
+    return StudyRecommendationAction.TRY_HARDER_QUESTIONS;
+  }
+
   if (topic.masteryPct >= STRONG_MASTERY && topic.recentSessionScores.length >= 2) {
     return StudyRecommendationAction.REVIEW_TOPIC;
   }
