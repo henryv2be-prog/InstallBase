@@ -107,6 +107,9 @@ export async function completeStudyOnboarding(raw: StudyOnboardingInput): Promis
     revalidatePath("/study");
     revalidatePath("/study/dashboard");
     revalidatePath("/study/onboarding");
+    revalidatePath("/study/profile");
+    revalidatePath("/study/subjects");
+    revalidatePath("/study/practice");
 
     return { ok: true, learnerId };
   } catch (e) {

@@ -14,11 +14,7 @@ import { markRecommendationFollowed } from "@/study/lib/recommendation/service";
 import { getStudyLocale } from "@/study/i18n/get-locale";
 import { localizeFromSubtopicGraph } from "@/study/i18n/localize-content";
 import { getWeakestMasteries } from "@/study/lib/queries";
-import {
-  isOfficialVerifiedSource,
-  isPracticeLikeSourceKind,
-  PRACTICE_LIKE_SOURCE_KINDS,
-} from "@/study/lib/question-source-kinds";
+import { PRACTICE_LIKE_SOURCE_KINDS } from "@/study/lib/question-source-kinds";
 import { QUIZ_SIZE, type QuizAnswerInput, type QuizMode, type QuizQuestionClient } from "@/study/lib/quiz-types";
 
 export async function evaluateQuizAnswer(questionId: string, selectedOptionId: string) {
