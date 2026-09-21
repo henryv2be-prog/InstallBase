@@ -4,6 +4,7 @@
  */
 
 import { MATH_DEPTH_QUESTIONS } from "@/study/data/practice-questions-math-depth";
+import { STEM_DEPTH_QUESTIONS } from "@/study/data/practice-questions-stem-depth";
 
 export type PracticeQuestionDef = {
   seedKey: string;
@@ -582,4 +583,5 @@ export const PRACTICE_QUESTIONS: PracticeQuestionDef[] = [
     explanation: "Die afslag geld tot Vrydag — koop voor die deadline.",
   },
   ...MATH_DEPTH_QUESTIONS,
+  ...STEM_DEPTH_QUESTIONS,
 ];
