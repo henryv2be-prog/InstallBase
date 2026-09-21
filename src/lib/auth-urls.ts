@@ -1,7 +1,7 @@
 /** Only allow in-app relative paths after login/signup. */
 export function safeAuthNext(value: string | null | undefined) {
-  if (!value) return "/feed";
-  if (!value.startsWith("/") || value.startsWith("//") || value.includes("://")) return "/feed";
+  if (!value) return "/study";
+  if (!value.startsWith("/") || value.startsWith("//") || value.includes("://")) return "/study";
   return value;
 }
 

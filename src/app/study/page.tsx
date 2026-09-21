@@ -19,14 +19,12 @@ export default async function StudyCoachHomePage() {
           Know what to study next.
         </h1>
         <p className="mt-3 text-base leading-relaxed text-[var(--study-muted)]">
-          A study coach built for South African matrics — exams, targets, and topic mastery in one
-          place. This is <strong className="font-semibold text-[var(--study-text)]">not</strong>{" "}
-          InstallBase.
+          Your exams, target marks, and topic mastery — turned into a clear plan for today.
         </p>
       </section>
 
       <section className="study-card mb-6 space-y-3 p-5">
-        <h2 className="text-lg font-semibold">You&apos;ll set up in about 2 minutes</h2>
+        <h2 className="text-lg font-semibold">About 2 minutes to set up</h2>
         <ul className="space-y-2 text-sm text-[var(--study-muted)]">
           <li>✓ Your name &amp; Grade 12 profile</li>
           <li>✓ Subjects with current &amp; target marks</li>
@@ -34,19 +32,12 @@ export default async function StudyCoachHomePage() {
         </ul>
       </section>
 
-      <div className="mt-auto space-y-3">
-        <Link href="/study/onboarding" className="study-btn study-btn-primary study-touch-target block w-full text-center">
-          Get started
-        </Link>
-        <p className="text-center text-xs text-[var(--study-muted)]">
-          Open this app at <strong className="text-[var(--study-text)]">/study</strong> — not the
-          InstallBase feed.
-        </p>
+      <div className="mt-auto">
         <Link
-          href="/feed"
-          className="study-btn study-btn-ghost study-touch-target block w-full text-center text-sm"
+          href="/study/onboarding"
+          className="study-btn study-btn-primary study-touch-target block w-full text-center"
         >
-          Go to InstallBase instead
+          Get started
         </Link>
       </div>
     </StudyShell>

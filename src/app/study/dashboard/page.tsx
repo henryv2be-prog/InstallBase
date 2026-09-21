@@ -106,20 +106,12 @@ export default async function StudyDashboardPage() {
         </ul>
       </section>
 
-      <div className="space-y-3">
-        <Link
-          href="/study/onboarding?edit=1"
-          className="study-btn study-btn-ghost study-touch-target block w-full text-center"
-        >
-          Edit subjects &amp; exam dates
-        </Link>
-        <p className="text-center text-xs text-[var(--study-muted)]">
-          InstallBase account unchanged ·{" "}
-          <Link href="/feed" className="underline underline-offset-2">
-            Open InstallBase
-          </Link>
-        </p>
-      </div>
+      <Link
+        href="/study/onboarding?edit=1"
+        className="study-btn study-btn-ghost study-touch-target block w-full text-center"
+      >
+        Edit subjects &amp; exam dates
+      </Link>
     </StudyShell>
   );
 }

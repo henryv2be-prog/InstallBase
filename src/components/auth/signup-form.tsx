@@ -40,7 +40,7 @@ function FieldError({ message }: { message?: string }) {
   return <p className="mt-1 text-sm text-red-600 dark:text-red-400">{message}</p>;
 }
 
-export function SignupForm({ next = "/feed" }: { next?: string }) {
+export function SignupForm({ next = "/study" }: { next?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [pending, startTransition] = useTransition();

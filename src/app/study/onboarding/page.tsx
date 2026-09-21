@@ -4,6 +4,7 @@ import { getSession } from "@/lib/session";
 import { OnboardingWizard } from "@/study/components/onboarding-wizard";
 import { StudyShell } from "@/study/components/study-shell";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
+import { ensureStudyCatalog } from "@/study/lib/ensure-catalog";
 import { getStudySubjectsForOnboarding } from "@/study/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ export default async function StudyOnboardingPage({ searchParams }: Props) {
 
   let subjects: Awaited<ReturnType<typeof getStudySubjectsForOnboarding>> = [];
   try {
+    await ensureStudyCatalog();
     subjects = await getStudySubjectsForOnboarding();
   } catch {
     subjects = [];
@@ -47,11 +49,11 @@ export default async function StudyOnboardingPage({ searchParams }: Props) {
     >
       {!session?.user ? (
         <p className="mb-4 text-xs leading-relaxed text-[var(--study-muted)]">
-          You can set up without an InstallBase account.{" "}
-          <Link href="/login?callbackUrl=/study/onboarding" className="text-[#c7d2fe] underline">
+          Optional:{" "}
+          <Link href="/login?next=/study/onboarding" className="text-[#c7d2fe] underline">
             Sign in
           </Link>{" "}
-          to keep your profile on this device and account in sync.
+          to sync your profile if you use more than one device.
         </p>
       ) : null}
       {options.length === 0 ? (

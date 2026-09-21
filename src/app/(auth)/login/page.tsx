@@ -19,15 +19,15 @@ export default async function LoginPage({
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <Link href="/" className="relative z-10 mb-8">
+      <Link href="/study" className="relative z-10 mb-8">
         <Logo size="lg" />
       </Link>
       <div className="relative z-10 w-full max-w-md animate-fade-in">
         <LoginForm next={next} />
         <p className="mt-6 text-center text-sm text-muted">
           Or{" "}
-          <Link href="/feed" className="font-semibold text-blue-600 hover:underline dark:text-cyan-400">
-            browse the live site as a guest
+          <Link href="/study" className="font-semibold text-blue-600 hover:underline dark:text-cyan-400">
+            continue without signing in
           </Link>
         </p>
       </div>

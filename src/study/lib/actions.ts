@@ -100,7 +100,7 @@ export async function completeStudyOnboarding(raw: StudyOnboardingInput): Promis
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      path: "/study",
+      path: "/",
       maxAge: 60 * 60 * 24 * 365,
     });
 
