@@ -1,0 +1,50 @@
+/* Grade 12 Study Coach — isolated visual system (does not override InstallBase tokens globally) */
+
+.study-coach {
+  --study-bg: #0c1222;
+  --study-bg-elevated: #141d33;
+  --study-card: #1a2640;
+  --study-text: #f8fafc;
+  --study-muted: #94a3b8;
+  --study-accent: #6366f1;
+  --study-accent-soft: rgba(99, 102, 241, 0.18);
+  --study-success: #22c55e;
+  --study-warn: #eab308;
+  --study-danger: #ef4444;
+  --study-border: rgba(148, 163, 184, 0.22);
+  min-height: 100dvh;
+  background:
+    radial-gradient(120% 80% at 50% -20%, rgba(99, 102, 241, 0.22), transparent 55%),
+    var(--study-bg);
+  color: var(--study-text);
+}
+
+.study-coach a {
+  color: inherit;
+}
+
+.study-card {
+  background: var(--study-card);
+  border: 1px solid var(--study-border);
+  border-radius: 1rem;
+}
+
+.study-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.study-pill--prototype {
+  background: var(--study-accent-soft);
+  color: #c7d2fe;
+}
+
+.study-touch-target {
+  min-height: 2.75rem;
+}

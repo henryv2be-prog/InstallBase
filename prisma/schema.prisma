@@ -149,6 +149,7 @@ model User {
   pushSubscriptions PushSubscription[]
   passwordResetTokens PasswordResetToken[]
   platformRoles     UserPlatformRole[]
+  studyLearner      StudyLearner?
 }
 
 model UserPlatformRole {
@@ -815,4 +816,246 @@ model PageViewDailyStats {
   uniqueViews Int      @default(0)
 
   @@unique([pageKey, date])
+}
+
+// ─── Grade 12 Study Coach (experimental — namespaced, additive) ─────────────
+
+enum StudyQuestionType {
+  MULTIPLE_CHOICE
+}
+
+enum StudyContentSourceKind {
+  OFFICIAL_CURRICULUM
+  OFFICIAL_PAST_PAPER
+  PRACTICE
+  PROTOTYPE
+}
+
+enum StudyPriorityBand {
+  NEEDS_ATTENTION
+  KEEP_PRACTISING
+  ON_TRACK
+}
+
+model StudySubject {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  grade       Int      @default(12)
+  description String?
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  curricula       StudyCurriculum[]
+  learnerSubjects StudyLearnerSubject[]
+  questions       StudyQuestion[]
+}
+
+model StudyCurriculum {
+  id            String                 @id @default(cuid())
+  subjectId     String
+  name          String
+  sourceKind    StudyContentSourceKind
+  sourceTitle   String?
+  sourceUrl     String?
+  versionLabel  String?
+  isComplete    Boolean                @default(false)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  subject StudySubject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topics  StudyTopic[]
+
+  @@index([subjectId])
+}
+
+model StudyTopic {
+  id           String   @id @default(cuid())
+  curriculumId String
+  slug         String
+  name         String
+  sortOrder    Int      @default(0)
+  importance   Float    @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  curriculum StudyCurriculum @relation(fields: [curriculumId], references: [id], onDelete: Cascade)
+  subtopics  StudySubtopic[]
+
+  @@unique([curriculumId, slug])
+}
+
+model StudySubtopic {
+  id        String   @id @default(cuid())
+  topicId   String
+  slug      String
+  name      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  topic                StudyTopic                 @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  questions            StudyQuestion[]
+  masteries            StudyMastery[]
+  planItems            StudyPlanItem[]
+  assessmentSessions   StudyAssessmentSession[]
+
+  @@unique([topicId, slug])
+}
+
+model StudyLearner {
+  id          String    @id @default(cuid())
+  userId      String?   @unique
+  displayName String
+  grade       Int       @default(12)
+  schoolYear  Int       @default(2026)
+  onboardedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user                 User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  subjects             StudyLearnerSubject[]
+  masteries            StudyMastery[]
+  questionAttempts     StudyQuestionAttempt[]
+  assessmentSessions   StudyAssessmentSession[]
+  planDays             StudyPlanDay[]
+}
+
+model StudyLearnerSubject {
+  id             String   @id @default(cuid())
+  learnerId      String
+  subjectId      String
+  currentMarkPct Float
+  targetMarkPct  Float
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  learner   StudyLearner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  subject   StudySubject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  exams     StudyExam[]
+  planItems StudyPlanItem[]
+
+  @@unique([learnerId, subjectId])
+}
+
+model StudyExam {
+  id               String   @id @default(cuid())
+  learnerSubjectId String
+  examAt           DateTime @db.Date
+  paperNumber      Int?
+  durationMinutes  Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  learnerSubject StudyLearnerSubject @relation(fields: [learnerSubjectId], references: [id], onDelete: Cascade)
+
+  @@index([learnerSubjectId, examAt])
+}
+
+model StudyMastery {
+  id                 String             @id @default(cuid())
+  learnerId          String
+  subtopicId         String
+  masteryPct         Float              @default(0)
+  questionsAttempted Int                @default(0)
+  questionsCorrect   Int                @default(0)
+  lastPracticedAt    DateTime?
+  confidencePct      Float?
+  priorityScore      Float?
+  priorityBand       StudyPriorityBand?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  learner  StudyLearner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  subtopic StudySubtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+
+  @@unique([learnerId, subtopicId])
+  @@index([learnerId])
+}
+
+model StudyQuestion {
+  id              String                 @id @default(cuid())
+  subjectId       String
+  subtopicId      String
+  type            StudyQuestionType      @default(MULTIPLE_CHOICE)
+  difficulty      Int                    @default(3)
+  prompt          String                 @db.Text
+  options         Json
+  correctOptionId String
+  explanation     String?                @db.Text
+  sourceKind      StudyContentSourceKind
+  sourceLabel     String?
+  sourceYear      Int?
+  active          Boolean                @default(true)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  subject  StudySubject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subtopic StudySubtopic          @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+  attempts StudyQuestionAttempt[]
+
+  @@index([subtopicId, active])
+  @@index([subjectId])
+}
+
+model StudyAssessmentSession {
+  id          String    @id @default(cuid())
+  learnerId   String
+  subtopicId  String
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  learner  StudyLearner           @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  subtopic StudySubtopic          @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+  attempts StudyQuestionAttempt[]
+
+  @@index([learnerId, startedAt])
+}
+
+model StudyQuestionAttempt {
+  id               String   @id @default(cuid())
+  learnerId        String
+  questionId       String
+  sessionId        String?
+  selectedOptionId String?
+  isCorrect        Boolean
+  attemptedAt      DateTime @default(now())
+
+  learner  StudyLearner            @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  question StudyQuestion           @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  session  StudyAssessmentSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([learnerId, attemptedAt])
+  @@index([questionId])
+}
+
+model StudyPlanDay {
+  id               String   @id @default(cuid())
+  learnerId        String
+  planDate         DateTime @db.Date
+  availableMinutes Int
+  generatedAt      DateTime @default(now())
+
+  learner StudyLearner    @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  items   StudyPlanItem[]
+
+  @@unique([learnerId, planDate])
+}
+
+model StudyPlanItem {
+  id               String  @id @default(cuid())
+  planDayId        String
+  learnerSubjectId String
+  subtopicId       String
+  allocatedMinutes Int
+  sortOrder        Int     @default(0)
+  notes            String?
+
+  planDay        StudyPlanDay        @relation(fields: [planDayId], references: [id], onDelete: Cascade)
+  learnerSubject StudyLearnerSubject @relation(fields: [learnerSubjectId], references: [id], onDelete: Cascade)
+  subtopic       StudySubtopic       @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+
+  @@index([planDayId, sortOrder])
 }

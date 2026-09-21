@@ -16,6 +16,7 @@
     "reengagement:run": "node scripts/run-daily-reengagement.mjs",
     "reengagement:dry-run": "node scripts/run-daily-reengagement.mjs --dry-run --force",
     "db:seed": "npx tsx prisma/seed.ts",
+    "db:seed-study": "npx tsx prisma/seed-study-curriculum.ts",
     "db:seed-demo-ad": "SEED_DEMO_AD_ONLY=true npx tsx prisma/seed.ts",
     "db:fix-images": "npx tsx prisma/fix-images.ts",
     "db:migrate": "prisma migrate dev",
