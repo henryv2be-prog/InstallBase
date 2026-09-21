@@ -12,7 +12,9 @@ import {
   PHOTO_DURATION_SEC,
 } from "@/lib/video-compilation/constants";
 import { uploadUrlToAbsolutePath } from "@/lib/video-compilation/paths";
-import { probeVideoDurationSec } from "@/lib/video-compilation/probe";
+import { probeImageDimensions, probeVideoDurationSec } from "@/lib/video-compilation/probe";
+
+const LANDSCAPE_PHOTO_RATIO = 1.12;
 import { runFfmpeg } from "@/lib/video-compilation/run-ffmpeg";
 
 export type SourceSegment = {
@@ -34,16 +36,22 @@ function photoZoomPan(index: number) {
   return `zoompan=z='if(lte(zoom,1.0),1.06,max(1.001,zoom-0.0008))':d=${frames}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}:fps=${OUTPUT_FPS}`;
 }
 
+function landscapePhotoFilterComplex() {
+  const w = OUTPUT_WIDTH;
+  const h = OUTPUT_HEIGHT;
+  return (
+    `[0:v]scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h},gblur=sigma=24[bg];` +
+    `[0:v]scale=${w}:${h}:force_original_aspect_ratio=decrease[fg];` +
+    `[bg][fg]overlay=(W-w)/2:(H-h)/2,format=yuv420p`
+  );
+}
+
 async function buildPhotoSegment(sourcePath: string, destPath: string, index: number) {
-  const vf = scaleCropFilter(photoZoomPan(index));
-  await runFfmpeg([
-    "-y",
-    "-loop",
-    "1",
-    "-i",
-    sourcePath,
-    "-vf",
-    vf,
+  const dimensions = await probeImageDimensions(sourcePath);
+  const isLandscape =
+    dimensions !== null && dimensions.width / dimensions.height > LANDSCAPE_PHOTO_RATIO;
+
+  const commonTail = [
     "-t",
     String(PHOTO_DURATION_SEC),
     "-r",
@@ -58,7 +66,30 @@ async function buildPhotoSegment(sourcePath: string, destPath: string, index: nu
     "yuv420p",
     "-an",
     destPath,
-  ]);
+  ];
+
+  if (isLandscape) {
+    try {
+      await runFfmpeg([
+        "-y",
+        "-loop",
+        "1",
+        "-i",
+        sourcePath,
+        "-filter_complex",
+        landscapePhotoFilterComplex(),
+        ...commonTail,
+      ]);
+      return;
+    } catch {
+      const pad = `scale=${OUTPUT_WIDTH}:${OUTPUT_HEIGHT}:force_original_aspect_ratio=decrease,pad=${OUTPUT_WIDTH}:${OUTPUT_HEIGHT}:(ow-iw)/2:(oh-ih)/2:color=0x0a0f18`;
+      await runFfmpeg(["-y", "-loop", "1", "-i", sourcePath, "-vf", pad, ...commonTail]);
+      return;
+    }
+  }
+
+  const vf = scaleCropFilter(photoZoomPan(index));
+  await runFfmpeg(["-y", "-loop", "1", "-i", sourcePath, "-vf", vf, ...commonTail]);
 }
 
 async function buildVideoSegment(sourcePath: string, destPath: string) {
