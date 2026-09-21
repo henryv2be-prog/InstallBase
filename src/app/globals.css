@@ -244,3 +244,22 @@ body {
   scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
 }
+
+@keyframes immersive-panorama-pan {
+  from {
+    transform: scale(1.02) translateX(-3%);
+  }
+  to {
+    transform: scale(1.02) translateX(3%);
+  }
+}
+
+.immersive-panorama-pan {
+  animation: immersive-panorama-pan 14s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .immersive-panorama-pan {
+    animation: none;
+  }
+}

@@ -8,7 +8,7 @@ import {
 import { isVideoMedia } from "@/lib/media";
 import { ImmersivePhotoStory } from "@/components/feed/immersive/immersive-photo-story";
 import { ImmersiveVideoPlayer } from "@/components/feed/immersive/immersive-video-player";
-import { MediaImage } from "@/components/ui/media-image";
+import { ImmersiveInstallPhoto } from "@/components/feed/immersive/immersive-install-photo";
 
 interface ImmersiveMediaStageProps {
   post: PostCardData;
@@ -44,15 +44,7 @@ export function ImmersiveMediaStage({ post, active }: ImmersiveMediaStageProps) 
 
   if (kind === "single-photo") {
     return (
-      <div className="relative h-full w-full overflow-hidden bg-black">
-        <MediaImage
-          src={media[0].url}
-          alt=""
-          fill
-          className="object-cover"
-          sizes="100vw"
-        />
-      </div>
+      <ImmersiveInstallPhoto src={media[0].url} active={active} className="h-full w-full" />
     );
   }
 
