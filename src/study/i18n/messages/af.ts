@@ -169,6 +169,8 @@ export const af: StudyMessages = {
     memoAnswer: "Regte antwoord:",
     nextOne: "Gereed vir die volgende?",
     finishSession: "Voltooi sessie",
+    whyTopicLabel: "Hoekom hierdie onderwerp?",
+    savingProgress: "Stoor jou vordering…",
     sessionComplete: "Sessie klaar",
     niceWork: "Wel gedaan.",
     masteryLabel: "op hierdie onderwerp",

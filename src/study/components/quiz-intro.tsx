@@ -20,6 +20,7 @@ type Props = {
   practiceCount: number;
   masteryPct: number | null;
   questionsAttempted: number;
+  whyTopic?: string | null;
   initialMode?: QuizMode;
 };
 
@@ -35,6 +36,7 @@ export function QuizIntro({
   practiceCount,
   masteryPct,
   questionsAttempted,
+  whyTopic,
   initialMode = "all",
 }: Props) {
   const t = useStudyT();
@@ -117,6 +119,12 @@ export function QuizIntro({
         <p className="mt-2 text-sm font-semibold study-text-emphasis">
           {t.quiz.questionsReady(availableForMode)}
         </p>
+        {whyTopic ? (
+          <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm leading-relaxed text-[var(--study-muted)]">
+            <span className="font-bold text-[var(--study-text)]">{t.quiz.whyTopicLabel}</span>{" "}
+            {whyTopic}
+          </p>
+        ) : null}
       </section>
 
       {showModePicker ? (

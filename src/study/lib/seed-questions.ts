@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { importOfficialNscFromManifest } from "@/study/lib/nsc-import/import-from-manifest";
 import { loadNscImportManifest } from "@/study/lib/nsc-import/load-manifest";
 import { PRACTICE_QUESTIONS } from "@/study/data/practice-questions";
+import { seedGeneratedPracticeQuestions } from "@/study/lib/generated-practice/seed-generated-practice";
+import { buildAllValidatedGeneratedDrafts } from "@/study/lib/generated-practice/build-all-drafts";
 
 type QuestionSeed = {
   seedKey: string;
@@ -81,6 +83,7 @@ export async function seedOfficialNscQuestionBank() {
 
 export async function seedAllStudyQuestions() {
   await seedPracticeQuestions();
+  await seedGeneratedPracticeQuestions(prisma);
   await seedOfficialNscQuestionBank();
 }
 
@@ -100,6 +103,13 @@ export async function ensurePracticeQuestions() {
 
   if (practiceCount < PRACTICE_QUESTIONS.length) {
     await seedPracticeQuestions();
+  }
+  const generatedTarget = buildAllValidatedGeneratedDrafts().length;
+  const generatedCount = await prisma.studyQuestion.count({
+    where: { active: true, sourceKind: StudyContentSourceKind.GENERATED_PRACTICE },
+  });
+  if (generatedCount < generatedTarget) {
+    await seedGeneratedPracticeQuestions(prisma);
   }
   const batchRecords = await prisma.studyQuestionImportBatch.count();
   if (batchRecords < manifest.batches.length || verifiedOfficial < 5) {

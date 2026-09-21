@@ -11,7 +11,7 @@ import {
 } from "@/study/data/grade-12-subject-catalog";
 import {
   buildInitialExamMap,
-  DEFAULT_ONBOARDING_EXAM,
+  defaultExamForSubjectSlug,
   examEntryForSubject,
   type OnboardingExamEntry,
 } from "@/study/lib/onboarding-defaults";
@@ -82,6 +82,7 @@ export function OnboardingWizard({
     buildInitialExamMap(
       subjects.map((s) => s.id),
       initialExams,
+      Object.fromEntries(subjects.map((s) => [s.id, s.slug])),
     ),
   );
 
@@ -131,7 +132,9 @@ export function OnboardingWizard({
     });
     setExams((prev) => {
       if (prev[id]) return prev;
-      return { ...prev, [id]: { ...DEFAULT_ONBOARDING_EXAM } };
+      const subject = subjects.find((s) => s.id === id);
+      const def = subject ? defaultExamForSubjectSlug(subject.slug) : defaultExamForSubjectSlug("");
+      return { ...prev, [id]: { ...def } };
     });
   }
 

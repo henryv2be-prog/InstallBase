@@ -173,6 +173,8 @@ export type StudyMessages = {
     memoAnswer: string;
     nextOne: string;
     finishSession: string;
+    whyTopicLabel: string;
+    savingProgress: string;
     sessionComplete: string;
     niceWork: string;
     masteryLabel: string;

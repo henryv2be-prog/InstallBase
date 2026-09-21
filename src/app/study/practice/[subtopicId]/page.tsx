@@ -4,7 +4,9 @@ import { QuizIntro } from "@/study/components/quiz-intro";
 import { StudyShell } from "@/study/components/study-shell";
 import { getStudyMessages } from "@/study/i18n/get-locale";
 import { localizeFromSubtopicGraph } from "@/study/i18n/localize-content";
+import { getSubtopicCoachNote } from "@/study/data/subtopic-coach-notes";
 import { ensurePracticeQuestions } from "@/study/lib/seed-questions";
+import { isPracticeLikeSourceKind } from "@/study/lib/question-source-kinds";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { prisma } from "@/lib/prisma";
 import type { QuizMode } from "@/study/lib/quiz-types";
@@ -97,8 +99,14 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
             ).length
           }
           practiceCount={
-            subtopic.questions.filter((q) => q.sourceKind === StudyContentSourceKind.PRACTICE).length
+            subtopic.questions.filter((q) => isPracticeLikeSourceKind(q.sourceKind)).length
           }
+          whyTopic={getSubtopicCoachNote(
+            locale,
+            subtopic.topic.curriculum.subject.slug,
+            subtopic.topic.slug,
+            subtopic.slug,
+          )}
           masteryPct={mastery?.masteryPct ?? null}
           questionsAttempted={mastery?.questionsAttempted ?? 0}
           initialMode={initialMode}

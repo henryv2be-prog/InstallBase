@@ -3,6 +3,8 @@
  * sourceKind: PRACTICE in database.
  */
 
+import { MATH_DEPTH_QUESTIONS } from "@/study/data/practice-questions-math-depth";
+
 export type PracticeQuestionDef = {
   seedKey: string;
   subjectSlug: string;
@@ -579,4 +581,5 @@ export const PRACTICE_QUESTIONS: PracticeQuestionDef[] = [
     correctOptionId: "b",
     explanation: "Die afslag geld tot Vrydag — koop voor die deadline.",
   },
+  ...MATH_DEPTH_QUESTIONS,
 ];

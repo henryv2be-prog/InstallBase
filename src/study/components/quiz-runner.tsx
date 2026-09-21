@@ -42,6 +42,7 @@ export function QuizRunner({
   const [finished, setFinished] = useState<Awaited<
     ReturnType<typeof completeSubtopicQuiz>
   > | null>(null);
+  const [completing, setCompleting] = useState(false);
 
   const current = questions[index];
   const selected = current ? answers[current.id] : undefined;
@@ -90,12 +91,14 @@ export function QuizRunner({
       return;
     }
 
+    setCompleting(true);
     startTransition(async () => {
       const payload = questions.map((q) => ({
         questionId: q.id,
         selectedOptionId: answers[q.id] ?? "",
       }));
       const result = await completeSubtopicQuiz(sessionId, payload);
+      setCompleting(false);
       if (result.ok === false) {
         setError(result.error);
         return;
@@ -103,6 +106,15 @@ export function QuizRunner({
       setFinished(result);
       router.refresh();
     });
+  }
+
+  if (completing) {
+    return (
+      <div className="study-quiz-stage flex flex-col items-center justify-center py-16 text-center">
+        <p className="study-section-label">{t.quiz.savingProgress}</p>
+        <p className="mt-3 text-sm text-[var(--study-muted)]">{subtopicName}</p>
+      </div>
+    );
   }
 
   if (summary) {

@@ -169,6 +169,8 @@ export const en: StudyMessages = {
     memoAnswer: "Correct answer:",
     nextOne: "Ready for the next one?",
     finishSession: "Finish session",
+    whyTopicLabel: "Why this topic?",
+    savingProgress: "Saving your progress…",
     sessionComplete: "Session complete",
     niceWork: "Nice work.",
     masteryLabel: "on this topic",

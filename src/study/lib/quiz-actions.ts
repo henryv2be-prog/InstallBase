@@ -14,6 +14,7 @@ import { markRecommendationFollowed } from "@/study/lib/recommendation/service";
 import { getStudyLocale } from "@/study/i18n/get-locale";
 import { localizeFromSubtopicGraph } from "@/study/i18n/localize-content";
 import { getWeakestMasteries } from "@/study/lib/queries";
+import { PRACTICE_LIKE_SOURCE_KINDS } from "@/study/lib/question-source-kinds";
 import { QUIZ_SIZE, type QuizAnswerInput, type QuizMode, type QuizQuestionClient } from "@/study/lib/quiz-types";
 
 export async function evaluateQuizAnswer(questionId: string, selectedOptionId: string) {
@@ -59,7 +60,7 @@ function sourceFilter(mode: QuizMode) {
     };
   }
   if (mode === "practice") {
-    return { sourceKind: StudyContentSourceKind.PRACTICE };
+    return { sourceKind: { in: [...PRACTICE_LIKE_SOURCE_KINDS] } };
   }
   return {};
 }
