@@ -11,6 +11,8 @@ import { answersMatch, buildShortAnswerPatterns } from "@/study/lib/answer-check
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { updateMasteryAfterQuiz } from "@/study/lib/update-mastery-after-quiz";
 import { markRecommendationFollowed } from "@/study/lib/recommendation/service";
+import { getStudyLocale } from "@/study/i18n/get-locale";
+import { localizeFromSubtopicGraph } from "@/study/i18n/localize-content";
 import { getWeakestMasteries } from "@/study/lib/queries";
 import { QUIZ_SIZE, type QuizAnswerInput, type QuizMode, type QuizQuestionClient } from "@/study/lib/quiz-types";
 
@@ -111,13 +113,16 @@ export async function startSubtopicQuiz(subtopicId: string, mode: QuizMode = "al
     sessionId: session.id,
   }).catch(() => {});
 
+  const locale = await getStudyLocale();
+  const labels = localizeFromSubtopicGraph(locale, subtopic);
+
   return {
     ok: true as const,
     mode,
     sessionId: session.id,
-    subtopicName: subtopic.name,
-    topicName: subtopic.topic.name,
-    subjectName: subtopic.topic.curriculum.subject.name,
+    subtopicName: labels.subtopicName,
+    topicName: labels.topicName,
+    subjectName: labels.subjectName,
     questionCount: selected.length,
     questions: selected.map(
       (q): QuizQuestionClient => ({
@@ -252,8 +257,26 @@ export async function completeSubtopicQuiz(sessionId: string, answers: QuizAnswe
   const nextFocus = weakest.find((w) => w.subtopicId !== session.subtopicId) ?? null;
   const subtopicMeta = await prisma.studySubtopic.findUnique({
     where: { id: session.subtopicId },
-    select: { name: true, topic: { select: { name: true, curriculum: { select: { subject: { select: { name: true } } } } } } },
+    select: {
+      slug: true,
+      name: true,
+      topic: {
+        select: {
+          slug: true,
+          name: true,
+          curriculum: { select: { subject: { select: { slug: true, name: true } } } },
+        },
+      },
+    },
   });
+
+  const locale = await getStudyLocale();
+  const sessionLabels = subtopicMeta
+    ? localizeFromSubtopicGraph(locale, subtopicMeta)
+    : { subjectName: "", topicName: "", subtopicName: "" };
+  const nextLabels = nextFocus
+    ? localizeFromSubtopicGraph(locale, nextFocus.subtopic)
+    : null;
 
   const total = answers.length;
   return {
@@ -264,15 +287,15 @@ export async function completeSubtopicQuiz(sessionId: string, answers: QuizAnswe
     masteryBeforePct,
     masteryPct: mastery.masteryPct,
     questionsAttemptedTotal: mastery.questionsAttempted,
-    subtopicName: subtopicMeta?.name ?? "",
-    topicName: subtopicMeta?.topic.name ?? "",
-    subjectName: subtopicMeta?.topic.curriculum.subject.name ?? "",
+    subtopicName: sessionLabels.subtopicName,
+    topicName: sessionLabels.topicName,
+    subjectName: sessionLabels.subjectName,
     nextFocus: nextFocus
       ? {
           subtopicId: nextFocus.subtopicId,
-          subtopicName: nextFocus.subtopic.name,
-          topicName: nextFocus.subtopic.topic.name,
-          subjectName: nextFocus.subtopic.topic.curriculum.subject.name,
+          subtopicName: nextLabels!.subtopicName,
+          topicName: nextLabels!.topicName,
+          subjectName: nextLabels!.subjectName,
           masteryPct: nextFocus.masteryPct,
         }
       : null,

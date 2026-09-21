@@ -2,6 +2,11 @@
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { getDictionary } from "@/study/i18n/get-dictionary";
+import {
+  localizeSubjectName,
+  localizeSubtopicName,
+  localizeTopicName,
+} from "@/study/i18n/localize-content";
 import type { StudyLocale, StudyMessages } from "@/study/i18n/types";
 
 type Ctx = { locale: StudyLocale; t: StudyMessages };
@@ -36,4 +41,19 @@ export function useStudyLocale(): StudyLocale {
     throw new Error("useStudyLocale must be used within StudyLocaleProvider");
   }
   return ctx.locale;
+}
+
+/** Localized subject / topic / subtopic labels for client UI. */
+export function useStudyContentLabels() {
+  const locale = useStudyLocale();
+  return useMemo(
+    () => ({
+      subject: (slug: string, fallback: string) => localizeSubjectName(locale, slug, fallback),
+      topic: (subjectSlug: string, topicSlug: string, fallback: string) =>
+        localizeTopicName(locale, subjectSlug, topicSlug, fallback),
+      subtopic: (subjectSlug: string, topicSlug: string, subtopicSlug: string, fallback: string) =>
+        localizeSubtopicName(locale, subjectSlug, topicSlug, subtopicSlug, fallback),
+    }),
+    [locale],
+  );
 }

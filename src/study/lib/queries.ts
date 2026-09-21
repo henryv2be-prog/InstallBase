@@ -1,6 +1,12 @@
 import "server-only";
 import { StudyContentSourceKind, StudyOfficialVerificationStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import {
+  localizeSubjectName,
+  localizeSubtopicName,
+  localizeTopicName,
+} from "@/study/i18n/localize-content";
+import type { StudyLocale } from "@/study/i18n/types";
 
 export type StudySubjectWithCurriculum = Awaited<ReturnType<typeof getStudySubjectsWithTopics>>[number];
 
@@ -21,7 +27,10 @@ export async function getStudySubjectsForOnboarding() {
   });
 }
 
-export async function getPracticeLibraryForLearner(learnerId: string) {
+export async function getPracticeLibraryForLearner(
+  learnerId: string,
+  locale: StudyLocale = "en",
+) {
   const learner = await prisma.studyLearner.findUnique({
     where: { id: learnerId },
     include: {
@@ -63,10 +72,11 @@ export async function getPracticeLibraryForLearner(learnerId: string) {
   return subjects.map((subject) => ({
     id: subject.id,
     slug: subject.slug,
-    name: subject.name,
+    name: localizeSubjectName(locale, subject.slug, subject.name),
     topics: (subject.curricula[0]?.topics ?? []).map((topic) => ({
       id: topic.id,
-      name: topic.name,
+      slug: topic.slug,
+      name: localizeTopicName(locale, subject.slug, topic.slug, topic.name),
       subtopics: topic.subtopics.map((sub) => {
         const mastery = masteryBySubtopic.get(sub.id);
         const officialCount = sub.questions.filter(
@@ -79,7 +89,8 @@ export async function getPracticeLibraryForLearner(learnerId: string) {
         ).length;
         return {
           id: sub.id,
-          name: sub.name,
+          slug: sub.slug,
+          name: localizeSubtopicName(locale, subject.slug, topic.slug, sub.slug, sub.name),
           questionCount: sub.questions.length,
           officialCount,
           practiceCount,
@@ -181,7 +192,10 @@ export async function getLearnerProgressStats(learnerId: string) {
   return { completedSessions, streakDays };
 }
 
-export async function getSubjectMasteryForLearner(learnerId: string) {
+export async function getSubjectMasteryForLearner(
+  learnerId: string,
+  locale: StudyLocale = "en",
+) {
   const learner = await prisma.studyLearner.findUnique({
     where: { id: learnerId },
     include: {
@@ -223,7 +237,13 @@ export async function getSubjectMasteryForLearner(learnerId: string) {
         const m = masteryBySubtopic.get(sub.id);
         return {
           id: sub.id,
-          name: sub.name,
+          name: localizeSubtopicName(
+            locale,
+            subject.slug,
+            topic.slug,
+            sub.slug,
+            sub.name,
+          ),
           slug: sub.slug,
           masteryPct: m?.masteryPct ?? profile.currentMarkPct,
           questionsAttempted: m?.questionsAttempted ?? 0,
@@ -236,7 +256,7 @@ export async function getSubjectMasteryForLearner(learnerId: string) {
           : null;
       return {
         id: topic.id,
-        name: topic.name,
+        name: localizeTopicName(locale, subject.slug, topic.slug, topic.name),
         slug: topic.slug,
         avgMasteryPct,
         subtopics: subRows,
@@ -254,7 +274,7 @@ export async function getSubjectMasteryForLearner(learnerId: string) {
     return {
       subjectId: subject.id,
       subjectSlug: subject.slug,
-      subjectName: subject.name,
+      subjectName: localizeSubjectName(locale, subject.slug, subject.name),
       currentMarkPct: profile.currentMarkPct,
       targetMarkPct: profile.targetMarkPct,
       nextExamAt: profile.exams[0]?.examAt ?? null,

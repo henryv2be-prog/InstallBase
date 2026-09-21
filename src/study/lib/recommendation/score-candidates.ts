@@ -1,5 +1,10 @@
 import { StudyRecommendationAction } from "@/generated/prisma/client";
-import type { RecommendationCopy } from "@/study/i18n/types";
+import {
+  localizeSubjectName,
+  localizeSubtopicName,
+  localizeTopicName,
+} from "@/study/i18n/localize-content";
+import type { RecommendationCopy, StudyLocale } from "@/study/i18n/types";
 import { en } from "@/study/i18n/messages/en";
 import type { LearningState, StudyRecommendation, TopicMasteryState } from "@/study/lib/learner-model/types";
 import { estimateSessionMinutes } from "@/study/lib/home-helpers";
@@ -16,6 +21,20 @@ export type ScoredCandidate = {
 const PREREQ_MASTERY_THRESHOLD = 55;
 const WEAK_MASTERY = 50;
 const STRONG_MASTERY = 75;
+
+function topicLabels(topic: TopicMasteryState, locale: StudyLocale) {
+  return {
+    subjectName: localizeSubjectName(locale, topic.subjectSlug, topic.subjectName),
+    topicName: localizeTopicName(locale, topic.subjectSlug, topic.topicSlug, topic.topicName),
+    subtopicName: localizeSubtopicName(
+      locale,
+      topic.subjectSlug,
+      topic.topicSlug,
+      topic.subtopicSlug,
+      topic.subtopicName,
+    ),
+  };
+}
 
 function examUrgency(days: number | null): number {
   if (days == null) return 0.35;
@@ -108,6 +127,7 @@ function suggestedMode(
 export function scoreRecommendationCandidates(
   state: LearningState,
   copy: RecommendationCopy = en.recommendation,
+  locale: StudyLocale = "en",
 ): ScoredCandidate[] {
   const now = state.generatedAt;
   const byId = new Map(state.topics.map((t) => [t.subtopicId, t]));
@@ -171,16 +191,19 @@ export function scoreRecommendationCandidates(
 
     const reasonDetail: string[] = [];
 
+    const topicDisplay = topicLabels(topic, locale);
+
     if (examDays != null && examDays <= 21) {
-      reasonDetail.push(copy.examSoon(topic.subjectName, examDays));
+      reasonDetail.push(copy.examSoon(topicDisplay.subjectName, examDays));
     }
 
     if (action === StudyRecommendationAction.REVISIT_PREREQUISITE && prereq) {
+      const prereqLabels = topicLabels(prereq, locale);
       reasonDetail.push(
         copy.strengthenPrereq(
-          prereq.subtopicName,
+          prereqLabels.subtopicName,
           Math.round(prereq.masteryPct),
-          topic.subtopicName,
+          topicDisplay.subtopicName,
         ),
       );
     } else if (topic.recentAttemptScores.length >= 3) {
@@ -222,21 +245,25 @@ export function candidateToRecommendation(
   candidate: ScoredCandidate,
   state: LearningState,
   copy: RecommendationCopy = en.recommendation,
+  locale: StudyLocale = "en",
 ): StudyRecommendation {
   const subject = state.profile.subjects.find((s) => s.subjectId === candidate.topic.subjectId);
+  const labels = topicLabels(candidate.topic, locale);
   const summary =
     candidate.action === StudyRecommendationAction.REVISIT_PREREQUISITE
-      ? copy.summaryStrengthen(candidate.topic.subtopicName)
-      : candidate.reasonDetail[0] ?? copy.summaryFocus(candidate.topic.subtopicName);
+      ? copy.summaryStrengthen(labels.subtopicName)
+      : candidate.reasonDetail[0] ?? copy.summaryFocus(labels.subtopicName);
 
   return {
     action: candidate.action,
     subtopicId: candidate.topic.subtopicId,
-    subtopicName: candidate.topic.subtopicName,
-    topicName: candidate.topic.topicName,
+    subtopicSlug: candidate.topic.subtopicSlug,
+    subtopicName: labels.subtopicName,
+    topicSlug: candidate.topic.topicSlug,
+    topicName: labels.topicName,
     subjectId: candidate.topic.subjectId,
     subjectSlug: candidate.topic.subjectSlug,
-    subjectName: candidate.topic.subjectName,
+    subjectName: labels.subjectName,
     estimatedMinutes: estimateSessionMinutes(Math.min(QUIZ_SIZE, candidate.topic.questionCount)),
     priorityScore: candidate.priorityScore,
     reasonSummary: summary,
@@ -250,9 +277,10 @@ export function candidateToRecommendation(
 export function recommendFromLearningState(
   state: LearningState,
   copy: RecommendationCopy = en.recommendation,
+  locale: StudyLocale = "en",
 ): StudyRecommendation | null {
-  const scored = scoreRecommendationCandidates(state, copy);
+  const scored = scoreRecommendationCandidates(state, copy, locale);
   const top = scored[0];
   if (!top) return null;
-  return candidateToRecommendation(top, state, copy);
+  return candidateToRecommendation(top, state, copy, locale);
 }

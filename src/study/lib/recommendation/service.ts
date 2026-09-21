@@ -16,9 +16,12 @@ export async function getLearningStateForLearner(learnerId: string) {
 }
 
 export async function getNextStudyRecommendation(learnerId: string): Promise<StudyRecommendation | null> {
-  const [{ t }, state] = await Promise.all([getStudyMessages(), buildLearningState(learnerId)]);
+  const [{ locale, t }, state] = await Promise.all([
+    getStudyMessages(),
+    buildLearningState(learnerId),
+  ]);
   if (!state) return null;
-  return recommendFromLearningState(state, t.recommendation);
+  return recommendFromLearningState(state, t.recommendation, locale);
 }
 
 /** For tests and diagnostics — rank all candidates. */

@@ -18,8 +18,8 @@ export default async function StudySubjectsPage() {
     redirect("/study/onboarding");
   }
 
-  const { t } = await getStudyMessages();
-  const subjects = await getSubjectMasteryForLearner(learner.id);
+  const { locale, t } = await getStudyMessages();
+  const subjects = await getSubjectMasteryForLearner(learner.id, locale);
 
   return (
     <StudyShell showNav>

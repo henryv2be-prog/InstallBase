@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { QuizIntro } from "@/study/components/quiz-intro";
 import { StudyShell } from "@/study/components/study-shell";
 import { getStudyMessages } from "@/study/i18n/get-locale";
+import { localizeFromSubtopicGraph } from "@/study/i18n/localize-content";
 import { ensurePracticeQuestions } from "@/study/lib/seed-questions";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { prisma } from "@/lib/prisma";
@@ -30,7 +31,7 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
     redirect("/study/onboarding");
   }
 
-  const { t } = await getStudyMessages();
+  const { locale, t } = await getStudyMessages();
   await ensurePracticeQuestions();
 
   const subtopic = await prisma.studySubtopic.findUnique({
@@ -63,6 +64,8 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
     );
   }
 
+  const labels = localizeFromSubtopicGraph(locale, subtopic);
+
   const mastery = await prisma.studyMastery.findUnique({
     where: { learnerId_subtopicId: { learnerId: learner.id, subtopicId } },
   });
@@ -79,10 +82,12 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
       ) : (
         <QuizIntro
           subtopicId={subtopic.id}
-          subjectName={subtopic.topic.curriculum.subject.name}
+          subjectName={labels.subjectName}
           subjectSlug={subtopic.topic.curriculum.subject.slug}
-          topicName={subtopic.topic.name}
-          subtopicName={subtopic.name}
+          topicSlug={subtopic.topic.slug}
+          topicName={labels.topicName}
+          subtopicSlug={subtopic.slug}
+          subtopicName={labels.subtopicName}
           questionCount={subtopic.questions.length}
           officialCount={
             subtopic.questions.filter(

@@ -18,8 +18,8 @@ export default async function StudySubjectDetailPage({ params }: Props) {
     redirect("/study/onboarding");
   }
 
-  const { t } = await getStudyMessages();
-  const subjects = await getSubjectMasteryForLearner(learner.id);
+  const { locale, t } = await getStudyMessages();
+  const subjects = await getSubjectMasteryForLearner(learner.id, locale);
   const subject = subjects.find((s) => s.subjectSlug === slug);
   if (!subject) notFound();
 

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { StudyShell } from "@/study/components/study-shell";
 import { masteryBandLabelFromMessages } from "@/study/i18n/format";
 import { getStudyMessages } from "@/study/i18n/get-locale";
+import { localizeFromSubtopicGraph } from "@/study/i18n/localize-content";
 import { ensurePracticeQuestions } from "@/study/lib/seed-questions";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getPracticeLibraryForLearner, getWeakestMasteries } from "@/study/lib/queries";
@@ -16,10 +17,10 @@ export default async function StudyPracticePage() {
     redirect("/study/onboarding");
   }
 
-  const { t } = await getStudyMessages();
+  const { locale, t } = await getStudyMessages();
   await ensurePracticeQuestions();
   const [library, weakest] = await Promise.all([
-    getPracticeLibraryForLearner(learner.id),
+    getPracticeLibraryForLearner(learner.id, locale),
     getWeakestMasteries(learner.id, 4),
   ]);
 
@@ -34,16 +35,18 @@ export default async function StudyPracticePage() {
         <section className="mb-6">
           <p className="study-section-label mb-2">{t.progress.needsAttention}</p>
           <ul className="space-y-2">
-            {weakest.map((m) => (
+            {weakest.map((m) => {
+              const labels = localizeFromSubtopicGraph(locale, m.subtopic);
+              return (
               <li key={m.id}>
                 <Link
                   href={`/study/practice/${m.subtopicId}`}
                   className="study-panel block p-4 active:scale-[0.99] transition"
                 >
                   <p className="text-xs font-bold study-text-link">{t.practice.needsWork}</p>
-                  <p className="mt-1 text-lg font-extrabold">{m.subtopic.name}</p>
+                  <p className="mt-1 text-lg font-extrabold">{labels.subtopicName}</p>
                   <p className="text-sm text-[var(--study-muted)]">
-                    {m.subtopic.topic.curriculum.subject.name} · {Math.round(m.masteryPct)}% ·{" "}
+                    {labels.subjectName} · {Math.round(m.masteryPct)}% ·{" "}
                     {masteryBandLabelFromMessages(t, m.masteryPct)}
                   </p>
                   <span className="study-btn study-btn-primary study-touch-target mt-3 inline-flex w-full justify-center text-sm">
@@ -51,7 +54,8 @@ export default async function StudyPracticePage() {
                   </span>
                 </Link>
               </li>
-            ))}
+            );
+            })}
           </ul>
         </section>
       ) : null}

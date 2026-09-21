@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { StudyLanguageSwitcher } from "@/study/components/study-language-switcher";
 import { StudyShell } from "@/study/components/study-shell";
 import { getStudyMessages } from "@/study/i18n/get-locale";
+import { localizeSubjectName } from "@/study/i18n/localize-content";
 import { daysUntilExam } from "@/study/lib/days-until-exam";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getSubjectTheme } from "@/study/lib/subject-theme";
@@ -15,7 +16,7 @@ export default async function StudyProfilePage() {
     redirect("/study/onboarding");
   }
 
-  const { t } = await getStudyMessages();
+  const { locale, t } = await getStudyMessages();
 
   return (
     <StudyShell showNav>
@@ -48,7 +49,8 @@ export default async function StudyProfilePage() {
               >
                 <div className="flex justify-between gap-2">
                   <p className="font-bold">
-                    {theme.glyph} {ls.subject.name}
+                    {theme.glyph}{" "}
+                    {localizeSubjectName(locale, ls.subject.slug, ls.subject.name)}
                   </p>
                   {days != null ? (
                     <p className="text-sm font-bold tabular-nums">{days}d</p>

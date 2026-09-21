@@ -70,7 +70,9 @@ export type LearningState = {
 export type StudyRecommendation = {
   action: StudyRecommendationAction;
   subtopicId: string;
+  subtopicSlug: string;
   subtopicName: string;
+  topicSlug: string;
   topicName: string;
   subjectId: string;
   subjectSlug: string;

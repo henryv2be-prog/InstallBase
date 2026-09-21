@@ -10,7 +10,9 @@ type Props = {
   subtopicId: string;
   subjectName: string;
   subjectSlug: string;
+  topicSlug: string;
   topicName: string;
+  subtopicSlug: string;
   subtopicName: string;
   questionCount: number;
   officialCount: number;
@@ -24,7 +26,9 @@ export function QuizIntro({
   subtopicId,
   subjectName,
   subjectSlug,
+  topicSlug,
   topicName,
+  subtopicSlug,
   subtopicName,
   questionCount,
   officialCount,

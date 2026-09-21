@@ -11,6 +11,7 @@ import {
   studyGreetingFromMessages,
 } from "@/study/i18n/format";
 import { getStudyMessages } from "@/study/i18n/get-locale";
+import { localizeSubjectName } from "@/study/i18n/localize-content";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getLearnerProgressStats } from "@/study/lib/queries";
 import {
@@ -27,7 +28,7 @@ export default async function StudyDashboardPage() {
     redirect("/study/onboarding");
   }
 
-  const { t } = await getStudyMessages();
+  const { locale, t } = await getStudyMessages();
   const firstName = learner.displayName.split(" ")[0] ?? learner.displayName;
   const [recommendation, activity] = await Promise.all([
     getNextStudyRecommendation(learner.id),
@@ -41,7 +42,7 @@ export default async function StudyDashboardPage() {
   const exams = learner.subjects
     .flatMap((ls) =>
       ls.exams.map((exam) => ({
-        subjectName: ls.subject.name,
+        subjectName: localizeSubjectName(locale, ls.subject.slug, ls.subject.name),
         subjectSlug: ls.subject.slug,
         examAt: exam.examAt,
         days: daysUntilExam(exam.examAt),
@@ -53,7 +54,7 @@ export default async function StudyDashboardPage() {
 
   const nextExam = exams[0];
   const progressSubject = learner.subjects.find(
-    (s) => s.subject.name === nextExam?.subjectName,
+    (s) => s.subject.slug === nextExam?.subjectSlug,
   );
   const progressPct = progressSubject?.currentMarkPct ?? 0;
   const targetPct = progressSubject?.targetMarkPct ?? 75;
@@ -99,7 +100,7 @@ export default async function StudyDashboardPage() {
         <section className="study-panel p-4 mb-5">
           <p className="study-section-label mb-3">{t.dashboard.progress}</p>
           <StudyMasteryBar
-            label={nextExam?.subjectName ?? "Matric"}
+            label={nextExam?.subjectName ?? (locale === "af" ? "Matriek" : "Matric")}
             value={progressPct}
             accent={getSubjectTheme(nextExam?.subjectSlug ?? "default").accent}
           />

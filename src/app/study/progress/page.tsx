@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { StudyMasteryBar } from "@/study/components/study-mastery-bar";
 import { StudyShell } from "@/study/components/study-shell";
 import { getStudyMessages } from "@/study/i18n/get-locale";
+import { localizeFromSubtopicGraph, localizeSubjectName } from "@/study/i18n/localize-content";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getLearnerProgressStats, getWeakestMasteries } from "@/study/lib/queries";
 import { getSubjectTheme } from "@/study/lib/subject-theme";
@@ -15,7 +16,7 @@ export default async function StudyProgressPage() {
     redirect("/study/onboarding");
   }
 
-  const { t } = await getStudyMessages();
+  const { locale, t } = await getStudyMessages();
   const [stats, weakest, improving] = await Promise.all([
     getLearnerProgressStats(learner.id),
     getWeakestMasteries(learner.id, 3),
@@ -51,7 +52,7 @@ export default async function StudyProgressPage() {
             return (
               <li key={ls.id}>
                 <StudyMasteryBar
-                  label={ls.subject.name}
+                  label={localizeSubjectName(locale, ls.subject.slug, ls.subject.name)}
                   value={ls.currentMarkPct}
                   accent={theme.accent}
                 />
@@ -71,19 +72,22 @@ export default async function StudyProgressPage() {
         <section className="mb-5">
           <p className="study-section-label mb-2">{t.progress.gettingStronger}</p>
           <ul className="study-panel px-4">
-            {best.map((m) => (
+            {best.map((m) => {
+              const labels = localizeFromSubtopicGraph(locale, m.subtopic);
+              return (
               <li key={m.id} className="study-row">
                 <div>
-                  <p className="font-semibold">{m.subtopic.name}</p>
+                  <p className="font-semibold">{labels.subtopicName}</p>
                   <p className="text-xs text-[var(--study-muted)]">
-                    {m.subtopic.topic.curriculum.subject.name}
+                    {labels.subjectName}
                   </p>
                 </div>
                 <p className="text-xl font-extrabold tabular-nums text-[var(--study-success)]">
                   {Math.round(m.masteryPct)}%
                 </p>
               </li>
-            ))}
+            );
+            })}
           </ul>
         </section>
       ) : (
@@ -100,12 +104,14 @@ export default async function StudyProgressPage() {
         <section>
           <p className="study-section-label mb-2">{t.progress.biggestGaps}</p>
           <ul className="space-y-2">
-            {weakest.map((m) => (
+            {weakest.map((m) => {
+              const labels = localizeFromSubtopicGraph(locale, m.subtopic);
+              return (
               <li key={m.id} className="study-panel p-4">
                 <p className="text-xs font-bold study-text-link">{t.progress.needsAttention}</p>
-                <p className="mt-1 font-bold">{m.subtopic.name}</p>
+                <p className="mt-1 font-bold">{labels.subtopicName}</p>
                 <p className="text-sm text-[var(--study-muted)]">
-                  {m.subtopic.topic.curriculum.subject.name} · {Math.round(m.masteryPct)}%
+                  {labels.subjectName} · {Math.round(m.masteryPct)}%
                 </p>
                 <Link
                   href={`/study/practice/${m.subtopicId}`}
@@ -114,7 +120,8 @@ export default async function StudyProgressPage() {
                   {t.progress.practiceThis}
                 </Link>
               </li>
-            ))}
+            );
+            })}
           </ul>
         </section>
       ) : null}

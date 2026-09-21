@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useStudyT } from "@/study/components/study-locale-provider";
+import { useStudyContentLabels, useStudyT } from "@/study/components/study-locale-provider";
 import { completeStudyOnboarding } from "@/study/lib/actions";
 import { STUDY_STARTER_SUBJECT_SLUGS } from "@/study/lib/constants";
 import {
@@ -56,6 +56,7 @@ export function OnboardingWizard({
   initialExams,
 }: Props) {
   const t = useStudyT();
+  const content = useStudyContentLabels();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [pending, startTransition] = useTransition();
@@ -246,7 +247,9 @@ export function OnboardingWizard({
                               className={`study-check ${row.selected ? "study-check--on" : ""}`}
                               aria-hidden
                             />
-                            <span className="font-bold">{subject.name}</span>
+                            <span className="font-bold">
+                              {content.subject(subject.slug, subject.name)}
+                            </span>
                             {subject.hasCurriculum ? (
                               <span className="ml-auto text-xs study-text-emphasis">
                                 {t.common.quizzes}
@@ -273,7 +276,9 @@ export function OnboardingWizard({
               const row = marks[subject.id];
               return (
                 <li key={subject.id} className="study-panel p-4">
-                  <p className="font-bold mb-3">{subject.name}</p>
+                  <p className="font-bold mb-3">
+                    {content.subject(subject.slug, subject.name)}
+                  </p>
                   <MarkSlider
                     label={t.onboarding.currentMark}
                     value={row.currentMarkPct}
@@ -302,7 +307,7 @@ export function OnboardingWizard({
               const exam = exams[subject.id];
               return (
                 <li key={subject.id} className="study-panel space-y-3 p-4">
-                  <p className="font-bold">{subject.name}</p>
+                  <p className="font-bold">{content.subject(subject.slug, subject.name)}</p>
                   <label className="block space-y-1">
                     <span className="text-xs font-semibold text-[var(--study-muted)]">
                       {t.onboarding.examDate}

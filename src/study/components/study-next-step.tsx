@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { StudyRecommendation } from "@/study/lib/learner-model/types";
-import { useStudyT } from "@/study/components/study-locale-provider";
+import { useStudyContentLabels, useStudyT } from "@/study/components/study-locale-provider";
 import { getSubjectTheme } from "@/study/lib/subject-theme";
 
 type Props = {
@@ -11,7 +11,20 @@ type Props = {
 
 export function StudyNextStep({ recommendation }: Props) {
   const t = useStudyT();
+  const content = useStudyContentLabels();
   const theme = getSubjectTheme(recommendation.subjectSlug);
+  const subjectName = content.subject(recommendation.subjectSlug, recommendation.subjectName);
+  const topicName = content.topic(
+    recommendation.subjectSlug,
+    recommendation.topicSlug,
+    recommendation.topicName,
+  );
+  const subtopicName = content.subtopic(
+    recommendation.subjectSlug,
+    recommendation.topicSlug,
+    recommendation.subtopicSlug,
+    recommendation.subtopicName,
+  );
   const href = `/study/practice/${recommendation.subtopicId}?mode=${recommendation.suggestedQuizMode}`;
 
   return (
@@ -20,13 +33,13 @@ export function StudyNextStep({ recommendation }: Props) {
       <div className="flex items-center gap-2 mb-2">
         <span className="study-subject-chip" style={{ borderColor: theme.accent }}>
           <span aria-hidden>{theme.glyph}</span>
-          {recommendation.subjectName}
+          {subjectName}
         </span>
       </div>
       <h2 className="text-2xl font-extrabold tracking-tight leading-tight">
-        {recommendation.subtopicName}
+        {subtopicName}
       </h2>
-      <p className="mt-1 text-sm text-[var(--study-muted)]">{recommendation.topicName}</p>
+      <p className="mt-1 text-sm text-[var(--study-muted)]">{topicName}</p>
       <p className="mt-3 text-sm leading-relaxed">{recommendation.reasonSummary}</p>
       <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
         <span className="study-pill study-pill--soft">
