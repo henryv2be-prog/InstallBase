@@ -85,7 +85,7 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
     <>
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/35" />
 
-      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col gap-3 p-4 pb-5 text-white pointer-events-auto">
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col gap-3 p-4 pb-[var(--immersive-overlay-bottom-pad,1.25rem)] text-white pointer-events-auto">
         <div className="flex items-center gap-3">
           <Link href={profile ? `/profile/${profile.username}` : "#"} className="flex min-w-0 flex-1 items-center gap-2">
             <PresenceAvatar

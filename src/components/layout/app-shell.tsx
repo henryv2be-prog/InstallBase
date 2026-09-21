@@ -169,7 +169,7 @@ export function AppShell({ children, user }: AppShellProps) {
             : isImmersiveWatch
               ? cn(
                   "max-md:flex max-md:max-h-[calc(100dvh-env(safe-area-inset-top)-var(--app-header-h))] max-md:flex-col max-md:overflow-hidden",
-                  "max-md:pb-[calc(var(--app-mobile-nav-reserve)+env(safe-area-inset-bottom))] md:pb-8"
+                  "max-md:pb-0 md:pb-8"
                 )
               : "pb-[calc(var(--app-mobile-nav-reserve)+0.75rem+env(safe-area-inset-bottom))] md:pb-8"
         )}
@@ -181,50 +181,96 @@ export function AppShell({ children, user }: AppShellProps) {
 
       <nav
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 pb-[max(0.25rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden",
+          "fixed bottom-0 left-0 right-0 z-[60] md:hidden",
+          isImmersiveWatch
+            ? "pointer-events-none border-0 bg-transparent px-3 pb-[max(0.625rem,env(safe-area-inset-bottom))]"
+            : "border-t border-border bg-card/95 pb-[max(0.25rem,env(safe-area-inset-bottom))] backdrop-blur-xl",
           isAdminRoute && "hidden"
         )}
       >
-        <div className="mx-auto flex min-h-[var(--app-mobile-nav-reserve)] max-w-lg items-center justify-around px-2 pt-1">
+        <div
+          className={cn(
+            isImmersiveWatch
+              ? "mobile-nav-glass-dock pointer-events-auto mx-auto flex max-w-lg items-stretch justify-between gap-1 rounded-2xl p-1"
+              : "mx-auto flex min-h-[var(--app-mobile-nav-reserve)] max-w-lg items-center justify-around px-2 pt-1"
+          )}
+        >
           {mobileNavItems.map((item) => {
+            const glassTab = cn(
+              "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 transition-all duration-200",
+              isImmersiveWatch && "mobile-nav-glass-btn min-h-[3.25rem]"
+            );
+
             if (item.href === "/profile") {
               return (
                 <Link
                   key={item.href}
                   href={user?.username ? `/profile/${user.username}` : "/profile"}
-                  className="flex min-w-[3.25rem] flex-col items-center gap-0.5 p-2"
+                  className={cn(
+                    glassTab,
+                    isImmersiveWatch &&
+                      (pathname.startsWith("/profile")
+                        ? "mobile-nav-glass-btn-active"
+                        : undefined),
+                    !isImmersiveWatch && "min-w-[3.25rem] p-2"
+                  )}
                 >
-                  <Avatar className="h-6 w-6">
+                  <Avatar className="h-6 w-6 border border-white/15">
                     <AvatarImage src={user?.image ?? undefined} />
                     <AvatarFallback className="text-[10px]">{getInitials(user?.name ?? "U")}</AvatarFallback>
                   </Avatar>
-                  <span className="text-[10px] font-medium text-muted">{item.label}</span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-medium leading-none",
+                      !isImmersiveWatch && "text-muted"
+                    )}
+                  >
+                    {item.label}
+                  </span>
                 </Link>
               );
             }
 
             if (item.href === "/login") {
               return (
-                <Link key={item.href} href="/login" className="flex min-w-[3.25rem] flex-col items-center gap-0.5 p-2 text-muted">
-                  <span className="text-xs font-semibold">Log in</span>
+                <Link
+                  key={item.href}
+                  href="/login"
+                  className={cn(glassTab, !isImmersiveWatch && "min-w-[3.25rem] p-2 text-muted")}
+                >
+                  <span className="text-xs font-semibold leading-none">Log in</span>
                 </Link>
               );
             }
 
             const Icon = item.icon!;
-            const active = pathname.startsWith(item.href);
+            const active =
+              item.href === "/feed"
+                ? pathname === "/feed" || pathname.startsWith("/feed?")
+                : pathname.startsWith(item.href);
 
             if (item.highlight) {
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex min-w-[3.25rem] flex-col items-center gap-0.5 px-1 py-0.5"
+                  className={cn(
+                    glassTab,
+                    isImmersiveWatch && "mobile-nav-glass-btn-create",
+                    !isImmersiveWatch && "min-w-[3.25rem] px-1 py-0.5"
+                  )}
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-md btn-glow">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-md ring-1 ring-white/25 btn-glow">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <span className="text-[10px] font-medium leading-none text-muted">{item.label}</span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-medium leading-none",
+                      !isImmersiveWatch && "text-muted"
+                    )}
+                  >
+                    {item.label}
+                  </span>
                 </Link>
               );
             }
@@ -234,13 +280,16 @@ export function AppShell({ children, user }: AppShellProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative flex min-w-[3.25rem] flex-col items-center gap-0.5 p-2 transition-colors",
-                  active ? "text-blue-600 dark:text-cyan-400" : "text-muted"
+                  glassTab,
+                  "relative",
+                  isImmersiveWatch && active && "mobile-nav-glass-btn-active",
+                  !isImmersiveWatch && "min-w-[3.25rem] p-2",
+                  !isImmersiveWatch && (active ? "text-blue-600 dark:text-cyan-400" : "text-muted")
                 )}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5 shrink-0" />
                 {"badge" in item && item.badge && <ActivityCountBadge />}
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-[10px] font-medium leading-none">{item.label}</span>
               </Link>
             );
           })}
