@@ -227,3 +227,20 @@ body {
 .safe-top {
   padding-top: env(safe-area-inset-top);
 }
+
+.immersive-feed-root {
+  --immersive-slide-h: calc(
+    100dvh - 3.75rem - env(safe-area-inset-top) - 5.25rem - env(safe-area-inset-bottom)
+  );
+}
+
+@media (min-width: 1024px) {
+  .immersive-feed-root {
+    --immersive-slide-h: min(88dvh, 900px);
+  }
+}
+
+.immersive-feed-scroll {
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+}

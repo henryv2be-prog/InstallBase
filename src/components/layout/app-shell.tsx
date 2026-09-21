@@ -56,6 +56,7 @@ export function AppShell({ children, user }: AppShellProps) {
   const signedIn = Boolean(user);
   const isAdmin = user?.role === "ADMIN";
   const isAdminRoute = pathname.startsWith("/admin");
+  const isImmersiveWatch = pathname.startsWith("/feed/watch");
   const mobileNavItems = signedIn ? memberMobileNav : guestMobileNav;
 
   return (
@@ -161,10 +162,13 @@ export function AppShell({ children, user }: AppShellProps) {
 
       <main
         className={cn(
-          "relative z-10 mx-auto max-w-7xl px-3 pt-4 sm:px-4 lg:px-6 md:pt-6",
+          "relative z-10 mx-auto max-w-7xl md:pt-6",
+          isImmersiveWatch ? "max-w-none px-0 pt-0" : "px-3 pt-4 sm:px-4 lg:px-6",
           isAdminRoute
             ? "pb-6 md:pb-8"
-            : "pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-8"
+            : isImmersiveWatch
+              ? "pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-8"
+              : "pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-8"
         )}
       >
         {children}
