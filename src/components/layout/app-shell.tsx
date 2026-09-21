@@ -167,8 +167,11 @@ export function AppShell({ children, user }: AppShellProps) {
           isAdminRoute
             ? "pb-6 md:pb-8"
             : isImmersiveWatch
-              ? "pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:pb-8"
-              : "pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:pb-8"
+              ? cn(
+                  "max-md:flex max-md:max-h-[calc(100dvh-env(safe-area-inset-top)-var(--app-header-h))] max-md:flex-col max-md:overflow-hidden",
+                  "max-md:pb-[calc(var(--app-mobile-nav-reserve)+env(safe-area-inset-bottom))] md:pb-8"
+                )
+              : "pb-[calc(var(--app-mobile-nav-reserve)+0.75rem+env(safe-area-inset-bottom))] md:pb-8"
         )}
       >
         {children}
@@ -178,11 +181,11 @@ export function AppShell({ children, user }: AppShellProps) {
 
       <nav
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-50 overflow-visible border-t border-border bg-card/80 pb-[env(safe-area-inset-bottom)] pt-2 backdrop-blur-xl md:hidden",
+          "fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 pb-[max(0.25rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden",
           isAdminRoute && "hidden"
         )}
       >
-        <div className="flex items-end justify-around px-1 pb-1.5 pt-0.5">
+        <div className="mx-auto flex min-h-[var(--app-mobile-nav-reserve)] max-w-lg items-center justify-around px-2 pt-1">
           {mobileNavItems.map((item) => {
             if (item.href === "/profile") {
               return (
@@ -213,10 +216,15 @@ export function AppShell({ children, user }: AppShellProps) {
 
             if (item.highlight) {
               return (
-                <Link key={item.href} href={item.href} className="flex flex-col items-center -mt-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg btn-glow">
-                    <Icon className="h-6 w-6" />
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex min-w-[3.25rem] flex-col items-center gap-0.5 px-1 py-0.5"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-md btn-glow">
+                    <Icon className="h-5 w-5" />
                   </div>
+                  <span className="text-[10px] font-medium leading-none text-muted">{item.label}</span>
                 </Link>
               );
             }
@@ -283,10 +291,11 @@ export function AppShellFallback({ children }: { children: React.ReactNode }) {
           {memberMobileNav.map((item) => {
             if (item.highlight) {
               return (
-                <div key={item.href} className="flex flex-col items-center -mt-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg btn-glow">
-                    <Plus className="h-6 w-6" />
+                <div key={item.href} className="flex min-w-[3.25rem] flex-col items-center gap-0.5 px-1 py-0.5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-md btn-glow">
+                    <Plus className="h-5 w-5" />
                   </div>
+                  <span className="text-[10px] font-medium leading-none text-muted">Create</span>
                 </div>
               );
             }
