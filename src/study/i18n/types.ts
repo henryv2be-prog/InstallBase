@@ -38,8 +38,11 @@ export type StudyMessages = {
     hmm: string;
     soon: string;
     nsc: string;
+    examStyle: string;
     quizzes: string;
     topicsSoon: string;
+    marksNowToGoal: (current: number, goal: number) => string;
+    atPercent: (pct: number) => string;
   };
   landing: {
     pill: string;
@@ -55,7 +58,11 @@ export type StudyMessages = {
   };
   dashboard: {
     examDaysPrefix: string;
+    yourSubjects: string;
+    subjectsLead: string;
+    seeTopics: string;
     nextStep: string;
+    nextStepLead: string;
     emptyTitle: string;
     emptyLead: string;
     emptyCta: string;
@@ -71,6 +78,7 @@ export type StudyMessages = {
   nextStep: {
     why: string;
     start: string;
+    atScore: (pct: number) => string;
   };
   subjects: {
     title: string;
@@ -175,6 +183,7 @@ export type StudyMessages = {
     introMastery: (pct: number, attempted: number) => string;
     introBaseline: string;
     questionType: string;
+    questionsReady: (n: number) => string;
     official: string;
     officialHint: string;
     practiceDrills: string;
@@ -183,6 +192,7 @@ export type StudyMessages = {
     mixedHint: string;
     readyCount: (n: number) => string;
     letsGo: string;
+    startQuestions: string;
     loading: string;
     modes: {
       official: string;

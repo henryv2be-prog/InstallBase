@@ -53,11 +53,6 @@ export default async function StudyDashboardPage() {
     .sort((a, b) => a.days - b.days);
 
   const nextExam = exams[0];
-  const progressSubject = learner.subjects.find(
-    (s) => s.subject.slug === nextExam?.subjectSlug,
-  );
-  const progressPct = progressSubject?.currentMarkPct ?? 0;
-  const targetPct = progressSubject?.targetMarkPct ?? 75;
 
   return (
     <StudyShell showNav>
@@ -80,6 +75,36 @@ export default async function StudyDashboardPage() {
         ) : null}
       </header>
 
+      <section className="study-panel p-4 mb-5">
+        <p className="study-section-label mb-1">{t.dashboard.yourSubjects}</p>
+        <p className="text-xs text-[var(--study-muted)] mb-3">{t.dashboard.subjectsLead}</p>
+        <ul className="space-y-4">
+          {learner.subjects.map((ls) => {
+            const name = localizeSubjectName(locale, ls.subject.slug, ls.subject.name);
+            const theme = getSubjectTheme(ls.subject.slug);
+            return (
+              <li key={ls.id}>
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <p className="font-bold">
+                    <span aria-hidden>{theme.glyph}</span> {name}
+                  </p>
+                  <p className="text-sm tabular-nums text-[var(--study-muted)] shrink-0">
+                    {t.common.marksNowToGoal(ls.currentMarkPct, ls.targetMarkPct)}
+                  </p>
+                </div>
+                <StudyMasteryBar value={ls.currentMarkPct} accent={theme.accent} height="sm" animate={false} />
+                <Link
+                  href={`/study/subjects/${ls.subject.slug}`}
+                  className="mt-2 inline-block text-xs font-semibold study-text-link"
+                >
+                  {t.dashboard.seeTopics}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
       {recommendation ? (
         <StudyNextStep recommendation={recommendation} />
       ) : (
@@ -95,22 +120,6 @@ export default async function StudyDashboardPage() {
           </Link>
         </section>
       )}
-
-      {progressSubject ? (
-        <section className="study-panel p-4 mb-5">
-          <p className="study-section-label mb-3">{t.dashboard.progress}</p>
-          <StudyMasteryBar
-            label={nextExam?.subjectName ?? (locale === "af" ? "Matriek" : "Matric")}
-            value={progressPct}
-            accent={getSubjectTheme(nextExam?.subjectSlug ?? "default").accent}
-          />
-          <p className="mt-2 text-sm text-[var(--study-muted)]">
-            {t.common.target}:{" "}
-            <span className="font-bold text-[var(--study-text)] tabular-nums">{targetPct}%</span>
-            {recommendation ? <> · {t.dashboard.coachPicked(recommendation.subtopicName)}</> : null}
-          </p>
-        </section>
-      ) : null}
 
       {(activity.streakDays > 0 || activity.completedSessions > 0) && (
         <section className="mb-5 flex gap-3">

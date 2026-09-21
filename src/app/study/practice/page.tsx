@@ -87,7 +87,7 @@ export default async function StudyPracticePage() {
                               {sub.masteryPct != null ? `${Math.round(sub.masteryPct)}%` : "—"}
                             </p>
                             {sub.officialCount > 0 ? (
-                              <p className="text-[0.65rem] text-emerald-300/90">{t.common.nsc}</p>
+                              <p className="text-[0.65rem] text-emerald-300/90">{t.common.examStyle}</p>
                             ) : null}
                           </div>
                         </Link>

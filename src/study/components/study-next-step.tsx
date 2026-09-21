@@ -14,11 +14,6 @@ export function StudyNextStep({ recommendation }: Props) {
   const content = useStudyContentLabels();
   const theme = getSubjectTheme(recommendation.subjectSlug);
   const subjectName = content.subject(recommendation.subjectSlug, recommendation.subjectName);
-  const topicName = content.topic(
-    recommendation.subjectSlug,
-    recommendation.topicSlug,
-    recommendation.topicName,
-  );
   const subtopicName = content.subtopic(
     recommendation.subjectSlug,
     recommendation.topicSlug,
@@ -29,26 +24,19 @@ export function StudyNextStep({ recommendation }: Props) {
 
   return (
     <section className="study-panel--mission mb-6 relative z-[1]">
-      <p className="study-section-label mb-2">{t.dashboard.nextStep}</p>
+      <p className="study-section-label mb-1">{t.dashboard.nextStep}</p>
+      <p className="text-xs text-[var(--study-muted)] mb-3">{t.dashboard.nextStepLead}</p>
       <div className="flex items-center gap-2 mb-2">
         <span className="study-subject-chip" style={{ borderColor: theme.accent }}>
           <span aria-hidden>{theme.glyph}</span>
           {subjectName}
         </span>
       </div>
-      <h2 className="text-2xl font-extrabold tracking-tight leading-tight">
-        {subtopicName}
-      </h2>
-      <p className="mt-1 text-sm text-[var(--study-muted)]">{topicName}</p>
+      <h2 className="text-2xl font-extrabold tracking-tight leading-tight">{subtopicName}</h2>
       <p className="mt-3 text-sm leading-relaxed">{recommendation.reasonSummary}</p>
-      <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
-        <span className="study-pill study-pill--soft">
-          ~{recommendation.estimatedMinutes} {t.common.minutes}
-        </span>
-        <span className="study-pill study-pill--soft tabular-nums">
-          {Math.round(recommendation.masteryPct)}% {t.common.mastery.toLowerCase()}
-        </span>
-      </div>
+      <p className="mt-2 text-sm text-[var(--study-muted)]">
+        {t.nextStep.atScore(Math.round(recommendation.masteryPct))}
+      </p>
       <Link
         href={href}
         className="study-btn study-btn-primary study-touch-target mt-5 block w-full text-center"
@@ -56,7 +44,7 @@ export function StudyNextStep({ recommendation }: Props) {
         {t.nextStep.start}
       </Link>
 
-      <details className="mt-5 rounded-xl border border-[var(--study-border)] bg-black/20 px-4 py-3">
+      <details className="mt-4 rounded-xl border border-[var(--study-border)] bg-black/20 px-4 py-3">
         <summary className="cursor-pointer text-sm font-bold study-text-link">
           {t.nextStep.why}
         </summary>

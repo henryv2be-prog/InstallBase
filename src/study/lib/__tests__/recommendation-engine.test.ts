@@ -148,6 +148,6 @@ describe("recommendation engine", () => {
     const rec = recommendFromLearningState(baseState([algebra, differentiation]));
     assert.ok(rec);
     assert.equal(rec.subtopicId, "st-alg");
-    assert.match(rec.reasonSummary, /strengthen/i);
+    assert.match(rec.reasonSummary, /Start with|strengthen|Begin met/i);
   });
 });

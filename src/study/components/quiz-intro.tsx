@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { QuizRunner } from "@/study/components/quiz-runner";
 import { useStudyT } from "@/study/components/study-locale-provider";
+import { pickQuizMode } from "@/study/lib/quiz-mode-pick";
 import { startSubtopicQuiz } from "@/study/lib/quiz-actions";
 import type { QuizMode } from "@/study/lib/quiz-types";
 
@@ -25,7 +26,6 @@ type Props = {
 export function QuizIntro({
   subtopicId,
   subjectName,
-  subjectSlug,
   topicSlug,
   topicName,
   subtopicSlug,
@@ -38,21 +38,32 @@ export function QuizIntro({
   initialMode = "all",
 }: Props) {
   const t = useStudyT();
-  const [mode, setMode] = useState<QuizMode>(initialMode);
+  const [mode, setMode] = useState<QuizMode>(() =>
+    pickQuizMode(initialMode, officialCount, practiceCount, questionCount),
+  );
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [started, setStarted] = useState<Awaited<ReturnType<typeof startSubtopicQuiz>> | null>(
     null,
   );
 
+  useEffect(() => {
+    setMode((current) => pickQuizMode(current, officialCount, practiceCount, questionCount));
+  }, [officialCount, practiceCount, questionCount]);
+
+  const modeOptions = useMemo(() => {
+    const all = [
+      ["official", t.quiz.official, officialCount, t.quiz.officialHint] as const,
+      ["practice", t.quiz.practiceDrills, practiceCount, t.quiz.practiceHint] as const,
+      ["all", t.quiz.mixed, questionCount, t.quiz.mixedHint] as const,
+    ];
+    return all.filter(([, , count]) => count > 0);
+  }, [t, officialCount, practiceCount, questionCount]);
+
   const availableForMode =
     mode === "official" ? officialCount : mode === "practice" ? practiceCount : questionCount;
 
-  const modeOptions = [
-    ["official", t.quiz.official, officialCount, t.quiz.officialHint],
-    ["practice", t.quiz.practiceDrills, practiceCount, t.quiz.practiceHint],
-    ["all", t.quiz.mixed, questionCount, t.quiz.mixedHint],
-  ] as const;
+  const showModePicker = modeOptions.length > 1;
 
   if (started?.ok) {
     return (
@@ -69,8 +80,9 @@ export function QuizIntro({
 
   function begin() {
     setError(null);
+    const chosen = pickQuizMode(mode, officialCount, practiceCount, questionCount);
     startTransition(async () => {
-      const result = await startSubtopicQuiz(subtopicId, mode);
+      const result = await startSubtopicQuiz(subtopicId, chosen);
       if (result.ok === false) {
         setError(result.error);
         return;
@@ -102,27 +114,31 @@ export function QuizIntro({
             t.quiz.introBaseline
           )}
         </p>
+        <p className="mt-2 text-sm font-semibold study-text-emphasis">
+          {t.quiz.questionsReady(availableForMode)}
+        </p>
       </section>
 
-      <section className="mb-5">
-        <p className="study-section-label mb-3">{t.quiz.questionType}</p>
-        <div className="space-y-2">
-          {modeOptions.map(([value, label, count, hint]) => (
-            <button
-              key={value}
-              type="button"
-              disabled={count === 0}
-              onClick={() => setMode(value)}
-              className={`study-quiz-option study-touch-target ${mode === value ? "study-quiz-option--active" : ""} ${count === 0 ? "opacity-40" : ""}`}
-            >
-              <span className="font-bold">{label}</span>
-              <span className="mt-1 block text-xs text-[var(--study-muted)]">
-                {t.quiz.readyCount(count)} · {hint}
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
+      {showModePicker ? (
+        <section className="mb-5">
+          <p className="study-section-label mb-3">{t.quiz.questionType}</p>
+          <div className="space-y-2">
+            {modeOptions.map(([value, label, count, hint]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setMode(value)}
+                className={`study-quiz-option study-touch-target ${mode === value ? "study-quiz-option--active" : ""}`}
+              >
+                <span className="font-bold">{label}</span>
+                <span className="mt-1 block text-xs text-[var(--study-muted)]">
+                  {t.quiz.readyCount(count)} · {hint}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {error ? (
         <div className="study-panel p-4 mb-4 text-sm">
@@ -137,7 +153,7 @@ export function QuizIntro({
         disabled={pending || availableForMode === 0}
         onClick={begin}
       >
-        {pending ? t.quiz.loading : t.quiz.letsGo}
+        {pending ? t.quiz.loading : t.quiz.startQuestions}
       </button>
     </div>
   );
