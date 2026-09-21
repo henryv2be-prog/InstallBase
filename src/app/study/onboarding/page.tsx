@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getSession } from "@/lib/session";
 import { OnboardingWizard } from "@/study/components/onboarding-wizard";
 import { StudyShell } from "@/study/components/study-shell";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
@@ -10,10 +12,17 @@ type Props = { searchParams: Promise<{ edit?: string }> };
 
 export default async function StudyOnboardingPage({ searchParams }: Props) {
   const { edit } = await searchParams;
-  const learner = await getStudyLearnerForRequest();
-  if (isLearnerOnboarded(learner) && edit !== "1") {
+  const [learner, session] = await Promise.all([getStudyLearnerForRequest(), getSession()]);
+  const isEdit = edit === "1";
+  if (isLearnerOnboarded(learner) && !isEdit) {
     redirect("/study/dashboard");
   }
+
+  const defaultName =
+    learner?.displayName?.trim() ||
+    session?.user?.name?.trim() ||
+    session?.user?.email?.split("@")[0] ||
+    "";
 
   let subjects: Awaited<ReturnType<typeof getStudySubjectsForOnboarding>> = [];
   try {
@@ -30,15 +39,30 @@ export default async function StudyOnboardingPage({ searchParams }: Props) {
   }));
 
   return (
-    <StudyShell title="Set up" subtitle="Grade 12 Study Coach" backHref="/study" backLabel="Home">
+    <StudyShell
+      title={isEdit ? "Update profile" : "Set up"}
+      subtitle="Grade 12 Study Coach"
+      backHref={isEdit ? "/study/dashboard" : "/study"}
+      backLabel={isEdit ? "Dashboard" : "Home"}
+    >
+      {!session?.user ? (
+        <p className="mb-4 text-xs leading-relaxed text-[var(--study-muted)]">
+          You can set up without an InstallBase account.{" "}
+          <Link href="/login?callbackUrl=/study/onboarding" className="text-[#c7d2fe] underline">
+            Sign in
+          </Link>{" "}
+          to keep your profile on this device and account in sync.
+        </p>
+      ) : null}
       {options.length === 0 ? (
         <div className="study-card p-5 text-sm text-[var(--study-muted)]">
-          Subjects are not loaded yet. Run the study curriculum seed on this environment, then refresh.
+          Subjects are not loaded yet. Redeploy or run{" "}
+          <code className="rounded bg-black/30 px-1">npm run db:seed-study</code>, then refresh.
         </div>
       ) : (
         <OnboardingWizard
           subjects={options}
-          initialName={learner?.displayName ?? ""}
+          initialName={defaultName}
           initialMarks={
             learner?.subjects.length
               ? Object.fromEntries(

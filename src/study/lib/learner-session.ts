@@ -20,13 +20,32 @@ export async function getStudyLearnerForRequest() {
   const session = await getSession();
   const cookieStore = await cookies();
   const cookieId = cookieStore.get(STUDY_LEARNER_COOKIE)?.value;
+  const userId = session?.user?.id;
 
-  if (session?.user?.id) {
+  if (userId) {
     const byUser = await prisma.studyLearner.findUnique({
-      where: { userId: session.user.id },
+      where: { userId },
       include: learnerInclude,
     });
     if (byUser) return byUser;
+
+    if (cookieId) {
+      const byCookie = await prisma.studyLearner.findUnique({
+        where: { id: cookieId },
+        include: learnerInclude,
+      });
+      if (byCookie && !byCookie.userId) {
+        try {
+          return await prisma.studyLearner.update({
+            where: { id: cookieId },
+            data: { userId },
+            include: learnerInclude,
+          });
+        } catch {
+          // Another learner may already be linked to this user — fall through to cookie read.
+        }
+      }
+    }
   }
 
   if (cookieId) {
