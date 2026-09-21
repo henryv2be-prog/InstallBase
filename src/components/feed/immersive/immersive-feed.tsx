@@ -7,7 +7,6 @@ import { FEED_MAX_LOADED_POSTS } from "@/lib/feed-pagination";
 import { postHasImmersiveMedia } from "@/lib/immersive-feed-media";
 import { ImmersiveSlide } from "@/components/feed/immersive/immersive-slide";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 interface ImmersiveFeedProps {
   initialPosts: PostCardData[];
@@ -17,8 +16,6 @@ interface ImmersiveFeedProps {
   currentUserId?: string;
   followingIds?: Set<string>;
   slideHeightClass?: string;
-  /** Fill the flex parent on mobile watch (avoids fragile 100dvh stacking). */
-  layout?: "viewport" | "container";
 }
 
 export function ImmersiveFeed({
@@ -28,15 +25,8 @@ export function ImmersiveFeed({
   tab,
   currentUserId,
   followingIds,
-  slideHeightClass,
-  layout = "viewport",
+  slideHeightClass = "h-[var(--immersive-slide-h,100dvh)]",
 }: ImmersiveFeedProps) {
-  const containerLayout = layout === "container";
-  const resolvedSlideHeightClass =
-    slideHeightClass ??
-    (containerLayout
-      ? "h-full min-h-full snap-start snap-always"
-      : "h-[var(--immersive-slide-h,100dvh)]");
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [posts, setPosts] = useState(initialPosts.filter(postHasImmersiveMedia));
   const [cursor, setCursor] = useState(initialCursor);
@@ -99,12 +89,7 @@ export function ImmersiveFeed({
 
   if (posts.length === 0) {
     return (
-      <div
-        className={cn(
-          "flex items-center justify-center p-6 text-center text-muted",
-          containerLayout ? "min-h-0 flex-1" : "h-[var(--immersive-slide-h,70dvh)]"
-        )}
-      >
+      <div className="flex h-[var(--immersive-slide-h,70dvh)] items-center justify-center p-6 text-center text-muted">
         <p>No installation media in this feed yet. Try Popular or post some work.</p>
       </div>
     );
@@ -113,11 +98,8 @@ export function ImmersiveFeed({
   return (
     <div
       ref={scrollerRef}
-      className={cn(
-        "immersive-feed-scroll snap-y snap-mandatory overflow-y-auto overscroll-y-contain scroll-smooth",
-        containerLayout && "min-h-0 flex-1"
-      )}
-      style={containerLayout ? undefined : { height: "var(--immersive-slide-h, 100dvh)" }}
+      className="immersive-feed-scroll snap-y snap-mandatory overflow-y-auto overscroll-y-contain scroll-smooth"
+      style={{ height: "var(--immersive-slide-h, 100dvh)" }}
     >
       {posts.map((post) => (
         <ImmersiveSlide
@@ -127,12 +109,12 @@ export function ImmersiveFeed({
           currentUserId={currentUserId}
           followingIds={followingIds}
           onVisible={slideCallbacks.get(post.id)}
-          slideHeightClass={resolvedSlideHeightClass}
+          slideHeightClass={slideHeightClass}
         />
       ))}
 
       {(loading || hasMore) && (
-        <div className={`flex items-center justify-center ${resolvedSlideHeightClass}`}>
+        <div className={`flex items-center justify-center ${slideHeightClass}`}>
           {loading ? (
             <Loader2 className="h-8 w-8 animate-spin text-muted" />
           ) : (

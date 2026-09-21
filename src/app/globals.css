@@ -5,7 +5,7 @@
 :root {
   --app-header-h: 3.5rem;
   /* Mobile bottom tab bar (icons + labels); safe-area added in shell padding */
-  --app-mobile-nav-reserve: 4.625rem;
+  --app-mobile-nav-reserve: 4.75rem;
   --background: #050810;
   --foreground: #f1f5f9;
   --card: rgba(15, 23, 42, 0.72);
@@ -239,6 +239,7 @@ body {
 
 /* Floating mobile tab bar over immersive watch feed */
 .mobile-nav-glass-dock {
+  overflow: visible;
   background: rgba(8, 12, 22, 0.42);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -269,17 +270,24 @@ body {
 }
 
 .immersive-feed-root {
-  --immersive-slide-h: min(88dvh, 900px);
+  --immersive-watch-subnav-h: 2.75rem;
+  /* Floating glass dock sits over the feed; reserve its footprint in slide height */
+  --immersive-tabbar-h: calc(var(--app-mobile-nav-reserve) + 0.5rem);
+  --immersive-slide-h: calc(
+    100dvh - var(--app-header-h) - env(safe-area-inset-top) - var(--immersive-tabbar-h) -
+      env(safe-area-inset-bottom) - var(--immersive-watch-subnav-h)
+  );
 }
 
 @media (max-width: 1023px) {
   .immersive-feed-root {
-    --immersive-overlay-bottom-pad: calc(var(--app-mobile-nav-reserve) + env(safe-area-inset-bottom) + 0.75rem);
+    --immersive-overlay-bottom-pad: calc(var(--immersive-tabbar-h) + 0.5rem);
   }
 }
 
 @media (min-width: 1024px) {
   .immersive-feed-root {
+    --immersive-watch-subnav-h: 0px;
     --immersive-slide-h: min(88dvh, 900px);
   }
 }

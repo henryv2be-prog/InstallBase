@@ -34,7 +34,7 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
   const { posts, nextCursor, hasMore } = feedPage;
 
   return (
-    <div className="immersive-feed-root -mx-3 flex min-h-0 flex-1 flex-col sm:-mx-4 lg:mx-auto lg:max-w-6xl lg:min-h-0 lg:flex-row lg:gap-6 xl:-mx-0">
+    <div className="immersive-feed-root -mx-3 flex flex-col sm:-mx-4 lg:mx-auto lg:max-w-6xl lg:flex-row lg:gap-6 xl:-mx-0">
       <WatchInstallsPromoSeenOnMount />
       <div className="flex min-h-11 shrink-0 items-center justify-between gap-2 overflow-visible px-3 py-2 lg:hidden">
         <Link
@@ -67,7 +67,7 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
         </div>
       </div>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:max-w-md xl:max-w-lg">
+      <div className="min-w-0 flex-1 lg:max-w-md xl:max-w-lg">
         {!userId && followingTab ? (
           <GuestJoinCard
             title="Follow installers to build this feed"
@@ -76,7 +76,6 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
           />
         ) : (
           <ImmersiveFeed
-            layout="container"
             initialPosts={posts}
             initialCursor={nextCursor}
             initialHasMore={hasMore}

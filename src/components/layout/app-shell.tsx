@@ -167,10 +167,7 @@ export function AppShell({ children, user }: AppShellProps) {
           isAdminRoute
             ? "pb-6 md:pb-8"
             : isImmersiveWatch
-              ? cn(
-                  "max-md:flex max-md:max-h-[calc(100dvh-env(safe-area-inset-top)-var(--app-header-h))] max-md:flex-col max-md:overflow-hidden",
-                  "max-md:pb-0 md:pb-8"
-                )
+              ? "max-md:pb-0 md:pb-8"
               : "pb-[calc(var(--app-mobile-nav-reserve)+0.75rem+env(safe-area-inset-bottom))] md:pb-8"
         )}
       >
@@ -198,7 +195,7 @@ export function AppShell({ children, user }: AppShellProps) {
           {mobileNavItems.map((item) => {
             const glassTab = cn(
               "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 transition-all duration-200",
-              isImmersiveWatch && "mobile-nav-glass-btn min-h-[3.25rem]"
+              isImmersiveWatch && "mobile-nav-glass-btn min-h-[3rem]"
             );
 
             if (item.href === "/profile") {
