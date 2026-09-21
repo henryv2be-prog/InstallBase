@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { StudyLanguageSwitcher } from "@/study/components/study-language-switcher";
 import { StudyShell } from "@/study/components/study-shell";
+import { getStudyMessages } from "@/study/i18n/get-locale";
 import { daysUntilExam } from "@/study/lib/days-until-exam";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getSubjectTheme } from "@/study/lib/subject-theme";
@@ -13,16 +15,26 @@ export default async function StudyProfilePage() {
     redirect("/study/onboarding");
   }
 
+  const { t } = await getStudyMessages();
+
   return (
     <StudyShell showNav>
       <header className="mb-6">
-        <p className="study-section-label">Your matric profile</p>
+        <p className="study-section-label">{t.profile.title}</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight">{learner.displayName}</h1>
-        <p className="mt-1 text-sm text-[var(--study-muted)]">Grade 12 · NSC · {learner.schoolYear}</p>
+        <p className="mt-1 text-sm text-[var(--study-muted)]">
+          {t.profile.gradeLine(learner.schoolYear)}
+        </p>
       </header>
 
       <section className="study-panel p-4 mb-5">
-        <p className="study-section-label mb-3">Subjects &amp; targets</p>
+        <p className="study-section-label mb-1">{t.profile.language}</p>
+        <p className="mb-3 text-sm text-[var(--study-muted)]">{t.profile.languageLead}</p>
+        <StudyLanguageSwitcher />
+      </section>
+
+      <section className="study-panel p-4 mb-5">
+        <p className="study-section-label mb-3">{t.profile.subjectsTargets}</p>
         <ul className="space-y-3">
           {learner.subjects.map((ls) => {
             const theme = getSubjectTheme(ls.subject.slug);
@@ -43,7 +55,7 @@ export default async function StudyProfilePage() {
                   ) : null}
                 </div>
                 <p className="mt-1 text-sm text-[var(--study-muted)]">
-                  Now ~{ls.currentMarkPct}% → aiming for {ls.targetMarkPct}%
+                  {t.profile.nowAiming(ls.currentMarkPct, ls.targetMarkPct)}
                 </p>
               </li>
             );
@@ -56,13 +68,13 @@ export default async function StudyProfilePage() {
           href="/study/onboarding?edit=1"
           className="study-btn study-btn-primary study-touch-target block w-full text-center"
         >
-          Update subjects &amp; exam dates
+          {t.profile.update}
         </Link>
         <Link
           href="/study"
           className="study-btn study-btn-ghost study-touch-target block w-full text-center text-sm"
         >
-          About Study Coach
+          {t.profile.about}
         </Link>
       </div>
     </StudyShell>

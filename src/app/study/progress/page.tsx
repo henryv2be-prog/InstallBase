@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StudyMasteryBar } from "@/study/components/study-mastery-bar";
 import { StudyShell } from "@/study/components/study-shell";
+import { getStudyMessages } from "@/study/i18n/get-locale";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getLearnerProgressStats, getWeakestMasteries } from "@/study/lib/queries";
 import { getSubjectTheme } from "@/study/lib/subject-theme";
@@ -14,6 +15,7 @@ export default async function StudyProgressPage() {
     redirect("/study/onboarding");
   }
 
+  const { t } = await getStudyMessages();
   const [stats, weakest, improving] = await Promise.all([
     getLearnerProgressStats(learner.id),
     getWeakestMasteries(learner.id, 3),
@@ -26,23 +28,23 @@ export default async function StudyProgressPage() {
   return (
     <StudyShell showNav>
       <header className="mb-5">
-        <h1 className="study-display text-3xl">Progress</h1>
-        <p className="study-lead mt-2">Visible improvement beats motivational quotes.</p>
+        <h1 className="study-display text-3xl">{t.progress.title}</h1>
+        <p className="study-lead mt-2">{t.progress.lead}</p>
       </header>
 
       <section className="grid grid-cols-2 gap-3 mb-5">
         <div className="study-panel p-4 text-center">
           <p className="study-stat-xl text-[var(--study-accent-2)]">{stats.completedSessions}</p>
-          <p className="text-xs text-[var(--study-muted)] mt-1">Sessions completed</p>
+          <p className="text-xs text-[var(--study-muted)] mt-1">{t.progress.sessions}</p>
         </div>
         <div className="study-panel p-4 text-center">
           <p className="study-stat-xl">{stats.streakDays > 0 ? `🔥 ${stats.streakDays}` : "—"}</p>
-          <p className="text-xs text-[var(--study-muted)] mt-1">Day streak</p>
+          <p className="text-xs text-[var(--study-muted)] mt-1">{t.progress.streak}</p>
         </div>
       </section>
 
       <section className="study-panel p-4 mb-5">
-        <p className="study-section-label mb-3">Matric goals</p>
+        <p className="study-section-label mb-3">{t.progress.matricGoals}</p>
         <ul className="space-y-4">
           {learner.subjects.map((ls) => {
             const theme = getSubjectTheme(ls.subject.slug);
@@ -54,10 +56,10 @@ export default async function StudyProgressPage() {
                   accent={theme.accent}
                 />
                 <p className="mt-1 text-xs text-[var(--study-muted)]">
-                  Target {ls.targetMarkPct}%
+                  {t.subjects.target(ls.targetMarkPct)}
                   {ls.currentMarkPct >= ls.targetMarkPct - 3
-                    ? " · You're in range"
-                    : ` · ${ls.targetMarkPct - ls.currentMarkPct}% to go`}
+                    ? ` · ${t.progress.inRange}`
+                    : ` · ${t.progress.toGo(ls.targetMarkPct - ls.currentMarkPct)}`}
                 </p>
               </li>
             );
@@ -67,7 +69,7 @@ export default async function StudyProgressPage() {
 
       {best.length > 0 ? (
         <section className="mb-5">
-          <p className="study-section-label mb-2">Getting stronger</p>
+          <p className="study-section-label mb-2">{t.progress.gettingStronger}</p>
           <ul className="study-panel px-4">
             {best.map((m) => (
               <li key={m.id} className="study-row">
@@ -86,23 +88,21 @@ export default async function StudyProgressPage() {
         </section>
       ) : (
         <section className="study-panel p-5 mb-5 text-center">
-          <p className="font-bold">Let&apos;s start</p>
-          <p className="mt-2 text-sm text-[var(--study-muted)]">
-            Your first study session will appear here.
-          </p>
+          <p className="font-bold">{t.progress.emptyTitle}</p>
+          <p className="mt-2 text-sm text-[var(--study-muted)]">{t.progress.emptyLead}</p>
           <Link href="/study/dashboard" className="study-btn study-btn-primary study-touch-target mt-4 inline-flex w-full">
-            Start your first session
+            {t.progress.emptyCta}
           </Link>
         </section>
       )}
 
       {weakest.length > 0 ? (
         <section>
-          <p className="study-section-label mb-2">Biggest gaps</p>
+          <p className="study-section-label mb-2">{t.progress.biggestGaps}</p>
           <ul className="space-y-2">
             {weakest.map((m) => (
               <li key={m.id} className="study-panel p-4">
-                <p className="text-xs font-bold text-[var(--study-accent-2)]">Needs attention</p>
+                <p className="text-xs font-bold text-[var(--study-accent-2)]">{t.progress.needsAttention}</p>
                 <p className="mt-1 font-bold">{m.subtopic.name}</p>
                 <p className="text-sm text-[var(--study-muted)]">
                   {m.subtopic.topic.curriculum.subject.name} · {Math.round(m.masteryPct)}%
@@ -111,7 +111,7 @@ export default async function StudyProgressPage() {
                   href={`/study/practice/${m.subtopicId}`}
                   className="study-btn study-btn-ghost study-touch-target mt-3 block w-full text-center text-sm"
                 >
-                  Practice this
+                  {t.progress.practiceThis}
                 </Link>
               </li>
             ))}

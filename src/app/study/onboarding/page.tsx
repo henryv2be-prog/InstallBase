@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { OnboardingWizard } from "@/study/components/onboarding-wizard";
+import { StudyLanguageSwitcher } from "@/study/components/study-language-switcher";
 import { StudyShell } from "@/study/components/study-shell";
+import { getStudyMessages } from "@/study/i18n/get-locale";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { GRADE_12_SUBJECT_BY_SLUG } from "@/study/data/grade-12-subject-catalog";
 import { ensureStudyCatalog } from "@/study/lib/ensure-catalog";
@@ -14,7 +16,11 @@ type Props = { searchParams: Promise<{ edit?: string }> };
 
 export default async function StudyOnboardingPage({ searchParams }: Props) {
   const { edit } = await searchParams;
-  const [learner, session] = await Promise.all([getStudyLearnerForRequest(), getSession()]);
+  const [{ t }, learner, session] = await Promise.all([
+    getStudyMessages(),
+    getStudyLearnerForRequest(),
+    getSession(),
+  ]);
   const isEdit = edit === "1";
   if (isLearnerOnboarded(learner) && !isEdit) {
     redirect("/study/dashboard");
@@ -45,21 +51,24 @@ export default async function StudyOnboardingPage({ searchParams }: Props) {
   return (
     <StudyShell
       backHref={isEdit ? "/study/profile" : "/study"}
-      backLabel={isEdit ? "Profile" : "Back"}
+      backLabel={isEdit ? t.nav.profile : t.common.back}
     >
       {!session?.user ? (
         <p className="mb-4 text-xs leading-relaxed text-[var(--study-muted)]">
-          Optional:{" "}
+          {t.onboarding.signInHint}{" "}
           <Link href="/login?next=/study/onboarding" className="text-[#c7d2fe] underline">
-            Sign in
+            {t.onboarding.signInLink}
           </Link>{" "}
-          to sync your profile if you use more than one device.
+          {t.onboarding.signInRest}
         </p>
       ) : null}
+      <section className="mb-5">
+        <p className="study-section-label mb-1">{t.profile.language}</p>
+        <StudyLanguageSwitcher />
+      </section>
       {options.length === 0 ? (
         <div className="study-card p-5 text-sm text-[var(--study-muted)]">
-          Subjects are not loaded yet. Redeploy or run{" "}
-          <code className="rounded bg-black/30 px-1">npm run db:seed-study</code>, then refresh.
+          {t.onboarding.subjectsMissing}
         </div>
       ) : (
         <OnboardingWizard

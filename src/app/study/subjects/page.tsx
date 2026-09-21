@@ -2,8 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StudyMasteryBar } from "@/study/components/study-mastery-bar";
 import { StudyShell } from "@/study/components/study-shell";
+import { examCountdownFromMessages } from "@/study/i18n/format";
+import { getStudyMessages } from "@/study/i18n/get-locale";
 import { daysUntilExam } from "@/study/lib/days-until-exam";
-import { examCountdownMessage, subjectOnTrack } from "@/study/lib/home-helpers";
+import { subjectOnTrack } from "@/study/lib/home-helpers";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getSubjectMasteryForLearner } from "@/study/lib/queries";
 import { getSubjectTheme, masteryBandEmoji } from "@/study/lib/subject-theme";
@@ -16,13 +18,14 @@ export default async function StudySubjectsPage() {
     redirect("/study/onboarding");
   }
 
+  const { t } = await getStudyMessages();
   const subjects = await getSubjectMasteryForLearner(learner.id);
 
   return (
     <StudyShell showNav>
       <header className="mb-5">
-        <h1 className="study-display text-3xl">Your subjects</h1>
-        <p className="study-lead mt-2">Tap a subject to see where you&apos;re strong — and where to focus.</p>
+        <h1 className="study-display text-3xl">{t.subjects.title}</h1>
+        <p className="study-lead mt-2">{t.subjects.lead}</p>
       </header>
 
       <ul className="space-y-3">
@@ -56,17 +59,19 @@ export default async function StudySubjectsPage() {
                     <h2 className="mt-1 text-lg font-extrabold tracking-tight">{subject.subjectName}</h2>
                     {days != null ? (
                       <p className="mt-1 text-xs text-[var(--study-muted)]">
-                        {days} days · {examCountdownMessage(days, onTrack)}
+                        {days} {t.common.days} · {examCountdownFromMessages(t, days, onTrack)}
                       </p>
                     ) : (
-                      <p className="mt-1 text-xs text-[var(--study-muted)]">NSC · Grade 12</p>
+                      <p className="mt-1 text-xs text-[var(--study-muted)]">
+                        {t.profile.gradeLine(learner.schoolYear)}
+                      </p>
                     )}
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-extrabold tabular-nums" style={{ color: theme.accent }}>
                       {displayMastery}%
                     </p>
-                    <p className="text-xs text-[var(--study-muted)]">Target {subject.targetMarkPct}%</p>
+                    <p className="text-xs text-[var(--study-muted)]">{t.subjects.target(subject.targetMarkPct)}</p>
                   </div>
                 </div>
                 <div className="mt-3">
@@ -74,14 +79,14 @@ export default async function StudySubjectsPage() {
                 </div>
                 {subject.topics.length > 0 ? (
                   <p className="mt-3 text-xs text-[var(--study-muted)]">
-                    {subject.topics.slice(0, 3).map((t) => (
-                      <span key={t.id} className="mr-2 inline-flex items-center gap-1">
-                        {masteryBandEmoji(t.avgMasteryPct ?? subject.currentMarkPct)} {t.name}
+                    {subject.topics.slice(0, 3).map((topic) => (
+                      <span key={topic.id} className="mr-2 inline-flex items-center gap-1">
+                        {masteryBandEmoji(topic.avgMasteryPct ?? subject.currentMarkPct)} {topic.name}
                       </span>
                     ))}
                   </p>
                 ) : (
-                  <p className="mt-3 text-xs text-[var(--study-muted)]">Topic map coming soon for this subject.</p>
+                  <p className="mt-3 text-xs text-[var(--study-muted)]">{t.subjects.mapSoon}</p>
                 )}
               </Link>
             </li>

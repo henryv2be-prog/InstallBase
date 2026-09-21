@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { StudyMasteryBar } from "@/study/components/study-mastery-bar";
+import { useStudyT } from "@/study/components/study-locale-provider";
 import { completeSubtopicQuiz, evaluateQuizAnswer } from "@/study/lib/quiz-actions";
 import type { QuizQuestionClient } from "@/study/lib/quiz-types";
 
@@ -30,6 +31,7 @@ export function QuizRunner({
   questions,
   masteryBeforePct,
 }: Props) {
+  const t = useStudyT();
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -63,7 +65,7 @@ export function QuizRunner({
 
   async function checkAnswer() {
     if (!current || !selected?.trim()) {
-      setError("Pick or type an answer first.");
+      setError(t.quiz.pickAnswer);
       return;
     }
     setError(null);
@@ -112,13 +114,13 @@ export function QuizRunner({
     return (
       <div className="study-quiz-stage">
         <section className="study-panel--glow p-6 text-center mb-5">
-          <p className="study-section-label">Session complete</p>
+          <p className="study-section-label">{t.quiz.sessionComplete}</p>
           <p className="mt-3 text-5xl font-extrabold tabular-nums tracking-tight">
             {summary.correct}/{summary.total}
           </p>
-          <p className="mt-2 text-lg font-bold">Nice work.</p>
+          <p className="mt-2 text-lg font-bold">{t.quiz.niceWork}</p>
           <p className="mt-4 text-sm text-[var(--study-muted)]">
-            {summary.subtopicName} mastery
+            {summary.subtopicName} {t.quiz.masteryLabel}
           </p>
           {before != null ? (
             <p className="mt-1 text-2xl font-extrabold tabular-nums">
@@ -129,17 +131,15 @@ export function QuizRunner({
           )}
           {delta != null && delta > 0 ? (
             <p className="mt-2 text-sm font-semibold text-[var(--study-success)]">
-              +{delta}% — one step closer to your target
+              {t.quiz.stepCloser(delta)}
             </p>
           ) : null}
         </section>
 
         {summary.nextFocus ? (
           <section className="study-panel p-4 mb-4">
-            <p className="text-xs font-bold text-[var(--study-muted)]">Next up</p>
-            <p className="mt-2 font-bold">
-              Your next gap: {summary.nextFocus.subtopicName}
-            </p>
+            <p className="text-xs font-bold text-[var(--study-muted)]">{t.quiz.nextUp}</p>
+            <p className="mt-2 font-bold">{t.quiz.nextGap(summary.nextFocus.subtopicName)}</p>
             <p className="text-sm text-[var(--study-muted)]">
               {summary.nextFocus.subjectName} · {Math.round(summary.nextFocus.masteryPct)}%
             </p>
@@ -147,7 +147,7 @@ export function QuizRunner({
               href={`/study/practice/${summary.nextFocus.subtopicId}`}
               className="study-btn study-btn-primary study-touch-target mt-4 block w-full text-center"
             >
-              Practice {summary.nextFocus.subtopicName}
+              {t.subjects.practice} {summary.nextFocus.subtopicName}
             </Link>
           </section>
         ) : null}
@@ -156,7 +156,7 @@ export function QuizRunner({
           href="/study/dashboard"
           className="study-btn study-btn-ghost study-touch-target w-full text-center"
         >
-          Done for today
+          {t.quiz.doneToday}
         </Link>
       </div>
     );
@@ -175,7 +175,7 @@ export function QuizRunner({
 
       <div className="mb-4">
         <p className="text-center text-xs font-bold text-[var(--study-muted)] mb-3">
-          Question {index + 1} of {questions.length}
+          {t.quiz.questionOf(index + 1, questions.length)}
         </p>
         <div className="study-dots mb-3" aria-hidden>
           {questions.map((_, i) => (
@@ -196,13 +196,13 @@ export function QuizRunner({
         <section
           className={`study-feedback mb-4 flex-1 ${feedback.isCorrect ? "study-feedback--win" : "study-feedback--learn"}`}
         >
-          <p className="study-feedback__title">{feedback.isCorrect ? "Nice." : "Almost."}</p>
+          <p className="study-feedback__title">{feedback.isCorrect ? t.quiz.nice : t.quiz.almost}</p>
           <p className="mt-2 text-base font-semibold">
-            {feedback.isCorrect ? "You got it." : "Here's why it matters."}
+            {feedback.isCorrect ? t.quiz.gotIt : t.quiz.almostLead}
           </p>
           {!feedback.isCorrect && feedback.correctDisplay ? (
             <p className="mt-3 text-sm text-[var(--study-muted)]">
-              Memo-style answer:{" "}
+              {t.quiz.memoAnswer}{" "}
               <span className="font-semibold text-[var(--study-text)]">{feedback.correctDisplay}</span>
             </p>
           ) : null}
@@ -216,10 +216,10 @@ export function QuizRunner({
             onClick={continueAfterFeedback}
           >
             {pending
-              ? "Saving…"
+              ? t.common.saving
               : index === questions.length - 1
-                ? "Finish session"
-                : "Ready for the next one?"}
+                ? t.quiz.finishSession
+                : t.quiz.nextOne}
           </button>
         </section>
       ) : (
@@ -227,18 +227,18 @@ export function QuizRunner({
           <section className="study-panel p-5 flex-1 mb-4">
             {current.sourceQuestionRef ? (
               <p className="text-xs text-[var(--study-muted)] mb-3">
-                NSC ref · Paper {current.sourcePaperNumber ?? "?"} · Q{current.sourceQuestionRef}
+                {t.common.nsc} ref · Paper {current.sourcePaperNumber ?? "?"} · Q{current.sourceQuestionRef}
               </p>
             ) : null}
             <p className="study-quiz-prompt">{current.prompt}</p>
             {isShort ? (
               <label className="mt-6 block space-y-2">
-                <span className="text-sm font-semibold text-[var(--study-muted)]">Your answer</span>
+                <span className="text-sm font-semibold text-[var(--study-muted)]">{t.quiz.yourAnswer}</span>
                 <input
                   className="study-input study-touch-target"
                   value={selected ?? ""}
                   onChange={(e) => setShortAnswer(e.target.value)}
-                  placeholder="Type your final answer"
+                  placeholder={t.quiz.shortPlaceholder}
                   autoComplete="off"
                 />
               </label>
@@ -270,7 +270,7 @@ export function QuizRunner({
             disabled={checking || pending}
             onClick={checkAnswer}
           >
-            {checking ? "Checking…" : "Check answer"}
+            {checking ? t.quiz.checking : t.quiz.check}
           </button>
         </>
       )}

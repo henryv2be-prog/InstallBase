@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { StudyBottomNav } from "@/study/components/study-bottom-nav";
+import { useStudyT } from "@/study/components/study-locale-provider";
 
 type Props = {
   title?: string;
@@ -25,6 +28,7 @@ export function StudyShell({
   immersive = false,
   headerExtra,
 }: Props) {
+  const t = useStudyT();
   return (
     <div
       className={`study-shell ${immersive ? "study-shell--immersive" : ""} ${showNav ? "study-shell--with-nav" : ""}`}
@@ -33,12 +37,12 @@ export function StudyShell({
         <header className="study-shell__header">
           {backHref ? (
             <Link href={backHref} className="study-back study-touch-target">
-              ← {backLabel ?? "Back"}
+              ← {backLabel ?? t.common.back}
             </Link>
           ) : showNav ? (
             <div className="study-brand" aria-hidden>
               <span className="study-brand__mark">12</span>
-              <span className="study-brand__text">Study Coach</span>
+              <span className="study-brand__text">{t.brand.full}</span>
             </div>
           ) : (
             <div className="study-brand" aria-hidden>

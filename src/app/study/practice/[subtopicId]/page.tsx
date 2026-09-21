@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { QuizIntro } from "@/study/components/quiz-intro";
 import { StudyShell } from "@/study/components/study-shell";
+import { getStudyMessages } from "@/study/i18n/get-locale";
 import { ensurePracticeQuestions } from "@/study/lib/seed-questions";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { prisma } from "@/lib/prisma";
@@ -29,6 +30,7 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
     redirect("/study/onboarding");
   }
 
+  const { t } = await getStudyMessages();
   await ensurePracticeQuestions();
 
   const subtopic = await prisma.studySubtopic.findUnique({
@@ -44,8 +46,8 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
 
   if (!subtopic) {
     return (
-      <StudyShell title="Quiz" backHref="/study/practice" backLabel="Practice">
-        <div className="study-card p-5 text-sm text-[#fecaca]">Topic not found.</div>
+      <StudyShell title={t.practice.title} backHref="/study/practice" backLabel={t.nav.practice}>
+        <div className="study-card p-5 text-sm text-[#fecaca]">{t.quiz.notFound}</div>
       </StudyShell>
     );
   }
@@ -55,8 +57,8 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
   );
   if (!enrolled) {
     return (
-      <StudyShell title="Quiz" backHref="/study/practice" backLabel="Practice">
-        <div className="study-card p-5 text-sm text-[#fecaca]">This subject is not on your profile.</div>
+      <StudyShell title={t.practice.title} backHref="/study/practice" backLabel={t.nav.practice}>
+        <div className="study-card p-5 text-sm text-[#fecaca]">{t.quiz.notEnrolled}</div>
       </StudyShell>
     );
   }
@@ -66,14 +68,12 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
   });
 
   return (
-    <StudyShell immersive backHref="/study/practice" backLabel="Practice">
+    <StudyShell immersive backHref="/study/practice" backLabel={t.nav.practice}>
       {subtopic.questions.length === 0 ? (
         <>
-          <div className="study-card p-5 text-sm text-[var(--study-muted)]">
-            Practice questions for this subtopic are not available yet.
-          </div>
+          <div className="study-card p-5 text-sm text-[var(--study-muted)]">{t.quiz.noQuestions}</div>
           <Link href="/study/practice" className="study-btn study-btn-ghost study-touch-target mt-4 block text-center">
-            Back to practice
+            {t.quiz.backPractice}
           </Link>
         </>
       ) : (

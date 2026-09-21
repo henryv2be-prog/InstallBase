@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useStudyT } from "@/study/components/study-locale-provider";
 import { completeStudyOnboarding } from "@/study/lib/actions";
 import { STUDY_STARTER_SUBJECT_SLUGS } from "@/study/lib/constants";
 import {
@@ -54,6 +55,7 @@ export function OnboardingWizard({
   initialMarks,
   initialExams,
 }: Props) {
+  const t = useStudyT();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [pending, startTransition] = useTransition();
@@ -147,12 +149,12 @@ export function OnboardingWizard({
     setError(null);
     if (step === 0) {
       if (displayName.trim().length < 2) {
-        setError("What should we call you?");
+        setError(t.onboarding.errors.name);
         return;
       }
     }
     if (step === 1 && selectedSubjects.length === 0) {
-      setError("Pick at least one Grade 12 subject.");
+      setError(t.onboarding.errors.subjects);
       return;
     }
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
@@ -188,6 +190,8 @@ export function OnboardingWizard({
     });
   }
 
+  const readyName = displayName.trim() || (t.locale === "af" ? "vriend" : "friend");
+
   return (
     <div className="flex flex-1 flex-col">
       <div className="mb-6">
@@ -199,26 +203,27 @@ export function OnboardingWizard({
       {step === 0 ? (
         <section className="space-y-4">
           <div className="study-onboard-bubble study-onboard-bubble--accent">
-            Hey 👋 Let&apos;s build your matric study plan.
+            {t.onboarding.hey}
+            {t.onboarding.planIntro ? ` ${t.onboarding.planIntro}` : ""}
           </div>
           <label className="block space-y-2">
-            <span className="text-sm font-bold">What&apos;s your name?</span>
+            <span className="text-sm font-bold">{t.onboarding.nameLabel}</span>
             <input
               className="study-input study-touch-target"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="e.g. Thabo"
+              placeholder={t.onboarding.namePlaceholder}
               autoComplete="name"
             />
           </label>
-          <p className="text-sm text-[var(--study-muted)]">Grade 12 · NSC · 2026</p>
+          <p className="text-sm text-[var(--study-muted)]">{t.onboarding.gradeLine}</p>
         </section>
       ) : null}
 
       {step === 1 ? (
         <section className="space-y-3">
-          <div className="study-onboard-bubble">What are you studying this year?</div>
-          <p className="text-sm text-[var(--study-muted)]">Tap your Grade 12 subjects.</p>
+          <div className="study-onboard-bubble">{t.onboarding.subjectsTitle}</div>
+          <p className="text-sm text-[var(--study-muted)]">{t.onboarding.subjectsLead}</p>
           <div className="space-y-5 max-h-[50vh] overflow-y-auto pr-1">
             {subjectsByCategory.map(({ category, items }) => (
               <div key={category}>
@@ -243,7 +248,9 @@ export function OnboardingWizard({
                             />
                             <span className="font-bold">{subject.name}</span>
                             {subject.hasCurriculum ? (
-                              <span className="ml-auto text-xs text-[var(--study-accent-2)]">Quizzes</span>
+                              <span className="ml-auto text-xs text-[var(--study-accent-2)]">
+                                {t.common.quizzes}
+                              </span>
                             ) : null}
                           </div>
                         </button>
@@ -259,8 +266,8 @@ export function OnboardingWizard({
 
       {step === 2 ? (
         <section className="space-y-3">
-          <div className="study-onboard-bubble">What are you aiming for?</div>
-          <p className="text-sm text-[var(--study-muted)]">Honest current mark + your target.</p>
+          <div className="study-onboard-bubble">{t.onboarding.goalsTitle}</div>
+          <p className="text-sm text-[var(--study-muted)]">{t.onboarding.goalsLead}</p>
           <ul className="space-y-4 max-h-[55vh] overflow-y-auto pr-1">
             {selectedSubjects.map((subject) => {
               const row = marks[subject.id];
@@ -268,13 +275,13 @@ export function OnboardingWizard({
                 <li key={subject.id} className="study-panel p-4">
                   <p className="font-bold mb-3">{subject.name}</p>
                   <MarkSlider
-                    label="Where you are now"
+                    label={t.onboarding.currentMark}
                     value={row.currentMarkPct}
                     onChange={(v) => updateMark(subject.id, "currentMarkPct", v)}
                   />
                   <div className="mt-4">
                     <MarkSlider
-                      label="Where you want to be"
+                      label={t.onboarding.targetMark}
                       value={row.targetMarkPct}
                       onChange={(v) => updateMark(subject.id, "targetMarkPct", v)}
                     />
@@ -288,10 +295,8 @@ export function OnboardingWizard({
 
       {step === 3 ? (
         <section className="space-y-3">
-          <div className="study-onboard-bubble">When are your NSC exams?</div>
-          <p className="text-sm text-[var(--study-muted)]">
-            We&apos;ll use this to prioritise your time — Paper 1 dates are fine to start.
-          </p>
+          <div className="study-onboard-bubble">{t.onboarding.examsTitle}</div>
+          <p className="text-sm text-[var(--study-muted)]">{t.onboarding.examsLead}</p>
           <ul className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
             {selectedSubjects.map((subject) => {
               const exam = exams[subject.id];
@@ -299,7 +304,9 @@ export function OnboardingWizard({
                 <li key={subject.id} className="study-panel space-y-3 p-4">
                   <p className="font-bold">{subject.name}</p>
                   <label className="block space-y-1">
-                    <span className="text-xs font-semibold text-[var(--study-muted)]">Exam date</span>
+                    <span className="text-xs font-semibold text-[var(--study-muted)]">
+                      {t.onboarding.examDate}
+                    </span>
                     <input
                       type="date"
                       className="study-input study-touch-target"
@@ -314,7 +321,9 @@ export function OnboardingWizard({
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <label className="block space-y-1">
-                      <span className="text-xs font-semibold text-[var(--study-muted)]">Paper</span>
+                      <span className="text-xs font-semibold text-[var(--study-muted)]">
+                        {t.onboarding.paper}
+                      </span>
                       <input
                         type="number"
                         min={1}
@@ -330,7 +339,9 @@ export function OnboardingWizard({
                       />
                     </label>
                     <label className="block space-y-1">
-                      <span className="text-xs font-semibold text-[var(--study-muted)]">Minutes</span>
+                      <span className="text-xs font-semibold text-[var(--study-muted)]">
+                        {t.onboarding.minutes}
+                      </span>
                       <input
                         type="number"
                         min={30}
@@ -356,10 +367,10 @@ export function OnboardingWizard({
       {step === 4 ? (
         <section className="space-y-4 text-center py-4">
           <div className="study-onboard-bubble study-onboard-bubble--accent mx-auto max-w-sm">
-            You&apos;re ready, {displayName.trim() || "friend"}. We&apos;ve got your starting point.
+            {t.onboarding.readyTitle(readyName)}
           </div>
           <p className="text-sm text-[var(--study-muted)]">
-            {selectedSubjects.length} subjects · personalised daily mission on your home screen.
+            {t.onboarding.readyLead(selectedSubjects.length)}
           </p>
         </section>
       ) : null}
@@ -373,7 +384,7 @@ export function OnboardingWizard({
       <div className="mt-auto space-y-3 pt-6">
         {step < STEPS.length - 1 ? (
           <button type="button" className="study-btn study-btn-primary study-touch-target w-full" onClick={goNext}>
-            Continue
+            {t.common.continue}
           </button>
         ) : (
           <button
@@ -382,7 +393,7 @@ export function OnboardingWizard({
             disabled={pending}
             onClick={submit}
           >
-            {pending ? "Saving…" : "Show my plan"}
+            {pending ? t.common.saving : t.onboarding.showPlan}
           </button>
         )}
         {step > 0 ? (
@@ -392,7 +403,7 @@ export function OnboardingWizard({
             disabled={pending}
             onClick={() => setStep((s) => s - 1)}
           >
-            Back
+            {t.common.back}
           </button>
         ) : null}
       </div>

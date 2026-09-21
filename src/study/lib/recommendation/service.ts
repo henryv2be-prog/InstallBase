@@ -3,6 +3,8 @@ import { StudyRecommendationAction } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { buildLearningState } from "@/study/lib/learner-model/build-learning-state";
 import type { LearningState, StudyRecommendation } from "@/study/lib/learner-model/types";
+import { getStudyMessages } from "@/study/i18n/get-locale";
+import { en } from "@/study/i18n/messages/en";
 import {
   candidateToRecommendation,
   recommendFromLearningState,
@@ -14,14 +16,16 @@ export async function getLearningStateForLearner(learnerId: string) {
 }
 
 export async function getNextStudyRecommendation(learnerId: string): Promise<StudyRecommendation | null> {
-  const state = await buildLearningState(learnerId);
+  const [{ t }, state] = await Promise.all([getStudyMessages(), buildLearningState(learnerId)]);
   if (!state) return null;
-  return recommendFromLearningState(state);
+  return recommendFromLearningState(state, t.recommendation);
 }
 
 /** For tests and diagnostics — rank all candidates. */
 export function rankRecommendations(state: LearningState) {
-  return scoreRecommendationCandidates(state).map((c) => candidateToRecommendation(c, state));
+  return scoreRecommendationCandidates(state, en.recommendation).map((c) =>
+    candidateToRecommendation(c, state, en.recommendation),
+  );
 }
 
 const SHOWN_COOLDOWN_MS = 60 * 60 * 1000;

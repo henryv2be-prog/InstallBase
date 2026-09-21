@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { QuizRunner } from "@/study/components/quiz-runner";
+import { useStudyT } from "@/study/components/study-locale-provider";
 import { startSubtopicQuiz } from "@/study/lib/quiz-actions";
 import type { QuizMode } from "@/study/lib/quiz-types";
 
@@ -32,6 +33,7 @@ export function QuizIntro({
   questionsAttempted,
   initialMode = "all",
 }: Props) {
+  const t = useStudyT();
   const [mode, setMode] = useState<QuizMode>(initialMode);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +43,12 @@ export function QuizIntro({
 
   const availableForMode =
     mode === "official" ? officialCount : mode === "practice" ? practiceCount : questionCount;
+
+  const modeOptions = [
+    ["official", t.quiz.official, officialCount, t.quiz.officialHint],
+    ["practice", t.quiz.practiceDrills, practiceCount, t.quiz.practiceHint],
+    ["all", t.quiz.mixed, questionCount, t.quiz.mixedHint],
+  ] as const;
 
   if (started?.ok) {
     return (
@@ -76,29 +84,26 @@ export function QuizIntro({
         <h2 className="mt-2 text-2xl font-extrabold tracking-tight">{subtopicName}</h2>
         <p className="mt-3 text-sm text-[var(--study-muted)]">
           {masteryPct != null ? (
-            <>
-              Mastery{" "}
-              <span className="font-extrabold text-[var(--study-accent-2)] tabular-nums">
-                {Math.round(masteryPct)}%
-              </span>
-              {questionsAttempted > 0 ? ` · ${questionsAttempted} answered so far` : ""}
-            </>
+            questionsAttempted > 0 ? (
+              t.quiz.introMastery(Math.round(masteryPct), questionsAttempted)
+            ) : (
+              <>
+                {t.common.mastery}{" "}
+                <span className="font-extrabold text-[var(--study-accent-2)] tabular-nums">
+                  {Math.round(masteryPct)}%
+                </span>
+              </>
+            )
           ) : (
-            "Let's measure what you know — one question at a time."
+            t.quiz.introBaseline
           )}
         </p>
       </section>
 
       <section className="mb-5">
-        <p className="study-section-label mb-3">Question type</p>
+        <p className="study-section-label mb-3">{t.quiz.questionType}</p>
         <div className="space-y-2">
-          {(
-            [
-              ["official", "Official NSC", officialCount, "Past paper questions with memo checks"],
-              ["practice", "Practice drills", practiceCount, "Extra reps on this topic"],
-              ["all", "Mixed", questionCount, "Official + practice together"],
-            ] as const
-          ).map(([value, label, count, hint]) => (
+          {modeOptions.map(([value, label, count, hint]) => (
             <button
               key={value}
               type="button"
@@ -108,7 +113,7 @@ export function QuizIntro({
             >
               <span className="font-bold">{label}</span>
               <span className="mt-1 block text-xs text-[var(--study-muted)]">
-                {count} ready · {hint}
+                {t.quiz.readyCount(count)} · {hint}
               </span>
             </button>
           ))}
@@ -117,7 +122,7 @@ export function QuizIntro({
 
       {error ? (
         <div className="study-panel p-4 mb-4 text-sm">
-          <p className="font-bold">Hmm…</p>
+          <p className="font-bold">{t.common.hmm}</p>
           <p className="mt-1 text-[var(--study-muted)]">{error}</p>
         </div>
       ) : null}
@@ -128,7 +133,7 @@ export function QuizIntro({
         disabled={pending || availableForMode === 0}
         onClick={begin}
       >
-        {pending ? "Loading…" : "Let's go"}
+        {pending ? t.quiz.loading : t.quiz.letsGo}
       </button>
     </div>
   );

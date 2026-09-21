@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { StudyLanguageSwitcher } from "@/study/components/study-language-switcher";
 import { StudyShell } from "@/study/components/study-shell";
+import { getStudyMessages } from "@/study/i18n/get-locale";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 
 export const dynamic = "force-dynamic";
@@ -11,26 +13,26 @@ export default async function StudyCoachHomePage() {
     redirect("/study/dashboard");
   }
 
+  const { t } = await getStudyMessages();
+
   return (
     <StudyShell>
       <section className="mb-8 pt-4">
-        <span className="study-pill study-pill--prototype">Matric · NSC · CAPS</span>
+        <span className="study-pill study-pill--prototype">{t.landing.pill}</span>
         <h1 className="study-display mt-5">
-          Don&apos;t worry.
+          {t.landing.titleLine1}
           <br />
-          We&apos;ve got a plan.
+          {t.landing.titleLine2}
         </h1>
-        <p className="study-lead mt-4">
-          Grade 12 Study Coach tells you what to work on next — not another admin dashboard.
-        </p>
+        <p className="study-lead mt-4">{t.landing.lead}</p>
       </section>
 
       <section className="study-panel p-5 mb-8 space-y-3">
-        <p className="font-bold text-lg">About 2 minutes</p>
+        <p className="font-bold text-lg">{t.landing.setupTitle}</p>
         <ul className="space-y-2 text-sm text-[var(--study-muted)]">
-          <li>✓ Your name &amp; subjects</li>
-          <li>✓ Current &amp; target marks</li>
-          <li>✓ NSC exam dates</li>
+          <li>✓ {t.landing.setupBullet1}</li>
+          <li>✓ {t.landing.setupBullet2}</li>
+          <li>✓ {t.landing.setupBullet3}</li>
         </ul>
       </section>
 
@@ -39,11 +41,13 @@ export default async function StudyCoachHomePage() {
           href="/study/onboarding"
           className="study-btn study-btn-primary study-touch-target block w-full text-center"
         >
-          Build my study plan
+          {t.landing.cta}
         </Link>
-        <p className="text-center text-xs text-[var(--study-muted)]">
-          Free · works on your phone · no sign-in required
-        </p>
+        <div>
+          <p className="mb-2 text-center text-xs text-[var(--study-muted)]">{t.profile.language}</p>
+          <StudyLanguageSwitcher />
+        </div>
+        <p className="text-center text-xs text-[var(--study-muted)]">{t.landing.footnote}</p>
       </div>
     </StudyShell>
   );

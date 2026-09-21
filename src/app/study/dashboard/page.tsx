@@ -4,12 +4,13 @@ import { StudyMasteryBar } from "@/study/components/study-mastery-bar";
 import { StudyNextStep } from "@/study/components/study-next-step";
 import { StudyShell } from "@/study/components/study-shell";
 import { daysUntilExam } from "@/study/lib/days-until-exam";
+import { subjectOnTrack } from "@/study/lib/home-helpers";
 import {
-  examCountdownMessage,
-  studyEncouragementLine,
-  studyGreeting,
-  subjectOnTrack,
-} from "@/study/lib/home-helpers";
+  examCountdownFromMessages,
+  studyEncouragementFromMessages,
+  studyGreetingFromMessages,
+} from "@/study/i18n/format";
+import { getStudyMessages } from "@/study/i18n/get-locale";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getLearnerProgressStats } from "@/study/lib/queries";
 import {
@@ -26,6 +27,7 @@ export default async function StudyDashboardPage() {
     redirect("/study/onboarding");
   }
 
+  const { t } = await getStudyMessages();
   const firstName = learner.displayName.split(" ")[0] ?? learner.displayName;
   const [recommendation, activity] = await Promise.all([
     getNextStudyRecommendation(learner.id),
@@ -59,14 +61,20 @@ export default async function StudyDashboardPage() {
   return (
     <StudyShell showNav>
       <header className="mb-5">
-        <p className="text-lg font-bold tracking-tight">{studyGreeting(firstName)}</p>
-        <p className="mt-1 text-base text-[var(--study-muted)]">{studyEncouragementLine()}</p>
+        <p className="text-lg font-bold tracking-tight">
+          {studyGreetingFromMessages(t, firstName)}
+        </p>
+        <p className="mt-1 text-base text-[var(--study-muted)]">
+          {studyEncouragementFromMessages(t)}
+        </p>
         {nextExam ? (
           <p className="mt-3 text-sm">
             <span className="font-bold text-[var(--study-accent-2)] tabular-nums">
               {nextExam.days}
             </span>{" "}
-            <span className="text-[var(--study-muted)]">days until {nextExam.subjectName}</span>
+            <span className="text-[var(--study-muted)]">
+              {t.common.daysUntil(nextExam.subjectName)}
+            </span>
           </p>
         ) : null}
       </header>
@@ -75,37 +83,30 @@ export default async function StudyDashboardPage() {
         <StudyNextStep recommendation={recommendation} />
       ) : (
         <section className="study-panel--mission mb-6 relative z-[1]">
-          <p className="study-section-label mb-2">Your next step</p>
-          <h2 className="text-xl font-bold">Let&apos;s start</h2>
-          <p className="mt-2 text-sm text-[var(--study-muted)]">
-            Answer a few questions so we can learn where you&apos;re strong and where to focus.
-          </p>
+          <p className="study-section-label mb-2">{t.dashboard.nextStep}</p>
+          <h2 className="text-xl font-bold">{t.dashboard.emptyTitle}</h2>
+          <p className="mt-2 text-sm text-[var(--study-muted)]">{t.dashboard.emptyLead}</p>
           <Link
             href="/study/practice"
             className="study-btn study-btn-primary study-touch-target mt-5 block w-full text-center"
           >
-            Start your first session
+            {t.dashboard.emptyCta}
           </Link>
         </section>
       )}
 
       {progressSubject ? (
         <section className="study-panel p-4 mb-5">
-          <p className="study-section-label mb-3">Your progress</p>
+          <p className="study-section-label mb-3">{t.dashboard.progress}</p>
           <StudyMasteryBar
             label={nextExam?.subjectName ?? "Matric"}
             value={progressPct}
             accent={getSubjectTheme(nextExam?.subjectSlug ?? "default").accent}
           />
           <p className="mt-2 text-sm text-[var(--study-muted)]">
-            Target:{" "}
+            {t.common.target}:{" "}
             <span className="font-bold text-[var(--study-text)] tabular-nums">{targetPct}%</span>
-            {recommendation ? (
-              <>
-                {" "}
-                · Coach picked {recommendation.subtopicName} from your recent results
-              </>
-            ) : null}
+            {recommendation ? <> · {t.dashboard.coachPicked(recommendation.subtopicName)}</> : null}
           </p>
         </section>
       ) : null}
@@ -115,19 +116,19 @@ export default async function StudyDashboardPage() {
           {activity.streakDays > 0 ? (
             <div className="study-panel flex-1 p-3 text-center">
               <p className="text-2xl font-extrabold">🔥 {activity.streakDays}</p>
-              <p className="text-xs text-[var(--study-muted)]">day streak</p>
+              <p className="text-xs text-[var(--study-muted)]">{t.dashboard.streak}</p>
             </div>
           ) : null}
           <div className="study-panel flex-1 p-3 text-center">
             <p className="text-2xl font-extrabold tabular-nums">{activity.completedSessions}</p>
-            <p className="text-xs text-[var(--study-muted)]">sessions done</p>
+            <p className="text-xs text-[var(--study-muted)]">{t.dashboard.sessionsDone}</p>
           </div>
         </section>
       )}
 
       {exams.length > 0 ? (
         <section className="mb-4">
-          <p className="study-section-label mb-2">Coming up</p>
+          <p className="study-section-label mb-2">{t.dashboard.comingUp}</p>
           <ul className="study-panel px-4">
             {exams.slice(0, 3).map((exam, i) => {
               const onTrack = subjectOnTrack(exam.current, exam.target, null);
@@ -136,7 +137,7 @@ export default async function StudyDashboardPage() {
                   <div>
                     <p className="font-semibold">{exam.subjectName}</p>
                     <p className="text-xs text-[var(--study-muted)]">
-                      {examCountdownMessage(exam.days, onTrack)}
+                      {examCountdownFromMessages(t, exam.days, onTrack)}
                     </p>
                   </div>
                   <p className="study-stat-xl text-[var(--study-accent-2)]">{exam.days}</p>
@@ -148,11 +149,11 @@ export default async function StudyDashboardPage() {
       ) : null}
 
       <p className="text-center text-xs text-[var(--study-muted)] px-2">
-        Not feeling this topic?{" "}
+        {t.dashboard.override}{" "}
         <Link href="/study/practice" className="font-semibold text-[var(--study-accent-2)] underline">
-          Choose something else
+          {t.dashboard.chooseElse}
         </Link>{" "}
-        — you&apos;re always in control.
+        — {t.dashboard.controlNote}
       </p>
     </StudyShell>
   );

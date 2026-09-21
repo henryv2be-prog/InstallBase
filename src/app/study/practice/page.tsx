@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StudyShell } from "@/study/components/study-shell";
+import { masteryBandLabelFromMessages } from "@/study/i18n/format";
+import { getStudyMessages } from "@/study/i18n/get-locale";
 import { ensurePracticeQuestions } from "@/study/lib/seed-questions";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getPracticeLibraryForLearner, getWeakestMasteries } from "@/study/lib/queries";
-import { getSubjectTheme, masteryBandLabel } from "@/study/lib/subject-theme";
+import { getSubjectTheme } from "@/study/lib/subject-theme";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,7 @@ export default async function StudyPracticePage() {
     redirect("/study/onboarding");
   }
 
+  const { t } = await getStudyMessages();
   await ensurePracticeQuestions();
   const [library, weakest] = await Promise.all([
     getPracticeLibraryForLearner(learner.id),
@@ -23,13 +26,13 @@ export default async function StudyPracticePage() {
   return (
     <StudyShell showNav>
       <header className="mb-5">
-        <h1 className="study-display text-3xl">Practice</h1>
-        <p className="study-lead mt-2">Hit weak areas first — official NSC or extra drills.</p>
+        <h1 className="study-display text-3xl">{t.practice.title}</h1>
+        <p className="study-lead mt-2">{t.practice.lead}</p>
       </header>
 
       {weakest.length > 0 ? (
         <section className="mb-6">
-          <p className="study-section-label mb-2">Needs attention</p>
+          <p className="study-section-label mb-2">{t.progress.needsAttention}</p>
           <ul className="space-y-2">
             {weakest.map((m) => (
               <li key={m.id}>
@@ -37,14 +40,14 @@ export default async function StudyPracticePage() {
                   href={`/study/practice/${m.subtopicId}`}
                   className="study-panel block p-4 active:scale-[0.99] transition"
                 >
-                  <p className="text-xs font-bold text-[var(--study-accent-2)]">This needs some work</p>
+                  <p className="text-xs font-bold text-[var(--study-accent-2)]">{t.practice.needsWork}</p>
                   <p className="mt-1 text-lg font-extrabold">{m.subtopic.name}</p>
                   <p className="text-sm text-[var(--study-muted)]">
                     {m.subtopic.topic.curriculum.subject.name} · {Math.round(m.masteryPct)}% ·{" "}
-                    {masteryBandLabel(m.masteryPct)}
+                    {masteryBandLabelFromMessages(t, m.masteryPct)}
                   </p>
                   <span className="study-btn study-btn-primary study-touch-target mt-3 inline-flex w-full justify-center text-sm">
-                    Practice now
+                    {t.practice.practiceNow}
                   </span>
                 </Link>
               </li>
@@ -53,7 +56,7 @@ export default async function StudyPracticePage() {
         </section>
       ) : null}
 
-      <p className="study-section-label mb-3">All topics</p>
+      <p className="study-section-label mb-3">{t.practice.allTopics}</p>
       <div className="space-y-5">
         {library.map((subject) => {
           const theme = getSubjectTheme(subject.slug);
@@ -80,7 +83,7 @@ export default async function StudyPracticePage() {
                               {sub.masteryPct != null ? `${Math.round(sub.masteryPct)}%` : "—"}
                             </p>
                             {sub.officialCount > 0 ? (
-                              <p className="text-[0.65rem] text-emerald-300/90">NSC</p>
+                              <p className="text-[0.65rem] text-emerald-300/90">{t.common.nsc}</p>
                             ) : null}
                           </div>
                         </Link>
@@ -90,7 +93,7 @@ export default async function StudyPracticePage() {
                             <p className="text-xs text-[var(--study-muted)]">{topic.name}</p>
                             <p className="font-medium">{sub.name}</p>
                           </div>
-                          <span className="study-pill study-pill--soft">Soon</span>
+                          <span className="study-pill study-pill--soft">{t.common.soon}</span>
                         </div>
                       )}
                     </li>

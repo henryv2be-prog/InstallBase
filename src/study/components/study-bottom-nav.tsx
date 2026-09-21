@@ -2,22 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const TABS = [
-  { href: "/study/dashboard", label: "Home", icon: "⌂" },
-  { href: "/study/subjects", label: "Subjects", icon: "◫" },
-  { href: "/study/practice", label: "Practice", icon: "▶" },
-  { href: "/study/progress", label: "Progress", icon: "↗" },
-  { href: "/study/profile", label: "You", icon: "☺" },
-] as const;
+import { useStudyT } from "@/study/components/study-locale-provider";
 
 export function StudyBottomNav() {
   const pathname = usePathname();
+  const t = useStudyT();
+  const TABS = [
+    { href: "/study/dashboard", label: t.nav.home, icon: "⌂" },
+    { href: "/study/subjects", label: t.nav.subjects, icon: "◫" },
+    { href: "/study/practice", label: t.nav.practice, icon: "▶" },
+    { href: "/study/progress", label: t.nav.progress, icon: "↗" },
+    { href: "/study/profile", label: t.nav.profile, icon: "☺" },
+  ] as const;
 
   return (
     <nav
       className="study-tab-bar"
-      aria-label="Study Coach navigation"
+      aria-label={t.nav.aria}
     >
       <ul className="study-tab-bar__list">
         {TABS.map((tab) => {

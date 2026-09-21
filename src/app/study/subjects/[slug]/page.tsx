@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { StudyShell } from "@/study/components/study-shell";
+import { masteryBandLabelFromMessages } from "@/study/i18n/format";
+import { getStudyMessages } from "@/study/i18n/get-locale";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getSubjectMasteryForLearner } from "@/study/lib/queries";
-import {
-  getSubjectTheme,
-  masteryBandEmoji,
-  masteryBandLabel,
-} from "@/study/lib/subject-theme";
+import { getSubjectTheme, masteryBandEmoji } from "@/study/lib/subject-theme";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +18,7 @@ export default async function StudySubjectDetailPage({ params }: Props) {
     redirect("/study/onboarding");
   }
 
+  const { t } = await getStudyMessages();
   const subjects = await getSubjectMasteryForLearner(learner.id);
   const subject = subjects.find((s) => s.subjectSlug === slug);
   if (!subject) notFound();
@@ -30,9 +29,9 @@ export default async function StudySubjectDetailPage({ params }: Props) {
   return (
     <StudyShell
       backHref="/study/subjects"
-      backLabel="Subjects"
+      backLabel={t.nav.subjects}
       title={subject.subjectName}
-      subtitle="Your mastery map"
+      subtitle={t.subjects.masteryMap}
       headerExtra={
         <p className="mt-2 text-4xl font-extrabold tabular-nums" style={{ color: theme.accent }}>
           {overall}%
@@ -41,12 +40,10 @@ export default async function StudySubjectDetailPage({ params }: Props) {
     >
       {subject.topics.length === 0 ? (
         <div className="study-panel p-5 text-center">
-          <p className="font-bold">Topics on the way</p>
-          <p className="mt-2 text-sm text-[var(--study-muted)]">
-            We&apos;re still mapping CAPS topics for this subject. You can still set goals in your profile.
-          </p>
+          <p className="font-bold">{t.subjects.topicsOnWay}</p>
+          <p className="mt-2 text-sm text-[var(--study-muted)]">{t.subjects.topicsOnWayLead}</p>
           <Link href="/study/practice" className="study-btn study-btn-primary study-touch-target mt-5 inline-flex w-full">
-            Browse practice
+            {t.subjects.browsePractice}
           </Link>
         </div>
       ) : (
@@ -73,12 +70,14 @@ export default async function StudySubjectDetailPage({ params }: Props) {
                         >
                           <div className="min-w-0 flex-1">
                             <p className="font-semibold truncate">{sub.name}</p>
-                            <p className="text-xs text-[var(--study-muted)]">{masteryBandLabel(pct)}</p>
+                            <p className="text-xs text-[var(--study-muted)]">
+                              {masteryBandLabelFromMessages(t, pct)}
+                            </p>
                           </div>
                           <div className="text-right shrink-0">
                             <p className="font-extrabold tabular-nums">{pct}%</p>
                             {weak ? (
-                              <p className="text-xs font-bold text-[var(--study-accent-2)]">Practice</p>
+                              <p className="text-xs font-bold text-[var(--study-accent-2)]">{t.subjects.practice}</p>
                             ) : null}
                           </div>
                         </Link>

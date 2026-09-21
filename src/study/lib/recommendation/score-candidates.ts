@@ -1,4 +1,6 @@
 import { StudyRecommendationAction } from "@/generated/prisma/client";
+import type { RecommendationCopy } from "@/study/i18n/types";
+import { en } from "@/study/i18n/messages/en";
 import type { LearningState, StudyRecommendation, TopicMasteryState } from "@/study/lib/learner-model/types";
 import { estimateSessionMinutes } from "@/study/lib/home-helpers";
 import { QUIZ_SIZE } from "@/study/lib/quiz-types";
@@ -103,7 +105,10 @@ function suggestedMode(
 }
 
 /** Deterministic ranking — same inputs always yield same order. */
-export function scoreRecommendationCandidates(state: LearningState): ScoredCandidate[] {
+export function scoreRecommendationCandidates(
+  state: LearningState,
+  copy: RecommendationCopy = en.recommendation,
+): ScoredCandidate[] {
   const now = state.generatedAt;
   const byId = new Map(state.topics.map((t) => [t.subtopicId, t]));
   const subjectById = new Map(state.profile.subjects.map((s) => [s.subjectId, s]));
@@ -167,41 +172,37 @@ export function scoreRecommendationCandidates(state: LearningState): ScoredCandi
     const reasonDetail: string[] = [];
 
     if (examDays != null && examDays <= 21) {
-      reasonDetail.push(
-        `Your ${topic.subjectName} exam is in ${examDays} day${examDays === 1 ? "" : "s"}.`,
-      );
+      reasonDetail.push(copy.examSoon(topic.subjectName, examDays));
     }
 
     if (action === StudyRecommendationAction.REVISIT_PREREQUISITE && prereq) {
       reasonDetail.push(
-        `${prereq.subtopicName} is at ${Math.round(prereq.masteryPct)}% — strengthening it will help with ${topic.subtopicName}.`,
+        copy.strengthenPrereq(
+          prereq.subtopicName,
+          Math.round(prereq.masteryPct),
+          topic.subtopicName,
+        ),
       );
     } else if (topic.recentAttemptScores.length >= 3) {
       const lastThree = topic.recentAttemptScores.slice(0, 3);
       const avg = Math.round(lastThree.reduce((a, b) => a + b, 0) / lastThree.length);
       if (avg < 50) {
-        reasonDetail.push(
-          `Your last ${lastThree.length} attempts averaged ${avg}% on this topic.`,
-        );
+        reasonDetail.push(copy.recentAttemptsLow(lastThree.length, avg));
       }
     }
 
     if (topic.masteryPct < WEAK_MASTERY && topic.questionsAttempted > 0) {
-      reasonDetail.push(
-        `This is one of your bigger gaps right now (${Math.round(topic.masteryPct)}% mastery).`,
-      );
+      reasonDetail.push(copy.bigGap(Math.round(topic.masteryPct)));
     } else if (topic.questionsAttempted === 0) {
-      reasonDetail.push(`We haven't measured this topic from your answers yet — let's get a baseline.`);
+      reasonDetail.push(copy.noBaseline());
     }
 
     if (topic.improvementTrend != null && topic.improvementTrend > 8) {
-      reasonDetail.push(`You're improving here — keep the momentum going.`);
+      reasonDetail.push(copy.improving());
     }
 
     if (reasonDetail.length === 0) {
-      reasonDetail.push(
-        `Based on your targets and recent practice, this is the best use of your time right now.`,
-      );
+      reasonDetail.push(copy.defaultReason());
     }
 
     candidates.push({
@@ -217,12 +218,16 @@ export function scoreRecommendationCandidates(state: LearningState): ScoredCandi
   return candidates;
 }
 
-export function candidateToRecommendation(candidate: ScoredCandidate, state: LearningState): StudyRecommendation {
+export function candidateToRecommendation(
+  candidate: ScoredCandidate,
+  state: LearningState,
+  copy: RecommendationCopy = en.recommendation,
+): StudyRecommendation {
   const subject = state.profile.subjects.find((s) => s.subjectId === candidate.topic.subjectId);
   const summary =
     candidate.action === StudyRecommendationAction.REVISIT_PREREQUISITE
-      ? `Let's strengthen ${candidate.topic.subtopicName} first.`
-      : candidate.reasonDetail[0] ?? `Focus on ${candidate.topic.subtopicName}.`;
+      ? copy.summaryStrengthen(candidate.topic.subtopicName)
+      : candidate.reasonDetail[0] ?? copy.summaryFocus(candidate.topic.subtopicName);
 
   return {
     action: candidate.action,
@@ -242,9 +247,12 @@ export function candidateToRecommendation(candidate: ScoredCandidate, state: Lea
   };
 }
 
-export function recommendFromLearningState(state: LearningState): StudyRecommendation | null {
-  const scored = scoreRecommendationCandidates(state);
+export function recommendFromLearningState(
+  state: LearningState,
+  copy: RecommendationCopy = en.recommendation,
+): StudyRecommendation | null {
+  const scored = scoreRecommendationCandidates(state, copy);
   const top = scored[0];
   if (!top) return null;
-  return candidateToRecommendation(top, state);
+  return candidateToRecommendation(top, state, copy);
 }

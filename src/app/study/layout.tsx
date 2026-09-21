@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { StudyBodyChrome } from "@/study/components/study-body-chrome";
+import { StudyLocaleProvider } from "@/study/components/study-locale-provider";
+import { getStudyMessages } from "@/study/i18n/get-locale";
 import "./study.css";
 
 const studyFont = Plus_Jakarta_Sans({
@@ -31,11 +33,14 @@ export const viewport: Viewport = {
   themeColor: "#07070f",
 };
 
-export default function StudyCoachLayout({ children }: { children: React.ReactNode }) {
+export default async function StudyCoachLayout({ children }: { children: React.ReactNode }) {
+  const { locale, t } = await getStudyMessages();
   return (
-    <div className={`study-coach ${studyFont.variable}`}>
+    <div lang={t.langTag} className={`study-coach ${studyFont.variable}`}>
       <StudyBodyChrome />
-      {children}
+      <StudyLocaleProvider locale={locale} t={t}>
+        {children}
+      </StudyLocaleProvider>
     </div>
   );
 }
