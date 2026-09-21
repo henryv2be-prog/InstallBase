@@ -5,9 +5,30 @@ export type RecommendationCopy = {
   recentAttemptsLow: (count: number, avg: number) => string;
   bigGap: (pct: number) => string;
   noBaseline: () => string;
+  lightPractice: (attempts: number) => string;
   improving: () => string;
   defaultReason: () => string;
   examSoon: (subject: string, days: number) => string;
+  subjectMarkGap: (subject: string, current: number, target: number, gap: number) => string;
+  topicLevel: (subtopic: string, masteryPct: number, target: number) => string;
+  highExamWeight: (topic: string) => string;
+  solidExamWeight: (topic: string) => string;
+  examCountdown: (subject: string, days: number) => string;
+  examDateUnknown: (subject: string) => string;
+  encouragement: (
+    subtopic: string,
+    subjectGap: number,
+    examDays: number | null,
+    neverPractised: boolean,
+  ) => string;
+  weeklyFocusHeadline: (subject: string, gap: number, target: number) => string;
+  weeklyFocusDetail: (
+    subject: string,
+    gap: number,
+    examDays: number | null,
+    neverPractisedCount: number,
+    weakTopicCount: number,
+  ) => string;
   summaryStrengthen: (name: string) => string;
   summaryFocus: (name: string) => string;
 };
@@ -63,6 +84,7 @@ export type StudyMessages = {
     seeTopics: string;
     nextStep: string;
     nextStepLead: string;
+    weeklyFocus: string;
     emptyTitle: string;
     emptyLead: string;
     emptyCta: string;
@@ -108,6 +130,7 @@ export type StudyMessages = {
     matricGoals: string;
     inRange: string;
     toGo: (pct: number) => string;
+    weeklyFocus: string;
     gettingStronger: string;
     emptyTitle: string;
     emptyLead: string;

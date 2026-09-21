@@ -58,6 +58,7 @@ export const af: StudyMessages = {
     seeTopics: "Sien onderwerpe",
     nextStep: "Beste volgende ding",
     nextStepLead: "Gebaseer op jou punte, eksamens en onlangse oefening.",
+    weeklyFocus: "Hierdie week se fokus",
     emptyTitle: "Kom ons vind jou beginpunt",
     emptyLead: "Doen 'n kort oefen-rondte sodat ons weet waar om te fokus.",
     emptyCta: "Begin oefen",
@@ -103,6 +104,7 @@ export const af: StudyMessages = {
     matricGoals: "Matriek-doelwitte",
     inRange: "Jy is op koers",
     toGo: (pct) => `${pct}% om te gaan`,
+    weeklyFocus: "Hierdie week se fokus",
     gettingStronger: "Word sterker",
     emptyTitle: "Kom ons begin",
     emptyLead: "Jou eerste studie-sessie sal hier verskyn.",
@@ -222,14 +224,127 @@ export const af: StudyMessages = {
     examSoon: (subject, days) =>
       `${subject}-eksamen oor ${days} dag${days === 1 ? "" : "e"} — goeie tyd om te oefen.`,
     strengthenPrereq: (prereq, pct, topic) =>
-      `${prereq} is net ${pct}%. Sorteer dit eers — dit help met ${topic}.`,
+      prereq + " is net " + pct + " persent. Sorteer dit eers — dit help met " + topic + ".",
     recentAttemptsLow: (count, avg) =>
-      `Jou laaste ${count} pogings hier was gemiddeld ${avg}%.`,
-    bigGap: (pct) => `Jy is op ${pct}% hier — een van jou swakker plekke.`,
-    noBaseline: () => "Jy het nog nie hier oefen nie — kom ons sien waar jy staan.",
+      "Jou laaste " + count + " pogings hier was gemiddeld " + avg + " persent.",
+    bigGap: (pct) => `Jy is op ongeveer ${pct}% op hierdie onderwerp — nog spasie om te groei.`,
+    noBaseline: () =>
+      "Jy het nog nie hierdie onderwerp geoefen nie — 'n kort sessie wys waar jy staan.",
+    lightPractice: (attempts) =>
+      "Slegs " +
+      attempts +
+      " vraag" +
+      (attempts === 1 ? "" : "e") +
+      " hier sover — meer oefening skerp die prent.",
     improving: () => "Jy verbeter hier — hou aan.",
     defaultReason: () => "Dit pas by jou punte, eksamens en wat jy onlangs oefen.",
-    summaryStrengthen: (name) => `Begin met ${name}.`,
-    summaryFocus: (name) => `Werk volgende aan ${name}.`,
+    subjectMarkGap: (subject, current, target, gap) => {
+      if (gap <= 0) {
+        return (
+          subject +
+          ": jy is op ~" +
+          current +
+          "% en naby jou " +
+          target +
+          "% teiken — goeie basis."
+        );
+      }
+      return (
+        subject +
+        ": jy is op ~" +
+        current +
+        "% met n " +
+        target +
+        "% teiken — ongeveer " +
+        gap +
+        "% nog om te sluit."
+      );
+    },
+    topicLevel: (subtopic, masteryPct, target) => {
+      return (
+        "Op " +
+        subtopic +
+        ": jou oefen-skatting is ~" +
+        masteryPct +
+        " persent; teiken vir die vak is ~" +
+        target +
+        " persent."
+      );
+    },
+    highExamWeight: (topic) =>
+      topic + " is n swaar gewig in matriek — tyd hier betaal gewoonlik af in die finale eksamen.",
+    solidExamWeight: (topic) =>
+      topic + " dra ordentlike eksamen-gewig — hou dit op jou radar.",
+    examCountdown: (subject, days) => {
+      if (days <= 0) {
+        return subject + "-eksamendatum is verby — werk jou profiel by indien nodig.";
+      }
+      if (days === 1) {
+        return subject + "-eksamen is môre — gefokusde oefening help nog steeds.";
+      }
+      return subject + "-eksamen oor " + days + " dae — genoeg tyd vir betekenisvolle vordering.";
+    },
+    examDateUnknown: (subject) =>
+      "Voeg jou " + subject + "-eksamendatum by vir skerper tydsberekening — ons prioritiseer steeds jou grootste gapings.",
+    encouragement: (subtopic, subjectGap, examDays, neverPractised) => {
+      if (neverPractised) {
+        return (
+          "n Gefokusde sessie op " +
+          subtopic +
+          " is n slim manier om n gaping te karteer sonder om oorweldig te voel."
+        );
+      }
+      if (subjectGap >= 15 && examDays != null && examDays <= 42) {
+        return (
+          "Bestendige werk aan " +
+          subtopic +
+          " help nou om jou puntteling-gap te sluit — een stap op n slag."
+        );
+      }
+      if (subjectGap >= 10) {
+        return subtopic + " is nou n hoë-opbrengs keuse — klein wenke hier tel op oor die vraestel.";
+      }
+      return (
+        "Jy bou momentum — " +
+        subtopic +
+        " pas by waar jy vandag is. Moenie stress nie; begin net."
+      );
+    },
+    weeklyFocusHeadline: (subject, gap, target) =>
+      "Prioritiseer " +
+      subject +
+      " hierdie week — ~" +
+      gap +
+      " persent na jou " +
+      target +
+      " persent teiken.",
+    weeklyFocusDetail: (subject, gap, examDays, neverPractisedCount, weakTopicCount) => {
+      const parts: string[] = [];
+      if (examDays != null && examDays > 0) {
+        parts.push(
+          examDays + " dag" + (examDays === 1 ? "" : "e") + " tot eksamen",
+        );
+      }
+      if (neverPractisedCount > 0) {
+        parts.push(
+          neverPractisedCount +
+            " onderwerp" +
+            (neverPractisedCount === 1 ? "" : "e") +
+            " nog nie probeer nie",
+        );
+      }
+      if (weakTopicCount > 0) {
+        parts.push(weakTopicCount + " onder jou teiken");
+      }
+      const tail = parts.length > 0 ? " (" + parts.join(" · ") + ")" : "";
+      return (
+        "Jou grootste puntteling-gap is in " +
+        subject +
+        tail +
+        ". Selfs twee kort sessies kan help."
+      );
+    },
+    summaryStrengthen: (name) => "Begin met " + name,
+    summaryFocus: (name) => "Werk volgende aan " + name,
   },
 };

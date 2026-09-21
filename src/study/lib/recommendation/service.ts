@@ -10,6 +10,8 @@ import {
   recommendFromLearningState,
   scoreRecommendationCandidates,
 } from "@/study/lib/recommendation/score-candidates";
+import { getWeeklyStudyFocus } from "@/study/lib/recommendation/weekly-study-focus";
+import type { WeeklyStudyFocus } from "@/study/lib/recommendation/weekly-study-focus";
 
 export async function getLearningStateForLearner(learnerId: string) {
   return buildLearningState(learnerId);
@@ -22,6 +24,15 @@ export async function getNextStudyRecommendation(learnerId: string): Promise<Stu
   ]);
   if (!state) return null;
   return recommendFromLearningState(state, t.recommendation, locale);
+}
+
+export async function getWeeklyFocusForLearner(learnerId: string): Promise<WeeklyStudyFocus | null> {
+  const [{ locale, t }, state] = await Promise.all([
+    getStudyMessages(),
+    buildLearningState(learnerId),
+  ]);
+  if (!state) return null;
+  return getWeeklyStudyFocus(state, t.recommendation, locale);
 }
 
 /** For tests and diagnostics — rank all candidates. */

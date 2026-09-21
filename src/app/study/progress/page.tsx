@@ -4,8 +4,10 @@ import { StudyMasteryBar } from "@/study/components/study-mastery-bar";
 import { StudyShell } from "@/study/components/study-shell";
 import { getStudyMessages } from "@/study/i18n/get-locale";
 import { localizeFromSubtopicGraph, localizeSubjectName } from "@/study/i18n/localize-content";
+import { StudyWeeklyFocus } from "@/study/components/study-weekly-focus";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { getLearnerProgressStats, getWeakestMasteries } from "@/study/lib/queries";
+import { getWeeklyFocusForLearner } from "@/study/lib/recommendation/service";
 import { getSubjectTheme } from "@/study/lib/subject-theme";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +19,9 @@ export default async function StudyProgressPage() {
   }
 
   const { locale, t } = await getStudyMessages();
-  const [stats, weakest, improving] = await Promise.all([
+  const [stats, weeklyFocus, weakest, improving] = await Promise.all([
     getLearnerProgressStats(learner.id),
+    getWeeklyFocusForLearner(learner.id),
     getWeakestMasteries(learner.id, 3),
     getWeakestMasteries(learner.id, 20),
   ]);
@@ -67,6 +70,10 @@ export default async function StudyProgressPage() {
           })}
         </ul>
       </section>
+
+      {weeklyFocus ? (
+        <StudyWeeklyFocus focus={weeklyFocus} sectionLabel={t.progress.weeklyFocus} />
+      ) : null}
 
       {best.length > 0 ? (
         <section className="mb-5">

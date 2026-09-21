@@ -58,6 +58,7 @@ export const en: StudyMessages = {
     seeTopics: "See topics",
     nextStep: "Best thing to do next",
     nextStepLead: "Based on your marks, exams, and recent practice.",
+    weeklyFocus: "This week's focus",
     emptyTitle: "Let's find your starting point",
     emptyLead: "Do a short practice round so we can see what to focus on.",
     emptyCta: "Start practice",
@@ -103,6 +104,7 @@ export const en: StudyMessages = {
     matricGoals: "Matric goals",
     inRange: "You're in range",
     toGo: (pct) => `${pct}% to go`,
+    weeklyFocus: "This week's focus",
     gettingStronger: "Getting stronger",
     emptyTitle: "Let's start",
     emptyLead: "Your first study session will appear here.",
@@ -224,10 +226,60 @@ export const en: StudyMessages = {
       `${prereq} is only at ${pct}%. Nail that first — it helps with ${topic}.`,
     recentAttemptsLow: (count, avg) =>
       `Your last ${count} tries here averaged ${avg}%.`,
-    bigGap: (pct) => `You're at ${pct}% here — one of your weaker spots.`,
-    noBaseline: () => "You haven't practiced this yet — let's see where you're at.",
+    bigGap: (pct) => `You're at about ${pct}% on this topic — room to grow.`,
+    noBaseline: () => "You haven't practiced this topic yet — a short session will show where you stand.",
+    lightPractice: (attempts) =>
+      `Only ${attempts} question${attempts === 1 ? "" : "s"} tried here so far — more practice will sharpen your picture.`,
     improving: () => "You're improving here — keep going.",
     defaultReason: () => "This fits your marks, exams, and what you've been practicing.",
+    subjectMarkGap: (subject, current, target, gap) =>
+      gap <= 0
+        ? `${subject}: you're at ~${current}% and already near your ${target}% target — great base to build on.`
+        : `${subject}: you're at ~${current}% with a ${target}% target — about ${gap}% still to close on your overall mark.`,
+    topicLevel: (subtopic, masteryPct, target) =>
+      `On "${subtopic}", your practice estimate is ~${masteryPct}% (aiming for ~${target}% overall in this subject).`,
+    highExamWeight: (topic) =>
+      `${topic} is a high-weight area in matric — time here usually pays off in the final exam.`,
+    solidExamWeight: (topic) =>
+      `${topic} carries solid exam weight — worth keeping on your radar.`,
+    examCountdown: (subject, days) =>
+      days <= 0
+        ? `${subject} exam date has passed — update your profile if needed, or keep consolidating.`
+        : days === 1
+          ? `${subject} exam is tomorrow — focused practice still helps.`
+          : `${subject} exam in ${days} days — enough time for meaningful progress if you stay consistent.`,
+    examDateUnknown: (subject) =>
+      `Add your ${subject} exam date in your profile for sharper timing — we'll still prioritise your biggest gaps.`,
+    encouragement: (subtopic, subjectGap, examDays, neverPractised) => {
+      if (neverPractised) {
+        return `A focused session on ${subtopic} is a smart way to map a gap without overwhelming yourself.`;
+      }
+      if (subjectGap >= 15 && examDays != null && examDays <= 42) {
+        return `Steady work on ${subtopic} now helps close your mark gap before the exam — one step at a time.`;
+      }
+      if (subjectGap >= 10) {
+        return `${subtopic} is a high-return choice right now — small wins here add up across the paper.`;
+      }
+      return `You're building momentum — ${subtopic} fits where you are today. Don't stress; just start.`;
+    },
+    weeklyFocusHeadline: (subject, gap, target) =>
+      `Prioritise ${subject} this week — ~${gap}% to your ${target}% target.`,
+    weeklyFocusDetail: (subject, gap, examDays, neverPractisedCount, weakTopicCount) => {
+      const parts: string[] = [];
+      if (examDays != null && examDays > 0) {
+        parts.push(`${examDays} day${examDays === 1 ? "" : "s"} until the exam`);
+      }
+      if (neverPractisedCount > 0) {
+        parts.push(
+          `${neverPractisedCount} topic${neverPractisedCount === 1 ? "" : "s"} not tried yet`,
+        );
+      }
+      if (weakTopicCount > 0) {
+        parts.push(`${weakTopicCount} below where you want to be`);
+      }
+      const tail = parts.length > 0 ? ` (${parts.join(" · ")})` : "";
+      return `Your biggest mark gap is in ${subject}${tail}. Even two short sessions can shift your confidence.`;
+    },
     summaryStrengthen: (name) => `Start with ${name}.`,
     summaryFocus: (name) => `Work on ${name} next.`,
   },

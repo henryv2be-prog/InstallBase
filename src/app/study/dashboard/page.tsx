@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StudyMasteryBar } from "@/study/components/study-mastery-bar";
 import { StudyNextStep } from "@/study/components/study-next-step";
+import { StudyWeeklyFocus } from "@/study/components/study-weekly-focus";
 import { StudyShell } from "@/study/components/study-shell";
 import { daysUntilExam } from "@/study/lib/days-until-exam";
 import { subjectOnTrack } from "@/study/lib/home-helpers";
@@ -16,6 +17,7 @@ import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learn
 import { getLearnerProgressStats } from "@/study/lib/queries";
 import {
   getNextStudyRecommendation,
+  getWeeklyFocusForLearner,
   logRecommendationShown,
 } from "@/study/lib/recommendation/service";
 import { getSubjectTheme } from "@/study/lib/subject-theme";
@@ -30,8 +32,9 @@ export default async function StudyDashboardPage() {
 
   const { locale, t } = await getStudyMessages();
   const firstName = learner.displayName.split(" ")[0] ?? learner.displayName;
-  const [recommendation, activity] = await Promise.all([
+  const [recommendation, weeklyFocus, activity] = await Promise.all([
     getNextStudyRecommendation(learner.id),
+    getWeeklyFocusForLearner(learner.id),
     getLearnerProgressStats(learner.id),
   ]);
 
@@ -74,6 +77,10 @@ export default async function StudyDashboardPage() {
           </p>
         ) : null}
       </header>
+
+      {weeklyFocus ? (
+        <StudyWeeklyFocus focus={weeklyFocus} sectionLabel={t.dashboard.weeklyFocus} />
+      ) : null}
 
       <section className="study-panel p-4 mb-5">
         <p className="study-section-label mb-1">{t.dashboard.yourSubjects}</p>

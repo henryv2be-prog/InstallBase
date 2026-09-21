@@ -81,6 +81,8 @@ export type StudyRecommendation = {
   priorityScore: number;
   reasonSummary: string;
   reasonDetail: string[];
+  /** Calm closing line for “Why this one?” */
+  reasonEncouragement: string;
   examDays: number | null;
   masteryPct: number;
   suggestedQuizMode: "all" | "official" | "practice";

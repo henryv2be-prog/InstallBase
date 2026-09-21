@@ -48,11 +48,18 @@ export function StudyNextStep({ recommendation }: Props) {
         <summary className="cursor-pointer text-sm font-bold study-text-link">
           {t.nextStep.why}
         </summary>
-        <ul className="mt-3 space-y-2 text-sm text-[var(--study-muted)]">
+        <ul className="mt-3 space-y-2.5 text-sm text-[var(--study-muted)] leading-relaxed">
           {recommendation.reasonDetail.map((line) => (
-            <li key={line}>• {line}</li>
+            <li key={line} className="pl-0.5">
+              {line}
+            </li>
           ))}
         </ul>
+        {recommendation.reasonEncouragement ? (
+          <p className="mt-4 text-sm leading-relaxed text-[var(--study-text)] border-t border-[var(--study-border)] pt-3">
+            {recommendation.reasonEncouragement}
+          </p>
+        ) : null}
       </details>
     </section>
   );
