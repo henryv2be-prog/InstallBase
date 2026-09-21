@@ -8,7 +8,7 @@
   --app-mobile-nav-reserve: 4.75rem;
   /* Glass dock on watch: lift above home indicator / Android gesture bar */
   --app-mobile-nav-glass-dock-h: 3.625rem;
-  --app-mobile-nav-watch-edge: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  --app-mobile-nav-watch-edge: calc(1.25rem + env(safe-area-inset-bottom, 0px));
   --app-mobile-nav-watch-total: calc(
     var(--app-mobile-nav-glass-dock-h) + var(--app-mobile-nav-watch-edge)
   );
