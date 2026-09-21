@@ -19,6 +19,7 @@ import { Users } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ReengagementOpenTracker } from "@/components/reengagement/open-tracker";
+import { WatchInstallsFeedEntry } from "@/components/feed/watch-installs-promo";
 
 export const metadata = { title: "Feed" };
 export const dynamic = "force-dynamic";
@@ -70,15 +71,10 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         {showFollowSuggestions ? <FollowSuggestions userId={userId} /> : null}
 
         <div>
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <p className="text-sm font-medium text-foreground">Feed view</p>
-            <Link
-              href={`/feed/watch?tab=${followingTab ? "following" : "popular"}`}
-              className="rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 px-4 py-2 text-xs font-semibold text-white shadow-sm"
-            >
-              Watch installs
-            </Link>
-          </div>
+          <WatchInstallsFeedEntry
+            watchHref={`/feed/watch?tab=${followingTab ? "following" : "popular"}`}
+            waitForWelcomeDismiss={Boolean(userId)}
+          />
           <div className="flex rounded-xl bg-card/60 p-1 border border-border">
             <Link
               href="/feed?tab=popular"

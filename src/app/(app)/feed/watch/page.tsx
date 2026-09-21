@@ -8,6 +8,7 @@ import {
 import { ImmersiveFeed } from "@/components/feed/immersive/immersive-feed";
 import { cn } from "@/lib/utils";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
+import { WatchInstallsPromoSeenOnMount } from "@/components/feed/watch-installs-promo";
 
 export const metadata = { title: "Watch installs" };
 export const dynamic = "force-dynamic";
@@ -34,6 +35,7 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
 
   return (
     <div className="immersive-feed-root -mx-3 flex flex-col sm:-mx-4 lg:mx-auto lg:max-w-6xl lg:flex-row lg:gap-6 xl:-mx-0">
+      <WatchInstallsPromoSeenOnMount />
       <div className="flex shrink-0 items-center justify-between gap-2 px-3 py-2 lg:hidden">
         <Link href="/feed" className="text-sm font-medium text-muted hover:text-foreground">
           Classic feed
