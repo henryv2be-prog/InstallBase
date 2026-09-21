@@ -1,5 +1,5 @@
 import "server-only";
-import { StudyContentSourceKind } from "@/generated/prisma/client";
+import { StudyContentSourceKind, StudyOfficialVerificationStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type StudySubjectWithCurriculum = Awaited<ReturnType<typeof getStudySubjectsWithTopics>>[number];
@@ -47,7 +47,10 @@ export async function getPracticeLibraryForLearner(learnerId: string) {
               subtopics: {
                 orderBy: { sortOrder: "asc" },
                 include: {
-                  questions: { where: { active: true }, select: { sourceKind: true } },
+                  questions: {
+                    where: { active: true },
+                    select: { sourceKind: true, verificationStatus: true },
+                  },
                 },
               },
             },
@@ -66,7 +69,9 @@ export async function getPracticeLibraryForLearner(learnerId: string) {
       subtopics: topic.subtopics.map((sub) => {
         const mastery = masteryBySubtopic.get(sub.id);
         const officialCount = sub.questions.filter(
-          (q) => q.sourceKind === StudyContentSourceKind.OFFICIAL_PAST_PAPER,
+          (q) =>
+            q.sourceKind === StudyContentSourceKind.OFFICIAL_PAST_PAPER &&
+            q.verificationStatus === StudyOfficialVerificationStatus.VERIFIED,
         ).length;
         const practiceCount = sub.questions.filter(
           (q) => q.sourceKind === StudyContentSourceKind.PRACTICE,

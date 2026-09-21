@@ -838,6 +838,20 @@ enum StudyPriorityBand {
   ON_TRACK
 }
 
+enum StudyNscExamSession {
+  NOVEMBER
+  MAY_JUNE
+  SUPPLEMENTARY
+  OTHER
+}
+
+enum StudyOfficialVerificationStatus {
+  DRAFT
+  PENDING_REVIEW
+  VERIFIED
+  REJECTED
+}
+
 model StudySubject {
   id          String   @id @default(cuid())
   slug        String   @unique
@@ -852,6 +866,7 @@ model StudySubject {
   curricula       StudyCurriculum[]
   learnerSubjects StudyLearnerSubject[]
   questions       StudyQuestion[]
+  nscPapers       StudyNscPaper[]
 }
 
 model StudyCurriculum {
@@ -976,34 +991,78 @@ model StudyMastery {
   @@index([learnerId])
 }
 
+model StudyQuestionImportBatch {
+  id                  String                          @id
+  slug                String                          @unique
+  label               String
+  sourceDocumentTitle String?
+  verificationStatus  StudyOfficialVerificationStatus @default(PENDING_REVIEW)
+  verifiedAt          DateTime?
+  verificationNotes   String?                         @db.Text
+  importedAt          DateTime                        @default(now())
+  updatedAt           DateTime                        @updatedAt
+
+  nscPaper  StudyNscPaper?
+  questions StudyQuestion[]
+}
+
+model StudyNscPaper {
+  id                String              @id @default(cuid())
+  subjectId         String
+  examYear          Int
+  examSession       StudyNscExamSession
+  paperNumber       Int
+  title             String
+  questionPaperUrl  String?
+  memorandumUrl     String?
+  dbePortalUrl      String?
+  importBatchId     String              @unique
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  subject     StudySubject               @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  importBatch StudyQuestionImportBatch   @relation(fields: [importBatchId], references: [id], onDelete: Cascade)
+  questions   StudyQuestion[]
+
+  @@unique([subjectId, examYear, examSession, paperNumber])
+  @@index([subjectId, examYear])
+}
+
 model StudyQuestion {
-  id              String                 @id @default(cuid())
-  subjectId       String
-  subtopicId      String
-  type            StudyQuestionType      @default(MULTIPLE_CHOICE)
-  difficulty      Int                    @default(3)
-  prompt          String                 @db.Text
-  options         Json
-  correctOptionId String
-  explanation     String?                @db.Text
+  id                 String                           @id @default(cuid())
+  subjectId          String
+  subtopicId         String
+  nscPaperId         String?
+  importBatchId      String?
+  type               StudyQuestionType                @default(MULTIPLE_CHOICE)
+  difficulty         Int                              @default(3)
+  prompt             String                           @db.Text
+  options            Json
+  correctOptionId    String
+  explanation        String?                          @db.Text
   sourceKind         StudyContentSourceKind
-  sourceLabel        String?
+  sourceLabel        String?                          @unique
   sourceYear         Int?
   sourcePaperNumber  Int?
   sourceQuestionRef  String?
   officialSourceUrl  String?
   correctAnswerText  String?
   acceptableAnswers  Json?
-  active             Boolean                @default(true)
-  createdAt       DateTime               @default(now())
-  updatedAt       DateTime               @updatedAt
+  verificationStatus StudyOfficialVerificationStatus?
+  active             Boolean                          @default(true)
+  createdAt          DateTime                         @default(now())
+  updatedAt          DateTime                         @updatedAt
 
-  subject  StudySubject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  subtopic StudySubtopic          @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
-  attempts StudyQuestionAttempt[]
+  subject      StudySubject              @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subtopic     StudySubtopic             @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+  nscPaper     StudyNscPaper?            @relation(fields: [nscPaperId], references: [id], onDelete: SetNull)
+  importBatch  StudyQuestionImportBatch? @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
+  attempts     StudyQuestionAttempt[]
 
   @@index([subtopicId, active])
   @@index([subjectId])
+  @@index([importBatchId])
+  @@index([verificationStatus, sourceKind])
 }
 
 model StudyAssessmentSession {

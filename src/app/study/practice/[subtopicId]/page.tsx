@@ -6,7 +6,7 @@ import { ensurePracticeQuestions } from "@/study/lib/seed-questions";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { prisma } from "@/lib/prisma";
 import type { QuizMode } from "@/study/lib/quiz-types";
-import { StudyContentSourceKind } from "@/generated/prisma/client";
+import { StudyContentSourceKind, StudyOfficialVerificationStatus } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +35,10 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
     where: { id: subtopicId },
     include: {
       topic: { include: { curriculum: { include: { subject: true } } } },
-      questions: { where: { active: true }, select: { sourceKind: true } },
+      questions: {
+        where: { active: true },
+        select: { sourceKind: true, verificationStatus: true },
+      },
     },
   });
 
@@ -81,8 +84,11 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
           subtopicName={subtopic.name}
           questionCount={subtopic.questions.length}
           officialCount={
-            subtopic.questions.filter((q) => q.sourceKind === StudyContentSourceKind.OFFICIAL_PAST_PAPER)
-              .length
+            subtopic.questions.filter(
+              (q) =>
+                q.sourceKind === StudyContentSourceKind.OFFICIAL_PAST_PAPER &&
+                q.verificationStatus === StudyOfficialVerificationStatus.VERIFIED,
+            ).length
           }
           practiceCount={
             subtopic.questions.filter((q) => q.sourceKind === StudyContentSourceKind.PRACTICE).length

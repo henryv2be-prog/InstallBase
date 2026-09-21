@@ -1,0 +1,31 @@
+{
+  "batchSlug": "2022-mathematical-literacy-p1-november",
+  "label": "NSC November 2022 · Mathematical Literacy Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Mathematical Literacy Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Verified against DBE published memorandum."
+  },
+  "paper": {
+    "subjectSlug": "mathematical-literacy",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Mathematical Literacy Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "finance",
+      "subtopicSlug": "interest-and-loans",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mathematical Literacy Paper 1 · Question 1.1\n\nCalculate the simple interest on R12 000 invested at 9% per annum for 2 years.",
+      "correctAnswerText": "2160",
+      "acceptableAnswers": ["R2160", "R 2160", "2160 rand"],
+      "explanation": "Simple interest I = P × r × t = 12 000 × 0.09 × 2 = R2 160."
+    }
+  ]
+}

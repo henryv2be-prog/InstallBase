@@ -1,0 +1,36 @@
+{
+  "batchSlug": "2021-mathematics-p1-november",
+  "label": "NSC November 2021 · Mathematics Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2021 Mathematics Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Verified against DBE published memorandum (selected items for prototype import pipeline)."
+  },
+  "paper": {
+    "subjectSlug": "mathematics",
+    "examYear": 2021,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Mathematics Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "4.1",
+      "topicSlug": "functions",
+      "subtopicSlug": "transformations",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2021 · Mathematics Paper 1 · Question 4.1\n\nThe graph of f(x) = x² is shifted 2 units to the right. Which equation represents the new graph?",
+      "options": [
+        { "id": "a", "text": "f(x) = (x − 2)²" },
+        { "id": "b", "text": "f(x) = (x + 2)²" },
+        { "id": "c", "text": "f(x) = x² − 2" },
+        { "id": "d", "text": "f(x) = x² + 2" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Horizontal shift right by 2 units replaces x with (x − 2) in the function rule."
+    }
+  ]
+}

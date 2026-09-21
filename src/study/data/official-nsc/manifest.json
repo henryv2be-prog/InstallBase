@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "batches": [
+    "batches/2022/mathematics-p1-november.json",
+    "batches/2021/mathematics-p1-november.json",
+    "batches/2022/physical-sciences-p1-november.json",
+    "batches/2022/life-sciences-p1-november.json",
+    "batches/2022/mathematical-literacy-p1-november.json"
+  ]
+}

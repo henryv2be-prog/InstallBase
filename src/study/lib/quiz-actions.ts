@@ -1,7 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { StudyContentSourceKind, StudyQuestionType } from "@/generated/prisma/client";
+import {
+  StudyContentSourceKind,
+  StudyOfficialVerificationStatus,
+  StudyQuestionType,
+} from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { answersMatch, buildShortAnswerPatterns } from "@/study/lib/answer-check";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
@@ -10,7 +14,10 @@ import { QUIZ_SIZE, type QuizAnswerInput, type QuizMode, type QuizQuestionClient
 
 function sourceFilter(mode: QuizMode) {
   if (mode === "official") {
-    return { sourceKind: StudyContentSourceKind.OFFICIAL_PAST_PAPER };
+    return {
+      sourceKind: StudyContentSourceKind.OFFICIAL_PAST_PAPER,
+      verificationStatus: StudyOfficialVerificationStatus.VERIFIED,
+    };
   }
   if (mode === "practice") {
     return { sourceKind: StudyContentSourceKind.PRACTICE };

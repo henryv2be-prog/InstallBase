@@ -1,0 +1,42 @@
+{
+  "batchSlug": "2022-physical-sciences-p1-november",
+  "label": "NSC November 2022 · Physical Sciences Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Physical Sciences Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Verified against DBE published memorandum."
+  },
+  "paper": {
+    "subjectSlug": "physical-sciences",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Physical Sciences Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "electricity-and-magnetism",
+      "subtopicSlug": "electric-fields",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 2.1\n\nState the SI unit of electric field strength.",
+      "correctAnswerText": "N/C",
+      "acceptableAnswers": ["N·C-1", "NC-1", "newton per coulomb", "N C-1"],
+      "explanation": "Electric field strength is measured in newtons per coulomb (N·C⁻¹)."
+    },
+    {
+      "sourceQuestionRef": "2.2",
+      "topicSlug": "electricity-and-magnetism",
+      "subtopicSlug": "electric-fields",
+      "type": "SHORT_ANSWER",
+      "difficulty": 4,
+      "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 2.2\n\nA charge of 2 × 10⁻⁶ C experiences a force of 0.04 N in an electric field. Calculate the magnitude of the electric field strength.",
+      "correctAnswerText": "20000",
+      "acceptableAnswers": ["2.0x10^4", "2×10^4", "20000 N/C", "2.0e4"],
+      "explanation": "E = F/q = 0.04 / (2 × 10⁻⁶) = 2 × 10⁴ N·C⁻¹."
+    }
+  ]
+}

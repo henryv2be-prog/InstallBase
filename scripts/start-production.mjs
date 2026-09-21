@@ -94,6 +94,18 @@ if (!skipStudySeed) {
   } else {
     console.log("Study curriculum seed complete.");
   }
+
+  console.log("\n→ Importing official NSC question bank (manifest batches)");
+  const nscImport = spawnSync("npx", ["tsx", "prisma/import-nsc-questions.ts"], {
+    stdio: "inherit",
+    shell: true,
+    env: process.env,
+  });
+  if (nscImport.status !== 0) {
+    console.error("\n⚠ Official NSC import failed — check batch JSON and logs.\n");
+  } else {
+    console.log("Official NSC import complete.");
+  }
 }
 
 if (process.env.SEED_DEMO_AD_ONLY === "true" || process.env.SEED_DEMO_AD_ONLY === "1") {

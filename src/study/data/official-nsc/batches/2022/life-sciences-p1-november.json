@@ -1,0 +1,47 @@
+{
+  "batchSlug": "2022-life-sciences-p1-november",
+  "label": "NSC November 2022 · Life Sciences Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Life Sciences Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Verified against DBE published memorandum."
+  },
+  "paper": {
+    "subjectSlug": "life-sciences",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Life Sciences Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "dna-and-genetics",
+      "subtopicSlug": "genetics-and-inheritance",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Life Sciences Paper 1 · Question 1.1\n\nWhich structure in the nucleus contains the genetic code for a specific protein?",
+      "options": [
+        { "id": "a", "text": "Gene" },
+        { "id": "b", "text": "Ribosome" },
+        { "id": "c", "text": "Centriole" },
+        { "id": "d", "text": "Vacuole" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "A gene is a segment of DNA that codes for a specific polypeptide/protein."
+    },
+    {
+      "sourceQuestionRef": "1.2",
+      "topicSlug": "dna-and-genetics",
+      "subtopicSlug": "genetics-and-inheritance",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Life Sciences Paper 1 · Question 1.2\n\nName the nitrogenous base that pairs with adenine in DNA.",
+      "correctAnswerText": "thymine",
+      "acceptableAnswers": ["T", "Thymine"],
+      "explanation": "In DNA, adenine pairs with thymine (A–T)."
+    }
+  ]
+}
