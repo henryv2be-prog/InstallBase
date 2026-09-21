@@ -4,12 +4,17 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { completeStudyOnboarding } from "@/study/lib/actions";
 import { STUDY_STARTER_SUBJECT_SLUGS } from "@/study/lib/constants";
+import {
+  GRADE_12_SUBJECT_CATEGORY_LABELS,
+  type Grade12SubjectCategory,
+} from "@/study/data/grade-12-subject-catalog";
 
 export type OnboardingSubjectOption = {
   id: string;
   slug: string;
   name: string;
   hasCurriculum: boolean;
+  category: Grade12SubjectCategory;
 };
 
 type SubjectMarks = {
@@ -84,6 +89,29 @@ export function OnboardingWizard({
     () => subjects.filter((s) => marks[s.id]?.selected),
     [subjects, marks],
   );
+
+  const categoryOrder: Grade12SubjectCategory[] = [
+    "core",
+    "commerce",
+    "humanities",
+    "languages",
+    "technology",
+    "agriculture",
+    "creative",
+    "services",
+  ];
+
+  const subjectsByCategory = useMemo(() => {
+    const groups = new Map<Grade12SubjectCategory, OnboardingSubjectOption[]>();
+    for (const subject of subjects) {
+      const list = groups.get(subject.category) ?? [];
+      list.push(subject);
+      groups.set(subject.category, list);
+    }
+    return categoryOrder
+      .filter((category) => groups.has(category))
+      .map((category) => ({ category, items: groups.get(category)! }));
+  }, [subjects]);
 
   const progress = ((step + 1) / STEPS.length) * 100;
 
@@ -208,48 +236,60 @@ export function OnboardingWizard({
           <p className="text-sm text-[var(--study-muted)]">
             Tap subjects you&apos;re writing. Set a honest current estimate and your target mark.
           </p>
-          <ul className="space-y-3">
-            {subjects.map((subject) => {
-              const row = marks[subject.id];
-              if (!row) return null;
-              return (
-                <li key={subject.id} className={`study-card p-4 ${row.selected ? "study-card--selected" : ""}`}>
-                  <button
-                    type="button"
-                    className="flex w-full items-start gap-3 text-left"
-                    onClick={() => toggleSubject(subject.id)}
-                  >
-                    <span
-                      className={`study-check ${row.selected ? "study-check--on" : ""}`}
-                      aria-hidden
-                    />
-                    <span className="min-w-0 flex-1">
-                      <span className="font-semibold">{subject.name}</span>
-                      {subject.hasCurriculum ? (
-                        <span className="ml-2 text-xs text-[var(--study-accent)]">Practice ready</span>
-                      ) : (
-                        <span className="ml-2 text-xs text-[var(--study-muted)]">Coming soon</span>
-                      )}
-                    </span>
-                  </button>
-                  {row.selected ? (
-                    <div className="mt-4 space-y-4 border-t border-[var(--study-border)] pt-4">
-                      <MarkSlider
-                        label="Current estimate"
-                        value={row.currentMarkPct}
-                        onChange={(v) => updateMark(subject.id, "currentMarkPct", v)}
-                      />
-                      <MarkSlider
-                        label="Target mark"
-                        value={row.targetMarkPct}
-                        onChange={(v) => updateMark(subject.id, "targetMarkPct", v)}
-                      />
-                    </div>
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
+          <div className="space-y-5">
+            {subjectsByCategory.map(({ category, items }) => (
+              <div key={category}>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--study-muted)]">
+                  {GRADE_12_SUBJECT_CATEGORY_LABELS[category]}
+                </h3>
+                <ul className="space-y-3">
+                  {items.map((subject) => {
+                    const row = marks[subject.id];
+                    if (!row) return null;
+                    return (
+                      <li
+                        key={subject.id}
+                        className={`study-card p-4 ${row.selected ? "study-card--selected" : ""}`}
+                      >
+                        <button
+                          type="button"
+                          className="flex w-full items-start gap-3 text-left"
+                          onClick={() => toggleSubject(subject.id)}
+                        >
+                          <span
+                            className={`study-check ${row.selected ? "study-check--on" : ""}`}
+                            aria-hidden
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="font-semibold">{subject.name}</span>
+                            {subject.hasCurriculum ? (
+                              <span className="ml-2 text-xs text-[var(--study-accent)]">Quizzes ready</span>
+                            ) : (
+                              <span className="ml-2 text-xs text-[var(--study-muted)]">Topics soon</span>
+                            )}
+                          </span>
+                        </button>
+                        {row.selected ? (
+                          <div className="mt-4 space-y-4 border-t border-[var(--study-border)] pt-4">
+                            <MarkSlider
+                              label="Current estimate"
+                              value={row.currentMarkPct}
+                              onChange={(v) => updateMark(subject.id, "currentMarkPct", v)}
+                            />
+                            <MarkSlider
+                              label="Target mark"
+                              value={row.targetMarkPct}
+                              onChange={(v) => updateMark(subject.id, "targetMarkPct", v)}
+                            />
+                          </div>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
         </section>
       ) : null}
 

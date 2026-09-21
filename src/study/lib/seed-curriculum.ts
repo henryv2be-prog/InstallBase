@@ -1,27 +1,48 @@
 import { StudyContentSourceKind } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { GRADE_12_CURRICULUM_STARTER } from "@/study/data/curriculum-starter";
 import {
-  GRADE_12_CURRICULUM_STARTER,
-  GRADE_12_SUBJECT_STUBS,
-} from "@/study/data/curriculum-starter";
+  GRADE_12_NSC_SUBJECT_CATALOG,
+  GRADE_12_SUBJECT_BY_SLUG,
+} from "@/study/data/grade-12-subject-catalog";
+
+const STARTER_SLUGS = new Set(GRADE_12_CURRICULUM_STARTER.map((s) => s.slug));
+
+/** Legacy slug from early prototype seeds — keep inactive to avoid duplicates. */
+const DEPRECATED_SUBJECT_SLUGS = ["isiZulu-home-language"];
 
 export async function seedStudyCurriculum() {
-  for (const stub of GRADE_12_SUBJECT_STUBS) {
+  for (const entry of GRADE_12_NSC_SUBJECT_CATALOG) {
+    const catalogMeta = GRADE_12_SUBJECT_BY_SLUG[entry.slug];
+    const hasStarter = STARTER_SLUGS.has(entry.slug);
     await prisma.studySubject.upsert({
-      where: { slug: stub.slug },
+      where: { slug: entry.slug },
       create: {
-        slug: stub.slug,
-        name: stub.name,
+        slug: entry.slug,
+        name: entry.name,
         grade: 12,
-        sortOrder: stub.sortOrder,
+        sortOrder: entry.sortOrder,
         active: true,
-        description: "Grade 12 NSC subject — curriculum topics coming soon (prototype).",
+        description: hasStarter
+          ? `Grade 12 ${entry.name} (CAPS FET) — partial topic map loaded.`
+          : "Grade 12 NSC subject — select for exams; CAPS topic map coming soon.",
       },
       update: {
-        name: stub.name,
-        sortOrder: stub.sortOrder,
+        name: entry.name,
+        sortOrder: entry.sortOrder,
         active: true,
+        description: hasStarter
+          ? `Grade 12 ${entry.name} (CAPS FET) — partial topic map loaded.`
+          : "Grade 12 NSC subject — select for exams; CAPS topic map coming soon.",
       },
+    });
+    void catalogMeta;
+  }
+
+  if (DEPRECATED_SUBJECT_SLUGS.length > 0) {
+    await prisma.studySubject.updateMany({
+      where: { slug: { in: DEPRECATED_SUBJECT_SLUGS } },
+      data: { active: false },
     });
   }
 

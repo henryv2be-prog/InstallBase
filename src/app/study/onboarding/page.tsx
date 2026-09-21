@@ -4,6 +4,7 @@ import { getSession } from "@/lib/session";
 import { OnboardingWizard } from "@/study/components/onboarding-wizard";
 import { StudyShell } from "@/study/components/study-shell";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
+import { GRADE_12_SUBJECT_BY_SLUG } from "@/study/data/grade-12-subject-catalog";
 import { ensureStudyCatalog } from "@/study/lib/ensure-catalog";
 import { getStudySubjectsForOnboarding } from "@/study/lib/queries";
 
@@ -38,6 +39,7 @@ export default async function StudyOnboardingPage({ searchParams }: Props) {
     slug: s.slug,
     name: s.name,
     hasCurriculum: s.curricula.length > 0,
+    category: GRADE_12_SUBJECT_BY_SLUG[s.slug]?.category ?? "services",
   }));
 
   return (
