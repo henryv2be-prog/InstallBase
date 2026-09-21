@@ -66,7 +66,7 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
   });
 
   return (
-    <StudyShell title="Quick quiz" backHref="/study/practice" backLabel="Practice">
+    <StudyShell immersive backHref="/study/practice" backLabel="Practice">
       {subtopic.questions.length === 0 ? (
         <>
           <div className="study-card p-5 text-sm text-[var(--study-muted)]">
@@ -80,6 +80,7 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
         <QuizIntro
           subtopicId={subtopic.id}
           subjectName={subtopic.topic.curriculum.subject.name}
+          subjectSlug={subtopic.topic.curriculum.subject.slug}
           topicName={subtopic.topic.name}
           subtopicName={subtopic.name}
           questionCount={subtopic.questions.length}

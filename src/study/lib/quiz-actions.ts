@@ -10,7 +10,43 @@ import { prisma } from "@/lib/prisma";
 import { answersMatch, buildShortAnswerPatterns } from "@/study/lib/answer-check";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { updateMasteryAfterQuiz } from "@/study/lib/update-mastery-after-quiz";
+import { getWeakestMasteries } from "@/study/lib/queries";
 import { QUIZ_SIZE, type QuizAnswerInput, type QuizMode, type QuizQuestionClient } from "@/study/lib/quiz-types";
+
+export async function evaluateQuizAnswer(questionId: string, selectedOptionId: string) {
+  const learner = await getStudyLearnerForRequest();
+  if (!isLearnerOnboarded(learner)) {
+    return { ok: false as const, error: "Complete onboarding first." };
+  }
+
+  const question = await prisma.studyQuestion.findFirst({
+    where: { id: questionId, active: true },
+  });
+  if (!question) {
+    return { ok: false as const, error: "Question not found." };
+  }
+
+  let isCorrect = false;
+  let correctDisplay = question.correctOptionId;
+
+  if (question.type === StudyQuestionType.SHORT_ANSWER) {
+    const patterns = buildShortAnswerPatterns(
+      question.correctAnswerText ?? "",
+      question.acceptableAnswers as string[] | undefined,
+    );
+    isCorrect = answersMatch(selectedOptionId, patterns);
+    correctDisplay = question.correctAnswerText ?? "";
+  } else {
+    isCorrect = question.correctOptionId === selectedOptionId;
+  }
+
+  return {
+    ok: true as const,
+    isCorrect,
+    explanation: question.explanation,
+    correctDisplay,
+  };
+}
 
 function sourceFilter(mode: QuizMode) {
   if (mode === "official") {
@@ -110,6 +146,11 @@ export async function completeSubtopicQuiz(sessionId: string, answers: QuizAnswe
     return { ok: false as const, error: "This quiz was already submitted." };
   }
 
+  const masteryBefore = await prisma.studyMastery.findUnique({
+    where: { learnerId_subtopicId: { learnerId: learner.id, subtopicId: session.subtopicId } },
+  });
+  const masteryBeforePct = masteryBefore?.masteryPct ?? null;
+
   const questionIds = answers.map((a) => a.questionId);
   const questions = await prisma.studyQuestion.findMany({
     where: {
@@ -196,6 +237,16 @@ export async function completeSubtopicQuiz(sessionId: string, answers: QuizAnswe
 
   revalidatePath("/study/dashboard");
   revalidatePath("/study/practice");
+  revalidatePath("/study/subjects");
+  revalidatePath("/study/progress");
+  revalidatePath("/study/profile");
+
+  const weakest = await getWeakestMasteries(learner.id, 5);
+  const nextFocus = weakest.find((w) => w.subtopicId !== session.subtopicId) ?? null;
+  const subtopicMeta = await prisma.studySubtopic.findUnique({
+    where: { id: session.subtopicId },
+    select: { name: true, topic: { select: { name: true, curriculum: { select: { subject: { select: { name: true } } } } } } },
+  });
 
   const total = answers.length;
   return {
@@ -203,8 +254,21 @@ export async function completeSubtopicQuiz(sessionId: string, answers: QuizAnswe
     correct,
     total,
     percent: Math.round((correct / total) * 100),
+    masteryBeforePct,
     masteryPct: mastery.masteryPct,
     questionsAttemptedTotal: mastery.questionsAttempted,
+    subtopicName: subtopicMeta?.name ?? "",
+    topicName: subtopicMeta?.topic.name ?? "",
+    subjectName: subtopicMeta?.topic.curriculum.subject.name ?? "",
+    nextFocus: nextFocus
+      ? {
+          subtopicId: nextFocus.subtopicId,
+          subtopicName: nextFocus.subtopic.name,
+          topicName: nextFocus.subtopic.topic.name,
+          subjectName: nextFocus.subtopic.topic.curriculum.subject.name,
+          masteryPct: nextFocus.masteryPct,
+        }
+      : null,
     results,
   };
 }

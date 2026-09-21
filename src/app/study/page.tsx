@@ -13,32 +13,37 @@ export default async function StudyCoachHomePage() {
 
   return (
     <StudyShell>
-      <section className="study-hero mb-6">
-        <span className="study-pill study-pill--prototype">Grade 12 · NSC · 2026</span>
-        <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight">
-          Know what to study next.
+      <section className="mb-8 pt-4">
+        <span className="study-pill study-pill--prototype">Matric · NSC · CAPS</span>
+        <h1 className="study-display mt-5">
+          Don&apos;t worry.
+          <br />
+          We&apos;ve got a plan.
         </h1>
-        <p className="mt-3 text-base leading-relaxed text-[var(--study-muted)]">
-          Your exams, target marks, and topic mastery — turned into a clear plan for today.
+        <p className="study-lead mt-4">
+          Grade 12 Study Coach tells you what to work on next — not another admin dashboard.
         </p>
       </section>
 
-      <section className="study-card mb-6 space-y-3 p-5">
-        <h2 className="text-lg font-semibold">About 2 minutes to set up</h2>
+      <section className="study-panel p-5 mb-8 space-y-3">
+        <p className="font-bold text-lg">About 2 minutes</p>
         <ul className="space-y-2 text-sm text-[var(--study-muted)]">
-          <li>✓ Your name &amp; Grade 12 profile</li>
-          <li>✓ Subjects with current &amp; target marks</li>
-          <li>✓ Exam dates (days remaining)</li>
+          <li>✓ Your name &amp; subjects</li>
+          <li>✓ Current &amp; target marks</li>
+          <li>✓ NSC exam dates</li>
         </ul>
       </section>
 
-      <div className="mt-auto">
+      <div className="mt-auto space-y-3">
         <Link
           href="/study/onboarding"
           className="study-btn study-btn-primary study-touch-target block w-full text-center"
         >
-          Get started
+          Build my study plan
         </Link>
+        <p className="text-center text-xs text-[var(--study-muted)]">
+          Free · works on your phone · no sign-in required
+        </p>
       </div>
     </StudyShell>
   );

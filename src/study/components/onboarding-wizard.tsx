@@ -42,7 +42,7 @@ type Props = {
   >;
 };
 
-const STEPS = ["About you", "Subjects & marks", "Exam dates"] as const;
+const STEPS = ["Hey", "Subjects", "Goals", "Exams", "Ready"] as const;
 
 function suggestedTarget(current: number) {
   return Math.min(100, Math.round(current + 15));
@@ -147,12 +147,12 @@ export function OnboardingWizard({
     setError(null);
     if (step === 0) {
       if (displayName.trim().length < 2) {
-        setError("Please enter your name.");
+        setError("What should we call you?");
         return;
       }
     }
     if (step === 1 && selectedSubjects.length === 0) {
-      setError("Choose at least one subject.");
+      setError("Pick at least one Grade 12 subject.");
       return;
     }
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
@@ -191,25 +191,18 @@ export function OnboardingWizard({
   return (
     <div className="flex flex-1 flex-col">
       <div className="mb-6">
-        <div className="mb-2 flex justify-between text-xs font-medium text-[var(--study-muted)]">
-          <span>
-            Step {step + 1} of {STEPS.length}
-          </span>
-          <span>{STEPS[step]}</span>
-        </div>
         <div className="study-progress-track">
           <div className="study-progress-fill" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
       {step === 0 ? (
-        <section className="study-card space-y-4 p-5">
-          <h2 className="text-xl font-bold">Let&apos;s set up your study profile</h2>
-          <p className="text-sm text-[var(--study-muted)]">
-            Grade 12 NSC · School year 2026. We&apos;ll use this to prioritise what you study next.
-          </p>
+        <section className="space-y-4">
+          <div className="study-onboard-bubble study-onboard-bubble--accent">
+            Hey 👋 Let&apos;s build your matric study plan.
+          </div>
           <label className="block space-y-2">
-            <span className="text-sm font-medium">Your name</span>
+            <span className="text-sm font-bold">What&apos;s your name?</span>
             <input
               className="study-input study-touch-target"
               value={displayName}
@@ -218,71 +211,42 @@ export function OnboardingWizard({
               autoComplete="name"
             />
           </label>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="study-card-muted p-3">
-              <p className="text-xs text-[var(--study-muted)]">Grade</p>
-              <p className="text-lg font-semibold">Grade 12</p>
-            </div>
-            <div className="study-card-muted p-3">
-              <p className="text-xs text-[var(--study-muted)]">School year</p>
-              <p className="text-lg font-semibold">2026</p>
-            </div>
-          </div>
+          <p className="text-sm text-[var(--study-muted)]">Grade 12 · NSC · 2026</p>
         </section>
       ) : null}
 
       {step === 1 ? (
         <section className="space-y-3">
-          <p className="text-sm text-[var(--study-muted)]">
-            Tap subjects you&apos;re writing. Set a honest current estimate and your target mark.
-          </p>
-          <div className="space-y-5">
+          <div className="study-onboard-bubble">What are you studying this year?</div>
+          <p className="text-sm text-[var(--study-muted)]">Tap your Grade 12 subjects.</p>
+          <div className="space-y-5 max-h-[50vh] overflow-y-auto pr-1">
             {subjectsByCategory.map(({ category, items }) => (
               <div key={category}>
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--study-muted)]">
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-[var(--study-muted)]">
                   {GRADE_12_SUBJECT_CATEGORY_LABELS[category]}
                 </h3>
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                   {items.map((subject) => {
                     const row = marks[subject.id];
                     if (!row) return null;
                     return (
-                      <li
-                        key={subject.id}
-                        className={`study-card p-4 ${row.selected ? "study-card--selected" : ""}`}
-                      >
+                      <li key={subject.id}>
                         <button
                           type="button"
-                          className="flex w-full items-start gap-3 text-left"
+                          className={`study-card w-full p-4 text-left ${row.selected ? "study-card--selected" : ""}`}
                           onClick={() => toggleSubject(subject.id)}
                         >
-                          <span
-                            className={`study-check ${row.selected ? "study-check--on" : ""}`}
-                            aria-hidden
-                          />
-                          <span className="min-w-0 flex-1">
-                            <span className="font-semibold">{subject.name}</span>
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={`study-check ${row.selected ? "study-check--on" : ""}`}
+                              aria-hidden
+                            />
+                            <span className="font-bold">{subject.name}</span>
                             {subject.hasCurriculum ? (
-                              <span className="ml-2 text-xs text-[var(--study-accent)]">Quizzes ready</span>
-                            ) : (
-                              <span className="ml-2 text-xs text-[var(--study-muted)]">Topics soon</span>
-                            )}
-                          </span>
-                        </button>
-                        {row.selected ? (
-                          <div className="mt-4 space-y-4 border-t border-[var(--study-border)] pt-4">
-                            <MarkSlider
-                              label="Current estimate"
-                              value={row.currentMarkPct}
-                              onChange={(v) => updateMark(subject.id, "currentMarkPct", v)}
-                            />
-                            <MarkSlider
-                              label="Target mark"
-                              value={row.targetMarkPct}
-                              onChange={(v) => updateMark(subject.id, "targetMarkPct", v)}
-                            />
+                              <span className="ml-auto text-xs text-[var(--study-accent-2)]">Quizzes</span>
+                            ) : null}
                           </div>
-                        ) : null}
+                        </button>
                       </li>
                     );
                   })}
@@ -295,17 +259,47 @@ export function OnboardingWizard({
 
       {step === 2 ? (
         <section className="space-y-3">
+          <div className="study-onboard-bubble">What are you aiming for?</div>
+          <p className="text-sm text-[var(--study-muted)]">Honest current mark + your target.</p>
+          <ul className="space-y-4 max-h-[55vh] overflow-y-auto pr-1">
+            {selectedSubjects.map((subject) => {
+              const row = marks[subject.id];
+              return (
+                <li key={subject.id} className="study-panel p-4">
+                  <p className="font-bold mb-3">{subject.name}</p>
+                  <MarkSlider
+                    label="Where you are now"
+                    value={row.currentMarkPct}
+                    onChange={(v) => updateMark(subject.id, "currentMarkPct", v)}
+                  />
+                  <div className="mt-4">
+                    <MarkSlider
+                      label="Where you want to be"
+                      value={row.targetMarkPct}
+                      onChange={(v) => updateMark(subject.id, "targetMarkPct", v)}
+                    />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
+
+      {step === 3 ? (
+        <section className="space-y-3">
+          <div className="study-onboard-bubble">When are your NSC exams?</div>
           <p className="text-sm text-[var(--study-muted)]">
-            Exam dates drive urgency in your study plan. You can change these later.
+            We&apos;ll use this to prioritise your time — Paper 1 dates are fine to start.
           </p>
-          <ul className="space-y-3">
+          <ul className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
             {selectedSubjects.map((subject) => {
               const exam = exams[subject.id];
               return (
-                <li key={subject.id} className="study-card space-y-3 p-4">
-                  <p className="font-semibold">{subject.name}</p>
+                <li key={subject.id} className="study-panel space-y-3 p-4">
+                  <p className="font-bold">{subject.name}</p>
                   <label className="block space-y-1">
-                    <span className="text-xs font-medium text-[var(--study-muted)]">Exam date</span>
+                    <span className="text-xs font-semibold text-[var(--study-muted)]">Exam date</span>
                     <input
                       type="date"
                       className="study-input study-touch-target"
@@ -320,7 +314,7 @@ export function OnboardingWizard({
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <label className="block space-y-1">
-                      <span className="text-xs font-medium text-[var(--study-muted)]">Paper #</span>
+                      <span className="text-xs font-semibold text-[var(--study-muted)]">Paper</span>
                       <input
                         type="number"
                         min={1}
@@ -336,7 +330,7 @@ export function OnboardingWizard({
                       />
                     </label>
                     <label className="block space-y-1">
-                      <span className="text-xs font-medium text-[var(--study-muted)]">Minutes</span>
+                      <span className="text-xs font-semibold text-[var(--study-muted)]">Minutes</span>
                       <input
                         type="number"
                         min={30}
@@ -359,8 +353,19 @@ export function OnboardingWizard({
         </section>
       ) : null}
 
+      {step === 4 ? (
+        <section className="space-y-4 text-center py-4">
+          <div className="study-onboard-bubble study-onboard-bubble--accent mx-auto max-w-sm">
+            You&apos;re ready, {displayName.trim() || "friend"}. We&apos;ve got your starting point.
+          </div>
+          <p className="text-sm text-[var(--study-muted)]">
+            {selectedSubjects.length} subjects · personalised daily mission on your home screen.
+          </p>
+        </section>
+      ) : null}
+
       {error ? (
-        <p className="mt-4 rounded-xl border border-[var(--study-danger)]/40 bg-[var(--study-danger)]/10 px-3 py-2 text-sm text-[#fecaca]">
+        <p className="mt-4 rounded-xl border border-[var(--study-danger)]/40 bg-[var(--study-danger)]/10 px-3 py-2 text-sm">
           {error}
         </p>
       ) : null}
@@ -377,7 +382,7 @@ export function OnboardingWizard({
             disabled={pending}
             onClick={submit}
           >
-            {pending ? "Saving…" : "Finish setup"}
+            {pending ? "Saving…" : "Show my plan"}
           </button>
         )}
         {step > 0 ? (
@@ -407,8 +412,8 @@ function MarkSlider({
   return (
     <label className="block space-y-2">
       <div className="flex items-center justify-between text-sm">
-        <span className="font-medium">{label}</span>
-        <span className="tabular-nums text-[var(--study-accent)]">{value}%</span>
+        <span className="font-semibold">{label}</span>
+        <span className="tabular-nums font-extrabold text-[var(--study-accent-2)]">{value}%</span>
       </div>
       <input
         type="range"

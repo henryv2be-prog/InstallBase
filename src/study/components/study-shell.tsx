@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { StudyBottomNav } from "@/study/components/study-bottom-nav";
 
 type Props = {
   title?: string;
@@ -7,27 +8,54 @@ type Props = {
   backHref?: string;
   backLabel?: string;
   children: ReactNode;
+  /** Main tab screens show bottom nav; immersive flows (quiz, onboarding) hide it. */
+  showNav?: boolean;
+  /** Full-bleed layout without side padding (quiz). */
+  immersive?: boolean;
+  headerExtra?: ReactNode;
 };
 
-export function StudyShell({ title, subtitle, backHref, backLabel, children }: Props) {
+export function StudyShell({
+  title,
+  subtitle,
+  backHref,
+  backLabel,
+  children,
+  showNav = false,
+  immersive = false,
+  headerExtra,
+}: Props) {
   return (
-    <div className="study-shell mx-auto flex min-h-dvh max-w-lg flex-col px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(0.75rem,env(safe-area-inset-top))]">
-      <header className="mb-5 flex items-center gap-3">
-        {backHref ? (
-          <Link href={backHref} className="study-back study-touch-target shrink-0">
-            ← {backLabel ?? "Back"}
-          </Link>
-        ) : (
-          <div className="study-logo-mark" aria-hidden>
-            12
-          </div>
-        )}
-        <div className="min-w-0 flex-1">
-          {title ? <h1 className="truncate text-lg font-bold tracking-tight">{title}</h1> : null}
-          {subtitle ? <p className="truncate text-xs text-[var(--study-muted)]">{subtitle}</p> : null}
-        </div>
-      </header>
-      {children}
+    <div
+      className={`study-shell ${immersive ? "study-shell--immersive" : ""} ${showNav ? "study-shell--with-nav" : ""}`}
+    >
+      <div className="study-shell__inner">
+        <header className="study-shell__header">
+          {backHref ? (
+            <Link href={backHref} className="study-back study-touch-target">
+              ← {backLabel ?? "Back"}
+            </Link>
+          ) : showNav ? (
+            <div className="study-brand" aria-hidden>
+              <span className="study-brand__mark">12</span>
+              <span className="study-brand__text">Study Coach</span>
+            </div>
+          ) : (
+            <div className="study-brand" aria-hidden>
+              <span className="study-brand__mark">12</span>
+            </div>
+          )}
+          {(title || subtitle || headerExtra) && !showNav ? (
+            <div className="study-shell__titles">
+              {title ? <h1 className="study-shell__title">{title}</h1> : null}
+              {subtitle ? <p className="study-shell__subtitle">{subtitle}</p> : null}
+              {headerExtra}
+            </div>
+          ) : null}
+        </header>
+        <main className="study-shell__main">{children}</main>
+      </div>
+      {showNav ? <StudyBottomNav /> : null}
     </div>
   );
 }

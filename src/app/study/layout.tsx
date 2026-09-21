@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { StudyBodyChrome } from "@/study/components/study-body-chrome";
 import "./study.css";
 
-const dmSans = DM_Sans({
+const studyFont = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-study",
+  weight: ["500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -27,12 +28,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0c1222",
+  themeColor: "#07070f",
 };
 
 export default function StudyCoachLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`study-coach ${dmSans.variable}`}>
+    <div className={`study-coach ${studyFont.variable}`}>
       <StudyBodyChrome />
       {children}
     </div>

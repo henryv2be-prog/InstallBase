@@ -44,10 +44,8 @@ export default async function StudyOnboardingPage({ searchParams }: Props) {
 
   return (
     <StudyShell
-      title={isEdit ? "Update profile" : "Set up"}
-      subtitle="Grade 12 Study Coach"
-      backHref={isEdit ? "/study/dashboard" : "/study"}
-      backLabel={isEdit ? "Dashboard" : "Home"}
+      backHref={isEdit ? "/study/profile" : "/study"}
+      backLabel={isEdit ? "Profile" : "Back"}
     >
       {!session?.user ? (
         <p className="mb-4 text-xs leading-relaxed text-[var(--study-muted)]">

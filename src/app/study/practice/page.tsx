@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { StudyShell } from "@/study/components/study-shell";
 import { ensurePracticeQuestions } from "@/study/lib/seed-questions";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
-import { getPracticeLibraryForLearner } from "@/study/lib/queries";
+import { getPracticeLibraryForLearner, getWeakestMasteries } from "@/study/lib/queries";
+import { getSubjectTheme, masteryBandLabel } from "@/study/lib/subject-theme";
 
 export const dynamic = "force-dynamic";
 
@@ -14,65 +15,91 @@ export default async function StudyPracticePage() {
   }
 
   await ensurePracticeQuestions();
-  const library = await getPracticeLibraryForLearner(learner.id);
+  const [library, weakest] = await Promise.all([
+    getPracticeLibraryForLearner(learner.id),
+    getWeakestMasteries(learner.id, 4),
+  ]);
 
   return (
-    <StudyShell title="Practice quizzes" subtitle="Check what you know" backHref="/study/dashboard" backLabel="Dashboard">
-      <p className="mb-4 text-sm text-[var(--study-muted)]">
-        Choose <strong className="font-medium text-emerald-200">Official NSC</strong> for DBE past-paper
-        questions (with paper &amp; question reference) or practice for extra drills.
-      </p>
+    <StudyShell showNav>
+      <header className="mb-5">
+        <h1 className="study-display text-3xl">Practice</h1>
+        <p className="study-lead mt-2">Hit weak areas first — official NSC or extra drills.</p>
+      </header>
 
-      <div className="space-y-4">
-        {library.map((subject) => (
-          <section key={subject.id}>
-            <h2 className="mb-2 text-lg font-semibold">{subject.name}</h2>
-            <ul className="space-y-3">
-              {subject.topics.flatMap((topic) =>
-                topic.subtopics.map((sub) => (
-                  <li key={sub.id} className="study-card p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-xs text-[var(--study-muted)]">{topic.name}</p>
-                        <p className="font-medium">{sub.name}</p>
-                        <p className="mt-1 text-xs text-[var(--study-muted)]">
-                          Mastery{" "}
-                          <span className="font-semibold text-[var(--study-text)]">
-                            {sub.masteryPct != null ? `${Math.round(sub.masteryPct)}%` : "—"}
-                          </span>
-                          {sub.questionsAttempted > 0
-                            ? ` · ${sub.questionsAttempted} answered`
-                            : " · estimate only"}
-                          {sub.officialCount > 0 ? ` · ${sub.officialCount} official NSC` : ""}
-                        </p>
-                      </div>
+      {weakest.length > 0 ? (
+        <section className="mb-6">
+          <p className="study-section-label mb-2">Needs attention</p>
+          <ul className="space-y-2">
+            {weakest.map((m) => (
+              <li key={m.id}>
+                <Link
+                  href={`/study/practice/${m.subtopicId}`}
+                  className="study-panel block p-4 active:scale-[0.99] transition"
+                >
+                  <p className="text-xs font-bold text-[var(--study-accent-2)]">This needs some work</p>
+                  <p className="mt-1 text-lg font-extrabold">{m.subtopic.name}</p>
+                  <p className="text-sm text-[var(--study-muted)]">
+                    {m.subtopic.topic.curriculum.subject.name} · {Math.round(m.masteryPct)}% ·{" "}
+                    {masteryBandLabel(m.masteryPct)}
+                  </p>
+                  <span className="study-btn study-btn-primary study-touch-target mt-3 inline-flex w-full justify-center text-sm">
+                    Practice now
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <p className="study-section-label mb-3">All topics</p>
+      <div className="space-y-5">
+        {library.map((subject) => {
+          const theme = getSubjectTheme(subject.slug);
+          return (
+            <section key={subject.id}>
+              <h2 className="mb-2 flex items-center gap-2 text-lg font-extrabold">
+                <span aria-hidden>{theme.glyph}</span> {subject.name}
+              </h2>
+              <ul className="space-y-2">
+                {subject.topics.flatMap((topic) =>
+                  topic.subtopics.map((sub) => (
+                    <li key={sub.id}>
                       {sub.questionCount > 0 ? (
-                        <div className="flex shrink-0 flex-col gap-2">
-                          {sub.officialCount > 0 ? (
-                            <Link
-                              href={`/study/practice/${sub.id}?mode=official`}
-                              className="study-btn study-btn-primary px-4 py-2 text-sm"
-                            >
-                              Official NSC
-                            </Link>
-                          ) : null}
-                          <Link
-                            href={`/study/practice/${sub.id}`}
-                            className="study-btn study-btn-ghost px-4 py-2 text-sm"
-                          >
-                            Quiz
-                          </Link>
-                        </div>
+                        <Link
+                          href={`/study/practice/${sub.id}`}
+                          className="study-topic-row px-1 -mx-1 rounded-lg hover:bg-white/[0.03]"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-xs text-[var(--study-muted)]">{topic.name}</p>
+                            <p className="font-semibold truncate">{sub.name}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="font-bold tabular-nums">
+                              {sub.masteryPct != null ? `${Math.round(sub.masteryPct)}%` : "—"}
+                            </p>
+                            {sub.officialCount > 0 ? (
+                              <p className="text-[0.65rem] text-emerald-300/90">NSC</p>
+                            ) : null}
+                          </div>
+                        </Link>
                       ) : (
-                        <span className="study-pill bg-white/5 text-[var(--study-muted)]">Soon</span>
+                        <div className="study-row opacity-60">
+                          <div>
+                            <p className="text-xs text-[var(--study-muted)]">{topic.name}</p>
+                            <p className="font-medium">{sub.name}</p>
+                          </div>
+                          <span className="study-pill study-pill--soft">Soon</span>
+                        </div>
                       )}
-                    </div>
-                  </li>
-                )),
-              )}
-            </ul>
-          </section>
-        ))}
+                    </li>
+                  )),
+                )}
+              </ul>
+            </section>
+          );
+        })}
       </div>
     </StudyShell>
   );

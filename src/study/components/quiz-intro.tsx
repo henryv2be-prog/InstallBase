@@ -8,6 +8,7 @@ import type { QuizMode } from "@/study/lib/quiz-types";
 type Props = {
   subtopicId: string;
   subjectName: string;
+  subjectSlug: string;
   topicName: string;
   subtopicName: string;
   questionCount: number;
@@ -21,6 +22,7 @@ type Props = {
 export function QuizIntro({
   subtopicId,
   subjectName,
+  subjectSlug,
   topicName,
   subtopicName,
   questionCount,
@@ -48,6 +50,7 @@ export function QuizIntro({
         topicName={started.topicName}
         subtopicName={started.subtopicName}
         questions={started.questions}
+        masteryBeforePct={masteryPct}
       />
     );
   }
@@ -66,56 +69,58 @@ export function QuizIntro({
 
   return (
     <div className="flex flex-1 flex-col">
-      <section className="study-card mb-4 space-y-3 p-5">
-        <p className="text-xs text-[var(--study-muted)]">
+      <section className="study-panel--glow p-5 mb-5">
+        <p className="text-xs font-semibold text-[var(--study-muted)]">
           {subjectName} · {topicName}
         </p>
-        <h2 className="text-xl font-bold">{subtopicName}</h2>
-        <p className="text-sm text-[var(--study-muted)]">
-          {officialCount} official NSC · {practiceCount} practice · up to 5 questions per quiz
-        </p>
-        <p className="text-sm">
-          Current mastery:{" "}
-          <span className="font-semibold text-[var(--study-accent)]">
-            {masteryPct != null ? `${Math.round(masteryPct)}%` : "Not measured yet"}
-          </span>
-          {questionsAttempted > 0 ? ` (${questionsAttempted} answered overall)` : ""}
+        <h2 className="mt-2 text-2xl font-extrabold tracking-tight">{subtopicName}</h2>
+        <p className="mt-3 text-sm text-[var(--study-muted)]">
+          {masteryPct != null ? (
+            <>
+              Mastery{" "}
+              <span className="font-extrabold text-[var(--study-accent-2)] tabular-nums">
+                {Math.round(masteryPct)}%
+              </span>
+              {questionsAttempted > 0 ? ` · ${questionsAttempted} answered so far` : ""}
+            </>
+          ) : (
+            "Let's measure what you know — one question at a time."
+          )}
         </p>
       </section>
 
-      <section className="mb-4 space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--study-muted)]">
-          Question source
-        </p>
-        <div className="grid grid-cols-1 gap-2">
+      <section className="mb-5">
+        <p className="study-section-label mb-3">Question type</p>
+        <div className="space-y-2">
           {(
             [
-              ["official", "Official NSC past paper", officialCount],
-              ["practice", "Practice only", practiceCount],
-              ["all", "Mixed (official + practice)", questionCount],
+              ["official", "Official NSC", officialCount, "Past paper questions with memo checks"],
+              ["practice", "Practice drills", practiceCount, "Extra reps on this topic"],
+              ["all", "Mixed", questionCount, "Official + practice together"],
             ] as const
-          ).map(([value, label, count]) => (
+          ).map(([value, label, count, hint]) => (
             <button
               key={value}
               type="button"
               disabled={count === 0}
               onClick={() => setMode(value)}
-              className={`study-quiz-option text-left ${mode === value ? "study-quiz-option--active" : ""} ${count === 0 ? "opacity-40" : ""}`}
+              className={`study-quiz-option study-touch-target ${mode === value ? "study-quiz-option--active" : ""} ${count === 0 ? "opacity-40" : ""}`}
             >
-              <span className="font-medium">{label}</span>
-              <span className="mt-1 block text-xs text-[var(--study-muted)]">{count} available</span>
+              <span className="font-bold">{label}</span>
+              <span className="mt-1 block text-xs text-[var(--study-muted)]">
+                {count} ready · {hint}
+              </span>
             </button>
           ))}
         </div>
-        {mode === "official" ? (
-          <p className="text-xs leading-relaxed text-emerald-200/90">
-            Sourced from DBE published NSC examination papers and memoranda. Short-answer items
-            follow official paper wording; enter your final answer as you would in an exam.
-          </p>
-        ) : null}
       </section>
 
-      {error ? <p className="mb-3 text-sm text-[#fecaca]">{error}</p> : null}
+      {error ? (
+        <div className="study-panel p-4 mb-4 text-sm">
+          <p className="font-bold">Hmm…</p>
+          <p className="mt-1 text-[var(--study-muted)]">{error}</p>
+        </div>
+      ) : null}
 
       <button
         type="button"
@@ -123,7 +128,7 @@ export function QuizIntro({
         disabled={pending || availableForMode === 0}
         onClick={begin}
       >
-        {pending ? "Loading…" : mode === "official" ? "Start official NSC quiz" : "Start quiz"}
+        {pending ? "Loading…" : "Let's go"}
       </button>
     </div>
   );
