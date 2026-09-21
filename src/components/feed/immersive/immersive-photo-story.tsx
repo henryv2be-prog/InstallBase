@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MediaImage } from "@/components/ui/media-image";
+import { ImmersiveInstallPhoto } from "@/components/feed/immersive/immersive-install-photo";
 import { cn } from "@/lib/utils";
 
 const PHOTO_MS = 3800;
@@ -46,15 +46,10 @@ export function ImmersivePhotoStory({ urls, active, className }: ImmersivePhotoS
             )}
             aria-hidden={!visible}
           >
-            <MediaImage
+            <ImmersiveInstallPhoto
               src={url}
-              alt=""
-              fill
-              className={cn(
-                "object-cover transition-transform duration-[3800ms] ease-out",
-                visible && active ? "scale-[1.08]" : "scale-100"
-              )}
-              sizes="100vw"
+              active={visible && active}
+              kenBurns
             />
           </div>
         );
