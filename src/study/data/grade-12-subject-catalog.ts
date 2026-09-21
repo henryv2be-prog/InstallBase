@@ -1,7 +1,7 @@
 /**
  * Grade 12 NSC (CAPS FET) subject catalog for South African schools.
  * Subjects without a curriculum slice in curriculum-starter.ts are onboardable
- * but show "topics coming soon" until CAPS content is added.
+ * but show "topics coming soon" until a CAPS assessment map is added.
  *
  * @see https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx
  */
