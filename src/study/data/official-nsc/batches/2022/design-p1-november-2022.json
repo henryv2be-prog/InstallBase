@@ -43,6 +43,62 @@
       ],
       "correctOptionId": "b",
       "explanation": "Design CAPS: brief → research → concept → realisation."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "design-process",
+      "subtopicSlug": "concept-development",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Design · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Concept development and presentation\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply concept development and presentation in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Design: Design process · Concept development and presentation — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "design-fields",
+      "subtopicSlug": "graphic-and-product",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Design · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Graphic and product design principles\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply graphic and product design principles in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Design: Design fields · Graphic and product design principles — assessed through applied exam-style work."
     }
   ]
 }

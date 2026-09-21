@@ -24,10 +24,22 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Accounting Paper 1 · Question 1.1\n\nWhich item appears on the Statement of Comprehensive Income?",
       "options": [
-        { "id": "a", "text": "Sales" },
-        { "id": "b", "text": "Trade receivables" },
-        { "id": "c", "text": "Equipment" },
-        { "id": "d", "text": "Bank overdraft" }
+        {
+          "id": "a",
+          "text": "Sales"
+        },
+        {
+          "id": "b",
+          "text": "Trade receivables"
+        },
+        {
+          "id": "c",
+          "text": "Equipment"
+        },
+        {
+          "id": "d",
+          "text": "Bank overdraft"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Sales is income and belongs on the Statement of Comprehensive Income."
@@ -40,10 +52,22 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Accounting Paper 1 · Question 1.2\n\nWhich account is classified as a non-current asset?",
       "options": [
-        { "id": "a", "text": "Delivery vehicle" },
-        { "id": "b", "text": "Inventory" },
-        { "id": "c", "text": "Bank" },
-        { "id": "d", "text": "Creditors" }
+        {
+          "id": "a",
+          "text": "Delivery vehicle"
+        },
+        {
+          "id": "b",
+          "text": "Inventory"
+        },
+        {
+          "id": "c",
+          "text": "Bank"
+        },
+        {
+          "id": "d",
+          "text": "Creditors"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Vehicles used long-term are non-current (fixed) assets on the Statement of Financial Position."
@@ -56,8 +80,224 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Accounting Paper 1 · Question 2.1\n\nName ONE reason why the bank statement balance may differ from the cash journals balance.",
       "correctAnswerText": "outstanding deposits",
-      "acceptableAnswers": ["outstanding cheques", "bank charges not yet recorded", "direct deposits", "timing differences", "service fees"],
+      "acceptableAnswers": [
+        "outstanding cheques",
+        "bank charges not yet recorded",
+        "direct deposits",
+        "timing differences",
+        "service fees"
+      ],
       "explanation": "Timing differences (e.g. outstanding deposits/cheques) or unrecorded bank charges cause reconciling items."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "companies",
+      "subtopicSlug": "company-legislation",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Accounting · CAPS.1\n\nThe Companies Act primarily requires companies to —",
+      "options": [
+        {
+          "id": "a",
+          "text": "maintain proper records and present fair financial statements"
+        },
+        {
+          "id": "b",
+          "text": "avoid all external audits"
+        },
+        {
+          "id": "c",
+          "text": "ignore internal controls"
+        },
+        {
+          "id": "d",
+          "text": "publish no notes to financial statements"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Accounting CAPS: company legislation and governance."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "companies",
+      "subtopicSlug": "inventory-valuation",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Accounting · CAPS.2\n\nWhich method values inventory at the most recent purchase cost first on issue?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Weighted average"
+        },
+        {
+          "id": "b",
+          "text": "Specific identification only"
+        },
+        {
+          "id": "c",
+          "text": "FIFO"
+        },
+        {
+          "id": "d",
+          "text": "Random allocation"
+        }
+      ],
+      "correctOptionId": "c",
+      "explanation": "Inventory systems: FIFO/weighted average (CAPS)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "financial-statements",
+      "subtopicSlug": "cash-flow-statement",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Accounting · CAPS.3\n\nThe cash flow statement classifies cash flows into —",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply cash flow statement in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Accounting: Financial statements of companies · Cash flow statement — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "financial-statements",
+      "subtopicSlug": "notes-to-financial-statements",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Accounting · CAPS.4\n\nNotes to the financial statements mainly provide —",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply notes to the financial statements in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Accounting: Financial statements of companies · Notes to the financial statements — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.5",
+      "topicSlug": "reconciliations",
+      "subtopicSlug": "debtors-creditors-reconciliation",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Accounting · CAPS.5\n\nAge analysis of debtors helps assess —",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply debtors and creditors reconciliation in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Accounting: Reconciliations and VAT · Debtors and creditors reconciliation — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.6",
+      "topicSlug": "reconciliations",
+      "subtopicSlug": "vat-calculations",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Accounting · CAPS.6\n\nVAT is 15%. Exclusive price R400. Find VAT amount.",
+      "correctAnswerText": "60",
+      "acceptableAnswers": [
+        "60",
+        "R60"
+      ],
+      "explanation": "VAT = 400 × 0.15 = R60."
+    },
+    {
+      "sourceQuestionRef": "CAPS.7",
+      "topicSlug": "manufacturing",
+      "subtopicSlug": "production-cost-statements",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Accounting · CAPS.7\n\nDirect material + direct labour + factory overheads relate to —",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply production cost statements in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Accounting: Manufacturing accounts · Production cost statements — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.8",
+      "topicSlug": "ethics",
+      "subtopicSlug": "code-of-ethics",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Accounting · CAPS.8\n\nProfessional accountants should prioritise —",
+      "options": [
+        {
+          "id": "a",
+          "text": "personal gain over truth"
+        },
+        {
+          "id": "b",
+          "text": "integrity and transparency"
+        },
+        {
+          "id": "c",
+          "text": "hiding errors from auditors"
+        },
+        {
+          "id": "d",
+          "text": "conflicts of interest without disclosure"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Ethics and internal control (CAPS)."
     }
   ]
 }

@@ -43,6 +43,62 @@
       ],
       "correctOptionId": "a",
       "explanation": "EGD CAPS: first-angle orthographic views (plan, front, side) and line types."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "geometric-construction",
+      "subtopicSlug": "isometric-and-oblique",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Engineering Graphics & Design (EGD) · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Isometric and oblique drawing\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply isometric and oblique drawing in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Engineering Graphics & Design (EGD): Geometric construction · Isometric and oblique drawing — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "design-process",
+      "subtopicSlug": "design-brief-and-solution",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Engineering Graphics & Design (EGD) · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Design brief and solution development\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply design brief and solution development in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Engineering Graphics & Design (EGD): Design process · Design brief and solution development — assessed through applied exam-style work."
     }
   ]
 }

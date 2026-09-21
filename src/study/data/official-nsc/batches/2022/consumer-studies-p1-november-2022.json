@@ -43,6 +43,62 @@
       ],
       "correctOptionId": "c",
       "explanation": "Consumer Studies CAPS: rights, responsibilities, and sustainable choices."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "consumer-rights",
+      "subtopicSlug": "legislation-and-rights",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Consumer Studies · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Consumer legislation and rights\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply consumer legislation and rights in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Consumer Studies: Consumer rights · Consumer legislation and rights — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "food-and-nutrition",
+      "subtopicSlug": "nutrition-and-meal-planning",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Consumer Studies · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Nutrition and meal planning\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply nutrition and meal planning in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Consumer Studies: Food and nutrition · Nutrition and meal planning — assessed through applied exam-style work."
     }
   ]
 }

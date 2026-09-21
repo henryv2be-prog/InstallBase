@@ -29,7 +29,7 @@ export function SubjectCurriculumPreview({ subjects }: Props) {
                 <h3 className="text-base font-semibold">{subject.name}</h3>
                 <p className="mt-1 text-xs text-[var(--study-muted)]">
                   {topicCount} topics · {subtopicCount} subtopics
-                  {curriculum && !curriculum.isComplete ? " · partial CAPS slice" : ""}
+                  {curriculum && !curriculum.isComplete ? " · partial CAPS map" : " · CAPS assessment map"}
                 </p>
               </div>
               <span className="study-pill study-pill--prototype">Ready for testing</span>

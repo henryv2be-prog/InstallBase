@@ -1,5 +1,6 @@
 import { StudyContentSourceKind } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { CAPS_ASSESSMENT_MAP_COMPLETE_SLUGS } from "@/study/data/caps-grade12-assessment-map";
 import { GRADE_12_CURRICULUM_STARTER } from "@/study/data/curriculum-starter";
 import {
   GRADE_12_NSC_SUBJECT_CATALOG,
@@ -24,7 +25,7 @@ export async function seedStudyCurriculum() {
         sortOrder: entry.sortOrder,
         active: true,
         description: hasStarter
-          ? `Grade 12 ${entry.name} (CAPS FET) — partial topic map loaded.`
+          ? `Grade 12 ${entry.name} (CAPS FET) — CAPS assessment map for tracking.`
           : "Grade 12 NSC subject — select for exams; CAPS topic map coming soon.",
       },
       update: {
@@ -32,7 +33,7 @@ export async function seedStudyCurriculum() {
         sortOrder: entry.sortOrder,
         active: true,
         description: hasStarter
-          ? `Grade 12 ${entry.name} (CAPS FET) — partial topic map loaded.`
+          ? `Grade 12 ${entry.name} (CAPS FET) — CAPS assessment map for tracking.`
           : "Grade 12 NSC subject — select for exams; CAPS topic map coming soon.",
       },
     });
@@ -70,18 +71,18 @@ export async function seedStudyCurriculum() {
       create: {
         id: `${subject.id}-caps-starter`,
         subjectId: subject.id,
-        name: "CAPS Grade 12 (starter slice)",
+        name: "CAPS Grade 12 (assessment map)",
         sourceKind: StudyContentSourceKind.OFFICIAL_CURRICULUM,
         sourceTitle: subjectDef.sourceTitle,
         sourceUrl: subjectDef.sourceUrl,
         versionLabel: subjectDef.versionLabel,
-        isComplete: false,
+        isComplete: CAPS_ASSESSMENT_MAP_COMPLETE_SLUGS.has(subjectDef.slug),
       },
       update: {
         sourceTitle: subjectDef.sourceTitle,
         sourceUrl: subjectDef.sourceUrl,
         versionLabel: subjectDef.versionLabel,
-        isComplete: false,
+        isComplete: CAPS_ASSESSMENT_MAP_COMPLETE_SLUGS.has(subjectDef.slug),
       },
     });
 

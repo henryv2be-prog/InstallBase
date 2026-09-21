@@ -43,6 +43,62 @@
       ],
       "correctOptionId": "a",
       "explanation": "Performance CAPS: interpretation includes subtext, motivation, and tone."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "performance",
+      "subtopicSlug": "voice-and-movement",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Dramatic Arts · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Voice and movement\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply voice and movement in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Dramatic Arts: Performance · Voice and movement — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "theatre-studies",
+      "subtopicSlug": "genres-and-styles",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Dramatic Arts · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Theatre genres and styles\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply theatre genres and styles in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Dramatic Arts: Theatre studies · Theatre genres and styles — assessed through applied exam-style work."
     }
   ]
 }

@@ -24,10 +24,22 @@
       "difficulty": 2,
       "prompt": "Official NSC · Nov 2022 · Afrikaans HT Paper 1 · Vraag 1.1\n\nKies die korrekte vorm: Hy ___ gister na skool huis toe.",
       "options": [
-        { "id": "a", "text": "is" },
-        { "id": "b", "text": "was" },
-        { "id": "c", "text": "sal" },
-        { "id": "d", "text": "het" }
+        {
+          "id": "a",
+          "text": "is"
+        },
+        {
+          "id": "b",
+          "text": "was"
+        },
+        {
+          "id": "c",
+          "text": "sal"
+        },
+        {
+          "id": "d",
+          "text": "het"
+        }
       ],
       "correctOptionId": "b",
       "explanation": "Past time (gister) → past tense: \"was\"."
@@ -40,7 +52,11 @@
       "difficulty": 2,
       "prompt": "Official NSC · Nov 2022 · Afrikaans HT Paper 1 · Vraag 1.2\n\nGee 'n sinoniem vir \"vinnig\".",
       "correctAnswerText": "spoedig",
-      "acceptableAnswers": ["ras", "flitsig", "gou"],
+      "acceptableAnswers": [
+        "ras",
+        "flitsig",
+        "gou"
+      ],
       "explanation": "Sinonieme het soortgelyke betekenis, bv. vinnig ≈ spoedig."
     },
     {
@@ -51,10 +67,22 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Afrikaans HT Paper 1 · Vraag 2.1\n\nWat is die doel van 'n opsomming?",
       "options": [
-        { "id": "a", "text": "Die hoofgedagtes kort en in eie woorde weergee" },
-        { "id": "b", "text": "Elke sin woord vir woord kopieer" },
-        { "id": "c", "text": "Slegs die titel herhaal" },
-        { "id": "d", "text": "Nuwe inligting byvoeg" }
+        {
+          "id": "a",
+          "text": "Die hoofgedagtes kort en in eie woorde weergee"
+        },
+        {
+          "id": "b",
+          "text": "Elke sin woord vir woord kopieer"
+        },
+        {
+          "id": "c",
+          "text": "Slegs die titel herhaal"
+        },
+        {
+          "id": "d",
+          "text": "Nuwe inligting byvoeg"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Opsomming = kernboodskap in bondige, eie woorde."
@@ -67,7 +95,11 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Afrikaans HT Paper 1 · Vraag 3.1\n\nNoem EEN vereiste van 'n formele brief se aanhef.",
       "correctAnswerText": "aanhef met naam en adres",
-      "acceptableAnswers": ["datum", "ontvanger se adres", "formele groet"],
+      "acceptableAnswers": [
+        "datum",
+        "ontvanger se adres",
+        "formele groet"
+      ],
       "explanation": "Formele transaksioneel: korrekte lay-out, datum, adres en groet."
     },
     {
@@ -78,10 +110,22 @@
       "difficulty": 2,
       "prompt": "Official NSC · Nov 2022 · Afrikaans HT Paper 1 · Vraag 3.2\n\nWatter element is tipies in kreatiewe skryfwerk?",
       "options": [
-        { "id": "a", "text": "Beeldspraak" },
-        { "id": "b", "text": "Slegs bullet points" },
-        { "id": "c", "text": "Balstaat" },
-        { "id": "d", "text": "BTW-berekening" }
+        {
+          "id": "a",
+          "text": "Beeldspraak"
+        },
+        {
+          "id": "b",
+          "text": "Slegs bullet points"
+        },
+        {
+          "id": "c",
+          "text": "Balstaat"
+        },
+        {
+          "id": "d",
+          "text": "BTW-berekening"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Kreatiewe tekste gebruik o.a. beeldspraak en verhaalelemente."
@@ -94,7 +138,10 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Afrikaans HT Paper 1 · Vraag 4.1\n\nWat word met \"rym\" in 'n gedig bedoel?",
       "correctAnswerText": "ooreenstemmende klank aan die einde van versreëls",
-      "acceptableAnswers": ["klankherhaling aan die einde van reëls", "ending sounds match"],
+      "acceptableAnswers": [
+        "klankherhaling aan die einde van reëls",
+        "ending sounds match"
+      ],
       "explanation": "Rym = ooreenstemmende klankpatrone, dikwels aan die einde van versreëls."
     },
     {
@@ -105,13 +152,53 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Afrikaans HT Paper 1 · Vraag 4.2\n\nIn drama verwys \"dialogue\" na …",
       "options": [
-        { "id": "a", "text": "spraak tussen karakters" },
-        { "id": "b", "text": "slegs die verhaalverteller" },
-        { "id": "c", "text": "die pouse tussen aktes" },
-        { "id": "d", "text": "die outeur se biografie" }
+        {
+          "id": "a",
+          "text": "spraak tussen karakters"
+        },
+        {
+          "id": "b",
+          "text": "slegs die verhaalverteller"
+        },
+        {
+          "id": "c",
+          "text": "die pouse tussen aktes"
+        },
+        {
+          "id": "d",
+          "text": "die outeur se biografie"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Dialoog is gesprek wat karakters op die verhoog voer."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "lees-en-kyk",
+      "subtopicSlug": "kritiese-lees",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Afrikaans Home Language · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Kritiese lees\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply kritiese lees in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Afrikaans Home Language: Lees en kyk · Kritiese lees — assessed through applied exam-style work."
     }
   ]
 }

@@ -43,6 +43,62 @@
       ],
       "correctOptionId": "d",
       "explanation": "Dance Studies CAPS: choreographic devices include canon, repetition, and motif."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "dance-performance",
+      "subtopicSlug": "technique-and-fitness",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Dance Studies · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Technique and fitness\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply technique and fitness in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Dance Studies: Dance performance · Technique and fitness — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "dance-history",
+      "subtopicSlug": "styles-and-context",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Dance Studies · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Dance styles and context\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply dance styles and context in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Dance Studies: Dance history and appreciation · Dance styles and context — assessed through applied exam-style work."
     }
   ]
 }

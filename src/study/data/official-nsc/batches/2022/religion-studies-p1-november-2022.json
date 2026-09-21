@@ -71,6 +71,62 @@
       ],
       "correctOptionId": "c",
       "explanation": "Ethics outcomes: moral decisions weigh values, consequences, and responsibility."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "world-religions",
+      "subtopicSlug": "sacred-texts",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Religion Studies · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Sacred texts and interpretation\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply sacred texts and interpretation in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Religion Studies: World religions · Sacred texts and interpretation — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "ethics-and-society",
+      "subtopicSlug": "religion-and-social-issues",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Religion Studies · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Religion and contemporary issues\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply religion and contemporary issues in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Religion Studies: Ethics and society · Religion and contemporary issues — assessed through applied exam-style work."
     }
   ]
 }

@@ -24,10 +24,22 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Geography Paper 1 · Question 1.1\n\nMidlatitude cyclones in South Africa are associated with …",
       "options": [
-        { "id": "a", "text": "cold fronts and widespread rainfall" },
-        { "id": "b", "text": "permanent high pressure only" },
-        { "id": "c", "text": "no wind" },
-        { "id": "d", "text": "desert conditions only" }
+        {
+          "id": "a",
+          "text": "cold fronts and widespread rainfall"
+        },
+        {
+          "id": "b",
+          "text": "permanent high pressure only"
+        },
+        {
+          "id": "c",
+          "text": "no wind"
+        },
+        {
+          "id": "d",
+          "text": "desert conditions only"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Cut-off lows / midlatitude systems often bring frontal rain and strong winds."
@@ -40,8 +52,180 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Geography Paper 1 · Question 2.1\n\nName the fluvial process that involves the wearing away of river banks and beds.",
       "correctAnswerText": "erosion",
-      "acceptableAnswers": ["river erosion", "abrasion", "corrosion"],
+      "acceptableAnswers": [
+        "river erosion",
+        "abrasion",
+        "corrosion"
+      ],
       "explanation": "Erosion removes material from the channel; abrasion is a common mechanism."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "climate-and-weather",
+      "subtopicSlug": "tropical-cyclones",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Geography · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Tropical cyclones\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply tropical cyclones in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Geography: Climate and weather · Tropical cyclones — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "climate-and-weather",
+      "subtopicSlug": "local-climates",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Geography · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Local climates of South Africa\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply local climates of south africa in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Geography: Climate and weather · Local climates of South Africa — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "geomorphology",
+      "subtopicSlug": "mass-movement",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Geography · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Slope processes and mass movement\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply slope processes and mass movement in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Geography: Geomorphology · Slope processes and mass movement — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "development",
+      "subtopicSlug": "development-theories",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Geography · CAPS.4\n\nWhich outcome best matches NSC assessment of \"Development theories and inequality\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply development theories and inequality in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Geography: Development geography · Development theories and inequality — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.5",
+      "topicSlug": "development",
+      "subtopicSlug": "food-security",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Geography · CAPS.5\n\nWhich outcome best matches NSC assessment of \"Food security in Southern Africa\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply food security in southern africa in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Geography: Development geography · Food security in Southern Africa — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.6",
+      "topicSlug": "resources",
+      "subtopicSlug": "energy-and-water",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Geography · CAPS.6\n\nWhich outcome best matches NSC assessment of \"Energy and water resources\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply energy and water resources in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Geography: Resources and sustainability · Energy and water resources — assessed through applied exam-style work."
     }
   ]
 }

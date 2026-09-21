@@ -24,7 +24,11 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Mathematical Literacy Paper 1 · Question 1.1\n\nCalculate the simple interest on R12 000 invested at 9% per annum for 2 years.",
       "correctAnswerText": "2160",
-      "acceptableAnswers": ["R2160", "R 2160", "2160 rand"],
+      "acceptableAnswers": [
+        "R2160",
+        "R 2160",
+        "2160 rand"
+      ],
       "explanation": "Simple interest I = P × r × t = 12 000 × 0.09 × 2 = R2 160."
     },
     {
@@ -35,7 +39,11 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Mathematical Literacy Paper 1 · Question 2.1\n\nA item costs R500 excluding 15% VAT. Calculate the VAT amount.",
       "correctAnswerText": "75",
-      "acceptableAnswers": ["R75", "R 75", "75 rand"],
+      "acceptableAnswers": [
+        "R75",
+        "R 75",
+        "75 rand"
+      ],
       "explanation": "VAT = 500 × 0,15 = R75."
     },
     {
@@ -46,7 +54,12 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Mathematical Literacy Paper 1 · Question 3.1\n\nCalculate the volume of a cylinder with radius 3 cm and height 10 cm. (Use π ≈ 3,14.)",
       "correctAnswerText": "282.6",
-      "acceptableAnswers": ["282,6", "283", "282.6 cm^3", "282,6 cm³"],
+      "acceptableAnswers": [
+        "282,6",
+        "283",
+        "282.6 cm^3",
+        "282,6 cm³"
+      ],
       "explanation": "V = πr²h = 3,14 × 9 × 10 = 282,6 cm³."
     },
     {
@@ -57,10 +70,22 @@
       "difficulty": 2,
       "prompt": "Official NSC · Nov 2022 · Mathematical Literacy Paper 1 · Question 4.1\n\nOn a distance-time graph, a horizontal line indicates …",
       "options": [
-        { "id": "a", "text": "the object is stationary" },
-        { "id": "b", "text": "constant acceleration" },
-        { "id": "c", "text": "speed is increasing" },
-        { "id": "d", "text": "distance is zero" }
+        {
+          "id": "a",
+          "text": "the object is stationary"
+        },
+        {
+          "id": "b",
+          "text": "constant acceleration"
+        },
+        {
+          "id": "c",
+          "text": "speed is increasing"
+        },
+        {
+          "id": "d",
+          "text": "distance is zero"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Zero gradient on a distance-time graph means no change in distance — stationary."
@@ -73,8 +98,125 @@
       "difficulty": 2,
       "prompt": "Official NSC · Nov 2022 · Mathematical Literacy Paper 1 · Question 4.2\n\nA fair coin is tossed once. What is the probability of obtaining heads?",
       "correctAnswerText": "0.5",
-      "acceptableAnswers": ["1/2", "50%", "0,5", "half"],
+      "acceptableAnswers": [
+        "1/2",
+        "50%",
+        "0,5",
+        "half"
+      ],
       "explanation": "P(heads) = 1/2 = 0,5 for a fair coin."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "finance",
+      "subtopicSlug": "banking-and-budgets",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematical Literacy · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Bank statements, budgets and tariffs\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply bank statements, budgets and tariffs in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Mathematical Literacy: Finance · Bank statements, budgets and tariffs — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "measurement",
+      "subtopicSlug": "plans-and-models",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematical Literacy · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Plans, scale and models\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply plans, scale and models in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Mathematical Literacy: Measurement · Plans, scale and models — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "maps-and-plans",
+      "subtopicSlug": "scale-and-direction",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematical Literacy · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Scale, distance and direction\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply scale, distance and direction in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Mathematical Literacy: Maps and plans · Scale, distance and direction — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "data-handling",
+      "subtopicSlug": "critique-of-statistics",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematical Literacy · CAPS.4\n\nWhich outcome best matches NSC assessment of \"Critically analysing statistical reports\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply critically analysing statistical reports in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Mathematical Literacy: Data handling · Critically analysing statistical reports — assessed through applied exam-style work."
     }
   ]
 }

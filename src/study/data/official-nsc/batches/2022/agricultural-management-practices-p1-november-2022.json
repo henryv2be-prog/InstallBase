@@ -43,6 +43,62 @@
       ],
       "correctOptionId": "a",
       "explanation": "Agricultural Management Practices: financial records support decision-making."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "farm-management",
+      "subtopicSlug": "labour-and-marketing",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Agricultural Management Practices · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Labour relations and marketing\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply labour relations and marketing in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Agricultural Management Practices: Farm management · Labour relations and marketing — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "sustainability",
+      "subtopicSlug": "resource-conservation",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Agricultural Management Practices · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Resource conservation\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply resource conservation in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Agricultural Management Practices: Sustainable agriculture · Resource conservation — assessed through applied exam-style work."
     }
   ]
 }

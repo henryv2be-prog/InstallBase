@@ -24,10 +24,22 @@
       "difficulty": 2,
       "prompt": "Official NSC · Nov 2022 · English HL Paper 1 · Question 1.1\n\nChoose the correct sentence.",
       "options": [
-        { "id": "a", "text": "Neither the learners nor the teacher was ready." },
-        { "id": "b", "text": "Neither the learners nor the teacher were ready." },
-        { "id": "c", "text": "Neither the learners nor the teacher is ready." },
-        { "id": "d", "text": "Neither the learners nor the teacher are ready." }
+        {
+          "id": "a",
+          "text": "Neither the learners nor the teacher was ready."
+        },
+        {
+          "id": "b",
+          "text": "Neither the learners nor the teacher were ready."
+        },
+        {
+          "id": "c",
+          "text": "Neither the learners nor the teacher is ready."
+        },
+        {
+          "id": "d",
+          "text": "Neither the learners nor the teacher are ready."
+        }
       ],
       "correctOptionId": "a",
       "explanation": "With neither/nor, the verb agrees with the nearer subject (teacher → was)."
@@ -45,6 +57,146 @@
         "An implied comparison"
       ],
       "explanation": "A metaphor states one thing is another to create imagery or meaning."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "language-structures",
+      "subtopicSlug": "visual-literacy",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · English Home Language · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Visual and media literacy\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply visual and media literacy in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS English Home Language: Language structures and conventions · Visual and media literacy — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "reading",
+      "subtopicSlug": "comprehension-and-summary",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · English Home Language · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Comprehension and summary\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply comprehension and summary in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS English Home Language: Reading and viewing · Comprehension and summary — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "writing",
+      "subtopicSlug": "transactional-writing",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · English Home Language · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Transactional writing\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply transactional writing in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS English Home Language: Writing and presenting · Transactional writing — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "writing",
+      "subtopicSlug": "creative-writing",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · English Home Language · CAPS.4\n\nWhich outcome best matches NSC assessment of \"Creative writing\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply creative writing in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS English Home Language: Writing and presenting · Creative writing — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.5",
+      "topicSlug": "literature",
+      "subtopicSlug": "drama-analysis",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · English Home Language · CAPS.5\n\nWhich outcome best matches NSC assessment of \"Drama analysis\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply drama analysis in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS English Home Language: Literature · Drama analysis — assessed through applied exam-style work."
     }
   ]
 }

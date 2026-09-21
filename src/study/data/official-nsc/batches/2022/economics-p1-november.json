@@ -24,10 +24,22 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Economics Paper 1 · Question 1.1\n\nIn the circular flow, households supply … to firms.",
       "options": [
-        { "id": "a", "text": "factors of production" },
-        { "id": "b", "text": "government bonds only" },
-        { "id": "c", "text": "import tariffs" },
-        { "id": "d", "text": "national debt" }
+        {
+          "id": "a",
+          "text": "factors of production"
+        },
+        {
+          "id": "b",
+          "text": "government bonds only"
+        },
+        {
+          "id": "c",
+          "text": "import tariffs"
+        },
+        {
+          "id": "d",
+          "text": "national debt"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Households provide labour, land, capital and entrepreneurship to firms."
@@ -40,8 +52,152 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Economics Paper 1 · Question 2.1\n\nName the phase of the business cycle characterised by rising real GDP and falling unemployment.",
       "correctAnswerText": "expansion",
-      "acceptableAnswers": ["recovery", "boom", "upswing"],
+      "acceptableAnswers": [
+        "recovery",
+        "boom",
+        "upswing"
+      ],
       "explanation": "Expansion (recovery/boom) features growing output and improving employment."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "macroeconomics",
+      "subtopicSlug": "public-sector",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Economics · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Public sector and fiscal policy\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply public sector and fiscal policy in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Economics: Macroeconomics · Public sector and fiscal policy — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "microeconomics",
+      "subtopicSlug": "demand-and-supply",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Economics · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Demand, supply and equilibrium\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply demand, supply and equilibrium in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Economics: Microeconomics · Demand, supply and equilibrium — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "microeconomics",
+      "subtopicSlug": "market-structures",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Economics · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Market structures\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply market structures in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Economics: Microeconomics · Market structures — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "economic-pursuits",
+      "subtopicSlug": "growth-and-development",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Economics · CAPS.4\n\nWhich outcome best matches NSC assessment of \"Growth, development and indicators\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply growth, development and indicators in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Economics: Economic pursuits · Growth, development and indicators — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.5",
+      "topicSlug": "economic-pursuits",
+      "subtopicSlug": "south-african-economy",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Economics · CAPS.5\n\nWhich outcome best matches NSC assessment of \"Contemporary South African economy\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply contemporary south african economy in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Economics: Economic pursuits · Contemporary South African economy — assessed through applied exam-style work."
     }
   ]
 }

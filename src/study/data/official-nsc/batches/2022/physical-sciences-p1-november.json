@@ -24,7 +24,12 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 2.1\n\nState the SI unit of electric field strength.",
       "correctAnswerText": "N/C",
-      "acceptableAnswers": ["N·C-1", "NC-1", "newton per coulomb", "N C-1"],
+      "acceptableAnswers": [
+        "N·C-1",
+        "NC-1",
+        "newton per coulomb",
+        "N C-1"
+      ],
       "explanation": "Electric field strength is measured in newtons per coulomb (N·C⁻¹)."
     },
     {
@@ -35,7 +40,12 @@
       "difficulty": 4,
       "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 2.2\n\nA charge of 2 × 10⁻⁶ C experiences a force of 0.04 N in an electric field. Calculate the magnitude of the electric field strength.",
       "correctAnswerText": "20000",
-      "acceptableAnswers": ["2.0x10^4", "2×10^4", "20000 N/C", "2.0e4"],
+      "acceptableAnswers": [
+        "2.0x10^4",
+        "2×10^4",
+        "20000 N/C",
+        "2.0e4"
+      ],
       "explanation": "E = F/q = 0.04 / (2 × 10⁻⁶) = 2 × 10⁴ N·C⁻¹."
     },
     {
@@ -46,7 +56,11 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 1.1\n\nA ball is thrown vertically upward with initial velocity 12 m·s⁻¹. Calculate its velocity after 1 s. (Use g = 9,8 m·s⁻² downward.)",
       "correctAnswerText": "2.2",
-      "acceptableAnswers": ["2.2 m/s", "2,2", "2.2 m·s-1"],
+      "acceptableAnswers": [
+        "2.2 m/s",
+        "2,2",
+        "2.2 m·s-1"
+      ],
       "explanation": "v = u + at = 12 + (−9,8)(1) = 2,2 m·s⁻¹ upward."
     },
     {
@@ -57,7 +71,11 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 1.2\n\nCalculate the momentum of a 0,5 kg ball moving at 4 m·s⁻¹.",
       "correctAnswerText": "2",
-      "acceptableAnswers": ["2 kg·m/s", "2 kg m/s", "2,0"],
+      "acceptableAnswers": [
+        "2 kg·m/s",
+        "2 kg m/s",
+        "2,0"
+      ],
       "explanation": "p = mv = 0,5 × 4 = 2 kg·m·s⁻¹."
     },
     {
@@ -68,10 +86,22 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 3.1\n\nLenz's law is used to determine the direction of …",
       "options": [
-        { "id": "a", "text": "induced current" },
-        { "id": "b", "text": "gravitational force" },
-        { "id": "c", "text": "nuclear decay" },
-        { "id": "d", "text": "static friction" }
+        {
+          "id": "a",
+          "text": "induced current"
+        },
+        {
+          "id": "b",
+          "text": "gravitational force"
+        },
+        {
+          "id": "c",
+          "text": "nuclear decay"
+        },
+        {
+          "id": "d",
+          "text": "static friction"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Lenz's law gives the direction of the induced current (electromagnetic induction)."
@@ -84,10 +114,22 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 4.1\n\nWhich factor increases the rate of a chemical reaction?",
       "options": [
-        { "id": "a", "text": "Higher temperature" },
-        { "id": "b", "text": "Lower concentration of reactants" },
-        { "id": "c", "text": "Removing a catalyst" },
-        { "id": "d", "text": "Decreasing surface area of a solid reactant" }
+        {
+          "id": "a",
+          "text": "Higher temperature"
+        },
+        {
+          "id": "b",
+          "text": "Lower concentration of reactants"
+        },
+        {
+          "id": "c",
+          "text": "Removing a catalyst"
+        },
+        {
+          "id": "d",
+          "text": "Decreasing surface area of a solid reactant"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Higher temperature increases average kinetic energy and collision frequency."
@@ -105,6 +147,189 @@
         "The system opposes the change applied to it"
       ],
       "explanation": "Le Chatelier: a system at equilibrium responds to oppose the imposed change."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "mechanics",
+      "subtopicSlug": "work-energy-power",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Physical Sciences · CAPS.1\n\nA 2 kg object is lifted 3 m vertically. Calculate the increase in gravitational potential energy (g = 10 m·s⁻²).",
+      "correctAnswerText": "60",
+      "acceptableAnswers": [
+        "60 J",
+        "60",
+        "Ep=60"
+      ],
+      "explanation": "Ep = mgh = 2×10×3 = 60 J."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "waves-and-light",
+      "subtopicSlug": "doppler-effect",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Physical Sciences · CAPS.2\n\nWhen a sound source moves TOWARDS a stationary observer, the observed frequency —",
+      "options": [
+        {
+          "id": "a",
+          "text": "increases"
+        },
+        {
+          "id": "b",
+          "text": "decreases"
+        },
+        {
+          "id": "c",
+          "text": "is unchanged always"
+        },
+        {
+          "id": "d",
+          "text": "becomes zero"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Doppler: approaching source → higher observed frequency."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "waves-and-light",
+      "subtopicSlug": "photoelectric-effect",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Physical Sciences · CAPS.3\n\nPhotoelectrons are emitted only when incident light —",
+      "options": [
+        {
+          "id": "a",
+          "text": "has any intensity regardless of frequency"
+        },
+        {
+          "id": "b",
+          "text": "is below the threshold frequency"
+        },
+        {
+          "id": "c",
+          "text": "has frequency above the threshold/work function"
+        },
+        {
+          "id": "d",
+          "text": "is always infrared"
+        }
+      ],
+      "correctOptionId": "c",
+      "explanation": "CAPS: photoelectric effect depends on frequency threshold."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "electricity-and-magnetism",
+      "subtopicSlug": "electromagnetic-induction",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Physical Sciences · CAPS.4\n\nLenz's law states that the induced current opposes —",
+      "options": [
+        {
+          "id": "a",
+          "text": "only the battery polarity"
+        },
+        {
+          "id": "b",
+          "text": "the change causing it"
+        },
+        {
+          "id": "c",
+          "text": "all magnetic fields everywhere"
+        },
+        {
+          "id": "d",
+          "text": "gravitational force"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Electrodynamics CAPS: Lenz's law and flux change."
+    },
+    {
+      "sourceQuestionRef": "CAPS.5",
+      "topicSlug": "chemical-change",
+      "subtopicSlug": "acids-and-bases",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Physical Sciences · CAPS.5\n\nA solution with pH = 3 is —",
+      "options": [
+        {
+          "id": "a",
+          "text": "acidic"
+        },
+        {
+          "id": "b",
+          "text": "neutral"
+        },
+        {
+          "id": "c",
+          "text": "basic"
+        },
+        {
+          "id": "d",
+          "text": "always a strong base"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "pH < 7 → acidic (CAPS acids and bases)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.6",
+      "topicSlug": "chemical-change",
+      "subtopicSlug": "electrochemistry",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Physical Sciences · CAPS.6\n\nIn a galvanic cell, oxidation occurs at the —",
+      "options": [
+        {
+          "id": "a",
+          "text": "salt bridge only"
+        },
+        {
+          "id": "b",
+          "text": "cathode"
+        },
+        {
+          "id": "c",
+          "text": "anode"
+        },
+        {
+          "id": "d",
+          "text": "voltmeter"
+        }
+      ],
+      "correctOptionId": "c",
+      "explanation": "Electrochemical cells: anode = oxidation."
+    },
+    {
+      "sourceQuestionRef": "CAPS.7",
+      "topicSlug": "chemical-change",
+      "subtopicSlug": "organic-chemistry",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Physical Sciences · CAPS.7\n\nThe general formula for alkanes is —",
+      "options": [
+        {
+          "id": "a",
+          "text": "CnH2n"
+        },
+        {
+          "id": "b",
+          "text": "CnH2n+2"
+        },
+        {
+          "id": "c",
+          "text": "CnH2n−2"
+        },
+        {
+          "id": "d",
+          "text": "CnHn"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Organic CAPS: alkane homologous series CnH2n+2."
     }
   ]
 }

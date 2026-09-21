@@ -127,6 +127,118 @@
       ],
       "correctOptionId": "b",
       "explanation": "Theme analysis links evidence from the text to the writer's central message (CAPS literature outcome)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "taalstrukture",
+      "subtopicSlug": "taal-en-styl",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · isiXhosa Home Language · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Taal en styl\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply taal en styl in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS isiXhosa Home Language: Taalstrukture en konvensies · Taal en styl — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "lees-en-kyk",
+      "subtopicSlug": "kritiese-lees",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · isiXhosa Home Language · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Kritiese lees en ontleding\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply kritiese lees en ontleding in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS isiXhosa Home Language: Lees en kyk · Kritiese lees en ontleding — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "skryf",
+      "subtopicSlug": "kreatiewe-skryfwerk",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · isiXhosa Home Language · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Kreatiewe skryfwerk\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply kreatiewe skryfwerk in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS isiXhosa Home Language: Skryf · Kreatiewe skryfwerk — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "letterkunde",
+      "subtopicSlug": "drama-en-film",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · isiXhosa Home Language · CAPS.4\n\nWhich outcome best matches NSC assessment of \"Drama en film\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply drama en film in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS isiXhosa Home Language: Letterkunde · Drama en film — assessed through applied exam-style work."
     }
   ]
 }

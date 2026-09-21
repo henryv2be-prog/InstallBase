@@ -24,13 +24,137 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Agricultural Sciences Paper 1 · Question 1.1\n\nWhich feed component provides the most energy per unit mass?",
       "options": [
-        { "id": "a", "text": "Fats/lipids" },
-        { "id": "b", "text": "Water" },
-        { "id": "c", "text": "Minerals only" },
-        { "id": "d", "text": "Vitamins only" }
+        {
+          "id": "a",
+          "text": "Fats/lipids"
+        },
+        {
+          "id": "b",
+          "text": "Water"
+        },
+        {
+          "id": "c",
+          "text": "Minerals only"
+        },
+        {
+          "id": "d",
+          "text": "Vitamins only"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Lipids yield about 9 kcal/g — more than carbohydrates or protein."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "animal-nutrition",
+      "subtopicSlug": "ration-formulation",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Agricultural Sciences · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Ration formulation\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply ration formulation in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Agricultural Sciences: Animal nutrition · Ration formulation — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "animal-production",
+      "subtopicSlug": "production-systems",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Agricultural Sciences · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Production systems and management\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply production systems and management in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Agricultural Sciences: Animal production · Production systems and management — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "soil-and-plant",
+      "subtopicSlug": "soil-fertility",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Agricultural Sciences · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Soil fertility and management\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply soil fertility and management in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Agricultural Sciences: Soil and plant sciences · Soil fertility and management — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "soil-and-plant",
+      "subtopicSlug": "plant-growth",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Agricultural Sciences · CAPS.4\n\nWhich outcome best matches NSC assessment of \"Plant growth and reproduction\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply plant growth and reproduction in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Agricultural Sciences: Soil and plant sciences · Plant growth and reproduction — assessed through applied exam-style work."
     }
   ]
 }

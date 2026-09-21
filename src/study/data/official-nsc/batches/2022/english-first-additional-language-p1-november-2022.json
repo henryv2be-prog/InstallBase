@@ -99,6 +99,90 @@
       ],
       "correctOptionId": "a",
       "explanation": "Register: formal letters use appropriate salutation and tone."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "language-structures-fal",
+      "subtopicSlug": "visual-literacy-fal",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · English First Additional Language · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Visual literacy\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply visual literacy in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS English First Additional Language: Language structures · Visual literacy — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "reading-fal",
+      "subtopicSlug": "lang-tekste",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · English First Additional Language · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Longer texts\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply longer texts in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS English First Additional Language: Reading and comprehension · Longer texts — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "writing-fal",
+      "subtopicSlug": "kreatiewe-skryf-fal",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · English First Additional Language · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Creative writing\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply creative writing in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS English First Additional Language: Writing · Creative writing — assessed through applied exam-style work."
     }
   ]
 }

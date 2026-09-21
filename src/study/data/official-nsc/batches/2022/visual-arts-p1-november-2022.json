@@ -43,6 +43,62 @@
       ],
       "correctOptionId": "c",
       "explanation": "Visual literacy: elements and principles (contrast, balance, emphasis)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "art-making",
+      "subtopicSlug": "art-making-techniques",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Visual Arts · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Art-making techniques and media\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply art-making techniques and media in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Visual Arts: Art making · Art-making techniques and media — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "art-history",
+      "subtopicSlug": "analysis-and-context",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Visual Arts · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Analysis, context and meaning\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply analysis, context and meaning in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Visual Arts: Art history and criticism · Analysis, context and meaning — assessed through applied exam-style work."
     }
   ]
 }

@@ -49,6 +49,62 @@
         "4 4",
         "common time"
       ]
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "music-literacy",
+      "subtopicSlug": "harmony-and-composition",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Music · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Harmony and composition basics\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply harmony and composition basics in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Music: Music literacy · Harmony and composition basics — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "performance",
+      "subtopicSlug": "performing-and-appraising",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Music · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Performing and appraising\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply performing and appraising in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Music: Performance · Performing and appraising — assessed through applied exam-style work."
     }
   ]
 }

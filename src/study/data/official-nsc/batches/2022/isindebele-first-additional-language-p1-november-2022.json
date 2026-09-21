@@ -99,6 +99,90 @@
       ],
       "correctOptionId": "a",
       "explanation": "Formele register vereis beleefde, professionele aanhef en slot."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "taalstrukture-fal",
+      "subtopicSlug": "woordeskat-spelling",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · isiNdebele First Additional Language · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Vocabulary and spelling\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply vocabulary and spelling in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS isiNdebele First Additional Language: Taalstrukture · Vocabulary and spelling — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "lees-fal",
+      "subtopicSlug": "lang-tekste",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · isiNdebele First Additional Language · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Longer texts and summary\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply longer texts and summary in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS isiNdebele First Additional Language: Lees en begrip · Longer texts and summary — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "skryf-fal",
+      "subtopicSlug": "kreatiewe-skryf-fal",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · isiNdebele First Additional Language · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Creative writing\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply creative writing in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS isiNdebele First Additional Language: Skryf · Creative writing — assessed through applied exam-style work."
     }
   ]
 }

@@ -1,6 +1,6 @@
 /**
- * Starter CAPS-aligned curriculum slices for Grade 12 NSC prototype testing.
- * Topic names follow DBE CAPS FET subject frameworks; coverage is intentionally partial.
+ * CAPS FET Grade 12 assessment taxonomy for mastery tracking and recommendations.
+ * Not a teaching syllabus — subtopics define what can be assessed and tracked.
  * @see https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx
  */
 
@@ -27,511 +27,212 @@ export type StudyCurriculumStarterSubject = {
   }[];
 };
 
+import { capsTopicsForSubject } from "./caps-grade12-assessment-map";
 import { GRADE_12_CURRICULUM_STARTER_EXTRA } from "./curriculum-starter-extra";
 
-/** Partial prototype dataset — not complete NSC coverage. */
+const CAPS_ASSESSMENT_VERSION = "2026 CAPS assessment map";
+
+/** Grade 12 subjects with topic/subtopic trees for assessment and tracking. */
 export const GRADE_12_CURRICULUM_STARTER: StudyCurriculumStarterSubject[] = [
   {
     slug: "mathematics",
     name: "Mathematics",
     sortOrder: 1,
-    description: "Grade 12 Mathematics (CAPS FET)",
+    description: "Grade 12 Mathematics (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Mathematics FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Portals/0/CD/National%20Curriculum%20Statements%20and%20Vocational/CAPS%20FET%20_%20MATHEMATICS%20_%20GR%2010-12%20_%20Web.pdf",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "functions",
-        name: "Functions",
-        sortOrder: 1,
-        importance: 1.2,
-        subtopics: [
-          {
-            slug: "transformations",
-            name: "Transformations of functions",
-            sortOrder: 1,
-            prerequisite: { topicSlug: "algebra", subtopicSlug: "quadratic-equations" },
-          },
-          { slug: "inverses", name: "Inverses of functions", sortOrder: 2 },
-        ],
-      },
-      {
-        slug: "algebra",
-        name: "Algebra",
-        sortOrder: 2,
-        importance: 1.1,
-        subtopics: [
-          { slug: "quadratic-equations", name: "Quadratic equations and inequalities", sortOrder: 1 },
-          { slug: "simultaneous-equations", name: "Simultaneous equations", sortOrder: 2 },
-        ],
-      },
-      {
-        slug: "calculus",
-        name: "Calculus",
-        sortOrder: 3,
-        importance: 1.3,
-        subtopics: [
-          {
-            slug: "differentiation",
-            name: "Differentiation (first principles & rules)",
-            sortOrder: 1,
-            prerequisite: { topicSlug: "algebra", subtopicSlug: "quadratic-equations" },
-          },
-          {
-            slug: "applications-of-derivatives",
-            name: "Applications of derivatives",
-            sortOrder: 2,
-            prerequisite: { topicSlug: "calculus", subtopicSlug: "differentiation" },
-          },
-        ],
-      },
-      {
-        slug: "trigonometry",
-        name: "Trigonometry",
-        sortOrder: 4,
-        subtopics: [
-          { slug: "compound-angle-identities", name: "Compound angle identities", sortOrder: 1 },
-          { slug: "trigonometric-equations", name: "Trigonometric equations", sortOrder: 2 },
-        ],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("mathematics")!,
   },
   {
     slug: "mathematical-literacy",
     name: "Mathematical Literacy",
     sortOrder: 2,
-    description: "Grade 12 Mathematical Literacy (CAPS FET)",
+    description: "Grade 12 Mathematical Literacy (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Mathematical Literacy FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Portals/0/CD/National%20Curriculum%20Statements%20and%20Vocational/CAPS%20FET%20_%20MATHEMATICAL%20LITERACY%20_%20GR%2010-12%20_%20Web.pdf",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "finance",
-        name: "Finance",
-        sortOrder: 1,
-        importance: 1.2,
-        subtopics: [
-          { slug: "interest-and-loans", name: "Interest, loans and investments", sortOrder: 1 },
-          { slug: "tax-and-inflation", name: "Tax, inflation and exchange rates", sortOrder: 2 },
-        ],
-      },
-      {
-        slug: "measurement",
-        name: "Measurement",
-        sortOrder: 2,
-        subtopics: [
-          { slug: "area-and-volume", name: "Area, volume and conversions", sortOrder: 1 },
-        ],
-      },
-      {
-        slug: "data-handling",
-        name: "Data handling",
-        sortOrder: 3,
-        subtopics: [
-          { slug: "interpreting-graphs", name: "Interpreting graphs and tables", sortOrder: 1 },
-          { slug: "probability-basics", name: "Probability in everyday contexts", sortOrder: 2 },
-        ],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("mathematical-literacy")!,
   },
   {
     slug: "physical-sciences",
     name: "Physical Sciences",
     sortOrder: 3,
-    description: "Grade 12 Physical Sciences (CAPS FET)",
+    description: "Grade 12 Physical Sciences (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Physical Sciences FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Portals/0/CD/National%20Curriculum%20Statements%20and%20Vocational/CAPS%20FET%20_%20PHYSICAL%20SCIENCES%20_%20GR%2010-12%20_%20Web.pdf",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "mechanics",
-        name: "Mechanics",
-        sortOrder: 1,
-        importance: 1.1,
-        subtopics: [
-          { slug: "vertical-projectile-motion", name: "Vertical projectile motion", sortOrder: 1 },
-          { slug: "momentum-and-impulse", name: "Momentum and impulse", sortOrder: 2 },
-        ],
-      },
-      {
-        slug: "electricity-and-magnetism",
-        name: "Electricity and magnetism",
-        sortOrder: 2,
-        importance: 1.2,
-        subtopics: [
-          { slug: "electric-fields", name: "Electric fields", sortOrder: 1 },
-          { slug: "electrodynamics", name: "Electrodynamics", sortOrder: 2 },
-        ],
-      },
-      {
-        slug: "chemical-change",
-        name: "Chemical change",
-        sortOrder: 3,
-        subtopics: [
-          { slug: "rate-and-extent-of-reactions", name: "Rate and extent of reactions", sortOrder: 1 },
-          { slug: "chemical-equilibrium", name: "Chemical equilibrium", sortOrder: 2 },
-        ],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("physical-sciences")!,
   },
   {
     slug: "life-sciences",
     name: "Life Sciences",
     sortOrder: 4,
-    description: "Grade 12 Life Sciences (CAPS FET)",
+    description: "Grade 12 Life Sciences (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Life Sciences FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Portals/0/CD/National%20Curriculum%20Statements%20and%20Vocational/CAPS%20FET%20_%20LIFE%20SCIENCES%20_%20GR%2010-12%20_%20Web.pdf",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "dna-and-genetics",
-        name: "DNA: the code of life",
-        sortOrder: 1,
-        importance: 1.2,
-        subtopics: [
-          { slug: "dna-replication-and-protein-synthesis", name: "DNA replication and protein synthesis", sortOrder: 1 },
-          { slug: "genetics-and-inheritance", name: "Genetics and inheritance", sortOrder: 2 },
-        ],
-      },
-      {
-        slug: "evolution",
-        name: "Evolution",
-        sortOrder: 2,
-        subtopics: [
-          { slug: "natural-selection", name: "Natural selection and speciation", sortOrder: 1 },
-        ],
-      },
-      {
-        slug: "human-impact",
-        name: "Human impact on the environment",
-        sortOrder: 3,
-        subtopics: [
-          { slug: "biodiversity-and-conservation", name: "Biodiversity and conservation", sortOrder: 1 },
-        ],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("life-sciences")!,
   },
   {
     slug: "accounting",
     name: "Accounting",
     sortOrder: 10,
-    description: "Grade 12 Accounting (CAPS FET)",
+    description: "Grade 12 Accounting (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Accounting FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "financial-statements",
-        name: "Financial statements of companies",
-        sortOrder: 1,
-        subtopics: [
-          { slug: "statement-of-comprehensive-income", name: "Statement of comprehensive income", sortOrder: 1 },
-          { slug: "statement-of-financial-position", name: "Statement of financial position", sortOrder: 2 },
-        ],
-      },
-      {
-        slug: "reconciliations",
-        name: "Reconciliations",
-        sortOrder: 2,
-        subtopics: [{ slug: "bank-reconciliation", name: "Bank reconciliation", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("accounting")!,
   },
   {
     slug: "business-studies",
     name: "Business Studies",
     sortOrder: 11,
-    description: "Grade 12 Business Studies (CAPS FET)",
+    description: "Grade 12 Business Studies (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Business Studies FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "business-environments",
-        name: "Business environments",
-        sortOrder: 1,
-        subtopics: [
-          { slug: "micro-market-macro", name: "Micro, market and macro environments", sortOrder: 1 },
-        ],
-      },
-      {
-        slug: "leadership-management",
-        name: "Leadership and management",
-        sortOrder: 2,
-        subtopics: [{ slug: "management-and-leadership", name: "Management vs leadership", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("business-studies")!,
   },
   {
     slug: "economics",
     name: "Economics",
     sortOrder: 12,
-    description: "Grade 12 Economics (CAPS FET)",
+    description: "Grade 12 Economics (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Economics FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "macroeconomics",
-        name: "Macroeconomics",
-        sortOrder: 1,
-        subtopics: [
-          { slug: "circular-flow", name: "Circular flow of economic activity", sortOrder: 1 },
-          { slug: "business-cycles", name: "Business cycles", sortOrder: 2 },
-        ],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("economics")!,
   },
   {
     slug: "geography",
     name: "Geography",
     sortOrder: 20,
-    description: "Grade 12 Geography (CAPS FET)",
+    description: "Grade 12 Geography (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Geography FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "climate-and-weather",
-        name: "Climate and weather",
-        sortOrder: 1,
-        subtopics: [{ slug: "midlatitude-cyclones", name: "Mid-latitude cyclones", sortOrder: 1 }],
-      },
-      {
-        slug: "geomorphology",
-        name: "Geomorphology",
-        sortOrder: 2,
-        subtopics: [{ slug: "fluvial-processes", name: "Fluvial processes", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("geography")!,
   },
   {
     slug: "history",
     name: "History",
     sortOrder: 21,
-    description: "Grade 12 History (CAPS FET)",
+    description: "Grade 12 History (CAPS FET) — full assessment map",
     sourceTitle: "CAPS History FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "cold-war",
-        name: "The Cold War",
-        sortOrder: 1,
-        subtopics: [{ slug: "origins-and-escalation", name: "Origins and escalation", sortOrder: 1 }],
-      },
-      {
-        slug: "civil-society-protests",
-        name: "Civil society protests (1970s–1990s)",
-        sortOrder: 2,
-        subtopics: [{ slug: "south-africa-1970s-1990s", name: "South Africa 1970s–1990s", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("history")!,
   },
   {
     slug: "english-home-language",
     name: "English Home Language",
     sortOrder: 30,
-    description: "Grade 12 English HL (CAPS FET)",
+    description: "Grade 12 English HL (CAPS FET) — full assessment map",
     sourceTitle: "CAPS English Home Language FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "language-structures",
-        name: "Language structures and conventions",
-        sortOrder: 1,
-        subtopics: [{ slug: "grammar-and-usage", name: "Grammar and usage", sortOrder: 1 }],
-      },
-      {
-        slug: "literature",
-        name: "Literature",
-        sortOrder: 2,
-        subtopics: [{ slug: "poetry-and-prose-analysis", name: "Poetry and prose analysis", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("english-home-language")!,
   },
   {
     slug: "afrikaans-home-language",
     name: "Afrikaans Home Language",
     sortOrder: 32,
-    description: "Grade 12 Afrikaans Huistaal (CAPS FET)",
+    description: "Grade 12 Afrikaans Huistaal (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Afrikaans Home Language FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "taalstrukture",
-        name: "Taalstrukture en -konvensies",
-        sortOrder: 1,
-        importance: 1.2,
-        subtopics: [
-          { slug: "werkwoorde-en-tye", name: "Werkwoorde en tye", sortOrder: 1 },
-          { slug: "sinonieme-en-woordpatrone", name: "Sinonieme, antonieme en woordpatrone", sortOrder: 2 },
-        ],
-      },
-      {
-        slug: "lees-en-kyk",
-        name: "Lees en kyk",
-        sortOrder: 2,
-        importance: 1.1,
-        subtopics: [
-          { slug: "begrip-en-opsomming", name: "Begripstoets en opsomming", sortOrder: 1 },
-        ],
-      },
-      {
-        slug: "skryf",
-        name: "Skryf",
-        sortOrder: 3,
-        subtopics: [
-          { slug: "transaksioneel", name: "Transaksionele tekste", sortOrder: 1 },
-          { slug: "kreatief", name: "Kreatiewe skryfwerk", sortOrder: 2 },
-        ],
-      },
-      {
-        slug: "letterkunde",
-        name: "Letterkunde",
-        sortOrder: 4,
-        importance: 1.15,
-        subtopics: [
-          { slug: "poësie-analise", name: "Poësie-analise", sortOrder: 1 },
-          { slug: "prosa-en-drama", name: "Prosa en drama", sortOrder: 2 },
-        ],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("afrikaans-home-language")!,
   },
   {
     slug: "afrikaans-first-additional-language",
     name: "Afrikaans First Additional Language",
     sortOrder: 33,
-    description: "Grade 12 Afrikaans Eerste Addisionele Taal (CAPS FET)",
+    description: "Grade 12 Afrikaans Eerste Addisionele Taal (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Afrikaans First Additional Language FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "taalstrukture-fal",
-        name: "Taalstrukture",
-        sortOrder: 1,
-        subtopics: [
-          { slug: "grammatika-basis", name: "Grammatika: werkwoorde en sinbou", sortOrder: 1 },
-        ],
-      },
-      {
-        slug: "lees-fal",
-        name: "Lees en begrip",
-        sortOrder: 2,
-        subtopics: [{ slug: "kort-tekste", name: "Kort tekste en advertensies", sortOrder: 1 }],
-      },
-      {
-        slug: "skryf-fal",
-        name: "Skryf",
-        sortOrder: 3,
-        subtopics: [{ slug: "informele-formele", name: "Informele en formele brief", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("afrikaans-first-additional-language")!,
   },
   {
     slug: "tourism",
     name: "Tourism",
     sortOrder: 90,
-    description: "Grade 12 Tourism (CAPS FET)",
+    description: "Grade 12 Tourism (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Tourism FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "domestic-regional-international",
-        name: "Domestic, regional and international tourism",
-        sortOrder: 1,
-        subtopics: [{ slug: "tourism-sectors", name: "Tourism sectors and services", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("tourism")!,
   },
   {
     slug: "computer-applications-technology",
     name: "Computer Applications Technology (CAT)",
     sortOrder: 60,
-    description: "Grade 12 CAT (CAPS FET)",
+    description: "Grade 12 CAT (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Computer Applications Technology FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "systems-technologies",
-        name: "Systems technologies",
-        sortOrder: 1,
-        subtopics: [{ slug: "hardware-and-software", name: "Hardware and software systems", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("computer-applications-technology")!,
   },
   {
     slug: "information-technology",
     name: "Information Technology (IT)",
     sortOrder: 61,
-    description: "Grade 12 IT (CAPS FET)",
+    description: "Grade 12 IT (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Information Technology FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "programming",
-        name: "Programming and problem-solving",
-        sortOrder: 1,
-        subtopics: [{ slug: "algorithms-and-code", name: "Algorithms and coding concepts", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("information-technology")!,
   },
   {
     slug: "agricultural-sciences",
     name: "Agricultural Sciences",
     sortOrder: 70,
-    description: "Grade 12 Agricultural Sciences (CAPS FET)",
+    description: "Grade 12 Agricultural Sciences (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Agricultural Sciences FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "animal-nutrition",
-        name: "Animal nutrition",
-        sortOrder: 1,
-        subtopics: [{ slug: "digestion-and-feed", name: "Digestion and feed components", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("agricultural-sciences")!,
   },
   {
     slug: "life-orientation",
     name: "Life Orientation",
     sortOrder: 93,
-    description: "Grade 12 Life Orientation (CAPS FET)",
+    description: "Grade 12 Life Orientation (CAPS FET) — full assessment map",
     sourceTitle: "CAPS Life Orientation FET (Grades 10–12)",
     sourceUrl:
       "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
-    versionLabel: "2026 prototype starter (partial topics)",
-    topics: [
-      {
-        slug: "development-of-the-self",
-        name: "Development of the self in society",
-        sortOrder: 1,
-        subtopics: [{ slug: "career-and-study-skills", name: "Career and study skills", sortOrder: 1 }],
-      },
-    ],
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopicsForSubject("life-orientation")!,
   },
-  ...(GRADE_12_CURRICULUM_STARTER_EXTRA as unknown as StudyCurriculumStarterSubject[]),
+  ...(
+    GRADE_12_CURRICULUM_STARTER_EXTRA as unknown as StudyCurriculumStarterSubject[]
+  ).map(applyCapsAssessmentMap),
 ];
+
+function applyCapsAssessmentMap(subject: StudyCurriculumStarterSubject): StudyCurriculumStarterSubject {
+  const capsTopics = capsTopicsForSubject(subject.slug);
+  if (!capsTopics) return subject;
+  return {
+    ...subject,
+    description: `Grade 12 ${subject.name} (CAPS FET) — full assessment map`,
+    versionLabel: CAPS_ASSESSMENT_VERSION,
+    topics: capsTopics,
+  };
+}

@@ -43,6 +43,62 @@
       ],
       "correctOptionId": "b",
       "explanation": "Electrical Technology: series vs parallel behaviour (CAPS circuit principles)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "electrical-systems",
+      "subtopicSlug": "electrical-machines",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Electrical Technology · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Electrical machines and control\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply electrical machines and control in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Electrical Technology: Electrical systems · Electrical machines and control — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "workshop-practice",
+      "subtopicSlug": "safety-and-tools",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Electrical Technology · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Safety, tools and maintenance\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply safety, tools and maintenance in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Electrical Technology: Workshop practice · Safety, tools and maintenance — assessed through applied exam-style work."
     }
   ]
 }

@@ -43,6 +43,62 @@
       ],
       "correctOptionId": "a",
       "explanation": "Hospitality Studies CAPS: hygiene and safe food-handling practices."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "hospitality-operations",
+      "subtopicSlug": "kitchen-operations",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Hospitality Studies · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Kitchen operations and hygiene\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply kitchen operations and hygiene in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Hospitality Studies: Hospitality operations · Kitchen operations and hygiene — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "hospitality-management",
+      "subtopicSlug": "customer-service",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Hospitality Studies · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Customer service and entrepreneurship\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply customer service and entrepreneurship in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Hospitality Studies: Hospitality management · Customer service and entrepreneurship — assessed through applied exam-style work."
     }
   ]
 }

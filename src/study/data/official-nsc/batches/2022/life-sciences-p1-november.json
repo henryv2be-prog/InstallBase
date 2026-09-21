@@ -24,10 +24,22 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Life Sciences Paper 1 · Question 1.1\n\nWhich structure in the nucleus contains the genetic code for a specific protein?",
       "options": [
-        { "id": "a", "text": "Gene" },
-        { "id": "b", "text": "Ribosome" },
-        { "id": "c", "text": "Centriole" },
-        { "id": "d", "text": "Vacuole" }
+        {
+          "id": "a",
+          "text": "Gene"
+        },
+        {
+          "id": "b",
+          "text": "Ribosome"
+        },
+        {
+          "id": "c",
+          "text": "Centriole"
+        },
+        {
+          "id": "d",
+          "text": "Vacuole"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "A gene is a segment of DNA that codes for a specific polypeptide/protein."
@@ -40,7 +52,10 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Life Sciences Paper 1 · Question 1.2\n\nName the nitrogenous base that pairs with adenine in DNA.",
       "correctAnswerText": "thymine",
-      "acceptableAnswers": ["T", "Thymine"],
+      "acceptableAnswers": [
+        "T",
+        "Thymine"
+      ],
       "explanation": "In DNA, adenine pairs with thymine (A–T)."
     },
     {
@@ -51,10 +66,22 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Life Sciences Paper 1 · Question 2.1\n\nDNA replication is described as semi-conservative because …",
       "options": [
-        { "id": "a", "text": "each new double helix has one old and one new strand" },
-        { "id": "b", "text": "all DNA is destroyed and rebuilt" },
-        { "id": "c", "text": "only RNA is copied" },
-        { "id": "d", "text": "no new DNA is formed" }
+        {
+          "id": "a",
+          "text": "each new double helix has one old and one new strand"
+        },
+        {
+          "id": "b",
+          "text": "all DNA is destroyed and rebuilt"
+        },
+        {
+          "id": "c",
+          "text": "only RNA is copied"
+        },
+        {
+          "id": "d",
+          "text": "no new DNA is formed"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Semi-conservative replication retains one parental strand in each daughter molecule."
@@ -67,7 +94,10 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Life Sciences Paper 1 · Question 3.1\n\nName the scientist most associated with the theory of natural selection.",
       "correctAnswerText": "Charles Darwin",
-      "acceptableAnswers": ["Darwin", "Charles Darwin"],
+      "acceptableAnswers": [
+        "Darwin",
+        "Charles Darwin"
+      ],
       "explanation": "Charles Darwin (with Wallace) proposed natural selection as a mechanism of evolution."
     },
     {
@@ -78,13 +108,221 @@
       "difficulty": 3,
       "prompt": "Official NSC · Nov 2022 · Life Sciences Paper 1 · Question 4.1\n\nWhich action best supports biodiversity conservation?",
       "options": [
-        { "id": "a", "text": "Protecting natural habitats" },
-        { "id": "b", "text": "Removing all predators" },
-        { "id": "c", "text": "Monoculture farming without limits" },
-        { "id": "d", "text": "Dumping waste in wetlands" }
+        {
+          "id": "a",
+          "text": "Protecting natural habitats"
+        },
+        {
+          "id": "b",
+          "text": "Removing all predators"
+        },
+        {
+          "id": "c",
+          "text": "Monoculture farming without limits"
+        },
+        {
+          "id": "d",
+          "text": "Dumping waste in wetlands"
+        }
       ],
       "correctOptionId": "a",
       "explanation": "Habitat protection maintains species and ecosystem diversity."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "dna-and-genetics",
+      "subtopicSlug": "meiosis",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Sciences · CAPS.1\n\nThe main purpose of meiosis is to produce cells with —",
+      "options": [
+        {
+          "id": "a",
+          "text": "double the chromosome number"
+        },
+        {
+          "id": "b",
+          "text": "identical copies for growth only"
+        },
+        {
+          "id": "c",
+          "text": "no genetic variation"
+        },
+        {
+          "id": "d",
+          "text": "half the chromosome number for gametes"
+        }
+      ],
+      "correctOptionId": "d",
+      "explanation": "Meiosis: reduction division for sexual reproduction."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "evolution",
+      "subtopicSlug": "human-evolution",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Sciences · CAPS.2\n\nWhich evidence supports human evolution studies in NSC Life Sciences?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply human evolution in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Life Sciences: Evolution · Human evolution — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "human-responses",
+      "subtopicSlug": "endocrine-system",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Sciences · CAPS.3\n\nHomeostasis in blood glucose is primarily regulated by —",
+      "options": [
+        {
+          "id": "a",
+          "text": "insulin and glucagon"
+        },
+        {
+          "id": "b",
+          "text": "only adrenaline"
+        },
+        {
+          "id": "c",
+          "text": "the skin only"
+        },
+        {
+          "id": "d",
+          "text": "digestive enzymes only"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Endocrine control of glucose (CAPS)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "human-responses",
+      "subtopicSlug": "nervous-system",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Sciences · CAPS.4\n\nThe gap between two neurons is called the —",
+      "options": [
+        {
+          "id": "a",
+          "text": "axon"
+        },
+        {
+          "id": "b",
+          "text": "synapse"
+        },
+        {
+          "id": "c",
+          "text": "dendrite"
+        },
+        {
+          "id": "d",
+          "text": "myelin sheath"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Nervous system structure and impulse transmission."
+    },
+    {
+      "sourceQuestionRef": "CAPS.5",
+      "topicSlug": "plant-and-animal-responses",
+      "subtopicSlug": "photosynthesis-and-respiration",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Sciences · CAPS.5\n\nThe main product of the light reactions of photosynthesis used in the Calvin cycle is —",
+      "options": [
+        {
+          "id": "a",
+          "text": "CO₂"
+        },
+        {
+          "id": "b",
+          "text": "O₂ only with no energy carriers"
+        },
+        {
+          "id": "c",
+          "text": "ATP and NADPH"
+        },
+        {
+          "id": "d",
+          "text": "glucose immediately"
+        }
+      ],
+      "correctOptionId": "c",
+      "explanation": "CAPS: light-dependent reactions supply ATP/NADPH."
+    },
+    {
+      "sourceQuestionRef": "CAPS.6",
+      "topicSlug": "plant-and-animal-responses",
+      "subtopicSlug": "animal-responses",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Sciences · CAPS.6\n\nTropisms and animal behaviour are typically assessed through —",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply animal responses to the environment in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Life Sciences: Plant and animal responses · Animal responses to the environment — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.7",
+      "topicSlug": "human-impact",
+      "subtopicSlug": "human-activities-and-ecosystems",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Sciences · CAPS.7\n\nPollution and resource use in ecosystems are assessed by —",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply human activities and ecosystems in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Life Sciences: Human impact on the environment · Human activities and ecosystems — assessed through applied exam-style work."
     }
   ]
 }
