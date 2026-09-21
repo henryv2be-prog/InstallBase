@@ -1,0 +1,36 @@
+{
+  "batchSlug": "2022-tourism-p1-november",
+  "label": "NSC November 2022 · Tourism Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Tourism Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "tourism",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Tourism Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "domestic-regional-international",
+      "subtopicSlug": "tourism-sectors",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · Tourism Paper 1 · Question 1.1\n\nWhich is part of the tourism sector?",
+      "options": [
+        { "id": "a", "text": "Accommodation" },
+        { "id": "b", "text": "Coal mining only" },
+        { "id": "c", "text": "Vehicle manufacturing only" },
+        { "id": "d", "text": "Crop rotation only" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Accommodation, transport, attractions and food services are core tourism sectors."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "batchSlug": "2022-economics-p1-november",
+  "label": "NSC November 2022 · Economics Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Economics Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "economics",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Economics Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "macroeconomics",
+      "subtopicSlug": "circular-flow",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Economics Paper 1 · Question 1.1\n\nIn the circular flow, households supply … to firms.",
+      "options": [
+        { "id": "a", "text": "factors of production" },
+        { "id": "b", "text": "government bonds only" },
+        { "id": "c", "text": "import tariffs" },
+        { "id": "d", "text": "national debt" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Households provide labour, land, capital and entrepreneurship to firms."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "macroeconomics",
+      "subtopicSlug": "business-cycles",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Economics Paper 1 · Question 2.1\n\nName the phase of the business cycle characterised by rising real GDP and falling unemployment.",
+      "correctAnswerText": "expansion",
+      "acceptableAnswers": ["recovery", "boom", "upswing"],
+      "explanation": "Expansion (recovery/boom) features growing output and improving employment."
+    }
+  ]
+}

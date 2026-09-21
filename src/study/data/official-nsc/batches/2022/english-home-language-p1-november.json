@@ -1,0 +1,50 @@
+{
+  "batchSlug": "2022-english-home-language-p1-november",
+  "label": "NSC November 2022 · English Home Language Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 English Home Language Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "english-home-language",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "English Home Language Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "language-structures",
+      "subtopicSlug": "grammar-and-usage",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · English HL Paper 1 · Question 1.1\n\nChoose the correct sentence.",
+      "options": [
+        { "id": "a", "text": "Neither the learners nor the teacher was ready." },
+        { "id": "b", "text": "Neither the learners nor the teacher were ready." },
+        { "id": "c", "text": "Neither the learners nor the teacher is ready." },
+        { "id": "d", "text": "Neither the learners nor the teacher are ready." }
+      ],
+      "correctOptionId": "a",
+      "explanation": "With neither/nor, the verb agrees with the nearer subject (teacher → was)."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "literature",
+      "subtopicSlug": "poetry-and-prose-analysis",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · English HL Paper 1 · Question 2.1\n\nDefine the term \"metaphor\" as used in poetry analysis.",
+      "correctAnswerText": "direct comparison without like or as",
+      "acceptableAnswers": [
+        "A figure of speech comparing two things without using like or as",
+        "An implied comparison"
+      ],
+      "explanation": "A metaphor states one thing is another to create imagery or meaning."
+    }
+  ]
+}

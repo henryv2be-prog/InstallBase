@@ -1,0 +1,63 @@
+{
+  "batchSlug": "2022-accounting-p1-november",
+  "label": "NSC November 2022 · Accounting Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Accounting Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage — verify against DBE memo before high-stakes use."
+  },
+  "paper": {
+    "subjectSlug": "accounting",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Accounting Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "financial-statements",
+      "subtopicSlug": "statement-of-comprehensive-income",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Accounting Paper 1 · Question 1.1\n\nWhich item appears on the Statement of Comprehensive Income?",
+      "options": [
+        { "id": "a", "text": "Sales" },
+        { "id": "b", "text": "Trade receivables" },
+        { "id": "c", "text": "Equipment" },
+        { "id": "d", "text": "Bank overdraft" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Sales is income and belongs on the Statement of Comprehensive Income."
+    },
+    {
+      "sourceQuestionRef": "1.2",
+      "topicSlug": "financial-statements",
+      "subtopicSlug": "statement-of-financial-position",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Accounting Paper 1 · Question 1.2\n\nWhich account is classified as a non-current asset?",
+      "options": [
+        { "id": "a", "text": "Delivery vehicle" },
+        { "id": "b", "text": "Inventory" },
+        { "id": "c", "text": "Bank" },
+        { "id": "d", "text": "Creditors" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Vehicles used long-term are non-current (fixed) assets on the Statement of Financial Position."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "reconciliations",
+      "subtopicSlug": "bank-reconciliation",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Accounting Paper 1 · Question 2.1\n\nName ONE reason why the bank statement balance may differ from the cash journals balance.",
+      "correctAnswerText": "outstanding deposits",
+      "acceptableAnswers": ["outstanding cheques", "bank charges not yet recorded", "direct deposits", "timing differences", "service fees"],
+      "explanation": "Timing differences (e.g. outstanding deposits/cheques) or unrecorded bank charges cause reconciling items."
+    }
+  ]
+}

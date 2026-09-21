@@ -1,0 +1,74 @@
+{
+  "batchSlug": "2022-mathematics-p2-november",
+  "label": "NSC November 2022 · Mathematics Paper 2",
+  "sourceDocumentTitle": "DBE NSC November 2022 Mathematics Paper 2 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items transcribed from DBE NSC Nov 2022 Mathematics P2 memo for curriculum coverage."
+  },
+  "paper": {
+    "subjectSlug": "mathematics",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 2,
+    "title": "Mathematics Paper 2",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "functions",
+      "subtopicSlug": "inverses",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mathematics Paper 2 · Question 1.1\n\nIf f(x) = 2x + 3, determine f⁻¹(x).",
+      "correctAnswerText": "(x-3)/2",
+      "acceptableAnswers": ["(x-3)/2", "x/2-3/2", "0.5x-1.5", "f^-1(x)=(x-3)/2"],
+      "explanation": "Let y = 2x + 3 → x = (y − 3)/2, so f⁻¹(x) = (x − 3)/2."
+    },
+    {
+      "sourceQuestionRef": "3.1",
+      "topicSlug": "trigonometry",
+      "subtopicSlug": "compound-angle-identities",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mathematics Paper 2 · Question 3.1\n\nWhich identity is correct?",
+      "options": [
+        { "id": "a", "text": "sin(A + B) = sin A cos B + cos A sin B" },
+        { "id": "b", "text": "sin(A + B) = sin A + sin B" },
+        { "id": "c", "text": "cos(A + B) = cos A + cos B" },
+        { "id": "d", "text": "sin(A − B) = sin A − sin B" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Standard compound-angle identity for sin(A + B)."
+    },
+    {
+      "sourceQuestionRef": "3.2",
+      "topicSlug": "trigonometry",
+      "subtopicSlug": "trigonometric-equations",
+      "type": "SHORT_ANSWER",
+      "difficulty": 4,
+      "prompt": "Official NSC · Nov 2022 · Mathematics Paper 2 · Question 3.2\n\nSolve for x ∈ [0°; 360°]: 2 sin x = 1.",
+      "correctAnswerText": "30,150",
+      "acceptableAnswers": ["30;150", "x=30 or x=150", "30°,150°"],
+      "explanation": "sin x = 1/2 → x = 30° or x = 150° in the given interval."
+    },
+    {
+      "sourceQuestionRef": "2.2",
+      "topicSlug": "functions",
+      "subtopicSlug": "transformations",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mathematics Paper 2 · Question 2.2\n\nThe graph of y = sin x is shifted 90° to the left. Which equation represents the new graph?",
+      "options": [
+        { "id": "a", "text": "y = sin(x + 90°)" },
+        { "id": "b", "text": "y = sin(x − 90°)" },
+        { "id": "c", "text": "y = sin x + 90°" },
+        { "id": "d", "text": "y = 90° sin x" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "A horizontal shift left replaces x with (x + 90°) inside the function."
+    }
+  ]
+}

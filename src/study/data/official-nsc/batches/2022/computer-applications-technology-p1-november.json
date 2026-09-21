@@ -1,0 +1,36 @@
+{
+  "batchSlug": "2022-computer-applications-technology-p1-november",
+  "label": "NSC November 2022 · CAT Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Computer Applications Technology Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "computer-applications-technology",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Computer Applications Technology Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "systems-technologies",
+      "subtopicSlug": "hardware-and-software",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · CAT Paper 1 · Question 1.1\n\nWhich component is hardware?",
+      "options": [
+        { "id": "a", "text": "CPU" },
+        { "id": "b", "text": "Word processor" },
+        { "id": "c", "text": "Web browser" },
+        { "id": "d", "text": "Operating system" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CPU is physical hardware; the others are software."
+    }
+  ]
+}

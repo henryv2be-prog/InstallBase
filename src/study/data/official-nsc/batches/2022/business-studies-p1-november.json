@@ -1,0 +1,47 @@
+{
+  "batchSlug": "2022-business-studies-p1-november",
+  "label": "NSC November 2022 · Business Studies Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Business Studies Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "business-studies",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Business Studies Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "business-environments",
+      "subtopicSlug": "micro-market-macro",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · Business Studies Paper 1 · Question 1.1\n\nAn increase in VAT affects businesses through the … environment.",
+      "options": [
+        { "id": "a", "text": "macro" },
+        { "id": "b", "text": "micro" },
+        { "id": "c", "text": "market only" },
+        { "id": "d", "text": "internal" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Government tax policy is part of the macro business environment."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "leadership-management",
+      "subtopicSlug": "management-and-leadership",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Business Studies Paper 1 · Question 2.1\n\nState ONE function of management.",
+      "correctAnswerText": "planning",
+      "acceptableAnswers": ["organising", "organizing", "leading", "control", "controlling", "motivating"],
+      "explanation": "Classic management functions include planning, organising, leading and control."
+    }
+  ]
+}

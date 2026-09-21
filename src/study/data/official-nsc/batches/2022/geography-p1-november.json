@@ -1,0 +1,47 @@
+{
+  "batchSlug": "2022-geography-p1-november",
+  "label": "NSC November 2022 · Geography Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Geography Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "geography",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Geography Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "climate-and-weather",
+      "subtopicSlug": "midlatitude-cyclones",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Geography Paper 1 · Question 1.1\n\nMidlatitude cyclones in South Africa are associated with …",
+      "options": [
+        { "id": "a", "text": "cold fronts and widespread rainfall" },
+        { "id": "b", "text": "permanent high pressure only" },
+        { "id": "c", "text": "no wind" },
+        { "id": "d", "text": "desert conditions only" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Cut-off lows / midlatitude systems often bring frontal rain and strong winds."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "geomorphology",
+      "subtopicSlug": "fluvial-processes",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Geography Paper 1 · Question 2.1\n\nName the fluvial process that involves the wearing away of river banks and beds.",
+      "correctAnswerText": "erosion",
+      "acceptableAnswers": ["river erosion", "abrasion", "corrosion"],
+      "explanation": "Erosion removes material from the channel; abrasion is a common mechanism."
+    }
+  ]
+}

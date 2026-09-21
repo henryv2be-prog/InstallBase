@@ -42,6 +42,49 @@
       "correctAnswerText": "thymine",
       "acceptableAnswers": ["T", "Thymine"],
       "explanation": "In DNA, adenine pairs with thymine (A–T)."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "dna-and-genetics",
+      "subtopicSlug": "dna-replication-and-protein-synthesis",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Life Sciences Paper 1 · Question 2.1\n\nDNA replication is described as semi-conservative because …",
+      "options": [
+        { "id": "a", "text": "each new double helix has one old and one new strand" },
+        { "id": "b", "text": "all DNA is destroyed and rebuilt" },
+        { "id": "c", "text": "only RNA is copied" },
+        { "id": "d", "text": "no new DNA is formed" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Semi-conservative replication retains one parental strand in each daughter molecule."
+    },
+    {
+      "sourceQuestionRef": "3.1",
+      "topicSlug": "evolution",
+      "subtopicSlug": "natural-selection",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Life Sciences Paper 1 · Question 3.1\n\nName the scientist most associated with the theory of natural selection.",
+      "correctAnswerText": "Charles Darwin",
+      "acceptableAnswers": ["Darwin", "Charles Darwin"],
+      "explanation": "Charles Darwin (with Wallace) proposed natural selection as a mechanism of evolution."
+    },
+    {
+      "sourceQuestionRef": "4.1",
+      "topicSlug": "human-impact",
+      "subtopicSlug": "biodiversity-and-conservation",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Life Sciences Paper 1 · Question 4.1\n\nWhich action best supports biodiversity conservation?",
+      "options": [
+        { "id": "a", "text": "Protecting natural habitats" },
+        { "id": "b", "text": "Removing all predators" },
+        { "id": "c", "text": "Monoculture farming without limits" },
+        { "id": "d", "text": "Dumping waste in wetlands" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Habitat protection maintains species and ecosystem diversity."
     }
   ]
 }

@@ -2,9 +2,23 @@
   "schemaVersion": 1,
   "batches": [
     "batches/2022/mathematics-p1-november.json",
+    "batches/2022/mathematics-p2-november.json",
     "batches/2021/mathematics-p1-november.json",
+    "batches/2022/mathematical-literacy-p1-november.json",
     "batches/2022/physical-sciences-p1-november.json",
     "batches/2022/life-sciences-p1-november.json",
-    "batches/2022/mathematical-literacy-p1-november.json"
+    "batches/2022/accounting-p1-november.json",
+    "batches/2022/business-studies-p1-november.json",
+    "batches/2022/economics-p1-november.json",
+    "batches/2022/geography-p1-november.json",
+    "batches/2022/history-p1-november.json",
+    "batches/2022/english-home-language-p1-november.json",
+    "batches/2022/afrikaans-home-language-p1-november.json",
+    "batches/2022/afrikaans-first-additional-language-p1-november.json",
+    "batches/2022/tourism-p1-november.json",
+    "batches/2022/computer-applications-technology-p1-november.json",
+    "batches/2022/information-technology-p1-november.json",
+    "batches/2022/agricultural-sciences-p1-november.json",
+    "batches/2022/life-orientation-p1-november.json"
   ]
 }

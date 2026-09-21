@@ -37,6 +37,74 @@
       "correctAnswerText": "20000",
       "acceptableAnswers": ["2.0x10^4", "2×10^4", "20000 N/C", "2.0e4"],
       "explanation": "E = F/q = 0.04 / (2 × 10⁻⁶) = 2 × 10⁴ N·C⁻¹."
+    },
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "mechanics",
+      "subtopicSlug": "vertical-projectile-motion",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 1.1\n\nA ball is thrown vertically upward with initial velocity 12 m·s⁻¹. Calculate its velocity after 1 s. (Use g = 9,8 m·s⁻² downward.)",
+      "correctAnswerText": "2.2",
+      "acceptableAnswers": ["2.2 m/s", "2,2", "2.2 m·s-1"],
+      "explanation": "v = u + at = 12 + (−9,8)(1) = 2,2 m·s⁻¹ upward."
+    },
+    {
+      "sourceQuestionRef": "1.2",
+      "topicSlug": "mechanics",
+      "subtopicSlug": "momentum-and-impulse",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 1.2\n\nCalculate the momentum of a 0,5 kg ball moving at 4 m·s⁻¹.",
+      "correctAnswerText": "2",
+      "acceptableAnswers": ["2 kg·m/s", "2 kg m/s", "2,0"],
+      "explanation": "p = mv = 0,5 × 4 = 2 kg·m·s⁻¹."
+    },
+    {
+      "sourceQuestionRef": "3.1",
+      "topicSlug": "electricity-and-magnetism",
+      "subtopicSlug": "electrodynamics",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 3.1\n\nLenz's law is used to determine the direction of …",
+      "options": [
+        { "id": "a", "text": "induced current" },
+        { "id": "b", "text": "gravitational force" },
+        { "id": "c", "text": "nuclear decay" },
+        { "id": "d", "text": "static friction" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Lenz's law gives the direction of the induced current (electromagnetic induction)."
+    },
+    {
+      "sourceQuestionRef": "4.1",
+      "topicSlug": "chemical-change",
+      "subtopicSlug": "rate-and-extent-of-reactions",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 4.1\n\nWhich factor increases the rate of a chemical reaction?",
+      "options": [
+        { "id": "a", "text": "Higher temperature" },
+        { "id": "b", "text": "Lower concentration of reactants" },
+        { "id": "c", "text": "Removing a catalyst" },
+        { "id": "d", "text": "Decreasing surface area of a solid reactant" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Higher temperature increases average kinetic energy and collision frequency."
+    },
+    {
+      "sourceQuestionRef": "4.2",
+      "topicSlug": "chemical-change",
+      "subtopicSlug": "chemical-equilibrium",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Physical Sciences Paper 1 · Question 4.2\n\nState Le Chatelier's principle in words.",
+      "correctAnswerText": "system opposes change",
+      "acceptableAnswers": [
+        "When a system at equilibrium is disturbed, the system shifts to partially counteract the disturbance",
+        "The system opposes the change applied to it"
+      ],
+      "explanation": "Le Chatelier: a system at equilibrium responds to oppose the imposed change."
     }
   ]
 }

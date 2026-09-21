@@ -38,6 +38,10 @@ npm run db:import-nsc -- batches/2022/mathematics-p1-november.json
 
 Production start runs curriculum seed then manifest import (idempotent upserts).
 
+## Curriculum coverage
+
+Every subtopic in `curriculum-starter.ts` must appear in at least one manifest batch question (`subjectSlug` + `topicSlug` + `subtopicSlug`). CI runs `nscManifestCoverageGaps()` in `nsc-import.test.ts`.
+
 ## Adding papers at scale
 
 1. Transcribe questions from the DBE memorandum into a new batch JSON (match existing batch shape; see `types.ts` / Zod schema).

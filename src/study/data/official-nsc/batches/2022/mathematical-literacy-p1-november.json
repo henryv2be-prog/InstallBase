@@ -26,6 +26,55 @@
       "correctAnswerText": "2160",
       "acceptableAnswers": ["R2160", "R 2160", "2160 rand"],
       "explanation": "Simple interest I = P × r × t = 12 000 × 0.09 × 2 = R2 160."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "finance",
+      "subtopicSlug": "tax-and-inflation",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mathematical Literacy Paper 1 · Question 2.1\n\nA item costs R500 excluding 15% VAT. Calculate the VAT amount.",
+      "correctAnswerText": "75",
+      "acceptableAnswers": ["R75", "R 75", "75 rand"],
+      "explanation": "VAT = 500 × 0,15 = R75."
+    },
+    {
+      "sourceQuestionRef": "3.1",
+      "topicSlug": "measurement",
+      "subtopicSlug": "area-and-volume",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mathematical Literacy Paper 1 · Question 3.1\n\nCalculate the volume of a cylinder with radius 3 cm and height 10 cm. (Use π ≈ 3,14.)",
+      "correctAnswerText": "282.6",
+      "acceptableAnswers": ["282,6", "283", "282.6 cm^3", "282,6 cm³"],
+      "explanation": "V = πr²h = 3,14 × 9 × 10 = 282,6 cm³."
+    },
+    {
+      "sourceQuestionRef": "4.1",
+      "topicSlug": "data-handling",
+      "subtopicSlug": "interpreting-graphs",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · Mathematical Literacy Paper 1 · Question 4.1\n\nOn a distance-time graph, a horizontal line indicates …",
+      "options": [
+        { "id": "a", "text": "the object is stationary" },
+        { "id": "b", "text": "constant acceleration" },
+        { "id": "c", "text": "speed is increasing" },
+        { "id": "d", "text": "distance is zero" }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Zero gradient on a distance-time graph means no change in distance — stationary."
+    },
+    {
+      "sourceQuestionRef": "4.2",
+      "topicSlug": "data-handling",
+      "subtopicSlug": "probability-basics",
+      "type": "SHORT_ANSWER",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · Mathematical Literacy Paper 1 · Question 4.2\n\nA fair coin is tossed once. What is the probability of obtaining heads?",
+      "correctAnswerText": "0.5",
+      "acceptableAnswers": ["1/2", "50%", "0,5", "half"],
+      "explanation": "P(heads) = 1/2 = 0,5 for a fair coin."
     }
   ]
 }
