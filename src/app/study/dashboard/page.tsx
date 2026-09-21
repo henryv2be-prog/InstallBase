@@ -1,19 +1,22 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StudyMasteryBar } from "@/study/components/study-mastery-bar";
+import { StudyNextStep } from "@/study/components/study-next-step";
 import { StudyShell } from "@/study/components/study-shell";
 import { daysUntilExam } from "@/study/lib/days-until-exam";
 import {
-  estimateSessionMinutes,
   examCountdownMessage,
   studyEncouragementLine,
   studyGreeting,
   subjectOnTrack,
 } from "@/study/lib/home-helpers";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
-import { getLearnerProgressStats, getWeakestMasteries } from "@/study/lib/queries";
-import { getSubjectTheme, masteryBandLabel } from "@/study/lib/subject-theme";
-import { QUIZ_SIZE } from "@/study/lib/quiz-types";
+import { getLearnerProgressStats } from "@/study/lib/queries";
+import {
+  getNextStudyRecommendation,
+  logRecommendationShown,
+} from "@/study/lib/recommendation/service";
+import { getSubjectTheme } from "@/study/lib/subject-theme";
 
 export const dynamic = "force-dynamic";
 
@@ -24,17 +27,14 @@ export default async function StudyDashboardPage() {
   }
 
   const firstName = learner.displayName.split(" ")[0] ?? learner.displayName;
-  const [weakest, activity] = await Promise.all([
-    getWeakestMasteries(learner.id, 5),
+  const [recommendation, activity] = await Promise.all([
+    getNextStudyRecommendation(learner.id),
     getLearnerProgressStats(learner.id),
   ]);
 
-  const mission = weakest[0];
-  const missionSubjectSlug =
-    mission?.subtopic.topic.curriculum.subject.slug ?? "default";
-  const missionTheme = getSubjectTheme(missionSubjectSlug);
-  const questionCount = Math.min(QUIZ_SIZE, 8);
-  const sessionMins = estimateSessionMinutes(questionCount);
+  if (recommendation) {
+    await logRecommendationShown(learner.id, recommendation);
+  }
 
   const exams = learner.subjects
     .flatMap((ls) =>
@@ -71,46 +71,23 @@ export default async function StudyDashboardPage() {
         ) : null}
       </header>
 
-      <section className="study-panel--mission mb-6 relative z-[1]">
-        <p className="study-section-label mb-2">Today&apos;s mission</p>
-        {mission ? (
-          <>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="study-subject-chip" style={{ borderColor: missionTheme.accent }}>
-                <span aria-hidden>{missionTheme.glyph}</span>
-                {mission.subtopic.topic.curriculum.subject.name}
-              </span>
-            </div>
-            <h2 className="text-2xl font-extrabold tracking-tight leading-tight">
-              {mission.subtopic.name}
-            </h2>
-            <p className="mt-1 text-sm text-[var(--study-muted)]">{mission.subtopic.topic.name}</p>
-            <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
-              <span className="study-pill study-pill--soft">~{sessionMins} min</span>
-              <span className="study-pill study-pill--soft">Up to {questionCount} questions</span>
-            </div>
-            <Link
-              href={`/study/practice/${mission.subtopicId}`}
-              className="study-btn study-btn-primary study-touch-target mt-5 block w-full text-center"
-            >
-              Start
-            </Link>
-          </>
-        ) : (
-          <>
-            <h2 className="text-xl font-bold">Let&apos;s start</h2>
-            <p className="mt-2 text-sm text-[var(--study-muted)]">
-              Your first session will shape what we recommend next.
-            </p>
-            <Link
-              href="/study/practice"
-              className="study-btn study-btn-primary study-touch-target mt-5 block w-full text-center"
-            >
-              Start your first session
-            </Link>
-          </>
-        )}
-      </section>
+      {recommendation ? (
+        <StudyNextStep recommendation={recommendation} />
+      ) : (
+        <section className="study-panel--mission mb-6 relative z-[1]">
+          <p className="study-section-label mb-2">Your next step</p>
+          <h2 className="text-xl font-bold">Let&apos;s start</h2>
+          <p className="mt-2 text-sm text-[var(--study-muted)]">
+            Answer a few questions so we can learn where you&apos;re strong and where to focus.
+          </p>
+          <Link
+            href="/study/practice"
+            className="study-btn study-btn-primary study-touch-target mt-5 block w-full text-center"
+          >
+            Start your first session
+          </Link>
+        </section>
+      )}
 
       {progressSubject ? (
         <section className="study-panel p-4 mb-5">
@@ -123,10 +100,10 @@ export default async function StudyDashboardPage() {
           <p className="mt-2 text-sm text-[var(--study-muted)]">
             Target:{" "}
             <span className="font-bold text-[var(--study-text)] tabular-nums">{targetPct}%</span>
-            {mission ? (
+            {recommendation ? (
               <>
                 {" "}
-                · {masteryBandLabel(mission.masteryPct)}
+                · Coach picked {recommendation.subtopicName} from your recent results
               </>
             ) : null}
           </p>
@@ -152,7 +129,7 @@ export default async function StudyDashboardPage() {
         <section className="mb-4">
           <p className="study-section-label mb-2">Coming up</p>
           <ul className="study-panel px-4">
-            {exams.slice(0, 4).map((exam, i) => {
+            {exams.slice(0, 3).map((exam, i) => {
               const onTrack = subjectOnTrack(exam.current, exam.target, null);
               return (
                 <li key={`${exam.subjectName}-${i}`} className="study-row">
@@ -170,24 +147,13 @@ export default async function StudyDashboardPage() {
         </section>
       ) : null}
 
-      {mission && mission.masteryPct < 55 ? (
-        <section className="study-panel p-4 mb-4 border-[var(--study-warn)]/30">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--study-warn)]">
-            This needs some work
-          </p>
-          <p className="mt-2 text-lg font-bold">{mission.subtopic.name}</p>
-          <p className="text-3xl font-extrabold tabular-nums">{Math.round(mission.masteryPct)}%</p>
-          <p className="mt-2 text-sm text-[var(--study-muted)]">
-            That&apos;s okay — you&apos;ve got time. A short session here can move the needle.
-          </p>
-          <Link
-            href={`/study/practice/${mission.subtopicId}`}
-            className="study-btn study-btn-ghost study-touch-target mt-4 block w-full text-center"
-          >
-            Practice {mission.subtopic.name}
-          </Link>
-        </section>
-      ) : null}
+      <p className="text-center text-xs text-[var(--study-muted)] px-2">
+        Not feeling this topic?{" "}
+        <Link href="/study/practice" className="font-semibold text-[var(--study-accent-2)] underline">
+          Choose something else
+        </Link>{" "}
+        — you&apos;re always in control.
+      </p>
     </StudyShell>
   );
 }

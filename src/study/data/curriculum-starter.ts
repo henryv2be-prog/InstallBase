@@ -17,7 +17,13 @@ export type StudyCurriculumStarterSubject = {
     name: string;
     sortOrder: number;
     importance?: number;
-    subtopics: { slug: string; name: string; sortOrder: number }[];
+    subtopics: {
+      slug: string;
+      name: string;
+      sortOrder: number;
+      /** Prerequisite within same subject: topic slug + subtopic slug */
+      prerequisite?: { topicSlug: string; subtopicSlug: string };
+    }[];
   }[];
 };
 
@@ -39,7 +45,12 @@ export const GRADE_12_CURRICULUM_STARTER: StudyCurriculumStarterSubject[] = [
         sortOrder: 1,
         importance: 1.2,
         subtopics: [
-          { slug: "transformations", name: "Transformations of functions", sortOrder: 1 },
+          {
+            slug: "transformations",
+            name: "Transformations of functions",
+            sortOrder: 1,
+            prerequisite: { topicSlug: "algebra", subtopicSlug: "quadratic-equations" },
+          },
           { slug: "inverses", name: "Inverses of functions", sortOrder: 2 },
         ],
       },
@@ -59,8 +70,18 @@ export const GRADE_12_CURRICULUM_STARTER: StudyCurriculumStarterSubject[] = [
         sortOrder: 3,
         importance: 1.3,
         subtopics: [
-          { slug: "differentiation", name: "Differentiation (first principles & rules)", sortOrder: 1 },
-          { slug: "applications-of-derivatives", name: "Applications of derivatives", sortOrder: 2 },
+          {
+            slug: "differentiation",
+            name: "Differentiation (first principles & rules)",
+            sortOrder: 1,
+            prerequisite: { topicSlug: "algebra", subtopicSlug: "quadratic-equations" },
+          },
+          {
+            slug: "applications-of-derivatives",
+            name: "Applications of derivatives",
+            sortOrder: 2,
+            prerequisite: { topicSlug: "calculus", subtopicSlug: "differentiation" },
+          },
         ],
       },
       {

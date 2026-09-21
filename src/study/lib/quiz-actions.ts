@@ -10,6 +10,7 @@ import { prisma } from "@/lib/prisma";
 import { answersMatch, buildShortAnswerPatterns } from "@/study/lib/answer-check";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { updateMasteryAfterQuiz } from "@/study/lib/update-mastery-after-quiz";
+import { markRecommendationFollowed } from "@/study/lib/recommendation/service";
 import { getWeakestMasteries } from "@/study/lib/queries";
 import { QUIZ_SIZE, type QuizAnswerInput, type QuizMode, type QuizQuestionClient } from "@/study/lib/quiz-types";
 
@@ -103,6 +104,12 @@ export async function startSubtopicQuiz(subtopicId: string, mode: QuizMode = "al
   const session = await prisma.studyAssessmentSession.create({
     data: { learnerId: learner.id, subtopicId },
   });
+
+  void markRecommendationFollowed({
+    learnerId: learner.id,
+    subtopicId,
+    sessionId: session.id,
+  }).catch(() => {});
 
   return {
     ok: true as const,

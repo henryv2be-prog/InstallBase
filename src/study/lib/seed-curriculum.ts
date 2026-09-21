@@ -85,6 +85,8 @@ export async function seedStudyCurriculum() {
       },
     });
 
+    const subtopicIdByKey = new Map<string, string>();
+
     for (const topicDef of subjectDef.topics) {
       const topic = await prisma.studyTopic.upsert({
         where: {
@@ -108,7 +110,7 @@ export async function seedStudyCurriculum() {
       });
 
       for (const sub of topicDef.subtopics) {
-        await prisma.studySubtopic.upsert({
+        const row = await prisma.studySubtopic.upsert({
           where: {
             topicId_slug: {
               topicId: topic.id,
@@ -126,6 +128,23 @@ export async function seedStudyCurriculum() {
             sortOrder: sub.sortOrder,
           },
         });
+        subtopicIdByKey.set(`${topicDef.slug}/${sub.slug}`, row.id);
+      }
+    }
+
+    for (const topicDef of subjectDef.topics) {
+      for (const sub of topicDef.subtopics) {
+        if (!sub.prerequisite) continue;
+        const key = `${topicDef.slug}/${sub.slug}`;
+        const prereqKey = `${sub.prerequisite.topicSlug}/${sub.prerequisite.subtopicSlug}`;
+        const subtopicId = subtopicIdByKey.get(key);
+        const prereqId = subtopicIdByKey.get(prereqKey);
+        if (subtopicId && prereqId) {
+          await prisma.studySubtopic.update({
+            where: { id: subtopicId },
+            data: { prerequisiteSubtopicId: prereqId },
+          });
+        }
       }
     }
   }

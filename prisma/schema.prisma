@@ -852,6 +852,22 @@ enum StudyOfficialVerificationStatus {
   REJECTED
 }
 
+enum StudySelfConfidence {
+  UNDERSTANDS
+  UNSURE
+  DONT_UNDERSTAND
+}
+
+enum StudyRecommendationAction {
+  PRACTICE_TOPIC
+  REVIEW_TOPIC
+  LEARN_CONCEPT
+  REVISIT_PREREQUISITE
+  TAKE_ASSESSMENT
+  TRY_HARDER_QUESTIONS
+  DO_PAST_PAPER
+}
+
 model StudySubject {
   id          String   @id @default(cuid())
   slug        String   @unique
@@ -904,21 +920,26 @@ model StudyTopic {
 }
 
 model StudySubtopic {
-  id        String   @id @default(cuid())
-  topicId   String
-  slug      String
-  name      String
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                     String   @id @default(cuid())
+  topicId                String
+  slug                   String
+  name                   String
+  sortOrder              Int      @default(0)
+  prerequisiteSubtopicId String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   topic                StudyTopic                 @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  prerequisiteSubtopic StudySubtopic?             @relation("SubtopicPrerequisite", fields: [prerequisiteSubtopicId], references: [id], onDelete: SetNull)
+  dependentSubtopics   StudySubtopic[]            @relation("SubtopicPrerequisite")
   questions            StudyQuestion[]
   masteries            StudyMastery[]
   planItems            StudyPlanItem[]
   assessmentSessions   StudyAssessmentSession[]
+  recommendations      StudyRecommendationLog[]
 
   @@unique([topicId, slug])
+  @@index([prerequisiteSubtopicId])
 }
 
 model StudyLearner {
@@ -937,6 +958,7 @@ model StudyLearner {
   questionAttempts     StudyQuestionAttempt[]
   assessmentSessions   StudyAssessmentSession[]
   planDays             StudyPlanDay[]
+  recommendationLogs   StudyRecommendationLog[]
 }
 
 model StudyLearnerSubject {
@@ -981,6 +1003,7 @@ model StudyMastery {
   confidencePct      Float?
   priorityScore      Float?
   priorityBand       StudyPriorityBand?
+  selfConfidence     StudySelfConfidence?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
@@ -989,6 +1012,26 @@ model StudyMastery {
 
   @@unique([learnerId, subtopicId])
   @@index([learnerId])
+}
+
+model StudyRecommendationLog {
+  id            String                    @id @default(cuid())
+  learnerId     String
+  subtopicId    String
+  action        StudyRecommendationAction
+  reasonSummary String                    @db.Text
+  reasonDetail  Json
+  priorityScore Float
+  shownAt       DateTime                  @default(now())
+  followedAt    DateTime?
+  dismissedAt   DateTime?
+  sessionId     String?
+
+  learner  StudyLearner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  subtopic StudySubtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+
+  @@index([learnerId, shownAt])
+  @@index([learnerId, subtopicId])
 }
 
 model StudyQuestionImportBatch {
