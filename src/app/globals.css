@@ -229,13 +229,25 @@ body {
 }
 
 .immersive-feed-root {
+  /* Match app header (h-14 / sm:h-16), mobile tab bar (+ FAB), watch sub-nav row */
+  --immersive-header-h: 3.5rem;
+  --immersive-tabbar-h: 4.75rem;
+  --immersive-watch-subnav-h: 2.75rem;
   --immersive-slide-h: calc(
-    100dvh - 3.75rem - env(safe-area-inset-top) - 5.25rem - env(safe-area-inset-bottom)
+    100dvh - var(--immersive-header-h) - env(safe-area-inset-top) - var(--immersive-tabbar-h) -
+      env(safe-area-inset-bottom) - var(--immersive-watch-subnav-h)
   );
+}
+
+@media (min-width: 640px) {
+  .immersive-feed-root {
+    --immersive-header-h: 4rem;
+  }
 }
 
 @media (min-width: 1024px) {
   .immersive-feed-root {
+    --immersive-watch-subnav-h: 0px;
     --immersive-slide-h: min(88dvh, 900px);
   }
 }

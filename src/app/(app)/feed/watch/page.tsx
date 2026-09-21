@@ -36,15 +36,18 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
   return (
     <div className="immersive-feed-root -mx-3 flex flex-col sm:-mx-4 lg:mx-auto lg:max-w-6xl lg:flex-row lg:gap-6 xl:-mx-0">
       <WatchInstallsPromoSeenOnMount />
-      <div className="flex shrink-0 items-center justify-between gap-2 px-3 py-2 lg:hidden">
-        <Link href="/feed" className="text-sm font-medium text-muted hover:text-foreground">
+      <div className="flex min-h-11 shrink-0 items-center justify-between gap-2 overflow-visible px-3 py-2 lg:hidden">
+        <Link
+          href="/feed"
+          className="shrink-0 py-1 text-sm font-medium leading-none text-muted hover:text-foreground"
+        >
           Classic feed
         </Link>
-        <div className="flex rounded-lg bg-card/80 p-0.5 text-xs font-semibold border border-border">
+        <div className="flex shrink-0 rounded-lg border border-border bg-card/80 p-1 text-xs font-semibold shadow-sm">
           <Link
             href="/feed/watch?tab=popular"
             className={cn(
-              "rounded-md px-3 py-1.5",
+              "inline-flex min-h-9 items-center rounded-md px-3 py-2 leading-none",
               !followingTab ? "bg-card text-foreground shadow-sm" : "text-muted"
             )}
           >
@@ -54,7 +57,7 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
             <Link
               href="/feed/watch?tab=following"
               className={cn(
-                "rounded-md px-3 py-1.5",
+                "inline-flex min-h-9 items-center rounded-md px-3 py-2 leading-none",
                 followingTab ? "bg-card text-foreground shadow-sm" : "text-muted"
               )}
             >

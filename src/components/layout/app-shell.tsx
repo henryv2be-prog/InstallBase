@@ -167,8 +167,8 @@ export function AppShell({ children, user }: AppShellProps) {
           isAdminRoute
             ? "pb-6 md:pb-8"
             : isImmersiveWatch
-              ? "pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-8"
-              : "pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-8"
+              ? "pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:pb-8"
+              : "pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:pb-8"
         )}
       >
         {children}
@@ -178,11 +178,11 @@ export function AppShell({ children, user }: AppShellProps) {
 
       <nav
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden",
+          "fixed bottom-0 left-0 right-0 z-50 overflow-visible border-t border-border bg-card/80 pb-[env(safe-area-inset-bottom)] pt-2 backdrop-blur-xl md:hidden",
           isAdminRoute && "hidden"
         )}
       >
-        <div className="flex items-center justify-around px-1 py-1.5">
+        <div className="flex items-end justify-around px-1 pb-1.5 pt-0.5">
           {mobileNavItems.map((item) => {
             if (item.href === "/profile") {
               return (
