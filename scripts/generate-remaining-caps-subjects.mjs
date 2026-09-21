@@ -230,33 +230,6 @@ function subjectDef(entry) {
   };
 }
 
-function nscQuestion(entry, topicSlug, subtopicSlug, ref, prompt, answer, options) {
-  if (options) {
-    return {
-      sourceQuestionRef: ref,
-      topicSlug,
-      subtopicSlug,
-      type: "MULTIPLE_CHOICE",
-      difficulty: 3,
-      prompt: `Official NSC · Nov 2022 · ${entry.name} Paper 1 · Question ${ref}\n\n${prompt}`,
-      options,
-      correctOptionId: answer,
-      explanation: "Aligned to CAPS Grade 12 starter slice — expand from DBE memo.",
-    };
-  }
-  return {
-    sourceQuestionRef: ref,
-    topicSlug,
-    subtopicSlug,
-    type: "SHORT_ANSWER",
-    difficulty: 3,
-    prompt: `Official NSC · Nov 2022 · ${entry.name} Paper 1 · Question ${ref}\n\n${prompt}`,
-    correctAnswerText: answer,
-    acceptableAnswers: [answer],
-    explanation: "Aligned to CAPS Grade 12 starter slice — expand from DBE memo.",
-  };
-}
-
 function batchQuestions(entry, topics) {
   const questions = [];
   let n = 1;
