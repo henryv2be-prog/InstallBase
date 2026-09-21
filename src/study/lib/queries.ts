@@ -6,6 +6,7 @@ import {
   localizeSubtopicName,
   localizeTopicName,
 } from "@/study/i18n/localize-content";
+import { isPracticeLikeSourceKind } from "@/study/lib/question-source-kinds";
 import type { StudyLocale } from "@/study/i18n/types";
 
 export type StudySubjectWithCurriculum = Awaited<ReturnType<typeof getStudySubjectsWithTopics>>[number];
@@ -84,8 +85,8 @@ export async function getPracticeLibraryForLearner(
             q.sourceKind === StudyContentSourceKind.OFFICIAL_PAST_PAPER &&
             q.verificationStatus === StudyOfficialVerificationStatus.VERIFIED,
         ).length;
-        const practiceCount = sub.questions.filter(
-          (q) => q.sourceKind === StudyContentSourceKind.PRACTICE,
+        const practiceCount = sub.questions.filter((q) =>
+          isPracticeLikeSourceKind(q.sourceKind),
         ).length;
         return {
           id: sub.id,
