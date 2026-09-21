@@ -44,7 +44,7 @@ export function StudyNextStep({ recommendation }: Props) {
       </Link>
 
       <details className="mt-5 rounded-xl border border-[var(--study-border)] bg-black/20 px-4 py-3">
-        <summary className="cursor-pointer text-sm font-bold text-[var(--study-accent-2)]">
+        <summary className="cursor-pointer text-sm font-bold study-text-link">
           {t.nextStep.why}
         </summary>
         <ul className="mt-3 space-y-2 text-sm text-[var(--study-muted)]">

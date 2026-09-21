@@ -69,7 +69,7 @@ export default async function StudyDashboardPage() {
         </p>
         {nextExam ? (
           <p className="mt-3 text-sm">
-            <span className="font-bold text-[var(--study-accent-2)] tabular-nums">
+            <span className="font-bold study-text-emphasis tabular-nums">
               {nextExam.days}
             </span>{" "}
             <span className="text-[var(--study-muted)]">
@@ -140,7 +140,7 @@ export default async function StudyDashboardPage() {
                       {examCountdownFromMessages(t, exam.days, onTrack)}
                     </p>
                   </div>
-                  <p className="study-stat-xl text-[var(--study-accent-2)]">{exam.days}</p>
+                  <p className="study-stat-xl">{exam.days}</p>
                 </li>
               );
             })}
@@ -150,7 +150,7 @@ export default async function StudyDashboardPage() {
 
       <p className="text-center text-xs text-[var(--study-muted)] px-2">
         {t.dashboard.override}{" "}
-        <Link href="/study/practice" className="font-semibold text-[var(--study-accent-2)] underline">
+        <Link href="/study/practice" className="font-semibold study-text-link underline">
           {t.dashboard.chooseElse}
         </Link>{" "}
         — {t.dashboard.controlNote}

@@ -34,7 +34,7 @@ export default async function StudyProgressPage() {
 
       <section className="grid grid-cols-2 gap-3 mb-5">
         <div className="study-panel p-4 text-center">
-          <p className="study-stat-xl text-[var(--study-accent-2)]">{stats.completedSessions}</p>
+          <p className="study-stat-xl">{stats.completedSessions}</p>
           <p className="text-xs text-[var(--study-muted)] mt-1">{t.progress.sessions}</p>
         </div>
         <div className="study-panel p-4 text-center">
@@ -102,7 +102,7 @@ export default async function StudyProgressPage() {
           <ul className="space-y-2">
             {weakest.map((m) => (
               <li key={m.id} className="study-panel p-4">
-                <p className="text-xs font-bold text-[var(--study-accent-2)]">{t.progress.needsAttention}</p>
+                <p className="text-xs font-bold study-text-link">{t.progress.needsAttention}</p>
                 <p className="mt-1 font-bold">{m.subtopic.name}</p>
                 <p className="text-sm text-[var(--study-muted)]">
                   {m.subtopic.topic.curriculum.subject.name} · {Math.round(m.masteryPct)}%

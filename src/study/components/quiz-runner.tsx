@@ -171,7 +171,7 @@ export function QuizRunner({
       <p className="text-xs font-semibold text-[var(--study-muted)] mb-1">
         {subjectName} · {topicName}
       </p>
-      <p className="text-sm font-bold text-[var(--study-accent-2)] mb-4">{subtopicName}</p>
+      <p className="text-sm font-bold study-text-emphasis mb-4">{subtopicName}</p>
 
       <div className="mb-4">
         <p className="text-center text-xs font-bold text-[var(--study-muted)] mb-3">

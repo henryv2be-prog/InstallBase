@@ -40,7 +40,7 @@ export default async function StudyPracticePage() {
                   href={`/study/practice/${m.subtopicId}`}
                   className="study-panel block p-4 active:scale-[0.99] transition"
                 >
-                  <p className="text-xs font-bold text-[var(--study-accent-2)]">{t.practice.needsWork}</p>
+                  <p className="text-xs font-bold study-text-link">{t.practice.needsWork}</p>
                   <p className="mt-1 text-lg font-extrabold">{m.subtopic.name}</p>
                   <p className="text-sm text-[var(--study-muted)]">
                     {m.subtopic.topic.curriculum.subject.name} · {Math.round(m.masteryPct)}% ·{" "}

@@ -77,7 +77,7 @@ export default async function StudySubjectDetailPage({ params }: Props) {
                           <div className="text-right shrink-0">
                             <p className="font-extrabold tabular-nums">{pct}%</p>
                             {weak ? (
-                              <p className="text-xs font-bold text-[var(--study-accent-2)]">{t.subjects.practice}</p>
+                              <p className="text-xs font-bold study-text-link">{t.subjects.practice}</p>
                             ) : null}
                           </div>
                         </Link>

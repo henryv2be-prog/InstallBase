@@ -89,7 +89,7 @@ export function QuizIntro({
             ) : (
               <>
                 {t.common.mastery}{" "}
-                <span className="font-extrabold text-[var(--study-accent-2)] tabular-nums">
+                <span className="font-extrabold study-text-emphasis tabular-nums">
                   {Math.round(masteryPct)}%
                 </span>
               </>

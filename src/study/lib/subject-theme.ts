@@ -10,8 +10,8 @@ export type SubjectTheme = {
 
 const DEFAULT: SubjectTheme = {
   slug: "default",
-  accent: "#f97316",
-  accentSoft: "rgba(249, 115, 22, 0.18)",
+  accent: "#94a3b8",
+  accentSoft: "rgba(148, 163, 184, 0.15)",
   glyph: "📘",
   label: "Subject",
 };
@@ -49,14 +49,14 @@ const THEMES: Record<string, Omit<SubjectTheme, "slug">> = {
     label: "English FAL",
   },
   "afrikaans-home-language": {
-    accent: "#fbbf24",
-    accentSoft: "rgba(251, 191, 36, 0.18)",
+    accent: "#7dd3fc",
+    accentSoft: "rgba(125, 211, 252, 0.16)",
     glyph: "📚",
     label: "Afrikaans HT",
   },
   "afrikaans-first-additional-language": {
-    accent: "#f59e0b",
-    accentSoft: "rgba(245, 158, 11, 0.18)",
+    accent: "#94a3b8",
+    accentSoft: "rgba(148, 163, 184, 0.16)",
     glyph: "📚",
     label: "Afrikaans EAT",
   },
@@ -67,7 +67,7 @@ const THEMES: Record<string, Omit<SubjectTheme, "slug">> = {
     glyph: "📈",
     label: "Business Studies",
   },
-  economics: { accent: "#fcd34d", accentSoft: "rgba(252, 211, 77, 0.15)", glyph: "💹", label: "Economics" },
+  economics: { accent: "#fde68a", accentSoft: "rgba(253, 230, 138, 0.12)", glyph: "💹", label: "Economics" },
   geography: { accent: "#60a5fa", accentSoft: "rgba(96, 165, 250, 0.18)", glyph: "🌍", label: "Geography" },
   history: { accent: "#c084fc", accentSoft: "rgba(192, 132, 252, 0.18)", glyph: "🏛️", label: "History" },
   "computer-applications-technology": {

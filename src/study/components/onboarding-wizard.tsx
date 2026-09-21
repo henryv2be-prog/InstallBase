@@ -248,7 +248,7 @@ export function OnboardingWizard({
                             />
                             <span className="font-bold">{subject.name}</span>
                             {subject.hasCurriculum ? (
-                              <span className="ml-auto text-xs text-[var(--study-accent-2)]">
+                              <span className="ml-auto text-xs study-text-emphasis">
                                 {t.common.quizzes}
                               </span>
                             ) : null}
@@ -424,7 +424,7 @@ function MarkSlider({
     <label className="block space-y-2">
       <div className="flex items-center justify-between text-sm">
         <span className="font-semibold">{label}</span>
-        <span className="tabular-nums font-extrabold text-[var(--study-accent-2)]">{value}%</span>
+        <span className="tabular-nums font-extrabold study-text-emphasis">{value}%</span>
       </div>
       <input
         type="range"
