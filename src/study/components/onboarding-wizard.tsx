@@ -9,6 +9,12 @@ import {
   GRADE_12_SUBJECT_CATEGORY_LABELS,
   type Grade12SubjectCategory,
 } from "@/study/data/grade-12-subject-catalog";
+import {
+  buildInitialExamMap,
+  DEFAULT_ONBOARDING_EXAM,
+  examEntryForSubject,
+  type OnboardingExamEntry,
+} from "@/study/lib/onboarding-defaults";
 
 export type OnboardingSubjectOption = {
   id: string;
@@ -22,12 +28,6 @@ type SubjectMarks = {
   selected: boolean;
   currentMarkPct: number;
   targetMarkPct: number;
-};
-
-type ExamEntry = {
-  examAt: string;
-  paperNumber: string;
-  durationMinutes: string;
 };
 
 type Props = {
@@ -78,13 +78,10 @@ export function OnboardingWizard({
       ]),
     ),
   );
-  const [exams, setExams] = useState<Record<string, ExamEntry>>(() =>
-    initialExams ??
-    Object.fromEntries(
-      subjects.map((s) => [
-        s.id,
-        { examAt: "2026-11-04", paperNumber: "1", durationMinutes: "180" },
-      ]),
+  const [exams, setExams] = useState<Record<string, OnboardingExamEntry>>(() =>
+    buildInitialExamMap(
+      subjects.map((s) => s.id),
+      initialExams,
     ),
   );
 
@@ -132,6 +129,10 @@ export function OnboardingWizard({
         },
       };
     });
+    setExams((prev) => {
+      if (prev[id]) return prev;
+      return { ...prev, [id]: { ...DEFAULT_ONBOARDING_EXAM } };
+    });
   }
 
   function updateMark(id: string, field: "currentMarkPct" | "targetMarkPct", value: number) {
@@ -171,14 +172,15 @@ export function OnboardingWizard({
           currentMarkPct: marks[s.id].currentMarkPct,
           targetMarkPct: marks[s.id].targetMarkPct,
         })),
-        exams: selectedSubjects.map((s) => ({
-          subjectId: s.id,
-          examAt: exams[s.id].examAt,
-          paperNumber: exams[s.id].paperNumber ? Number(exams[s.id].paperNumber) : null,
-          durationMinutes: exams[s.id].durationMinutes
-            ? Number(exams[s.id].durationMinutes)
-            : null,
-        })),
+        exams: selectedSubjects.map((s) => {
+          const exam = examEntryForSubject(exams, s.id);
+          return {
+            subjectId: s.id,
+            examAt: exam.examAt,
+            paperNumber: exam.paperNumber ? Number(exam.paperNumber) : null,
+            durationMinutes: exam.durationMinutes ? Number(exam.durationMinutes) : null,
+          };
+        }),
       };
 
       const result = await completeStudyOnboarding(payload);
@@ -304,7 +306,7 @@ export function OnboardingWizard({
           <p className="text-sm text-[var(--study-muted)]">{t.onboarding.examsLead}</p>
           <ul className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
             {selectedSubjects.map((subject) => {
-              const exam = exams[subject.id];
+              const exam = examEntryForSubject(exams, subject.id);
               return (
                 <li key={subject.id} className="study-panel space-y-3 p-4">
                   <p className="font-bold">{content.subject(subject.slug, subject.name)}</p>
@@ -319,7 +321,10 @@ export function OnboardingWizard({
                       onChange={(e) =>
                         setExams((prev) => ({
                           ...prev,
-                          [subject.id]: { ...prev[subject.id], examAt: e.target.value },
+                          [subject.id]: {
+                            ...examEntryForSubject(prev, subject.id),
+                            examAt: e.target.value,
+                          },
                         }))
                       }
                     />
@@ -338,7 +343,10 @@ export function OnboardingWizard({
                         onChange={(e) =>
                           setExams((prev) => ({
                             ...prev,
-                            [subject.id]: { ...prev[subject.id], paperNumber: e.target.value },
+                            [subject.id]: {
+                              ...examEntryForSubject(prev, subject.id),
+                              paperNumber: e.target.value,
+                            },
                           }))
                         }
                       />
@@ -356,7 +364,10 @@ export function OnboardingWizard({
                         onChange={(e) =>
                           setExams((prev) => ({
                             ...prev,
-                            [subject.id]: { ...prev[subject.id], durationMinutes: e.target.value },
+                            [subject.id]: {
+                              ...examEntryForSubject(prev, subject.id),
+                              durationMinutes: e.target.value,
+                            },
                           }))
                         }
                       />
