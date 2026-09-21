@@ -8,6 +8,24 @@ import { postHasImmersiveMedia } from "@/lib/immersive-feed-media";
 import { ImmersiveSlide } from "@/components/feed/immersive/immersive-slide";
 import { Button } from "@/components/ui/button";
 
+/** Apply brag/bookmark viewer fields from a fresh server row without replacing the feed list. */
+function mergePostViewerFields(existing: PostCardData, fresh: PostCardData): PostCardData {
+  const freshMedia = new Map(fresh.media.map((item) => [item.id, item]));
+  return {
+    ...existing,
+    bragScore: fresh.bragScore,
+    media: existing.media.map((item) => {
+      const updated = freshMedia.get(item.id);
+      if (!updated) return item;
+      return {
+        ...item,
+        bragScore: updated.bragScore,
+        braggedByViewer: updated.braggedByViewer,
+      };
+    }),
+  };
+}
+
 interface ImmersiveFeedProps {
   initialPosts: PostCardData[];
   initialCursor: string | null;
@@ -28,6 +46,7 @@ export function ImmersiveFeed({
   slideHeightClass = "h-[var(--immersive-slide-h,100dvh)]",
 }: ImmersiveFeedProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const tabRef = useRef(tab);
   const [posts, setPosts] = useState(initialPosts.filter(postHasImmersiveMedia));
   const [cursor, setCursor] = useState(initialCursor);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -35,10 +54,26 @@ export function ImmersiveFeed({
   const [activeId, setActiveId] = useState<string | null>(posts[0]?.id ?? null);
 
   useEffect(() => {
-    setPosts(initialPosts.filter(postHasImmersiveMedia));
-    setCursor(initialCursor);
-    setHasMore(initialHasMore);
-    setActiveId(initialPosts.find(postHasImmersiveMedia)?.id ?? null);
+    const tabChanged = tabRef.current !== tab;
+    tabRef.current = tab;
+
+    if (tabChanged) {
+      setPosts(initialPosts.filter(postHasImmersiveMedia));
+      setCursor(initialCursor);
+      setHasMore(initialHasMore);
+      setActiveId(initialPosts.find(postHasImmersiveMedia)?.id ?? null);
+      scrollerRef.current?.scrollTo(0, 0);
+      return;
+    }
+
+    // Server actions (e.g. brag) refresh route props — merge scores only, keep scroll + loaded pages.
+    const freshById = new Map(initialPosts.map((post) => [post.id, post]));
+    setPosts((current) =>
+      current.map((post) => {
+        const fresh = freshById.get(post.id);
+        return fresh ? mergePostViewerFields(post, fresh) : post;
+      })
+    );
   }, [initialPosts, initialCursor, initialHasMore, tab]);
 
   const loadMore = useCallback(async () => {
