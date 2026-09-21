@@ -6,7 +6,10 @@ import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { STUDY_LEARNER_COOKIE } from "@/study/lib/constants";
 import { studyOnboardingSchema, type StudyOnboardingInput } from "@/study/lib/validation";
-import { initializeLearnerMasteries } from "@/study/lib/initialize-masteries";
+import {
+  deleteMasteriesForSubject,
+  initializeLearnerMasteries,
+} from "@/study/lib/initialize-masteries";
 
 export type StudyActionResult =
   | { ok: true; learnerId: string }
@@ -53,11 +56,21 @@ export async function completeStudyOnboarding(raw: StudyOnboardingInput): Promis
           onboardedAt: new Date(),
         },
       });
+      const incomingSubjectIds = new Set(data.subjects.map((s) => s.subjectId));
+      const currentSubjects = await prisma.studyLearnerSubject.findMany({
+        where: { learnerId },
+        select: { subjectId: true },
+      });
+      for (const row of currentSubjects) {
+        if (!incomingSubjectIds.has(row.subjectId)) {
+          await deleteMasteriesForSubject(learnerId, row.subjectId);
+        }
+      }
+
       await prisma.studyExam.deleteMany({
         where: { learnerSubject: { learnerId } },
       });
       await prisma.studyLearnerSubject.deleteMany({ where: { learnerId } });
-      await prisma.studyMastery.deleteMany({ where: { learnerId } });
     } else {
       const created = await prisma.studyLearner.create({
         data: {
