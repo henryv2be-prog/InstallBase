@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { addComment, getCommentPreview } from "@/lib/actions";
+import { addComment, getCommentPreview, getPostComments } from "@/lib/actions";
 import { getInitials } from "@/lib/utils";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { toast } from "sonner";
@@ -29,31 +29,45 @@ export function InlineComments({
   initialComments = [],
   currentUserId,
   defaultOpen = false,
+  /** Full thread for sheets (watch feed); feed cards keep a short preview. */
+  fullList = false,
+  hideToggle = false,
 }: {
   postId: string;
   commentCount: number;
   initialComments?: Comment[];
   currentUserId?: string;
   defaultOpen?: boolean;
+  fullList?: boolean;
+  hideToggle?: boolean;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [open, setOpen] = useState(defaultOpen || hideToggle);
   const [content, setContent] = useState("");
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [loaded, setLoaded] = useState(initialComments.length > 0);
   const [loading, setLoading] = useState(false);
   const [pending, startTransition] = useTransition();
 
+  const fetchComments = async () => {
+    if (fullList) {
+      return getPostComments(postId);
+    }
+    const rows = await getCommentPreview(postId);
+    return rows.reverse();
+  };
+
   useEffect(() => {
-    if (!open || loaded) return;
+    const isOpen = hideToggle || open;
+    if (!isOpen || loaded) return;
     setLoading(true);
-    getCommentPreview(postId)
+    fetchComments()
       .then((rows) => {
-        setComments(rows.reverse());
+        setComments(rows);
         setLoaded(true);
       })
       .catch(() => toast.error("Could not load comments"))
       .finally(() => setLoading(false));
-  }, [open, loaded, postId]);
+  }, [open, loaded, postId, fullList, hideToggle]);
 
   const handleSubmit = () => {
     if (!content.trim()) return;
@@ -66,8 +80,8 @@ export function InlineComments({
         await addComment(postId, content);
         setContent("");
         toast.success("Comment added");
-        const rows = await getCommentPreview(postId);
-        setComments(rows.reverse());
+        const rows = await fetchComments();
+        setComments(rows);
         setLoaded(true);
       } catch {
         toast.error("Failed to add comment");
@@ -75,21 +89,27 @@ export function InlineComments({
     });
   };
 
-  if (commentCount === 0 && !open) return null;
+  const isOpen = hideToggle || open;
+
+  if (commentCount === 0 && !isOpen) return null;
 
   return (
-    <div className="border-t border-border pt-3">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between text-sm font-medium text-muted hover:text-foreground"
-      >
-        <span>{commentCount} comment{commentCount === 1 ? "" : "s"}</span>
-        {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-      </button>
+    <div className={hideToggle ? undefined : "border-t border-border pt-3"}>
+      {!hideToggle && (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex w-full items-center justify-between text-sm font-medium text-muted hover:text-foreground"
+        >
+          <span>
+            {commentCount} comment{commentCount === 1 ? "" : "s"}
+          </span>
+          {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </button>
+      )}
 
-      {open && (
-        <div className="mt-3 space-y-3">
+      {isOpen && (
+        <div className={hideToggle ? "space-y-3" : "mt-3 space-y-3"}>
           {currentUserId ? (
             <div className="flex gap-2">
               <Textarea
@@ -139,9 +159,21 @@ export function InlineComments({
             </div>
           ))}
 
-          {commentCount > comments.length && (
-            <Link href={`/post/${postId}`} className="text-sm font-semibold text-blue-600 hover:underline dark:text-cyan-400">
+          {!fullList && commentCount > comments.length && (
+            <Link
+              href={`/post/${postId}`}
+              className="text-sm font-semibold text-blue-600 hover:underline dark:text-cyan-400"
+            >
               View all {commentCount} comments
+            </Link>
+          )}
+
+          {fullList && commentCount > comments.length && (
+            <Link
+              href={`/post/${postId}`}
+              className="text-sm font-semibold text-blue-600 hover:underline dark:text-cyan-400"
+            >
+              Open post for older comments ({commentCount} total)
             </Link>
           )}
         </div>

@@ -7,7 +7,11 @@ import { auth, signIn } from "@/lib/auth";
 import { roleForEmail } from "@/lib/admin-access";
 import { slugify } from "@/lib/utils";
 import { saveUploadedFile } from "@/lib/save-upload";
-import { getOrCreateConversation, getCommentPreview as fetchCommentPreview } from "@/lib/queries";
+import {
+  getOrCreateConversation,
+  getCommentPreview as fetchCommentPreview,
+  getPostComments as fetchPostComments,
+} from "@/lib/queries";
 import { notifyUser } from "@/lib/notify";
 import { revalidateActivityPaths, markNotificationsReadForUser } from "@/lib/notification-read";
 import { sendPushToUser } from "@/lib/push";
@@ -564,6 +568,10 @@ export async function addComment(postId: string, content: string) {
 
 export async function getCommentPreview(postId: string, limit = 3) {
   return fetchCommentPreview(postId, limit);
+}
+
+export async function getPostComments(postId: string, limit?: number) {
+  return fetchPostComments(postId, limit);
 }
 
 export async function toggleFollow(userId: string) {

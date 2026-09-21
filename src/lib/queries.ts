@@ -713,6 +713,17 @@ export async function getCommentPreview(postId: string, limit = 3) {
   });
 }
 
+const POST_COMMENTS_MAX = 100;
+
+export async function getPostComments(postId: string, limit = POST_COMMENTS_MAX) {
+  return prisma.comment.findMany({
+    where: { postId },
+    orderBy: { createdAt: "asc" },
+    take: Math.min(limit, POST_COMMENTS_MAX),
+    include: { author: { include: { profile: true } } },
+  });
+}
+
 export async function getSuggestedSearchTerms() {
   return ["Hikvision", "PoE", "ANPR", "Ubiquiti", "CCTV", "access control"];
 }

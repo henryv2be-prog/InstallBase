@@ -152,20 +152,35 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
       </div>
 
       {commentsOpen && (
-        <div className="absolute inset-0 z-20 flex flex-col justify-end bg-black/50 pointer-events-auto">
-          <div className="max-h-[55%] overflow-y-auto rounded-t-2xl bg-card p-4 text-foreground shadow-xl">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-semibold">Comments</h3>
+        <div
+          className="absolute inset-0 z-20 flex flex-col justify-end bg-black/50 pointer-events-auto"
+          onClick={() => setCommentsOpen(false)}
+          role="presentation"
+        >
+          <div
+            className="flex max-h-[min(72dvh,82%)] flex-col rounded-t-2xl bg-card text-foreground shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-labelledby={`comments-sheet-${post.id}`}
+          >
+            <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
+              <h3 id={`comments-sheet-${post.id}`} className="font-semibold">
+                Comments{commentCount > 0 ? ` (${commentCount})` : ""}
+              </h3>
               <button type="button" className="text-sm text-muted" onClick={() => setCommentsOpen(false)}>
                 Close
               </button>
             </div>
-            <InlineComments
-              postId={post.id}
-              commentCount={commentCount}
-              currentUserId={currentUserId}
-              defaultOpen
-            />
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 py-3">
+              <InlineComments
+                postId={post.id}
+                commentCount={commentCount}
+                currentUserId={currentUserId}
+                defaultOpen
+                fullList
+                hideToggle
+              />
+            </div>
           </div>
         </div>
       )}
