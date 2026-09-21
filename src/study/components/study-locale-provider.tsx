@@ -1,21 +1,22 @@
 "use client";
 
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { getDictionary } from "@/study/i18n/get-dictionary";
 import type { StudyLocale, StudyMessages } from "@/study/i18n/types";
 
 type Ctx = { locale: StudyLocale; t: StudyMessages };
 
 const StudyLocaleContext = createContext<Ctx | null>(null);
 
+/** Provides UI strings on the client — locale only crosses the server boundary. */
 export function StudyLocaleProvider({
   locale,
-  t,
   children,
 }: {
   locale: StudyLocale;
-  t: StudyMessages;
   children: ReactNode;
 }) {
+  const t = useMemo(() => getDictionary(locale), [locale]);
   return (
     <StudyLocaleContext.Provider value={{ locale, t }}>{children}</StudyLocaleContext.Provider>
   );

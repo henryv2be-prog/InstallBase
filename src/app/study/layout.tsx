@@ -38,7 +38,7 @@ export default async function StudyCoachLayout({ children }: { children: React.R
   return (
     <div lang={t.langTag} className={`study-coach ${studyFont.variable}`}>
       <StudyBodyChrome />
-      <StudyLocaleProvider locale={locale} t={t}>
+      <StudyLocaleProvider locale={locale}>
         {children}
       </StudyLocaleProvider>
     </div>
