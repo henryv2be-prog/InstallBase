@@ -360,6 +360,88 @@ export const GRADE_12_CURRICULUM_STARTER: StudyCurriculumStarterSubject[] = [
     ],
   },
   {
+    slug: "afrikaans-home-language",
+    name: "Afrikaans Home Language",
+    sortOrder: 32,
+    description: "Grade 12 Afrikaans Huistaal (CAPS FET)",
+    sourceTitle: "CAPS Afrikaans Home Language FET (Grades 10–12)",
+    sourceUrl:
+      "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
+    versionLabel: "2026 prototype starter (partial topics)",
+    topics: [
+      {
+        slug: "taalstrukture",
+        name: "Taalstrukture en -konvensies",
+        sortOrder: 1,
+        importance: 1.2,
+        subtopics: [
+          { slug: "werkwoorde-en-tye", name: "Werkwoorde en tye", sortOrder: 1 },
+          { slug: "sinonieme-en-woordpatrone", name: "Sinonieme, antonieme en woordpatrone", sortOrder: 2 },
+        ],
+      },
+      {
+        slug: "lees-en-kyk",
+        name: "Lees en kyk",
+        sortOrder: 2,
+        importance: 1.1,
+        subtopics: [
+          { slug: "begrip-en-opsomming", name: "Begripstoets en opsomming", sortOrder: 1 },
+        ],
+      },
+      {
+        slug: "skryf",
+        name: "Skryf",
+        sortOrder: 3,
+        subtopics: [
+          { slug: "transaksioneel", name: "Transaksionele tekste", sortOrder: 1 },
+          { slug: "kreatief", name: "Kreatiewe skryfwerk", sortOrder: 2 },
+        ],
+      },
+      {
+        slug: "letterkunde",
+        name: "Letterkunde",
+        sortOrder: 4,
+        importance: 1.15,
+        subtopics: [
+          { slug: "poësie-analise", name: "Poësie-analise", sortOrder: 1 },
+          { slug: "prosa-en-drama", name: "Prosa en drama", sortOrder: 2 },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "afrikaans-first-additional-language",
+    name: "Afrikaans First Additional Language",
+    sortOrder: 33,
+    description: "Grade 12 Afrikaans Eerste Addisionele Taal (CAPS FET)",
+    sourceTitle: "CAPS Afrikaans First Additional Language FET (Grades 10–12)",
+    sourceUrl:
+      "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx",
+    versionLabel: "2026 prototype starter (partial topics)",
+    topics: [
+      {
+        slug: "taalstrukture-fal",
+        name: "Taalstrukture",
+        sortOrder: 1,
+        subtopics: [
+          { slug: "grammatika-basis", name: "Grammatika: werkwoorde en sinbou", sortOrder: 1 },
+        ],
+      },
+      {
+        slug: "lees-fal",
+        name: "Lees en begrip",
+        sortOrder: 2,
+        subtopics: [{ slug: "kort-tekste", name: "Kort tekste en advertensies", sortOrder: 1 }],
+      },
+      {
+        slug: "skryf-fal",
+        name: "Skryf",
+        sortOrder: 3,
+        subtopics: [{ slug: "informele-formele", name: "Informele en formele brief", sortOrder: 1 }],
+      },
+    ],
+  },
+  {
     slug: "tourism",
     name: "Tourism",
     sortOrder: 90,

@@ -48,7 +48,18 @@ const THEMES: Record<string, Omit<SubjectTheme, "slug">> = {
     glyph: "📖",
     label: "English FAL",
   },
-  afrikaans: { accent: "#fbbf24", accentSoft: "rgba(251, 191, 36, 0.18)", glyph: "🇿🇦", label: "Afrikaans" },
+  "afrikaans-home-language": {
+    accent: "#fbbf24",
+    accentSoft: "rgba(251, 191, 36, 0.18)",
+    glyph: "📚",
+    label: "Afrikaans HT",
+  },
+  "afrikaans-first-additional-language": {
+    accent: "#f59e0b",
+    accentSoft: "rgba(245, 158, 11, 0.18)",
+    glyph: "📚",
+    label: "Afrikaans EAT",
+  },
   accounting: { accent: "#34d399", accentSoft: "rgba(52, 211, 153, 0.18)", glyph: "💼", label: "Accounting" },
   "business-studies": {
     accent: "#2dd4bf",
