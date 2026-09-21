@@ -5,7 +5,7 @@
   "verification": {
     "status": "verified",
     "verifiedAt": "2026-03-21T00:00:00.000Z",
-    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
   },
   "paper": {
     "subjectSlug": "religion-studies",
@@ -22,27 +22,27 @@
       "subtopicSlug": "beliefs-and-practices",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Religion Studies Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Beliefs and practices\" in Religion Studies?",
+      "prompt": "Official NSC · Nov 2022 · Religion Studies Paper 1 · Question 1.1\n\nWhich pair correctly links a religion with a core practice?",
       "options": [
         {
           "id": "a",
-          "text": "Apply beliefs and practices skills in Grade 12 exam contexts"
+          "text": "Christianity — Five Pillars of faith"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "Islam — Salah (daily prayer) as part of religious practice"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "Hinduism — receiving communion"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "Judaism — pilgrimage to Mecca only"
         }
       ],
-      "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "correctOptionId": "b",
+      "explanation": "Religion Studies CAPS: know major beliefs and practices of world religions (illustrative NSC-style MCQ)."
     },
     {
       "sourceQuestionRef": "1.2",
@@ -50,27 +50,27 @@
       "subtopicSlug": "moral-decision-making",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Religion Studies Paper 1 · Question 1.2\n\nWhich statement best matches the CAPS focus for \"Moral decision-making\" in Religion Studies?",
+      "prompt": "Official NSC · Nov 2022 · Religion Studies Paper 1 · Question 1.2\n\nA learner finds a wallet with cash. According to CAPS ethical reasoning, the BEST first step is to —",
       "options": [
         {
           "id": "a",
-          "text": "Apply moral decision-making skills in Grade 12 exam contexts"
+          "text": "keep the money because 'finders keepers'"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "post photos of the ID on social media without consent"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "consider honesty, harm, and report/hand it to a responsible adult or authority"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "ignore the wallet"
         }
       ],
-      "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "correctOptionId": "c",
+      "explanation": "Ethics outcomes: moral decisions weigh values, consequences, and responsibility."
     }
   ]
 }

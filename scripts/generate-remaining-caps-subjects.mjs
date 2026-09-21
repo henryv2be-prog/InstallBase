@@ -2,8 +2,9 @@
  * One-off generator: starter CAPS slices + Nov 2022 NSC batches for catalog subjects
  * not yet in curriculum-starter. Run: node scripts/generate-remaining-caps-subjects.mjs
  */
-import { writeFileSync, readFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { starterMemoQuestion } from "./nsc-starter-memo-questions.mjs";
 
 const CAPS_URL =
   "https://www.education.gov.za/Curriculum/CurriculumAssessmentPolicyStatements(CAPS)/CAPSFET.aspx";
@@ -262,22 +263,7 @@ function batchQuestions(entry, topics) {
   for (const topic of topics) {
     for (const sub of topic.subtopics) {
       const ref = `1.${n}`;
-      questions.push(
-        nscQuestion(
-          entry,
-          topic.slug,
-          sub.slug,
-          ref,
-          `Which statement best matches the CAPS focus for "${sub.name}" in ${entry.name}?`,
-          "a",
-          [
-            { id: "a", text: `Apply ${sub.name.toLowerCase()} skills in Grade 12 exam contexts` },
-            { id: "b", text: "Ignore curriculum outcomes for this subtopic" },
-            { id: "c", text: "This subtopic is not part of NSC ${entry.name}" },
-            { id: "d", text: "Only primary school content applies here" },
-          ],
-        ),
-      );
+      questions.push(starterMemoQuestion(entry, topic, sub, ref));
       n += 1;
     }
   }

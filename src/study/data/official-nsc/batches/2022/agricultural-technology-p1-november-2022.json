@@ -5,7 +5,7 @@
   "verification": {
     "status": "verified",
     "verifiedAt": "2026-03-21T00:00:00.000Z",
-    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
   },
   "paper": {
     "subjectSlug": "agricultural-technology",
@@ -22,27 +22,27 @@
       "subtopicSlug": "tools-and-equipment",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Agricultural Technology Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Tools and equipment\" in Agricultural Technology?",
+      "prompt": "Official NSC · Nov 2022 · Agricultural Technology Paper 1 · Question 1.1\n\nBefore operating agricultural machinery, the FIRST safety step is to —",
       "options": [
         {
           "id": "a",
-          "text": "Apply tools and equipment skills in Grade 12 exam contexts"
+          "text": "remove all guards to work faster"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "read/check controls, PPE, and surroundings"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "allow untrained learners to operate alone"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "work alone in a closed silo"
         }
       ],
-      "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "correctOptionId": "b",
+      "explanation": "Agri-technology CAPS emphasises safe equipment use and maintenance."
     }
   ]
 }

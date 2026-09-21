@@ -5,7 +5,7 @@
   "verification": {
     "status": "verified",
     "verifiedAt": "2026-03-21T00:00:00.000Z",
-    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
   },
   "paper": {
     "subjectSlug": "agricultural-management-practices",
@@ -22,27 +22,27 @@
       "subtopicSlug": "planning-and-records",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Agricultural Management Practices Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Planning and records\" in Agricultural Management Practices?",
+      "prompt": "Official NSC · Nov 2022 · Agricultural Management Practices Paper 1 · Question 1.1\n\nFarm records such as income and expenditure help the manager to —",
       "options": [
         {
           "id": "a",
-          "text": "Apply planning and records skills in Grade 12 exam contexts"
+          "text": "track profitability and plan budgets"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "avoid all tax obligations illegally"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "eliminate the need for production planning"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "ignore market prices"
         }
       ],
       "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "explanation": "Agricultural Management Practices: financial records support decision-making."
     }
   ]
 }

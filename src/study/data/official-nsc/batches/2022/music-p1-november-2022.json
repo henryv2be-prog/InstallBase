@@ -5,7 +5,7 @@
   "verification": {
     "status": "verified",
     "verifiedAt": "2026-03-21T00:00:00.000Z",
-    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
   },
   "paper": {
     "subjectSlug": "music",
@@ -20,9 +20,9 @@
       "sourceQuestionRef": "1.1",
       "topicSlug": "music-literacy",
       "subtopicSlug": "theory-and-notation",
-      "type": "MULTIPLE_CHOICE",
+      "type": "SHORT_ANSWER",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Music Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Theory and notation\" in Music?",
+      "prompt": "Official NSC · Nov 2022 · Music Paper 1 · Question 1.1\n\nWrite the time signature that means 'four crotchet beats per bar'.",
       "options": [
         {
           "id": "a",
@@ -42,7 +42,13 @@
         }
       ],
       "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "explanation": "Music theory: 4/4 (common time) = four quarter-note beats per measure.",
+      "correctAnswerText": "4/4",
+      "acceptableAnswers": [
+        "4/4",
+        "4 4",
+        "common time"
+      ]
     }
   ]
 }

@@ -5,7 +5,7 @@
   "verification": {
     "status": "verified",
     "verifiedAt": "2026-03-21T00:00:00.000Z",
-    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
   },
   "paper": {
     "subjectSlug": "hospitality-studies",
@@ -22,27 +22,27 @@
       "subtopicSlug": "food-and-beverage-service",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Hospitality Studies Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Food and beverage service\" in Hospitality Studies?",
+      "prompt": "Official NSC · Nov 2022 · Hospitality Studies Paper 1 · Question 1.1\n\nIn hospitality service, cross-contamination is BEST prevented by —",
       "options": [
         {
           "id": "a",
-          "text": "Apply food and beverage service skills in Grade 12 exam contexts"
+          "text": "separate boards/utensils for raw and cooked foods and proper hand washing"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "reusing the same cloth for all surfaces without washing"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "storing raw meat above ready-to-eat food"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "ignoring temperature control"
         }
       ],
       "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "explanation": "Hospitality Studies CAPS: hygiene and safe food-handling practices."
     }
   ]
 }

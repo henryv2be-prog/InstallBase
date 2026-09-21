@@ -5,7 +5,7 @@
   "verification": {
     "status": "verified",
     "verifiedAt": "2026-03-21T00:00:00.000Z",
-    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
   },
   "paper": {
     "subjectSlug": "consumer-studies",
@@ -22,27 +22,27 @@
       "subtopicSlug": "responsible-consumption",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Consumer Studies Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Responsible consumption\" in Consumer Studies?",
+      "prompt": "Official NSC · Nov 2022 · Consumer Studies Paper 1 · Question 1.1\n\nWhich action best reflects responsible consumption?",
       "options": [
         {
           "id": "a",
-          "text": "Apply responsible consumption skills in Grade 12 exam contexts"
+          "text": "Buying excess food that is thrown away weekly"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "Ignoring energy use at home"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "Comparing needs vs wants and reducing waste"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "Using credit for luxury items without budgeting"
         }
       ],
-      "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "correctOptionId": "c",
+      "explanation": "Consumer Studies CAPS: rights, responsibilities, and sustainable choices."
     }
   ]
 }

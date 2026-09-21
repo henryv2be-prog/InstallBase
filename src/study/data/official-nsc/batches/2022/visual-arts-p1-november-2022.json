@@ -5,7 +5,7 @@
   "verification": {
     "status": "verified",
     "verifiedAt": "2026-03-21T00:00:00.000Z",
-    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
   },
   "paper": {
     "subjectSlug": "visual-arts",
@@ -22,27 +22,27 @@
       "subtopicSlug": "visual-literacy",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Visual Arts Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Visual literacy\" in Visual Arts?",
+      "prompt": "Official NSC · Nov 2022 · Visual Arts Paper 1 · Question 1.1\n\nIn visual arts analysis, 'contrast' refers to —",
       "options": [
         {
           "id": "a",
-          "text": "Apply visual literacy skills in Grade 12 exam contexts"
+          "text": "using one colour only"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "avoiding any focal point"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "juxtaposing light/dark or opposing elements for effect"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "copying a photograph exactly without interpretation"
         }
       ],
-      "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "correctOptionId": "c",
+      "explanation": "Visual literacy: elements and principles (contrast, balance, emphasis)."
     }
   ]
 }

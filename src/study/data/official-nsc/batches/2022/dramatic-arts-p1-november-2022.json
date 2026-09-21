@@ -5,7 +5,7 @@
   "verification": {
     "status": "verified",
     "verifiedAt": "2026-03-21T00:00:00.000Z",
-    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
   },
   "paper": {
     "subjectSlug": "dramatic-arts",
@@ -22,27 +22,27 @@
       "subtopicSlug": "acting-and-interpretation",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Dramatic Arts Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Acting and interpretation\" in Dramatic Arts?",
+      "prompt": "Official NSC · Nov 2022 · Dramatic Arts Paper 1 · Question 1.1\n\nIn dramatic arts, 'subtext' is —",
       "options": [
         {
           "id": "a",
-          "text": "Apply acting and interpretation skills in Grade 12 exam contexts"
+          "text": "the implied meaning beneath the spoken lines"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "the stage lighting colour only"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "the ticket price for the show"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "the number of pages in the script"
         }
       ],
       "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "explanation": "Performance CAPS: interpretation includes subtext, motivation, and tone."
     }
   ]
 }

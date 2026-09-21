@@ -5,7 +5,7 @@
   "verification": {
     "status": "verified",
     "verifiedAt": "2026-03-21T00:00:00.000Z",
-    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
   },
   "paper": {
     "subjectSlug": "sesotho-home-language",
@@ -22,27 +22,27 @@
       "subtopicSlug": "grammatika-en-woordeskat",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Grammatika en woordeskat\" in Sesotho Home Language?",
+      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.1\n\nChoose the sentence that shows correct concord for a formal Sesotho Home Language essay.",
       "options": [
         {
           "id": "a",
-          "text": "Apply grammatika en woordeskat skills in Grade 12 exam contexts"
+          "text": "Die leerders het sy boek vergeet."
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "Die leerders het hul boeke vergeet."
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "Die leerders het hulle boek vergeet."
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "Die leerder het hul boek vergeet."
         }
       ],
-      "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "correctOptionId": "b",
+      "explanation": "CAPS HL: concord between subject and possessive/agreement must be consistent (plural subject → plural possessive)."
     },
     {
       "sourceQuestionRef": "1.2",
@@ -50,27 +50,27 @@
       "subtopicSlug": "begrip-en-opsomming",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.2\n\nWhich statement best matches the CAPS focus for \"Begrip en opsomming\" in Sesotho Home Language?",
+      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.2\n\nWhen writing a summary (Sesotho Home Language Paper 1), which rule is MOST important?",
       "options": [
         {
           "id": "a",
-          "text": "Apply begrip en opsomming skills in Grade 12 exam contexts"
+          "text": "Copy long phrases word-for-word from the passage"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "Add your personal opinion on the topic"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "Use your own words and stay within the word limit"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "Include every minor detail from the text"
         }
       ],
-      "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "correctOptionId": "c",
+      "explanation": "NSC memos reward own-word summaries that capture main ideas within the stated length."
     },
     {
       "sourceQuestionRef": "1.3",
@@ -78,27 +78,27 @@
       "subtopicSlug": "transaksioneel-en-kreatief",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.3\n\nWhich statement best matches the CAPS focus for \"Transaksioneel en kreatief\" in Sesotho Home Language?",
+      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.3\n\nWhich text type is appropriate for a formal bursary application (Sesotho Home Language)?",
       "options": [
         {
           "id": "a",
-          "text": "Apply transaksioneel en kreatief skills in Grade 12 exam contexts"
+          "text": "Formal letter / email with clear subject line and polite register"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "Informal social-media post with slang"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "Cartoon strip with speech bubbles only"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "Unstructured list of random notes"
         }
       ],
       "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "explanation": "Transactional writing requires register, format, and purpose matched to the context."
     },
     {
       "sourceQuestionRef": "1.4",
@@ -106,27 +106,27 @@
       "subtopicSlug": "poësie-en-prosa",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.4\n\nWhich statement best matches the CAPS focus for \"Poësie en prosa\" in Sesotho Home Language?",
+      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.4\n\nIn a literature essay, what is the main purpose of discussing 'theme'?",
       "options": [
         {
           "id": "a",
-          "text": "Apply poësie en prosa skills in Grade 12 exam contexts"
+          "text": "To list every character's age"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "To explain the central message or idea the writer explores"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "To copy the poem without comment"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "To ignore the title of the work"
         }
       ],
-      "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "correctOptionId": "b",
+      "explanation": "Theme analysis links evidence from the text to the writer's central message (CAPS literature outcome)."
     }
   ]
 }

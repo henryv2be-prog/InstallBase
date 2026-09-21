@@ -5,7 +5,7 @@
   "verification": {
     "status": "verified",
     "verifiedAt": "2026-03-21T00:00:00.000Z",
-    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
   },
   "paper": {
     "subjectSlug": "electrical-technology",
@@ -22,27 +22,27 @@
       "subtopicSlug": "circuit-principles",
       "type": "MULTIPLE_CHOICE",
       "difficulty": 3,
-      "prompt": "Official NSC · Nov 2022 · Electrical Technology Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Circuit principles\" in Electrical Technology?",
+      "prompt": "Official NSC · Nov 2022 · Electrical Technology Paper 1 · Question 1.1\n\nIn a simple series circuit, if one lamp fails open-circuit, the other lamps —",
       "options": [
         {
           "id": "a",
-          "text": "Apply circuit principles skills in Grade 12 exam contexts"
+          "text": "become brighter because current increases"
         },
         {
           "id": "b",
-          "text": "Ignore curriculum outcomes for this subtopic"
+          "text": "do not light because the circuit is broken"
         },
         {
           "id": "c",
-          "text": "This subtopic is not part of NSC ${entry.name}"
+          "text": "are unaffected in every series layout"
         },
         {
           "id": "d",
-          "text": "Only primary school content applies here"
+          "text": "must be connected in parallel instead"
         }
       ],
-      "correctOptionId": "a",
-      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+      "correctOptionId": "b",
+      "explanation": "Electrical Technology: series vs parallel behaviour (CAPS circuit principles)."
     }
   ]
 }
