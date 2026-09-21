@@ -126,7 +126,7 @@ export const af: StudyMessages = {
     signInLink: "Meld aan",
     signInRest: "om jou profiel te sinkroniseer as jy meer as een toestel gebruik.",
     subjectsMissing:
-      "Vakke is nog nie gelaai nie. Herdeploy of run db:seed-study, en verfris.",
+      "Vakke is nog nie gelaai nie. Op Railway gebeur dit gewoonlik outomaties wanneer die app ná 'n deploy begin — kyk in die deploy-log vir “Study curriculum seed”, wag 'n minuut, en verfris. As dit steeds leeg is, herdeploy of vra jou admin om die databasis te kontroleer.",
     hey: "Hey 👋 Kom ons bou jou matriek-studieplan.",
     planIntro: "",
     nameLabel: "Wat is jou naam?",

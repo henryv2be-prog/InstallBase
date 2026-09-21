@@ -125,7 +125,8 @@ export const en: StudyMessages = {
     signInHint: "Optional:",
     signInLink: "Sign in",
     signInRest: "to sync your profile if you use more than one device.",
-    subjectsMissing: "Subjects are not loaded yet. Redeploy or run db:seed-study, then refresh.",
+    subjectsMissing:
+      "Subjects are not loaded yet. On Railway this usually fills in automatically when the app starts after a deploy — check deploy logs for “Study curriculum seed”, wait a minute, then refresh. If it still fails, redeploy or ask your admin to check the database connection.",
     hey: "Hey 👋 Let's build your matric study plan.",
     planIntro: "",
     nameLabel: "What's your name?",
