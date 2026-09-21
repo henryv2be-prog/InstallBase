@@ -46,20 +46,6 @@ if (missing.length > 0) {
 
 console.log("Environment variables OK.");
 
-console.log("\n→ Checking ffmpeg (install video)");
-const ffmpegCheck = spawnSync("ffmpeg", ["-version"], {
-  encoding: "utf8",
-  stdio: ["ignore", "pipe", "pipe"],
-});
-if (ffmpegCheck.status === 0) {
-  const firstLine = ffmpegCheck.stdout?.split("\n")[0] ?? "ffmpeg ok";
-  console.log(`   ${firstLine.trim()}`);
-} else {
-  console.warn(
-    "   ⚠ ffmpeg not on PATH — install video posts will fail until ffmpeg is installed (nixpacks) or FFMPEG_PATH is set"
-  );
-}
-
 console.log("\n→ Preparing upload storage");
 setupUploadVolume();
 
@@ -90,21 +76,11 @@ if (!skipStudySeed) {
     env: process.env,
   });
   if (studySeed.status !== 0) {
-    console.error("\n⚠ Study curriculum seed failed — onboarding subjects may be empty.\n");
+    console.error(
+      "\n⚠ Study curriculum seed failed — subjects and practice may be empty until the next redeploy.\n",
+    );
   } else {
-    console.log("Study curriculum seed complete.");
-  }
-
-  console.log("\n→ Importing official NSC question bank (manifest batches)");
-  const nscImport = spawnSync("npx", ["tsx", "prisma/import-nsc-questions.ts"], {
-    stdio: "inherit",
-    shell: true,
-    env: process.env,
-  });
-  if (nscImport.status !== 0) {
-    console.error("\n⚠ Official NSC import failed — check batch JSON and logs.\n");
-  } else {
-    console.log("Official NSC import complete.");
+    console.log("Study curriculum seed complete (subjects, practice, and NSC bank — idempotent).");
   }
 }
 

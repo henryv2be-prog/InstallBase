@@ -87,8 +87,10 @@ Link the Postgres plugin to the web service so `DATABASE_URL` resolves at runtim
 
 Railway reads `railway.toml` and will:
 
-1. **Build** — `prisma generate` + `next build`
-2. **Start** — run migrations, then `next start` on Railway's `$PORT`
+1. **Build** — `prisma generate` + `next build` (Nixpacks auto-detects Node from `package.json`; no manual seed step)
+2. **Start** — `scripts/start-production.mjs`: migrations, then **Grade 12 Study Coach seed** (`prisma/seed-study-curriculum.ts` — subjects, practice, NSC bank; idempotent), then Next.js on `$PORT`
+
+Study content seeds on **every deploy** unless you set `SEED_STUDY_CURRICULUM=false`. You do not need `railway run npm run db:seed-study`. If onboarding says subjects are missing, check deploy logs for `Study curriculum seed complete` and redeploy.
 
 If deploy fails, check deploy logs for `DATABASE_URL is not set` — that means Postgres isn't linked to the web service yet.
 

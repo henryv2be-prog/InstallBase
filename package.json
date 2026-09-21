@@ -7,16 +7,12 @@
   },
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "build": "node scripts/ensure-ffmpeg.mjs && prisma generate && npx tsx scripts/generate-pwa-icons.mjs && next build",
+    "build": "prisma generate && npx tsx scripts/generate-pwa-icons.mjs && next build",
     "icons:generate": "npx tsx scripts/generate-pwa-icons.mjs",
     "start": "node scripts/start-production.mjs",
     "start:server": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "eslint",
-<<<<<<< HEAD
-    "test": "tsx --test src/lib/advertising/__tests__/advertising.test.ts src/lib/__tests__/auth-validation.test.ts src/lib/__tests__/feed-pagination.test.ts src/lib/__tests__/membership.test.ts src/lib/__tests__/platform-roles.test.ts src/lib/__tests__/work-posts.test.ts src/lib/__tests__/media.test.ts src/lib/__tests__/video-preview-manager.test.ts src/lib/__tests__/install-video-eligibility.test.ts src/lib/__tests__/reengagement.test.ts src/hooks/__tests__/scroll-safe-menu.test.ts src/components/pwa/__tests__/device.test.ts src/components/pwa/__tests__/push-errors.test.ts src/study/lib/__tests__/onboarding-validation.test.ts src/study/lib/__tests__/mastery.test.ts src/study/lib/__tests__/answer-check.test.ts src/study/lib/__tests__/nsc-import.test.ts src/study/lib/__tests__/recommendation-engine.test.ts src/study/lib/__tests__/quiz-mode-pick.test.ts src/study/i18n/__tests__/locales.test.ts",
-=======
-    "test": "tsx --test src/lib/advertising/__tests__/advertising.test.ts src/lib/__tests__/auth-validation.test.ts src/lib/__tests__/feed-pagination.test.ts src/lib/__tests__/membership.test.ts src/lib/__tests__/platform-roles.test.ts src/lib/__tests__/work-posts.test.ts src/lib/__tests__/media.test.ts src/lib/__tests__/video-preview-manager.test.ts src/lib/__tests__/install-video-eligibility.test.ts src/lib/__tests__/reengagement.test.ts src/hooks/__tests__/scroll-safe-menu.test.ts src/components/pwa/__tests__/device.test.ts src/components/pwa/__tests__/push-errors.test.ts src/study/lib/__tests__/onboarding-validation.test.ts src/study/lib/__tests__/onboarding-defaults.test.ts src/study/lib/__tests__/mastery.test.ts src/study/lib/__tests__/answer-check.test.ts src/study/lib/__tests__/nsc-import.test.ts src/study/lib/__tests__/recommendation-engine.test.ts src/study/lib/__tests__/quiz-mode-pick.test.ts src/study/lib/__tests__/generated-practice.test.ts src/study/i18n/__tests__/locales.test.ts",
->>>>>>> 835893e (Fix subject edit crash when adding a new matric subject)
+    "test": "tsx --test src/lib/advertising/__tests__/advertising.test.ts src/lib/__tests__/auth-validation.test.ts src/lib/__tests__/feed-pagination.test.ts src/lib/__tests__/membership.test.ts src/lib/__tests__/platform-roles.test.ts src/lib/__tests__/work-posts.test.ts src/lib/__tests__/media.test.ts src/lib/__tests__/video-preview-manager.test.ts src/lib/__tests__/install-video-eligibility.test.ts src/lib/__tests__/reengagement.test.ts src/hooks/__tests__/scroll-safe-menu.test.ts src/components/pwa/__tests__/device.test.ts src/components/pwa/__tests__/push-errors.test.ts src/study/lib/__tests__/onboarding-validation.test.ts src/study/lib/__tests__/onboarding-defaults.test.ts src/study/lib/__tests__/mastery.test.ts src/study/lib/__tests__/answer-check.test.ts src/study/lib/__tests__/nsc-import.test.ts src/study/lib/__tests__/recommendation-engine.test.ts src/study/lib/__tests__/quiz-mode-pick.test.ts src/study/i18n/__tests__/locales.test.ts",
     "reengagement:run": "node scripts/run-daily-reengagement.mjs",
     "reengagement:dry-run": "node scripts/run-daily-reengagement.mjs --dry-run --force",
     "db:seed": "npx tsx prisma/seed.ts",

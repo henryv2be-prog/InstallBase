@@ -1,4 +1,0 @@
-# Extend Nixpacks' auto-detected Node setup — do not replace it, or `npm` won't be on PATH.
-[phases.setup]
-aptPkgs = ["...", "ffmpeg"]
-nixPkgs = ["...", "ffmpeg"]
