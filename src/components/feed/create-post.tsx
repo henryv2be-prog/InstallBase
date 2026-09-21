@@ -188,7 +188,6 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   const [installVideoPostId, setInstallVideoPostId] = useState<string | null>(null);
   const [installVideoPosting, setInstallVideoPosting] = useState(false);
   const installCompilation = useInstallVideoCompilation(installVideoPostId);
-  const autoCompileStartedRef = useRef(false);
   const editMediaRef = useRef(editMedia);
   editMediaRef.current = editMedia;
 
@@ -330,21 +329,6 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       setInstallVideoPosting(false);
     }
   };
-
-  useEffect(() => {
-    if (!hydrated || isEditing || installVideoStep !== "compose") return;
-    if (!installVideoEligible || uploading || installVideoPostId || autoCompileStartedRef.current) return;
-    autoCompileStartedRef.current = true;
-    void startInstallVideoCompilation();
-  }, [
-    hydrated,
-    isEditing,
-    installVideoStep,
-    installVideoEligible,
-    uploading,
-    installVideoPostId,
-    readyUrls.length,
-  ]);
 
   const publishInstallVideo = async () => {
     if (!installVideoPostId) return;
@@ -534,7 +518,6 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
     }
     setInstallVideoStep("compose");
     setInstallVideoPostId(null);
-    autoCompileStartedRef.current = false;
     if (isEditing) {
       for (const item of editMedia) {
         if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
@@ -604,12 +587,19 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       return;
     }
 
-    if (installVideoEligible && !uploading) {
-      void startInstallVideoCompilation();
+    globalUpload.submitNow(buildPayload());
+  };
+
+  const handleCreateInstallVideo = () => {
+    if (uploading) {
+      toast.error("Wait for uploads to finish first");
       return;
     }
-
-    globalUpload.submitNow(buildPayload());
+    if (!installVideoEligible) {
+      toast.error("Add at least two photos or mix photos and video");
+      return;
+    }
+    void startInstallVideoCompilation();
   };
 
   const fileInput = (
@@ -840,7 +830,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">
             {installVideoEligible && !uploading
-              ? "We’ll turn these into a vertical install video — preview before you post."
+              ? "Post as photos, or tap Install video to build a vertical clip first."
               : postQueued && uploading
                 ? "Uploads running — we'll publish as soon as they finish."
                 : uploading
@@ -849,17 +839,28 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
                     ? `${readyUrls.length} of ${media.length} file${media.length === 1 ? "" : "s"} ready`
                     : "Photos are compressed on your phone. Videos up to 200MB upload over Wi‑Fi when possible."}
           </p>
-          <Button
-            onClick={handleSubmit}
-            disabled={!canPost || installVideoPosting}
-            className="min-w-24"
-          >
-            {pending
-              ? isEditing
-                ? "Saving..."
-                : "Posting..."
-              : installVideoPosting
-                ? "Starting..."
+          <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
+            {!isEditing && installVideoEligible && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleCreateInstallVideo}
+                disabled={!canPost || installVideoPosting || pending}
+                className="min-h-11 min-w-28 touch-manipulation"
+              >
+                {installVideoPosting ? "Starting…" : "Install video"}
+              </Button>
+            )}
+            <Button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!canPost || installVideoPosting}
+              className="min-h-11 min-w-28 touch-manipulation"
+            >
+              {pending
+                ? isEditing
+                  ? "Saving..."
+                  : "Posting..."
                 : postQueued && uploading
                   ? "Publishing soon..."
                   : uploading
@@ -867,9 +868,10 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
                     : isEditing
                       ? "Save changes"
                       : installVideoEligible
-                        ? "Create install video"
+                        ? "Post photos"
                         : "Post"}
-          </Button>
+            </Button>
+          </div>
         </div>
           </>
         )}
