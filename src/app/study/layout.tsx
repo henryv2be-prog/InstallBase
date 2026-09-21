@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans } from "next/font/google";
+import { StudyBodyChrome } from "@/study/components/study-body-chrome";
 import "./study.css";
 
 const dmSans = DM_Sans({
@@ -31,7 +32,8 @@ export const viewport: Viewport = {
 
 export default function StudyCoachLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`study-coach ${dmSans.variable} font-[family-name:var(--font-study)]`}>
+    <div className={`study-coach ${dmSans.variable}`}>
+      <StudyBodyChrome />
       {children}
     </div>
   );

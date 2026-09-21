@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Download, Share, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ interface BeforeInstallPromptEvent extends Event {
 const DISMISS_KEY = "ib-install-dismissed";
 
 export function PwaInstallBanner() {
+  const pathname = usePathname();
   const { status } = useSession();
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -50,6 +52,7 @@ export function PwaInstallBanner() {
 
   const manualInstall = prefersManualHomeScreenInstall();
 
+  if (pathname?.startsWith("/study")) return null;
   if (standalone || dismissed || deferForNotify) return null;
   if (!deferred && !manualInstall) return null;
 

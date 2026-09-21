@@ -3,6 +3,42 @@ import { prisma } from "@/lib/prisma";
 
 export type StudySubjectWithCurriculum = Awaited<ReturnType<typeof getStudySubjectsWithTopics>>[number];
 
+export async function getStudySubjectsForOnboarding() {
+  return prisma.studySubject.findMany({
+    where: { active: true, grade: 12 },
+    orderBy: { sortOrder: "asc" },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      sortOrder: true,
+      curricula: {
+        take: 1,
+        select: { isComplete: true, versionLabel: true },
+      },
+    },
+  });
+}
+
+export async function getWeakestMasteries(learnerId: string, limit = 5) {
+  return prisma.studyMastery.findMany({
+    where: { learnerId },
+    orderBy: [{ masteryPct: "asc" }, { questionsAttempted: "asc" }],
+    take: limit,
+    include: {
+      subtopic: {
+        include: {
+          topic: {
+            include: {
+              curriculum: { include: { subject: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
 export async function getStudySubjectsWithTopics() {
   return prisma.studySubject.findMany({
     where: { active: true, grade: 12 },

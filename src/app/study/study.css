@@ -1,4 +1,4 @@
-/* Grade 12 Study Coach — isolated visual system (does not override InstallBase tokens globally) */
+/* Grade 12 Study Coach — isolated visual system */
 
 .study-coach {
   --study-bg: #0c1222;
@@ -13,20 +13,48 @@
   --study-danger: #ef4444;
   --study-border: rgba(148, 163, 184, 0.22);
   min-height: 100dvh;
+  color: var(--study-text);
+  font-family: var(--font-study), system-ui, sans-serif;
   background:
     radial-gradient(120% 80% at 50% -20%, rgba(99, 102, 241, 0.22), transparent 55%),
     var(--study-bg);
-  color: var(--study-text);
+}
+
+html.study-coach-active,
+html.study-coach-active body {
+  background: #0c1222 !important;
+  color: #f8fafc !important;
+}
+
+html.study-coach-active body {
+  font-family: var(--font-study), system-ui, sans-serif;
 }
 
 .study-coach a {
   color: inherit;
+  text-decoration: none;
+}
+
+.study-shell {
+  position: relative;
+  z-index: 1;
 }
 
 .study-card {
   background: var(--study-card);
   border: 1px solid var(--study-border);
   border-radius: 1rem;
+}
+
+.study-card--selected {
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25);
+}
+
+.study-card-muted {
+  background: var(--study-bg-elevated);
+  border-radius: 0.75rem;
+  border: 1px solid var(--study-border);
 }
 
 .study-pill {
@@ -47,4 +75,105 @@
 
 .study-touch-target {
   min-height: 2.75rem;
+}
+
+.study-logo-mark {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.study-back {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--study-muted);
+  padding: 0.35rem 0;
+}
+
+.study-back:hover {
+  color: var(--study-text);
+}
+
+.study-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.875rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.study-btn:active {
+  transform: scale(0.98);
+}
+
+.study-btn-primary {
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: white;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+}
+
+.study-btn-ghost {
+  border: 1px solid var(--study-border);
+  color: var(--study-muted);
+  background: transparent;
+}
+
+.study-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--study-border);
+  background: var(--study-bg-elevated);
+  color: var(--study-text);
+  padding: 0.65rem 0.85rem;
+  font-size: 1rem;
+}
+
+.study-input:focus {
+  outline: 2px solid rgba(99, 102, 241, 0.45);
+  outline-offset: 1px;
+}
+
+.study-range {
+  accent-color: #6366f1;
+  height: 1.25rem;
+}
+
+.study-check {
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 0.4rem;
+  border: 2px solid var(--study-border);
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.study-check--on {
+  border-color: #6366f1;
+  background: #6366f1;
+  box-shadow: inset 0 0 0 2px #0c1222;
+}
+
+.study-progress-track {
+  height: 0.35rem;
+  border-radius: 9999px;
+  background: rgba(148, 163, 184, 0.2);
+  overflow: hidden;
+}
+
+.study-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6366f1, #a78bfa);
+}
+
+.study-hero strong {
+  font-weight: 600;
 }
