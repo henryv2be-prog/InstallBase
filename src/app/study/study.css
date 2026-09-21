@@ -177,3 +177,18 @@ html.study-coach-active body {
 .study-hero strong {
   font-weight: 600;
 }
+
+.study-quiz-option {
+  border-radius: 0.75rem;
+  border: 1px solid var(--study-border);
+  background: var(--study-bg-elevated);
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: var(--study-text);
+}
+
+.study-quiz-option--active {
+  border-color: rgba(99, 102, 241, 0.7);
+  background: var(--study-accent-soft);
+}

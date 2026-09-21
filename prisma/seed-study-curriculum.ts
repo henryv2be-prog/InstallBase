@@ -3,6 +3,7 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { seedStudyCurriculum } from "../src/study/lib/seed-curriculum";
+import { seedPracticeQuestions } from "../src/study/lib/seed-questions";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -16,11 +17,13 @@ async function main() {
 
   console.log("📚 Seeding Grade 12 Study Coach curriculum (idempotent)…");
   await seedStudyCurriculum();
+  await seedPracticeQuestions();
   const subjectCount = await prisma.studySubject.count();
+  const questionCount = await prisma.studyQuestion.count();
   const topicCount = await prisma.studyTopic.count();
   const subtopicCount = await prisma.studySubtopic.count();
   console.log(
-    `✅ Study curriculum seeded: ${subjectCount} subjects, ${topicCount} topics, ${subtopicCount} subtopics`,
+    `✅ Study curriculum seeded: ${subjectCount} subjects, ${topicCount} topics, ${subtopicCount} subtopics, ${questionCount} practice questions`,
   );
 }
 

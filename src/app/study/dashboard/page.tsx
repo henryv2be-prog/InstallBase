@@ -76,8 +76,19 @@ export default async function StudyDashboardPage() {
               <span className="text-[var(--study-muted)]">({focusPriority.text})</span>
             </p>
             <p className="mt-2 text-xs text-[var(--study-muted)]">
-              Initial estimate {Math.round(focusMastery)}% — practice assessments coming next.
+              Mastery {Math.round(focusMastery)}%
+              {(topFocus?.questionsAttempted ?? 0) > 0
+                ? ` · based on ${topFocus?.questionsAttempted} quiz answers`
+                : " · take a quiz to measure what you know"}
             </p>
+            {topFocus ? (
+              <Link
+                href={`/study/practice/${topFocus.subtopicId}`}
+                className="study-btn study-btn-primary study-touch-target mt-4 block w-full text-center"
+              >
+                Start quiz on this topic
+              </Link>
+            ) : null}
           </div>
         ) : (
           <p className="mt-3 text-sm text-[var(--study-muted)]">Complete a topic check to refine your focus.</p>
@@ -92,26 +103,42 @@ export default async function StudyDashboardPage() {
           {weakest.map((m) => {
             const subject = m.subtopic.topic.curriculum.subject.name;
             return (
-              <li key={m.id} className="study-card flex items-center justify-between gap-3 p-4">
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{subject}</p>
-                  <p className="truncate text-sm text-[var(--study-muted)]">
-                    {m.subtopic.name} — {Math.round(m.masteryPct)}%
-                  </p>
+              <li key={m.id} className="study-card p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{subject}</p>
+                    <p className="truncate text-sm text-[var(--study-muted)]">
+                      {m.subtopic.name} — {Math.round(m.masteryPct)}%
+                    </p>
+                  </div>
+                  <span className="text-lg">{priorityLabel(m.masteryPct).emoji}</span>
                 </div>
-                <span className="text-lg">{priorityLabel(m.masteryPct).emoji}</span>
+                <Link
+                  href={`/study/practice/${m.subtopicId}`}
+                  className="study-btn study-btn-ghost study-touch-target mt-3 block w-full text-center text-sm"
+                >
+                  Practice quiz
+                </Link>
               </li>
             );
           })}
         </ul>
       </section>
 
-      <Link
-        href="/study/onboarding?edit=1"
-        className="study-btn study-btn-ghost study-touch-target block w-full text-center"
-      >
-        Edit subjects &amp; exam dates
-      </Link>
+      <div className="space-y-3">
+        <Link
+          href="/study/practice"
+          className="study-btn study-btn-primary study-touch-target block w-full text-center"
+        >
+          Browse practice quizzes
+        </Link>
+        <Link
+          href="/study/onboarding?edit=1"
+          className="study-btn study-btn-ghost study-touch-target block w-full text-center"
+        >
+          Edit subjects &amp; exam dates
+        </Link>
+      </div>
     </StudyShell>
   );
 }

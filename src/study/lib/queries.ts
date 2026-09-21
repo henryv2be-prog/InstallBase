@@ -20,6 +20,62 @@ export async function getStudySubjectsForOnboarding() {
   });
 }
 
+export async function getPracticeLibraryForLearner(learnerId: string) {
+  const learner = await prisma.studyLearner.findUnique({
+    where: { id: learnerId },
+    include: {
+      subjects: { include: { subject: true } },
+      masteries: true,
+    },
+  });
+  if (!learner) return [];
+
+  const subjectIds = learner.subjects.map((s) => s.subjectId);
+  const masteryBySubtopic = new Map(learner.masteries.map((m) => [m.subtopicId, m]));
+
+  const subjects = await prisma.studySubject.findMany({
+    where: { id: { in: subjectIds } },
+    orderBy: { sortOrder: "asc" },
+    include: {
+      curricula: {
+        take: 1,
+        include: {
+          topics: {
+            orderBy: { sortOrder: "asc" },
+            include: {
+              subtopics: {
+                orderBy: { sortOrder: "asc" },
+                include: {
+                  _count: { select: { questions: { where: { active: true } } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return subjects.map((subject) => ({
+    id: subject.id,
+    name: subject.name,
+    topics: (subject.curricula[0]?.topics ?? []).map((topic) => ({
+      id: topic.id,
+      name: topic.name,
+      subtopics: topic.subtopics.map((sub) => {
+        const mastery = masteryBySubtopic.get(sub.id);
+        return {
+          id: sub.id,
+          name: sub.name,
+          questionCount: sub._count.questions,
+          masteryPct: mastery?.masteryPct ?? null,
+          questionsAttempted: mastery?.questionsAttempted ?? 0,
+        };
+      }),
+    })),
+  }));
+}
+
 export async function getWeakestMasteries(learnerId: string, limit = 5) {
   return prisma.studyMastery.findMany({
     where: { learnerId },
