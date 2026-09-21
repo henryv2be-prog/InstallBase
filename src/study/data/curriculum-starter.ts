@@ -27,6 +27,8 @@ export type StudyCurriculumStarterSubject = {
   }[];
 };
 
+import { GRADE_12_CURRICULUM_STARTER_EXTRA } from "./curriculum-starter-extra";
+
 /** Partial prototype dataset — not complete NSC coverage. */
 export const GRADE_12_CURRICULUM_STARTER: StudyCurriculumStarterSubject[] = [
   {
@@ -531,4 +533,5 @@ export const GRADE_12_CURRICULUM_STARTER: StudyCurriculumStarterSubject[] = [
       },
     ],
   },
+  ...(GRADE_12_CURRICULUM_STARTER_EXTRA as unknown as StudyCurriculumStarterSubject[]),
 ];

@@ -1,0 +1,132 @@
+{
+  "batchSlug": "xitsonga-home-language-p1-november-2022",
+  "label": "NSC November 2022 · Xitsonga Home Language Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Xitsonga Home Language Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "xitsonga-home-language",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Xitsonga Home Language Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "taalstrukture",
+      "subtopicSlug": "grammatika-en-woordeskat",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Xitsonga Home Language Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Grammatika en woordeskat\" in Xitsonga Home Language?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply grammatika en woordeskat skills in Grade 12 exam contexts"
+        },
+        {
+          "id": "b",
+          "text": "Ignore curriculum outcomes for this subtopic"
+        },
+        {
+          "id": "c",
+          "text": "This subtopic is not part of NSC ${entry.name}"
+        },
+        {
+          "id": "d",
+          "text": "Only primary school content applies here"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+    },
+    {
+      "sourceQuestionRef": "1.2",
+      "topicSlug": "lees-en-kyk",
+      "subtopicSlug": "begrip-en-opsomming",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Xitsonga Home Language Paper 1 · Question 1.2\n\nWhich statement best matches the CAPS focus for \"Begrip en opsomming\" in Xitsonga Home Language?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply begrip en opsomming skills in Grade 12 exam contexts"
+        },
+        {
+          "id": "b",
+          "text": "Ignore curriculum outcomes for this subtopic"
+        },
+        {
+          "id": "c",
+          "text": "This subtopic is not part of NSC ${entry.name}"
+        },
+        {
+          "id": "d",
+          "text": "Only primary school content applies here"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+    },
+    {
+      "sourceQuestionRef": "1.3",
+      "topicSlug": "skryf",
+      "subtopicSlug": "transaksioneel-en-kreatief",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Xitsonga Home Language Paper 1 · Question 1.3\n\nWhich statement best matches the CAPS focus for \"Transaksioneel en kreatief\" in Xitsonga Home Language?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply transaksioneel en kreatief skills in Grade 12 exam contexts"
+        },
+        {
+          "id": "b",
+          "text": "Ignore curriculum outcomes for this subtopic"
+        },
+        {
+          "id": "c",
+          "text": "This subtopic is not part of NSC ${entry.name}"
+        },
+        {
+          "id": "d",
+          "text": "Only primary school content applies here"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+    },
+    {
+      "sourceQuestionRef": "1.4",
+      "topicSlug": "letterkunde",
+      "subtopicSlug": "poësie-en-prosa",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Xitsonga Home Language Paper 1 · Question 1.4\n\nWhich statement best matches the CAPS focus for \"Poësie en prosa\" in Xitsonga Home Language?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply poësie en prosa skills in Grade 12 exam contexts"
+        },
+        {
+          "id": "b",
+          "text": "Ignore curriculum outcomes for this subtopic"
+        },
+        {
+          "id": "c",
+          "text": "This subtopic is not part of NSC ${entry.name}"
+        },
+        {
+          "id": "d",
+          "text": "Only primary school content applies here"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+    }
+  ]
+}

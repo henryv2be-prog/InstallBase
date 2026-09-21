@@ -1,0 +1,48 @@
+{
+  "batchSlug": "visual-arts-p1-november-2022",
+  "label": "NSC November 2022 · Visual Arts Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Visual Arts Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "visual-arts",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Visual Arts Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "art-making",
+      "subtopicSlug": "visual-literacy",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Visual Arts Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Visual literacy\" in Visual Arts?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply visual literacy skills in Grade 12 exam contexts"
+        },
+        {
+          "id": "b",
+          "text": "Ignore curriculum outcomes for this subtopic"
+        },
+        {
+          "id": "c",
+          "text": "This subtopic is not part of NSC ${entry.name}"
+        },
+        {
+          "id": "d",
+          "text": "Only primary school content applies here"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+    }
+  ]
+}

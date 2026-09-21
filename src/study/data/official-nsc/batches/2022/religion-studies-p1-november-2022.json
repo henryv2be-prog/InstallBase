@@ -1,0 +1,76 @@
+{
+  "batchSlug": "religion-studies-p1-november-2022",
+  "label": "NSC November 2022 · Religion Studies Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Religion Studies Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Starter NSC-aligned coverage item per subtopic — replace with full DBE memo transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "religion-studies",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Religion Studies Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "world-religions",
+      "subtopicSlug": "beliefs-and-practices",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Religion Studies Paper 1 · Question 1.1\n\nWhich statement best matches the CAPS focus for \"Beliefs and practices\" in Religion Studies?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply beliefs and practices skills in Grade 12 exam contexts"
+        },
+        {
+          "id": "b",
+          "text": "Ignore curriculum outcomes for this subtopic"
+        },
+        {
+          "id": "c",
+          "text": "This subtopic is not part of NSC ${entry.name}"
+        },
+        {
+          "id": "d",
+          "text": "Only primary school content applies here"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+    },
+    {
+      "sourceQuestionRef": "1.2",
+      "topicSlug": "ethics-and-society",
+      "subtopicSlug": "moral-decision-making",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Religion Studies Paper 1 · Question 1.2\n\nWhich statement best matches the CAPS focus for \"Moral decision-making\" in Religion Studies?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply moral decision-making skills in Grade 12 exam contexts"
+        },
+        {
+          "id": "b",
+          "text": "Ignore curriculum outcomes for this subtopic"
+        },
+        {
+          "id": "c",
+          "text": "This subtopic is not part of NSC ${entry.name}"
+        },
+        {
+          "id": "d",
+          "text": "Only primary school content applies here"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Aligned to CAPS Grade 12 starter slice — expand from DBE memo."
+    }
+  ]
+}
