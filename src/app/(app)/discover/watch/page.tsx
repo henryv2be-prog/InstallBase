@@ -2,8 +2,6 @@ import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { getTrendingFeedPage } from "@/lib/queries";
 import { ImmersiveFeedWithAds } from "@/components/feed/immersive/immersive-feed-with-ads";
-import { AdSlot } from "@/components/ads/ad-slot";
-import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 import { classicExploreHref } from "@/lib/discover-routes";
 
 export const metadata = { title: "Explore" };
@@ -27,7 +25,7 @@ export default async function DiscoverWatchPage() {
         <span className="text-xs font-semibold text-foreground/90">Trending · New look</span>
       </div>
 
-      <div className="min-h-0 min-w-0 w-full flex-1 max-lg:max-w-none lg:max-w-md xl:max-w-lg">
+      <div className="immersive-feed-column min-h-0 min-w-0 w-full flex-1 max-lg:max-w-none lg:max-w-md xl:max-w-lg">
         <ImmersiveFeedWithAds
           initialPosts={posts}
           initialCursor={nextCursor}
@@ -46,7 +44,6 @@ export default async function DiscoverWatchPage() {
           <Link href={classicHref} className="text-sm font-medium text-primary hover:underline">
             Switch to classic explore
           </Link>
-          <AdSlot placement={AD_PLACEMENTS.COMMUNITY} className="mt-2" />
         </div>
       </aside>
     </div>

@@ -17,11 +17,12 @@ export function interleaveFeedWithAds<T>(
 
   items.forEach((value, index) => {
     result.push({ kind: "item", value, postIndex: index });
+    const cadence = Math.max(1, minPostsBetweenAds + 1);
     const shouldInsertAd =
       betweenAds.length > 0 &&
       adIndex < betweenAds.length &&
-      index > 0 &&
-      (index + 1) % (minPostsBetweenAds + 1) === 0;
+      index >= minPostsBetweenAds &&
+      (index + 1) % cadence === 0;
 
     if (shouldInsertAd) {
       result.push({

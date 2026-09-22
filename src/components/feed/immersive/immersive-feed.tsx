@@ -158,8 +158,7 @@ export function ImmersiveFeed({
   return (
     <div
       ref={scrollerRef}
-      className="immersive-feed-scroll w-full max-w-full snap-y snap-mandatory overflow-y-auto scroll-smooth"
-      style={{ height: "var(--immersive-slide-h, 100dvh)" }}
+      className="immersive-feed-scroll w-full max-w-full snap-y snap-mandatory overflow-y-auto scroll-smooth max-lg:flex-1 max-lg:min-h-0 lg:h-[var(--immersive-slide-h,100dvh)]"
     >
       {feedItems.map((item) => {
         const key = feedSlideKey(item);

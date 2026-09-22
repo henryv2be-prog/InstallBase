@@ -53,6 +53,13 @@ export async function ImmersiveFeedWithAds(props: ImmersiveFeedWithAdsProps) {
     });
   }
 
+  // New look: in-feed slides only — never treat feed-top / header banner inventory here.
+  betweenAds = betweenAds.filter(
+    (ad) =>
+      ad.placements.includes(AD_PLACEMENTS.FEED_BETWEEN_POSTS) ||
+      ad.placements.includes(AD_PLACEMENTS.MOBILE_FEED)
+  );
+
   return (
     <ImmersiveFeed
       {...props}

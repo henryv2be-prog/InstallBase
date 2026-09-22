@@ -73,18 +73,28 @@
     flex-direction: column;
   }
 
+  .app-shell-viewport-lock .immersive-feed-column {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
   .app-shell-viewport-lock .immersive-feed-scroll {
     flex: 1 1 auto;
     min-height: 0;
     width: 100%;
     max-width: 100%;
-    height: auto !important;
-    --immersive-slide-h: 100%;
+    overflow-y: auto;
+    --immersive-slide-h: calc(
+      100dvh - var(--app-header-h) - env(safe-area-inset-top, 0px) - var(--immersive-watch-subnav-h) -
+        var(--app-mobile-bottom-clearance)
+    );
   }
 
   .app-shell-viewport-lock .immersive-feed-scroll > .immersive-feed-slide {
-    height: var(--immersive-slide-h, 100%);
-    min-height: var(--immersive-slide-h, 100%);
+    height: var(--immersive-slide-h);
+    min-height: var(--immersive-slide-h);
   }
 
   .immersive-feed-root {

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { AdCreative } from "@/lib/advertising/types";
-import { AdRenderer } from "@/components/ads/ad-renderer";
+import { ImmersiveAdRenderer } from "@/components/ads/immersive-ad-renderer";
 
 interface ImmersiveAdSlideProps {
   ad: AdCreative;
@@ -45,7 +45,7 @@ export function ImmersiveAdSlide({
       aria-label="Sponsored"
     >
       <div className="w-full max-w-md px-4 py-8">
-        <AdRenderer ad={ad} placementKey={placementKey} />
+        <ImmersiveAdRenderer ad={ad} placementKey={placementKey} />
       </div>
     </section>
   );

@@ -6,8 +6,6 @@ import {
   getPopularFeedPage,
 } from "@/lib/queries";
 import { ImmersiveFeedWithAds } from "@/components/feed/immersive/immersive-feed-with-ads";
-import { AdSlot } from "@/components/ads/ad-slot";
-import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 import { cn } from "@/lib/utils";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
 import { WatchInstallsPromoSeenOnMount } from "@/components/feed/watch-installs-promo";
@@ -75,7 +73,7 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
         </div>
       </div>
 
-      <div className="min-h-0 min-w-0 w-full flex-1 max-lg:max-w-none lg:max-w-md xl:max-w-lg">
+      <div className="immersive-feed-column min-h-0 min-w-0 w-full flex-1 max-lg:max-w-none lg:max-w-md xl:max-w-lg">
         {!userId && followingTab ? (
           <GuestJoinCard
             title="Follow installers to build this feed"
@@ -103,7 +101,6 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
           <Link href={classicHref} className="text-sm font-medium text-primary hover:underline">
             Switch to classic feed
           </Link>
-          <AdSlot placement={AD_PLACEMENTS.FEED_SIDEBAR} className="mt-2" />
           <div className="flex rounded-xl bg-card/80 p-1 border border-border">
             <Link
               href="/feed/watch?tab=popular"
