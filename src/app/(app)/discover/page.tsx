@@ -89,7 +89,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
   const followingSet = new Set(followingIds);
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="app-scroll-page space-y-8 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold">Explore</h1>
         <p className="text-muted">Trending installations, installers, and products</p>
