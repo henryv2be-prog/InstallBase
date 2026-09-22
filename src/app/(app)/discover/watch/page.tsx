@@ -16,7 +16,7 @@ export default async function DiscoverWatchPage() {
   const classicHref = classicExploreHref("trending");
 
   return (
-    <div className="immersive-feed-root flex w-full max-w-full flex-col overflow-hidden lg:mx-auto lg:max-w-6xl lg:flex-row lg:gap-6">
+    <div className="immersive-feed-root flex w-full max-w-full flex-col overflow-hidden max-lg:min-h-0 max-lg:flex-1 lg:mx-auto lg:max-w-6xl lg:flex-row lg:gap-6">
       <div className="flex min-h-11 shrink-0 items-center justify-between gap-2 px-3 py-2 lg:hidden">
         <Link
           href={classicHref}
@@ -27,7 +27,7 @@ export default async function DiscoverWatchPage() {
         <span className="text-xs font-semibold text-foreground/90">Trending · New look</span>
       </div>
 
-      <div className="min-h-0 min-w-0 flex-1 lg:max-w-md xl:max-w-lg">
+      <div className="min-h-0 min-w-0 w-full flex-1 max-lg:max-w-none lg:max-w-md xl:max-w-lg">
         <ImmersiveFeedWithAds
           initialPosts={posts}
           initialCursor={nextCursor}

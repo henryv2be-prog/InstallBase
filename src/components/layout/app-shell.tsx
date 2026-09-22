@@ -206,7 +206,7 @@ export function AppShell({ children, user }: AppShellProps) {
       <main
         className={cn(
           "relative z-10 mx-auto max-w-7xl md:pt-6",
-          isImmersiveRoute ? "max-w-none px-0 pt-0" : "px-3 pt-4 sm:px-4 lg:px-6",
+          isImmersiveRoute ? "mx-0 w-full max-w-none px-0 pt-0" : "px-3 pt-4 sm:px-4 lg:px-6",
           isCreateFlowRoute && "max-md:px-2 max-md:pt-2 max-md:pb-0",
           isAdminRoute
             ? "pb-6 md:pb-8"
@@ -221,6 +221,7 @@ export function AppShell({ children, user }: AppShellProps) {
       >
         <div
           className={cn(
+            isImmersiveRoute && "flex min-h-0 w-full max-w-full flex-1 flex-col",
             !isImmersiveRoute && !isCreateFlowRoute && !isAdminRoute && "mobile-app-page-inner md:contents"
           )}
         >
