@@ -232,7 +232,7 @@ export function AppShell({ children, user }: AppShellProps) {
 
       <nav
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-[60] md:hidden",
+          "app-mobile-tab-nav fixed bottom-0 left-0 right-0 z-[60] md:hidden",
           glassMobileNav
             ? "pointer-events-none border-0 bg-transparent px-3 pb-[var(--app-mobile-nav-watch-edge)]"
             : "border-t border-border bg-card/95 pb-[max(0.25rem,env(safe-area-inset-bottom))] backdrop-blur-xl",
@@ -414,7 +414,7 @@ export function AppShellFallback({ children }: { children: React.ReactNode }) {
         </div>
       </main>
 
-      <nav className="pointer-events-none fixed bottom-0 left-0 right-0 z-[60] border-0 bg-transparent px-3 pb-[var(--app-mobile-nav-watch-edge)] md:hidden">
+      <nav className="app-mobile-tab-nav pointer-events-none fixed bottom-0 left-0 right-0 z-[60] border-0 bg-transparent px-3 pb-[var(--app-mobile-nav-watch-edge)] md:hidden">
         <div className="mobile-nav-glass-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5">
           {memberMobileNav.map((item) => {
             if (item.highlight) {

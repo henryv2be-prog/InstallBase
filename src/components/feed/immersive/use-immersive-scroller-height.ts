@@ -1,7 +1,10 @@
 "use client";
 
 import { useLayoutEffect, type RefObject } from "react";
-import { measureImmersiveSlideHeightPx } from "@/lib/immersive-scroller-height";
+import {
+  findMobileTabNav,
+  measureImmersiveSlideHeightPx,
+} from "@/lib/immersive-scroller-height";
 
 const MOBILE_MQ = "(max-width: 1023px)";
 const MIN_SLIDE_H = 64;
@@ -59,8 +62,8 @@ export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement
       if (node instanceof HTMLElement) ro.observe(node);
     }
     const shell = el.closest(".app-shell-viewport-lock");
-    const nav = shell?.querySelector("nav");
-    if (nav instanceof HTMLElement) ro.observe(nav);
+    const nav = findMobileTabNav(shell);
+    if (nav) ro.observe(nav);
 
     const vv = window.visualViewport;
     const onViewport = () => scheduleRafBurst();

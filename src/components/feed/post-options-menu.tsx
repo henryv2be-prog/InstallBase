@@ -200,7 +200,10 @@ export function PostOptionsMenu({
                 </DropdownMenu.SubTrigger>
                 <DropdownMenu.Portal>
                   <DropdownMenu.SubContent
-                    className="z-50 min-w-[180px] rounded-xl border border-border bg-card p-1 shadow-lg"
+                    className={cn(
+                      "z-[80] min-w-[180px] rounded-xl border border-border bg-card p-1 shadow-lg",
+                      contentClassName
+                    )}
                     sideOffset={4}
                   >
                     {reportReasons.map(({ value, label }) => (
