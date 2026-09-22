@@ -322,7 +322,7 @@ body {
   }
 }
 
-/* Create-video style live preview (CapCut-style) */
+/* Create-video style live preview */
 @keyframes ib-ken-burns {
   from {
     transform: scale(1) translate3d(0, 0, 0);

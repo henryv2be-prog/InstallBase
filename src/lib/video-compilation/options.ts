@@ -20,6 +20,12 @@ export const DEFAULT_VIDEO_COMPILATION_OPTIONS: VideoCompilationOptions = {
 
 const STYLE_IDS = new Set<string>(Object.keys(VIDEO_COMPILATION_STYLES));
 
+const REMOVED_FILTER_STYLES: Record<string, VideoCompilationStyleId> = {
+  warm_install: "cinematic",
+  cool_tech: "cinematic",
+  vintage_reel: "cinematic",
+};
+
 /** Map old enum ids and synthetic ids to slug filenames. */
 const LEGACY_AUDIO_TO_SLUG: Record<string, string> = {
   ambient: "chill-vlog",
@@ -45,9 +51,13 @@ export function parseVideoCompilationOptions(
     return { style: DEFAULT_VIDEO_COMPILATION_OPTIONS.style, audio: defaultAudio };
   }
   const record = raw as Record<string, unknown>;
+  let styleRaw = typeof record.style === "string" ? record.style : "";
+  if (REMOVED_FILTER_STYLES[styleRaw]) {
+    styleRaw = REMOVED_FILTER_STYLES[styleRaw];
+  }
   const style =
-    typeof record.style === "string" && STYLE_IDS.has(record.style)
-      ? (record.style as VideoCompilationStyleId)
+    styleRaw && STYLE_IDS.has(styleRaw)
+      ? (styleRaw as VideoCompilationStyleId)
       : DEFAULT_VIDEO_COMPILATION_OPTIONS.style;
 
   let audioRaw = typeof record.audio === "string" ? record.audio.trim() : "";

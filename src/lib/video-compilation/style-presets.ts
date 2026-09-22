@@ -1,4 +1,4 @@
-/** Shared CapCut-style preset definitions (server ffmpeg + client live preview). */
+/** Video style presets (server ffmpeg + client live preview). */
 
 export type VideoTransitionKind = "cut" | "fade" | "slideleft" | "slideright" | "wipeup";
 
@@ -7,21 +7,17 @@ export type StylePreviewTransition = "cut" | "fade" | "slide-left" | "slide-righ
 export type VideoStylePreset = {
   label: string;
   description: string;
-  category: "Motion" | "Slide" | "Filter";
+  category: "Motion" | "Slide";
   photoDurationSec: number;
   zoom: boolean;
   zoomStrength: "normal" | "strong";
   landscapeBlur: boolean;
   transition: VideoTransitionKind;
   transitionSec: number;
-  /** Appended to ffmpeg -vf (comma-separated chain). */
-  ffmpegColorFilter?: string;
   preview: {
-    cssFilter: string;
     kenBurns: boolean;
     kenBurnsIntensity?: "normal" | "strong";
     transition: StylePreviewTransition;
-    /** Slide/fade length in ms (live preview). */
     transitionMs: number;
   };
 };
@@ -38,7 +34,6 @@ export const VIDEO_COMPILATION_STYLES = {
     transition: "fade",
     transitionSec: 0.45,
     preview: {
-      cssFilter: "contrast(1.05) saturate(1.08)",
       kenBurns: true,
       kenBurnsIntensity: "normal",
       transition: "fade",
@@ -47,7 +42,7 @@ export const VIDEO_COMPILATION_STYLES = {
   },
   quick_pop: {
     label: "Quick pop",
-    description: "Fast cuts, punchy colors",
+    description: "Fast cuts, high energy",
     category: "Motion",
     photoDurationSec: 1.8,
     zoom: false,
@@ -55,9 +50,7 @@ export const VIDEO_COMPILATION_STYLES = {
     landscapeBlur: true,
     transition: "cut",
     transitionSec: 0,
-    ffmpegColorFilter: "eq=contrast=1.12:saturation=1.18",
     preview: {
-      cssFilter: "contrast(1.12) saturate(1.2)",
       kenBurns: false,
       transition: "cut",
       transitionMs: 80,
@@ -65,7 +58,7 @@ export const VIDEO_COMPILATION_STYLES = {
   },
   smooth_fade: {
     label: "Smooth fade",
-    description: "CapCut-style crossfades",
+    description: "Gentle crossfades between photos",
     category: "Slide",
     photoDurationSec: 3,
     zoom: false,
@@ -74,7 +67,6 @@ export const VIDEO_COMPILATION_STYLES = {
     transition: "fade",
     transitionSec: 0.55,
     preview: {
-      cssFilter: "brightness(1.03)",
       kenBurns: false,
       transition: "fade",
       transitionMs: 550,
@@ -91,7 +83,6 @@ export const VIDEO_COMPILATION_STYLES = {
     transition: "slideleft",
     transitionSec: 0.4,
     preview: {
-      cssFilter: "none",
       kenBurns: false,
       transition: "slide-left",
       transitionMs: 400,
@@ -108,7 +99,6 @@ export const VIDEO_COMPILATION_STYLES = {
     transition: "slideright",
     transitionSec: 0.4,
     preview: {
-      cssFilter: "none",
       kenBurns: false,
       transition: "slide-right",
       transitionMs: 400,
@@ -125,72 +115,15 @@ export const VIDEO_COMPILATION_STYLES = {
     transition: "fade",
     transitionSec: 0.25,
     preview: {
-      cssFilter: "contrast(1.08)",
       kenBurns: true,
       kenBurnsIntensity: "strong",
       transition: "zoom-pop",
       transitionMs: 280,
     },
   },
-  warm_install: {
-    label: "Warm install",
-    description: "Golden, trade-show glow",
-    category: "Filter",
-    photoDurationSec: 3,
-    zoom: true,
-    zoomStrength: "normal",
-    landscapeBlur: true,
-    transition: "fade",
-    transitionSec: 0.35,
-    ffmpegColorFilter: "eq=saturation=1.12:brightness=0.04:gamma=1.06",
-    preview: {
-      cssFilter: "sepia(0.12) saturate(1.15) brightness(1.05) hue-rotate(-8deg)",
-      kenBurns: true,
-      kenBurnsIntensity: "normal",
-      transition: "fade",
-      transitionMs: 350,
-    },
-  },
-  cool_tech: {
-    label: "Cool tech",
-    description: "Blue CCTV / tech look",
-    category: "Filter",
-    photoDurationSec: 2.8,
-    zoom: false,
-    zoomStrength: "normal",
-    landscapeBlur: true,
-    transition: "wipeup",
-    transitionSec: 0.35,
-    ffmpegColorFilter: "eq=saturation=0.85:brightness=-0.02:contrast=1.05,curves=b='0/0 0.5/0.48 1/1'",
-    preview: {
-      cssFilter: "saturate(0.85) contrast(1.05) brightness(0.95) hue-rotate(12deg)",
-      kenBurns: false,
-      transition: "fade",
-      transitionMs: 320,
-    },
-  },
-  vintage_reel: {
-    label: "Vintage reel",
-    description: "Muted film-style grade",
-    category: "Filter",
-    photoDurationSec: 3.2,
-    zoom: true,
-    zoomStrength: "normal",
-    landscapeBlur: true,
-    transition: "fade",
-    transitionSec: 0.5,
-    ffmpegColorFilter: "eq=saturation=0.75:contrast=1.08:gamma=1.05",
-    preview: {
-      cssFilter: "sepia(0.35) contrast(1.08) saturate(0.75)",
-      kenBurns: true,
-      kenBurnsIntensity: "normal",
-      transition: "fade",
-      transitionMs: 500,
-    },
-  },
   flash_montage: {
     label: "Flash montage",
-    description: "Ultra-fast hype cuts",
+    description: "Ultra-fast cuts",
     category: "Motion",
     photoDurationSec: 1.4,
     zoom: false,
@@ -198,9 +131,7 @@ export const VIDEO_COMPILATION_STYLES = {
     landscapeBlur: false,
     transition: "cut",
     transitionSec: 0,
-    ffmpegColorFilter: "eq=contrast=1.2:saturation=1.25",
     preview: {
-      cssFilter: "contrast(1.18) saturate(1.22)",
       kenBurns: false,
       transition: "cut",
       transitionMs: 60,
@@ -218,7 +149,6 @@ export const VIDEO_COMPILATION_STYLES = {
     transition: "cut",
     transitionSec: 0,
     preview: {
-      cssFilter: "none",
       kenBurns: false,
       transition: "cut",
       transitionMs: 80,
@@ -235,7 +165,6 @@ export const VIDEO_COMPILATION_STYLES = {
     transition: "fade",
     transitionSec: 0.4,
     preview: {
-      cssFilter: "none",
       kenBurns: false,
       transition: "fade",
       transitionMs: 400,
@@ -252,11 +181,62 @@ export const VIDEO_COMPILATION_STYLES = {
     transition: "fade",
     transitionSec: 0.35,
     preview: {
-      cssFilter: "contrast(1.1)",
       kenBurns: true,
       kenBurnsIntensity: "strong",
       transition: "fade",
       transitionMs: 350,
+    },
+  },
+  /** Removed filter styles — map to cinematic when loading old drafts */
+  warm_install: {
+    label: "Cinematic",
+    description: "Legacy style",
+    category: "Motion",
+    photoDurationSec: 3.5,
+    zoom: true,
+    zoomStrength: "normal",
+    landscapeBlur: true,
+    transition: "fade",
+    transitionSec: 0.45,
+    preview: {
+      kenBurns: true,
+      kenBurnsIntensity: "normal",
+      transition: "fade",
+      transitionMs: 450,
+    },
+  },
+  cool_tech: {
+    label: "Cinematic",
+    description: "Legacy style",
+    category: "Motion",
+    photoDurationSec: 3.5,
+    zoom: true,
+    zoomStrength: "normal",
+    landscapeBlur: true,
+    transition: "fade",
+    transitionSec: 0.45,
+    preview: {
+      kenBurns: true,
+      kenBurnsIntensity: "normal",
+      transition: "fade",
+      transitionMs: 450,
+    },
+  },
+  vintage_reel: {
+    label: "Cinematic",
+    description: "Legacy style",
+    category: "Motion",
+    photoDurationSec: 3.5,
+    zoom: true,
+    zoomStrength: "normal",
+    landscapeBlur: true,
+    transition: "fade",
+    transitionSec: 0.45,
+    preview: {
+      kenBurns: true,
+      kenBurnsIntensity: "normal",
+      transition: "fade",
+      transitionMs: 450,
     },
   },
 } as const satisfies Record<string, VideoStylePreset>;

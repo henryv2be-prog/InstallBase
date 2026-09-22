@@ -17,9 +17,6 @@ export const STYLE_PICKER_ORDER: VideoCompilationStyleId[] = [
   "zoom_punch",
   "quick_pop",
   "flash_montage",
-  "warm_install",
-  "cool_tech",
-  "vintage_reel",
 ];
 
 interface CreateVideoStylePickerProps {
@@ -38,7 +35,6 @@ export function CreateVideoStylePicker({
   const grouped = {
     Slide: STYLE_PICKER_ORDER.filter((id) => VIDEO_COMPILATION_STYLES[id].category === "Slide"),
     Motion: STYLE_PICKER_ORDER.filter((id) => VIDEO_COMPILATION_STYLES[id].category === "Motion"),
-    Filter: STYLE_PICKER_ORDER.filter((id) => VIDEO_COMPILATION_STYLES[id].category === "Filter"),
   };
 
   return (
@@ -46,10 +42,10 @@ export function CreateVideoStylePicker({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <CreateVideoStyleLivePreview styleId={value.style} imageUrls={previewImageUrls} />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-foreground">CapCut-style look</p>
+          <p className="text-sm font-semibold text-foreground">Video style</p>
           <p className="mt-0.5 text-xs text-muted">
-            Preview updates instantly on your photos. Tap <strong>Create video</strong> once — we render
-            that look in HD (no need to generate every style).
+            Preview updates instantly on your photos. Tap <strong>Create video</strong> once to render
+            in full quality.
           </p>
         </div>
       </div>

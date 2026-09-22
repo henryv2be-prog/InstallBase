@@ -13,7 +13,7 @@ interface CreateVideoStyleLivePreviewProps {
   className?: string;
 }
 
-/** Instant CapCut-style preview — no server render; cycles uploaded photo previews. */
+/** Instant style preview — cycles uploaded photo previews without server render. */
 export function CreateVideoStyleLivePreview({
   styleId,
   imageUrls,
@@ -141,7 +141,6 @@ function PreviewSlide({
         phase === "enter" && "z-10"
       )}
       style={{
-        filter: style.preview.cssFilter === "none" ? undefined : style.preview.cssFilter,
         animationDuration: transitionClass ? `${transitionMs}ms` : undefined,
       }}
     />
