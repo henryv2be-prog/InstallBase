@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { StudyBodyChrome } from "@/study/components/study-body-chrome";
+import { StudyThemeDocumentBoot } from "@/study/components/study-theme-document-boot";
 import { StudyLocaleProvider } from "@/study/components/study-locale-provider";
 import { getStudyMessages } from "@/study/i18n/get-locale";
+import { getStudyTheme } from "@/study/lib/get-study-theme";
 import "./study.css";
 
 const studyFont = Plus_Jakarta_Sans({
@@ -26,18 +28,25 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  viewportFit: "cover",
-  themeColor: "#07070f",
-};
+export async function generateViewport(): Promise<Viewport> {
+  const theme = await getStudyTheme();
+  return {
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover",
+    themeColor: theme === "light" ? "#f1f5f9" : "#07070f",
+  };
+}
 
 export default async function StudyCoachLayout({ children }: { children: React.ReactNode }) {
-  const { locale, t } = await getStudyMessages();
+  const [{ locale, t }, theme] = await Promise.all([getStudyMessages(), getStudyTheme()]);
   return (
-    <div lang={t.langTag} className={`study-coach ${studyFont.variable}`}>
-      <StudyBodyChrome />
+    <div
+      lang={t.langTag}
+      className={`study-coach study-coach--${theme} ${studyFont.variable}`}
+    >
+      <StudyThemeDocumentBoot />
+      <StudyBodyChrome theme={theme} />
       <StudyLocaleProvider locale={locale}>
         {children}
       </StudyLocaleProvider>

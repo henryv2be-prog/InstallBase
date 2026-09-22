@@ -64,7 +64,7 @@ export function StudyNextStep({ recommendation, recommendationLogId }: Props) {
         {t.nextStep.notNow}
       </button>
 
-      <details className="mt-4 rounded-xl border border-[var(--study-border)] bg-black/20 px-4 py-3">
+      <details className="mt-4 rounded-xl border border-[var(--study-border)] bg-[var(--study-overlay)] px-4 py-3">
         <summary className="cursor-pointer text-sm font-bold study-text-link">
           {t.nextStep.why}
         </summary>
