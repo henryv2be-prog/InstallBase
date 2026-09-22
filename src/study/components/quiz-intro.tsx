@@ -5,6 +5,7 @@ import { QuizRunner } from "@/study/components/quiz-runner";
 import { useStudyT } from "@/study/components/study-locale-provider";
 import { pickQuizMode } from "@/study/lib/quiz-mode-pick";
 import { startSubtopicQuiz } from "@/study/lib/quiz-actions";
+import type { QuizPickProfile } from "@/study/lib/select-quiz-questions";
 import type { QuizMode } from "@/study/lib/quiz-types";
 
 type Props = {
@@ -22,6 +23,7 @@ type Props = {
   questionsAttempted: number;
   whyTopic?: string | null;
   initialMode?: QuizMode;
+  initialPick?: QuizPickProfile;
 };
 
 export function QuizIntro({
@@ -38,6 +40,7 @@ export function QuizIntro({
   questionsAttempted,
   whyTopic,
   initialMode = "all",
+  initialPick = "default",
 }: Props) {
   const t = useStudyT();
   const [mode, setMode] = useState<QuizMode>(() =>
@@ -84,7 +87,7 @@ export function QuizIntro({
     setError(null);
     const chosen = pickQuizMode(mode, officialCount, practiceCount, questionCount);
     startTransition(async () => {
-      const result = await startSubtopicQuiz(subtopicId, chosen);
+      const result = await startSubtopicQuiz(subtopicId, chosen, initialPick);
       if (result.ok === false) {
         setError(result.error);
         return;

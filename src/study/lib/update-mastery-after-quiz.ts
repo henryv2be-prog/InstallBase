@@ -5,6 +5,12 @@ import {
   priorityBandForMastery,
   priorityScoreForTopic,
 } from "@/study/lib/mastery";
+import { rollupDemonstratedMarksForLearner } from "@/study/lib/rollup-subject-demonstrated-mark";
+
+function sessionScorePercent(correct: number, total: number): number {
+  if (total <= 0) return 0;
+  return Math.round((correct / total) * 100);
+}
 
 export async function updateMasteryAfterQuiz(params: {
   learnerId: string;
@@ -13,6 +19,19 @@ export async function updateMasteryAfterQuiz(params: {
   sessionTotal: number;
 }) {
   const { learnerId, subtopicId, sessionCorrect, sessionTotal } = params;
+
+  const recentSessions = await prisma.studyAssessmentSession.findMany({
+    where: { learnerId, subtopicId, completedAt: { not: null } },
+    orderBy: { completedAt: "desc" },
+    take: 5,
+    include: { attempts: { select: { isCorrect: true } } },
+  });
+
+  const recentSessionScores = recentSessions.map((s) => {
+    const total = s.attempts.length;
+    const correct = s.attempts.filter((a) => a.isCorrect).length;
+    return sessionScorePercent(correct, total);
+  });
 
   const existing = await prisma.studyMastery.findUnique({
     where: { learnerId_subtopicId: { learnerId, subtopicId } },
@@ -27,6 +46,7 @@ export async function updateMasteryAfterQuiz(params: {
     questionsAttempted,
     questionsCorrect,
     confidencePct: existing?.confidencePct ?? null,
+    recentSessionScores,
   });
   const priorityBand = priorityBandForMastery(masteryPct);
   const priorityScore = priorityScoreForTopic(
@@ -55,6 +75,8 @@ export async function updateMasteryAfterQuiz(params: {
       priorityScore,
     },
   });
+
+  await rollupDemonstratedMarksForLearner(learnerId);
 
   return { masteryPct, questionsAttempted, questionsCorrect, priorityBand };
 }

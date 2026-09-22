@@ -9,6 +9,7 @@ import { en } from "@/study/i18n/messages/en";
 import type { LearningState, StudyRecommendation, TopicMasteryState } from "@/study/lib/learner-model/types";
 import { estimateSessionMinutes } from "@/study/lib/home-helpers";
 import { QUIZ_SIZE } from "@/study/lib/quiz-types";
+import { quizPickProfileForRecommendationAction } from "@/study/lib/select-quiz-questions";
 
 export type ScoredCandidate = {
   topic: TopicMasteryState;
@@ -234,6 +235,7 @@ export function scoreRecommendationCandidates(
   const now = state.generatedAt;
   const byId = new Map(state.topics.map((t) => [t.subtopicId, t]));
   const subjectById = new Map(state.profile.subjects.map((s) => [s.subjectId, s]));
+  const avoided = new Set(state.behaviour.subtopicsAvoided);
 
   const candidates: ScoredCandidate[] = [];
 
@@ -242,7 +244,7 @@ export function scoreRecommendationCandidates(
 
     const subject = subjectById.get(topic.subjectId);
     const target = subject?.targetMarkPct ?? 70;
-    const current = subject?.currentMarkPct ?? 55;
+    const current = subject?.effectiveMarkPct ?? subject?.currentMarkPct ?? 55;
     const examDays = subject?.examDays ?? null;
 
     const prereq = resolvePrerequisite(topic, byId);
@@ -281,6 +283,7 @@ export function scoreRecommendationCandidates(
     const practiceBoost = neverPractised ? 14 : lowPractice ? 6 : 0;
     const prereqBoost =
       action === StudyRecommendationAction.REVISIT_PREREQUISITE ? focusGap * 0.3 : 0;
+    const avoidedBoost = avoided.has(focus.subtopicId) ? 8 : 0;
 
     const returnScore =
       subjectMarkGap * 0.42 +
@@ -291,7 +294,8 @@ export function scoreRecommendationCandidates(
       stale * 6 +
       confidenceBoost * 14 +
       trendBoost * 10 +
-      prereqBoost;
+      prereqBoost +
+      avoidedBoost;
 
     const priorityScore =
       returnScore * (0.45 + urgency * 0.55) - (focus.masteryPct > STRONG_MASTERY ? 12 : 0);
@@ -354,6 +358,7 @@ export function candidateToRecommendation(
     examDays: subject?.examDays ?? null,
     masteryPct: candidate.topic.masteryPct,
     suggestedQuizMode: candidate.suggestedQuizMode,
+    suggestedQuizPick: quizPickProfileForRecommendationAction(candidate.action),
   };
 }
 

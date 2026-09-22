@@ -13,7 +13,8 @@
 
 Persisted activity (already in schema):
 
-- `StudyMastery` — mastery, confidence, optional `selfConfidence`
+- `StudyMastery` — mastery (recency-blended after quizzes), confidence, optional `selfConfidence`
+- `StudyLearnerSubject.demonstratedMarkPct` — importance-weighted rollup from subtopic masteries
 - `StudyQuestionAttempt` — every answer
 - `StudyAssessmentSession` — study sessions (completed vs abandoned inferred)
 - `StudyRecommendationLog` — shown / followed recommendations

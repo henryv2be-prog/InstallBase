@@ -33,6 +33,16 @@ describe("computeMasteryPct", () => {
       80,
     );
   });
+
+  it("weights recent session scores toward recency", () => {
+    const value = computeMasteryPct({
+      questionsAttempted: 20,
+      questionsCorrect: 10,
+      confidencePct: null,
+      recentSessionScores: [90, 85],
+    });
+    assert.ok(value > 50 && value < 90);
+  });
 });
 
 describe("priorityBandForMastery", () => {

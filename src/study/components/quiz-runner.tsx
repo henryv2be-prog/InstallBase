@@ -5,6 +5,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { StudyMasteryBar } from "@/study/components/study-mastery-bar";
 import { useStudyT } from "@/study/components/study-locale-provider";
+import { setSubtopicSelfConfidence } from "@/study/lib/learner-model/confidence-actions";
 import { completeSubtopicQuiz, evaluateQuizAnswer } from "@/study/lib/quiz-actions";
 import type { QuizQuestionClient } from "@/study/lib/quiz-types";
 
@@ -43,6 +44,8 @@ export function QuizRunner({
     ReturnType<typeof completeSubtopicQuiz>
   > | null>(null);
   const [completing, setCompleting] = useState(false);
+  const [confidenceSaved, setConfidenceSaved] = useState(false);
+  const [confidencePending, setConfidencePending] = useState(false);
 
   const current = questions[index];
   const selected = current ? answers[current.id] : undefined;
@@ -147,6 +150,41 @@ export function QuizRunner({
             </p>
           ) : null}
         </section>
+
+        {"subtopicId" in summary && summary.subtopicId ? (
+          <section className="study-panel p-4 mb-4">
+            <p className="text-sm font-bold">{t.quiz.confidencePrompt}</p>
+            {confidenceSaved ? (
+              <p className="mt-2 text-sm text-[var(--study-muted)]">{t.quiz.confidenceSaved}</p>
+            ) : (
+              <div className="mt-3 grid grid-cols-1 gap-2">
+                {(
+                  [
+                    ["UNDERSTANDS", t.quiz.confidenceUnderstands],
+                    ["UNSURE", t.quiz.confidenceUnsure],
+                    ["DONT_UNDERSTAND", t.quiz.confidenceDontUnderstand],
+                  ] as const
+                ).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    disabled={confidencePending}
+                    className="study-quiz-option study-touch-target text-left"
+                    onClick={async () => {
+                      setConfidencePending(true);
+                      await setSubtopicSelfConfidence(summary.subtopicId!, value as "UNDERSTANDS" | "UNSURE" | "DONT_UNDERSTAND");
+                      setConfidencePending(false);
+                      setConfidenceSaved(true);
+                      router.refresh();
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+        ) : null}
 
         {summary.nextFocus ? (
           <section className="study-panel p-4 mb-4">

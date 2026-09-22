@@ -963,13 +963,15 @@ model StudyLearner {
 }
 
 model StudyLearnerSubject {
-  id             String   @id @default(cuid())
-  learnerId      String
-  subjectId      String
-  currentMarkPct Float
-  targetMarkPct  Float
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  learnerId            String
+  subjectId            String
+  currentMarkPct       Float
+  /** Rolling estimate from subtopic quiz evidence (updated after sessions). */
+  demonstratedMarkPct  Float?
+  targetMarkPct        Float
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   learner   StudyLearner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
   subject   StudySubject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)

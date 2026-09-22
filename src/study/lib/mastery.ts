@@ -10,16 +10,28 @@ export function computeMasteryPct(params: {
   questionsAttempted: number;
   questionsCorrect: number;
   confidencePct: number | null;
+  /** Newest completed session scores (0–100), when available. */
+  recentSessionScores?: number[];
 }): number {
   const performance = masteryFromAttempts(params.questionsCorrect, params.questionsAttempted);
   if (params.questionsAttempted === 0) {
     return params.confidencePct ?? 0;
   }
+
+  let base = performance;
   if (params.questionsAttempted < 5 && params.confidencePct != null) {
     const weight = params.questionsAttempted / 5;
-    return Math.round((performance * weight + params.confidencePct * (1 - weight)) * 10) / 10;
+    base = Math.round((performance * weight + params.confidencePct * (1 - weight)) * 10) / 10;
   }
-  return performance;
+
+  const sessions = params.recentSessionScores ?? [];
+  if (sessions.length === 0) {
+    return base;
+  }
+
+  const recentAvg = sessions.reduce((a, b) => a + b, 0) / sessions.length;
+  const recentWeight = sessions.length >= 3 ? 0.55 : sessions.length === 2 ? 0.45 : 0.35;
+  return Math.round((recentAvg * recentWeight + base * (1 - recentWeight)) * 10) / 10;
 }
 
 export function priorityBandForMastery(masteryPct: number): StudyPriorityBand {

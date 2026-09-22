@@ -205,6 +205,11 @@ export type StudyMessages = {
     nextUp: string;
     nextGap: (name: string) => string;
     doneToday: string;
+    confidencePrompt: string;
+    confidenceUnderstands: string;
+    confidenceUnsure: string;
+    confidenceDontUnderstand: string;
+    confidenceSaved: string;
     introMastery: (pct: number, attempted: number) => string;
     introBaseline: string;
     questionType: string;

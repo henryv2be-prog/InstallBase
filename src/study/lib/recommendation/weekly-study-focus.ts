@@ -32,7 +32,8 @@ export function getWeeklyStudyFocus(
   let bestScore = -1;
 
   for (const subject of state.profile.subjects) {
-    const markGap = Math.max(0, subject.targetMarkPct - subject.currentMarkPct);
+    const effective = subject.effectiveMarkPct ?? subject.currentMarkPct;
+    const markGap = Math.max(0, subject.targetMarkPct - effective);
     if (markGap <= 0) continue;
 
     const topics = topicsBySubject.get(subject.subjectId) ?? [];
@@ -57,7 +58,7 @@ export function getWeeklyStudyFocus(
       subjectId: subject.subjectId,
       subjectSlug: subject.subjectSlug,
       subjectName,
-      currentMarkPct: subject.currentMarkPct,
+      currentMarkPct: effective,
       targetMarkPct: subject.targetMarkPct,
       markGap,
       examDays: subject.examDays,

@@ -10,6 +10,7 @@ import {
   deleteMasteriesForSubject,
   initializeLearnerMasteries,
 } from "@/study/lib/initialize-masteries";
+import { rollupDemonstratedMarksForLearner } from "@/study/lib/rollup-subject-demonstrated-mark";
 
 export type StudyActionResult =
   | { ok: true; learnerId: string }
@@ -108,6 +109,7 @@ export async function completeStudyOnboarding(raw: StudyOnboardingInput): Promis
     }
 
     await initializeLearnerMasteries(learnerId, data.subjects);
+    await rollupDemonstratedMarksForLearner(learnerId);
 
     cookieStore.set(STUDY_LEARNER_COOKIE, learnerId, {
       httpOnly: true,

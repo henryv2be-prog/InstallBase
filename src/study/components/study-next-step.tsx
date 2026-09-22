@@ -20,7 +20,7 @@ export function StudyNextStep({ recommendation }: Props) {
     recommendation.subtopicSlug,
     recommendation.subtopicName,
   );
-  const href = `/study/practice/${recommendation.subtopicId}?mode=${recommendation.suggestedQuizMode}`;
+  const href = `/study/practice/${recommendation.subtopicId}?mode=${recommendation.suggestedQuizMode}&pick=${recommendation.suggestedQuizPick}`;
 
   return (
     <section className="study-panel--mission mb-6 relative z-[1]">

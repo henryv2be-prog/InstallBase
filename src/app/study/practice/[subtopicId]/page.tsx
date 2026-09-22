@@ -9,6 +9,7 @@ import { ensurePracticeQuestions } from "@/study/lib/seed-questions";
 import { isPracticeLikeSourceKind } from "@/study/lib/question-source-kinds";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
 import { prisma } from "@/lib/prisma";
+import type { QuizPickProfile } from "@/study/lib/select-quiz-questions";
 import type { QuizMode } from "@/study/lib/quiz-types";
 import { StudyContentSourceKind, StudyOfficialVerificationStatus } from "@/generated/prisma/client";
 
@@ -16,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ subtopicId: string }>;
-  searchParams: Promise<{ mode?: string }>;
+  searchParams: Promise<{ mode?: string; pick?: string }>;
 };
 
 function parseMode(raw: string | undefined): QuizMode {
@@ -24,10 +25,16 @@ function parseMode(raw: string | undefined): QuizMode {
   return "all";
 }
 
+function parsePick(raw: string | undefined): QuizPickProfile {
+  if (raw === "harder" || raw === "easier") return raw;
+  return "default";
+}
+
 export default async function StudyQuizPage({ params, searchParams }: Props) {
   const { subtopicId } = await params;
-  const { mode: modeParam } = await searchParams;
+  const { mode: modeParam, pick: pickParam } = await searchParams;
   const initialMode = parseMode(modeParam);
+  const initialPick = parsePick(pickParam);
   const learner = await getStudyLearnerForRequest();
   if (!isLearnerOnboarded(learner)) {
     redirect("/study/onboarding");
@@ -110,6 +117,7 @@ export default async function StudyQuizPage({ params, searchParams }: Props) {
           masteryPct={mastery?.masteryPct ?? null}
           questionsAttempted={mastery?.questionsAttempted ?? 0}
           initialMode={initialMode}
+          initialPick={initialPick}
         />
       )}
     </StudyShell>

@@ -15,6 +15,10 @@ import { getStudyLocale } from "@/study/i18n/get-locale";
 import { localizeFromSubtopicGraph } from "@/study/i18n/localize-content";
 import { getWeakestMasteries } from "@/study/lib/queries";
 import { PRACTICE_LIKE_SOURCE_KINDS } from "@/study/lib/question-source-kinds";
+import {
+  selectQuestionsForQuiz,
+  type QuizPickProfile,
+} from "@/study/lib/select-quiz-questions";
 import { QUIZ_SIZE, type QuizAnswerInput, type QuizMode, type QuizQuestionClient } from "@/study/lib/quiz-types";
 
 export async function evaluateQuizAnswer(questionId: string, selectedOptionId: string) {
@@ -65,7 +69,11 @@ function sourceFilter(mode: QuizMode) {
   return {};
 }
 
-export async function startSubtopicQuiz(subtopicId: string, mode: QuizMode = "all") {
+export async function startSubtopicQuiz(
+  subtopicId: string,
+  mode: QuizMode = "all",
+  pick: QuizPickProfile = "default",
+) {
   const learner = await getStudyLearnerForRequest();
   if (!isLearnerOnboarded(learner)) {
     return { ok: false as const, error: "Complete onboarding first." };
@@ -86,9 +94,26 @@ export async function startSubtopicQuiz(subtopicId: string, mode: QuizMode = "al
     return { ok: false as const, error: "This subject is not on your profile." };
   }
 
+  const masteryRow = await prisma.studyMastery.findUnique({
+    where: { learnerId_subtopicId: { learnerId: learner.id, subtopicId } },
+    select: { masteryPct: true },
+  });
+
   const pool = await prisma.studyQuestion.findMany({
     where: { subtopicId, active: true, ...sourceFilter(mode) },
     orderBy: { createdAt: "asc" },
+    select: {
+      id: true,
+      type: true,
+      sourceKind: true,
+      sourceYear: true,
+      sourcePaperNumber: true,
+      sourceQuestionRef: true,
+      officialSourceUrl: true,
+      prompt: true,
+      options: true,
+      difficulty: true,
+    },
   });
 
   if (pool.length === 0) {
@@ -101,8 +126,12 @@ export async function startSubtopicQuiz(subtopicId: string, mode: QuizMode = "al
     return { ok: false as const, error: label };
   }
 
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  const selected = shuffled.slice(0, Math.min(QUIZ_SIZE, shuffled.length));
+  const selected = selectQuestionsForQuiz(
+    pool,
+    QUIZ_SIZE,
+    pick,
+    masteryRow?.masteryPct ?? null,
+  );
 
   const session = await prisma.studyAssessmentSession.create({
     data: { learnerId: learner.id, subtopicId },
@@ -288,6 +317,7 @@ export async function completeSubtopicQuiz(sessionId: string, answers: QuizAnswe
     masteryBeforePct,
     masteryPct: mastery.masteryPct,
     questionsAttemptedTotal: mastery.questionsAttempted,
+    subtopicId: session.subtopicId,
     subtopicName: sessionLabels.subtopicName,
     topicName: sessionLabels.topicName,
     subjectName: sessionLabels.subjectName,

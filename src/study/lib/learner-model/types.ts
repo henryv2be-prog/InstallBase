@@ -12,7 +12,12 @@ export type LearnerSubjectGoal = {
   subjectId: string;
   subjectSlug: string;
   subjectName: string;
+  /** Self-reported at onboarding — kept for comparison. */
   currentMarkPct: number;
+  /** Evidence-based rollup from subtopic masteries; null until first quiz. */
+  demonstratedMarkPct: number | null;
+  /** Best estimate for recommendations (demonstrated when set). */
+  effectiveMarkPct: number;
   targetMarkPct: number;
   examDays: number | null;
   examAt: Date | null;
@@ -86,4 +91,5 @@ export type StudyRecommendation = {
   examDays: number | null;
   masteryPct: number;
   suggestedQuizMode: "all" | "official" | "practice";
+  suggestedQuizPick: "default" | "harder" | "easier";
 };

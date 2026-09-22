@@ -50,7 +50,7 @@ export default async function StudyDashboardPage() {
         examAt: exam.examAt,
         days: daysUntilExam(exam.examAt),
         target: ls.targetMarkPct,
-        current: ls.currentMarkPct,
+        current: ls.demonstratedMarkPct ?? ls.currentMarkPct,
       })),
     )
     .sort((a, b) => a.days - b.days);
@@ -96,10 +96,18 @@ export default async function StudyDashboardPage() {
                     <span aria-hidden>{theme.glyph}</span> {name}
                   </p>
                   <p className="text-sm tabular-nums text-[var(--study-muted)] shrink-0">
-                    {t.common.marksNowToGoal(ls.currentMarkPct, ls.targetMarkPct)}
+                    {t.common.marksNowToGoal(
+                      ls.demonstratedMarkPct ?? ls.currentMarkPct,
+                      ls.targetMarkPct,
+                    )}
                   </p>
                 </div>
-                <StudyMasteryBar value={ls.currentMarkPct} accent={theme.accent} height="sm" animate={false} />
+                <StudyMasteryBar
+                  value={ls.demonstratedMarkPct ?? ls.currentMarkPct}
+                  accent={theme.accent}
+                  height="sm"
+                  animate={false}
+                />
                 <Link
                   href={`/study/subjects/${ls.subject.slug}`}
                   className="mt-2 inline-block text-xs font-semibold study-text-link"

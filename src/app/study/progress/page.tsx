@@ -56,7 +56,7 @@ export default async function StudyProgressPage() {
               <li key={ls.id}>
                 <StudyMasteryBar
                   label={localizeSubjectName(locale, ls.subject.slug, ls.subject.name)}
-                  value={ls.currentMarkPct}
+                  value={ls.demonstratedMarkPct ?? ls.currentMarkPct}
                   accent={theme.accent}
                 />
                 <p className="mt-1 text-xs text-[var(--study-muted)]">

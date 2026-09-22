@@ -180,6 +180,11 @@ export const af: StudyMessages = {
     nextUp: "Probeer hierdie volgende",
     nextGap: (name) => `${name} kan werk gebruik`,
     doneToday: "Klaar vir vandag",
+    confidencePrompt: "Hoe selfverseker voel jy nou oor hierdie onderwerp?",
+    confidenceUnderstands: "Ek verstaan",
+    confidenceUnsure: "Nog onseker",
+    confidenceDontUnderstand: "Ek het meer hulp nodig",
+    confidenceSaved: "Gestoor — ons gebruik dit vir jou volgende stap.",
     introMastery: (pct, attempted) =>
       `Ongeveer ${pct}% hier · ${attempted} vrae klaar`,
     introBaseline: "'n Paar vinnige vrae — dan weet ons waar om te fokus.",

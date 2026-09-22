@@ -116,15 +116,21 @@ export async function buildLearningState(learnerId: string): Promise<LearningSta
     learnerId: learner.id,
     displayName: learner.displayName,
     schoolYear: learner.schoolYear,
-    subjects: learner.subjects.map((ls) => ({
-      subjectId: ls.subjectId,
-      subjectSlug: ls.subject.slug,
-      subjectName: ls.subject.name,
-      currentMarkPct: ls.currentMarkPct,
-      targetMarkPct: ls.targetMarkPct,
-      examAt: ls.exams[0]?.examAt ?? null,
-      examDays: ls.exams[0] ? daysUntilExam(ls.exams[0].examAt) : null,
-    })),
+    subjects: learner.subjects.map((ls) => {
+      const demonstratedMarkPct = ls.demonstratedMarkPct ?? null;
+      const effectiveMarkPct = demonstratedMarkPct ?? ls.currentMarkPct;
+      return {
+        subjectId: ls.subjectId,
+        subjectSlug: ls.subject.slug,
+        subjectName: ls.subject.name,
+        currentMarkPct: ls.currentMarkPct,
+        demonstratedMarkPct,
+        effectiveMarkPct,
+        targetMarkPct: ls.targetMarkPct,
+        examAt: ls.exams[0]?.examAt ?? null,
+        examDays: ls.exams[0] ? daysUntilExam(ls.exams[0].examAt) : null,
+      };
+    }),
   };
 
   const topics: TopicMasteryState[] = [];

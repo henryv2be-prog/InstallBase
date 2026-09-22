@@ -101,6 +101,8 @@ describe("generated practice", () => {
             subjectSlug: "mathematics",
             subjectName: "Mathematics",
             currentMarkPct: 60,
+            demonstratedMarkPct: 60,
+            effectiveMarkPct: 60,
             targetMarkPct: 75,
             examDays: 30,
             examAt: null,

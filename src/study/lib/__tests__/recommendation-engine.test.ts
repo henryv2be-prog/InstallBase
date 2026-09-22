@@ -57,6 +57,8 @@ function baseState(topics: TopicMasteryState[]): LearningState {
         {
           ...SUBJECT,
           currentMarkPct: 60,
+          demonstratedMarkPct: 60,
+          effectiveMarkPct: 60,
           targetMarkPct: 75,
           examDays: 21,
           examAt: new Date("2026-11-04"),

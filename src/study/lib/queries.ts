@@ -277,6 +277,8 @@ export async function getSubjectMasteryForLearner(
       subjectSlug: subject.slug,
       subjectName: localizeSubjectName(locale, subject.slug, subject.name),
       currentMarkPct: profile.currentMarkPct,
+      demonstratedMarkPct: profile.demonstratedMarkPct,
+      effectiveMarkPct: profile.demonstratedMarkPct ?? profile.currentMarkPct,
       targetMarkPct: profile.targetMarkPct,
       nextExamAt: profile.exams[0]?.examAt ?? null,
       avgMasteryPct,
