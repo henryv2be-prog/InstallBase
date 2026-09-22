@@ -13,7 +13,7 @@ export function MobileAppPage({
   return (
     <div
       className={cn(
-        "mx-auto w-full animate-fade-in max-md:px-1",
+        "app-scroll-page mx-auto w-full animate-fade-in max-md:px-1",
         wide ? "max-w-2xl" : "max-w-2xl",
         className
       )}

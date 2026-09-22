@@ -44,7 +44,7 @@ export function ImmersiveSlide({
     <section
       ref={ref}
       data-active={active ? "true" : "false"}
-      className={`relative w-full shrink-0 snap-start snap-always overflow-hidden ${slideHeightClass}`}
+      className={`immersive-feed-slide relative w-full shrink-0 snap-start snap-always overflow-hidden ${slideHeightClass}`}
       aria-label={`Installation by ${post.author.name ?? "installer"}`}
     >
       <ImmersiveMediaStage post={post} active={active} />

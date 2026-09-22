@@ -189,7 +189,7 @@ export function ImmersiveFeed({
       })}
 
       {(loading || hasMore) && (
-        <div className={`flex items-center justify-center ${slideHeightClass}`}>
+        <div className={`immersive-feed-slide flex items-center justify-center ${slideHeightClass}`}>
           {loading ? (
             <Loader2 className="h-8 w-8 animate-spin text-muted" />
           ) : (

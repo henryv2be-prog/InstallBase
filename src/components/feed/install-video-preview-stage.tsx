@@ -143,7 +143,8 @@ export function InstallVideoPreviewStage({
       <div
         className={cn(
           "grid grid-cols-2 gap-2",
-          fitViewport && "create-flow-action-dock sticky bottom-0 z-20 shrink-0 border-t border-border/70 bg-card/95 pt-2 backdrop-blur-md",
+          fitViewport &&
+            "install-preview-action-dock create-flow-action-dock sticky bottom-0 z-20 shrink-0 border-t border-border/70 bg-card/95 pt-2 backdrop-blur-md",
           !fitViewport && "flex flex-col sm:flex-row sm:flex-wrap"
         )}
       >

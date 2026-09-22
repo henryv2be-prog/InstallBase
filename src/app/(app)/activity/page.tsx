@@ -32,7 +32,7 @@ export default async function ActivityPage({ searchParams }: ActivityPageProps) 
 
   if (!userId) {
     return (
-      <div className="mx-auto max-w-lg animate-fade-in">
+      <div className="app-scroll-page mx-auto max-w-lg animate-fade-in">
         <h1 className="mb-4 text-2xl font-bold">Activity</h1>
         <GuestJoinCard
           title="Activity is for members"

@@ -41,7 +41,7 @@ export function ImmersiveAdSlide({
     <section
       ref={ref}
       data-active={active ? "true" : "false"}
-      className={`relative flex w-full shrink-0 snap-start snap-always items-center justify-center overflow-hidden bg-black/95 ${slideHeightClass}`}
+      className={`immersive-feed-slide relative flex w-full shrink-0 snap-start snap-always items-center justify-center overflow-hidden bg-black/95 ${slideHeightClass}`}
       aria-label="Sponsored"
     >
       <div className="w-full max-w-md px-4 py-8">

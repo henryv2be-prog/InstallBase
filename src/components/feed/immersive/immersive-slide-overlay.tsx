@@ -155,12 +155,12 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
 
       {commentsOpen && (
         <div
-          className="fixed inset-0 z-[70] flex flex-col justify-end bg-black/55 pb-[var(--app-mobile-nav-watch-total,4.75rem)] pointer-events-auto md:pb-0"
+          className="fixed inset-0 z-[70] flex flex-col justify-end bg-black/55 pb-[var(--app-mobile-bottom-clearance,4.75rem)] pointer-events-auto md:pb-0"
           onClick={() => setCommentsOpen(false)}
           role="presentation"
         >
           <div
-            className="flex max-h-[min(calc(100dvh-var(--app-mobile-nav-watch-total,4.75rem)-2rem),78dvh)] flex-col rounded-t-2xl bg-card text-foreground shadow-xl md:max-h-[min(72dvh,82%)]"
+            className="flex max-h-[min(calc(100dvh-var(--app-mobile-bottom-clearance,4.75rem)-2rem),78dvh)] flex-col rounded-t-2xl bg-card text-foreground shadow-xl md:max-h-[min(72dvh,82%)]"
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"

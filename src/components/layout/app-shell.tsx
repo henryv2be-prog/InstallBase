@@ -61,6 +61,7 @@ export function AppShell({ children, user }: AppShellProps) {
     pathname.startsWith("/feed/watch") || pathname.startsWith("/discover/watch");
   const isCreateFlowRoute =
     pathname === "/create" || /^\/post\/[^/]+\/edit$/.test(pathname);
+  const isViewportLockRoute = isImmersiveRoute || isCreateFlowRoute;
   const isClassicFeed = pathname === "/feed" || pathname.startsWith("/feed?");
   /** Glass floating nav on all mobile app routes (New look chrome). */
   const glassMobileNav = !isAdminRoute;
@@ -72,7 +73,7 @@ export function AppShell({ children, user }: AppShellProps) {
     pathname === "/feed";
 
   useEffect(() => {
-    if (!isImmersiveRoute && !isCreateFlowRoute) return;
+    if (!isViewportLockRoute) return;
     const html = document.documentElement;
     const body = document.body;
     const prevHtml = html.style.overflow;
@@ -83,15 +84,14 @@ export function AppShell({ children, user }: AppShellProps) {
       html.style.overflow = prevHtml;
       body.style.overflow = prevBody;
     };
-  }, [isImmersiveRoute, isCreateFlowRoute]);
+  }, [isViewportLockRoute]);
 
   return (
     <div
       className={cn(
         "relative min-h-dvh tech-bg",
         glassMobileNav && "app-shell-mobile-new-look",
-        isImmersiveRoute && "app-shell-immersive",
-        isCreateFlowRoute && "app-shell-create"
+        isViewportLockRoute && "app-shell-viewport-lock"
       )}
     >
       <header
@@ -193,7 +193,7 @@ export function AppShell({ children, user }: AppShellProps) {
             )}
           </div>
         </div>
-        {!signedIn && !isImmersiveRoute && !isCreateFlowRoute && (
+        {!signedIn && !isViewportLockRoute && (
           <div className="border-t border-blue-500/15 bg-blue-500/10 px-3 py-2 text-center text-xs sm:text-sm">
             <span className="text-foreground/80">Browsing as a guest. Join to post, follow, and message.</span>
             <Link href="/signup" className="ml-2 font-semibold text-blue-600 dark:text-cyan-400">Join free</Link>
@@ -206,23 +206,22 @@ export function AppShell({ children, user }: AppShellProps) {
       <main
         className={cn(
           "relative z-10 mx-auto max-w-7xl md:pt-6",
-          isImmersiveRoute ? "mx-0 w-full max-w-none px-0 pt-0" : "px-3 pt-4 sm:px-4 lg:px-6",
-          isCreateFlowRoute && "max-md:px-2 max-md:pt-2 max-md:pb-0",
+          isViewportLockRoute
+            ? cn("mx-0 w-full max-w-none px-0 pt-0 md:pb-8", isCreateFlowRoute && "max-md:px-2 max-md:pt-2")
+            : "px-3 pt-4 sm:px-4 lg:px-6",
           isAdminRoute
             ? "pb-6 md:pb-8"
-            : glassMobileNav
-              ? isImmersiveRoute
-                ? "max-md:pb-0 md:pb-8"
-                : isCreateFlowRoute
-                  ? "max-md:pb-0 md:pb-8"
-                  : "pb-[calc(var(--app-mobile-nav-watch-total)+0.75rem+env(safe-area-inset-bottom))] md:pb-8"
-              : "pb-[calc(var(--app-mobile-nav-reserve)+0.75rem+env(safe-area-inset-bottom))] md:pb-8"
+            : !isViewportLockRoute && glassMobileNav
+              ? "max-md:pb-[var(--app-mobile-bottom-clearance)] md:pb-8"
+              : !isViewportLockRoute
+                ? "pb-[calc(var(--app-mobile-nav-reserve)+0.75rem+env(safe-area-inset-bottom))] md:pb-8"
+                : null
         )}
       >
         <div
           className={cn(
-            isImmersiveRoute && "flex min-h-0 w-full max-w-full flex-1 flex-col",
-            !isImmersiveRoute && !isCreateFlowRoute && !isAdminRoute && "mobile-app-page-inner md:contents"
+            isViewportLockRoute && "app-main-slot",
+            !isViewportLockRoute && !isAdminRoute && "mobile-app-page-inner md:contents"
           )}
         >
           {children}
