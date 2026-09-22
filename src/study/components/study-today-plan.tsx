@@ -21,7 +21,7 @@ export function StudyTodayPlan({ plan, title, minutesLabel }: Props) {
           <li key={item.subtopicId}>
             <Link
               href={`/study/practice/${item.subtopicId}`}
-              className="block rounded-xl border border-[var(--study-border)] bg-black/20 px-3 py-3"
+              className="block rounded-xl border border-[var(--study-border)] bg-[var(--study-overlay)] px-3 py-3"
             >
               <p className="text-xs font-semibold text-[var(--study-muted)]">
                 {index + 1}. {item.subjectName} · ~{item.allocatedMinutes} min

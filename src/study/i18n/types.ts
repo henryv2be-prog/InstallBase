@@ -155,6 +155,10 @@ export type StudyMessages = {
     saveDailyTime: string;
     update: string;
     about: string;
+    appearance: string;
+    appearanceLead: string;
+    themeDark: string;
+    themeLight: string;
     language: string;
     languageLead: string;
   };

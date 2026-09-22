@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StudyLanguageSwitcher } from "@/study/components/study-language-switcher";
+import { StudyThemeSwitcher } from "@/study/components/study-theme-switcher";
+import { getStudyTheme } from "@/study/lib/get-study-theme";
 import { StudyShell } from "@/study/components/study-shell";
 import { getStudyMessages } from "@/study/i18n/get-locale";
 import { localizeSubjectName } from "@/study/i18n/localize-content";
@@ -17,7 +19,7 @@ export default async function StudyProfilePage() {
     redirect("/study/onboarding");
   }
 
-  const { locale, t } = await getStudyMessages();
+  const [{ locale, t }, theme] = await Promise.all([getStudyMessages(), getStudyTheme()]);
 
   return (
     <StudyShell showNav>
@@ -28,6 +30,12 @@ export default async function StudyProfilePage() {
           {t.profile.gradeLine(learner.schoolYear)}
         </p>
       </header>
+
+      <section className="study-panel p-4 mb-5">
+        <p className="study-section-label mb-1">{t.profile.appearance}</p>
+        <p className="mb-3 text-sm text-[var(--study-muted)]">{t.profile.appearanceLead}</p>
+        <StudyThemeSwitcher current={theme} />
+      </section>
 
       <section className="study-panel p-4 mb-5">
         <p className="study-section-label mb-1">{t.profile.language}</p>
