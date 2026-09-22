@@ -44,10 +44,6 @@ export function LegalDocumentLayout({
         <p className="mt-2 text-sm text-muted">
           Version {version} · Effective {effectiveDate}
         </p>
-        <p className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-xs text-foreground/90">
-          These documents are provided for platform transparency and should be reviewed by qualified
-          South African legal counsel before being treated as final legal advice.
-        </p>
         <article className="prose prose-slate dark:prose-invert mt-8 max-w-none prose-headings:scroll-mt-24 prose-p:leading-relaxed prose-li:leading-relaxed">
           {children}
         </article>

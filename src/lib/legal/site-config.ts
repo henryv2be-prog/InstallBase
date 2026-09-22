@@ -6,8 +6,10 @@ export const LEGAL_SITE = {
   privacyContactEmail:
     process.env.PRIVACY_EMAIL?.trim() ||
     process.env.SUPPORT_EMAIL?.trim() ||
-    "[Privacy contact email — to be configured]",
+    "info@simplifiaccess.com",
   generalContactEmail:
-    process.env.SUPPORT_EMAIL?.trim() || "[General contact email — to be configured]",
+    process.env.SUPPORT_EMAIL?.trim() ||
+    process.env.PRIVACY_EMAIL?.trim() ||
+    "info@simplifiaccess.com",
   governingLawCountry: "South Africa",
 } as const;
