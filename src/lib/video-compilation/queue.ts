@@ -53,10 +53,13 @@ async function drainQueue() {
 
     const processing = await prisma.post.findUnique({
       where: { id: postId },
-      include: {
+      select: {
+        id: true,
+        videoCompilationOptions: true,
         media: {
           where: { mediaRole: "SOURCE" },
           orderBy: { order: "asc" },
+          select: { url: true, type: true, order: true },
         },
       },
     });
@@ -74,7 +77,10 @@ async function drainQueue() {
         throw new Error("Add at least one photo or video");
       }
 
-      const { videoUrl, posterUrl } = await compileInstallationVideo(sources);
+      const { videoUrl, posterUrl } = await compileInstallationVideo(
+        sources,
+        processing.videoCompilationOptions
+      );
 
       await prisma.$transaction(async (tx) => {
         await tx.postMedia.deleteMany({

@@ -9,13 +9,19 @@ import {
   OUTPUT_FPS,
   OUTPUT_HEIGHT,
   OUTPUT_WIDTH,
-  PHOTO_DURATION_SEC,
 } from "@/lib/video-compilation/constants";
 import { uploadUrlToAbsolutePath } from "@/lib/video-compilation/paths";
 import { probeImageDimensions, probeVideoDurationSec } from "@/lib/video-compilation/probe";
+import {
+  DEFAULT_VIDEO_COMPILATION_OPTIONS,
+  parseVideoCompilationOptions,
+  VIDEO_COMPILATION_STYLES,
+  type VideoCompilationOptions,
+} from "@/lib/video-compilation/options";
+import { muxAudioOntoVideo } from "@/lib/video-compilation/audio-tracks";
+import { runFfmpeg } from "@/lib/video-compilation/run-ffmpeg";
 
 const LANDSCAPE_PHOTO_RATIO = 1.12;
-import { runFfmpeg } from "@/lib/video-compilation/run-ffmpeg";
 
 export type SourceSegment = {
   url: string;
@@ -28,12 +34,14 @@ function scaleCropFilter(zoomPan?: string) {
   return zoomPan ? `${base},${zoomPan}` : base;
 }
 
-function photoZoomPan(index: number) {
-  const frames = Math.round(PHOTO_DURATION_SEC * OUTPUT_FPS);
+function photoZoomPan(index: number, photoDurationSec: number, strength: "normal" | "strong") {
+  const frames = Math.round(photoDurationSec * OUTPUT_FPS);
+  const step = strength === "strong" ? 0.0014 : 0.0008;
+  const peak = strength === "strong" ? 1.12 : 1.06;
   if (index % 2 === 0) {
-    return `zoompan=z='min(zoom+0.0008,1.06)':d=${frames}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}:fps=${OUTPUT_FPS}`;
+    return `zoompan=z='min(zoom+${step},${peak})':d=${frames}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}:fps=${OUTPUT_FPS}`;
   }
-  return `zoompan=z='if(lte(zoom,1.0),1.06,max(1.001,zoom-0.0008))':d=${frames}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}:fps=${OUTPUT_FPS}`;
+  return `zoompan=z='if(lte(zoom,1.0),${peak},max(1.001,zoom-${step}))':d=${frames}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}:fps=${OUTPUT_FPS}`;
 }
 
 function landscapePhotoFilterComplex() {
@@ -46,14 +54,21 @@ function landscapePhotoFilterComplex() {
   );
 }
 
-async function buildPhotoSegment(sourcePath: string, destPath: string, index: number) {
+async function buildPhotoSegment(
+  sourcePath: string,
+  destPath: string,
+  index: number,
+  options: VideoCompilationOptions
+) {
+  const style = VIDEO_COMPILATION_STYLES[options.style];
+  const photoDurationSec = style.photoDurationSec;
   const dimensions = await probeImageDimensions(sourcePath);
   const isLandscape =
     dimensions !== null && dimensions.width / dimensions.height > LANDSCAPE_PHOTO_RATIO;
 
   const commonTail = [
     "-t",
-    String(PHOTO_DURATION_SEC),
+    String(photoDurationSec),
     "-r",
     String(OUTPUT_FPS),
     "-c:v",
@@ -68,7 +83,9 @@ async function buildPhotoSegment(sourcePath: string, destPath: string, index: nu
     destPath,
   ];
 
-  if (isLandscape) {
+  const useLandscapeBlur = style.landscapeBlur && isLandscape;
+
+  if (useLandscapeBlur) {
     try {
       await runFfmpeg([
         "-y",
@@ -88,7 +105,9 @@ async function buildPhotoSegment(sourcePath: string, destPath: string, index: nu
     }
   }
 
-  const vf = scaleCropFilter(photoZoomPan(index));
+  const vf = scaleCropFilter(
+    style.zoom ? photoZoomPan(index, photoDurationSec, style.zoomStrength) : undefined
+  );
   await runFfmpeg(["-y", "-loop", "1", "-i", sourcePath, "-vf", vf, ...commonTail]);
 }
 
@@ -166,8 +185,12 @@ async function writePoster(videoPath: string, posterPath: string) {
 }
 
 export async function compileInstallationVideo(
-  sources: SourceSegment[]
+  sources: SourceSegment[],
+  rawOptions?: unknown
 ): Promise<{ videoUrl: string; posterUrl: string }> {
+  const options = rawOptions
+    ? parseVideoCompilationOptions(rawOptions)
+    : DEFAULT_VIDEO_COMPILATION_OPTIONS;
   const ordered = [...sources].sort((a, b) => a.order - b.order);
   if (ordered.length === 0) {
     throw new Error("Add at least two photos or videos first");
@@ -185,7 +208,7 @@ export async function compileInstallationVideo(
 
       const segmentPath = path.join(tmpDir, `seg-${index}.mp4`);
       if (source.type === "image") {
-        await buildPhotoSegment(absolute, segmentPath, index);
+        await buildPhotoSegment(absolute, segmentPath, index, options);
       } else {
         await buildVideoSegment(absolute, segmentPath);
       }
@@ -194,10 +217,13 @@ export async function compileInstallationVideo(
 
     const outputBasename = `install-${Date.now()}-${crypto.randomUUID().slice(0, 8)}.mp4`;
     const posterBasename = outputBasename.replace(/\.mp4$/i, "-poster.jpg");
+    const silentPath = path.join(tmpDir, `silent-${outputBasename}`);
     const outputPath = path.join(tmpDir, outputBasename);
     const posterPath = path.join(tmpDir, posterBasename);
 
-    await concatSegments(segmentPaths, outputPath);
+    await concatSegments(segmentPaths, silentPath);
+    const durationSec = await probeVideoDurationSec(silentPath);
+    await muxAudioOntoVideo(silentPath, outputPath, options.audio, durationSec);
     await writePoster(outputPath, posterPath);
 
     const uploadDir = getUploadDir();

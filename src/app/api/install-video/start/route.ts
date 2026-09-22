@@ -6,6 +6,7 @@ import {
   type InstallVideoDraftInput,
   type InstallVideoMediaInput,
 } from "@/lib/video-compilation/draft-post";
+import { parseVideoCompilationOptions } from "@/lib/video-compilation/options";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -14,6 +15,7 @@ type Body = {
   postId?: string;
   media: InstallVideoMediaInput[];
   draft: InstallVideoDraftInput;
+  compilationOptions?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -43,11 +45,13 @@ export async function POST(request: Request) {
       );
     }
 
+    const compilationOptions = parseVideoCompilationOptions(body.compilationOptions);
     const { postId } = await upsertInstallVideoDraft(
       session.user.id,
       media,
       body.draft ?? { content: "", postIntent: "GENERAL", showExactLocation: false },
-      body.postId
+      body.postId,
+      compilationOptions
     );
 
     return NextResponse.json({ postId, status: "QUEUED" });
