@@ -1149,6 +1149,8 @@ export async function publishInstallVideoPost(formData: FormData) {
       id: true,
       authorId: true,
       videoCompilationStatus: true,
+      generatedVideoUrl: true,
+      videoCompilationOptions: true,
       type: true,
       media: { select: { id: true, mediaRole: true } },
     },
@@ -1160,6 +1162,45 @@ export async function publishInstallVideoPost(formData: FormData) {
 
   if (post.videoCompilationStatus !== "READY") {
     return { error: "Your install video is still being prepared" };
+  }
+
+  const audioRaw = (formData.get("videoAudio") as string | null)?.trim() || "none";
+  const silentUrl = post.generatedVideoUrl;
+  if (!silentUrl) {
+    return { error: "Video file missing — try regenerating" };
+  }
+
+  const { bakeAudioIntoInstallVideo } = await import("@/lib/video-compilation/bake-audio");
+  const { listVideoSoundTracks } = await import("@/lib/video-compilation/sound-library.server");
+  const { parseVideoCompilationOptions } = await import("@/lib/video-compilation/options");
+
+  const libraryIds = (await listVideoSoundTracks()).map((t) => t.id);
+  const parsedOptions = parseVideoCompilationOptions(post.videoCompilationOptions, libraryIds);
+  parsedOptions.audio = audioRaw === "none" ? "none" : audioRaw;
+
+  let finalVideoUrl = silentUrl;
+  try {
+    const baked = await bakeAudioIntoInstallVideo(silentUrl, parsedOptions.audio);
+    finalVideoUrl = baked.videoUrl;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not add music to video";
+    return { error: message };
+  }
+
+  if (finalVideoUrl !== silentUrl) {
+    await prisma.$transaction(async (tx) => {
+      await tx.postMedia.updateMany({
+        where: { postId, mediaRole: "COMPILED" },
+        data: { url: finalVideoUrl },
+      });
+      await tx.post.update({
+        where: { id: postId },
+        data: {
+          generatedVideoUrl: finalVideoUrl,
+          videoCompilationOptions: parsedOptions,
+        },
+      });
+    });
   }
 
   const content = ((formData.get("content") as string) || "").trim();

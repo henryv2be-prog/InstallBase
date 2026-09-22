@@ -51,6 +51,8 @@ export async function POST(request: Request) {
       body.compilationOptions,
       library.map((t) => t.id)
     );
+    // Music is chosen after preview — compile silent first.
+    compilationOptions.audio = "none";
     const { postId } = await upsertInstallVideoDraft(
       session.user.id,
       media,

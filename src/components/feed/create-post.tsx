@@ -37,11 +37,11 @@ import {
 } from "@/components/feed/work-details-fields";
 import { shouldAutoCompileInstallVideo } from "@/lib/video-compilation/eligibility";
 import { InstallVideoPreviewStage } from "@/components/feed/install-video-preview-stage";
-import { CreateVideoOptions } from "@/components/feed/create-video-options";
+import { CreateVideoStylePicker } from "@/components/feed/create-video-style-picker";
 import { useInstallVideoCompilation } from "@/hooks/use-install-video-compilation";
-import { useVideoSoundLibrary } from "@/hooks/use-video-sound-library";
 import {
   DEFAULT_VIDEO_COMPILATION_OPTIONS,
+  type VideoCompilationAudioSelection,
   type VideoCompilationOptions,
 } from "@/lib/video-compilation/options";
 
@@ -196,18 +196,8 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   const [videoCompilationOptions, setVideoCompilationOptions] = useState<VideoCompilationOptions>(
     () => ({ ...DEFAULT_VIDEO_COMPILATION_OPTIONS })
   );
+  const [previewSelectedAudio, setPreviewSelectedAudio] = useState<VideoCompilationAudioSelection>("none");
   const installCompilation = useInstallVideoCompilation(installVideoPostId);
-  const { tracks: videoSoundTracks, loading: videoSoundsLoading } = useVideoSoundLibrary();
-
-  useEffect(() => {
-    if (videoSoundTracks.length === 0) return;
-    setVideoCompilationOptions((prev) => {
-      if (prev.audio !== "none" && videoSoundTracks.some((t) => t.id === prev.audio)) {
-        return prev;
-      }
-      return { ...prev, audio: videoSoundTracks[0]!.id };
-    });
-  }, [videoSoundTracks]);
   const editMediaRef = useRef(editMedia);
   editMediaRef.current = editMedia;
 
@@ -342,6 +332,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         return;
       }
       setInstallVideoPostId(data.postId);
+      setPreviewSelectedAudio("none");
       setInstallVideoStep("preview");
       toast.success("Building your video…");
     } catch {
@@ -367,6 +358,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       if (work.workDeviceCount) formData.append("workDeviceCount", work.workDeviceCount);
       if (work.workDate) formData.append("workDate", work.workDate);
       if (work.workEquipmentNotes) formData.append("workEquipmentNotes", work.workEquipmentNotes);
+      formData.append("videoAudio", previewSelectedAudio);
 
       const result = await publishInstallVideoPost(formData);
       if (result && "error" in result && result.error) {
@@ -684,7 +676,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
           {isEditing
             ? "Edit your post"
             : installVideoStep === "preview"
-              ? "Preview your video"
+              ? "Preview & pick a sound"
               : "What's happening on your install?"}
         </h2>
 
@@ -698,12 +690,18 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
             className="mb-3"
           />
           <InstallVideoPreviewStage
+            key={installVideoPostId ?? "preview"}
             status={installCompilation.status}
             videoUrl={installCompilation.videoUrl}
             posterUrl={installCompilation.posterUrl}
             error={installCompilation.error}
+            selectedAudio={previewSelectedAudio}
+            onAudioChange={setPreviewSelectedAudio}
             onBack={() => void exitInstallVideoPreview()}
-            onRegenerate={() => void installCompilation.regenerate()}
+            onRegenerate={() => {
+              setPreviewSelectedAudio("none");
+              void installCompilation.regenerate();
+            }}
             onPost={() => void publishInstallVideo()}
             onPostAsPhotos={() => void publishAsCarouselFallback()}
             posting={installVideoPosting}
@@ -849,11 +847,9 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         )}
 
         {installVideoEligible && !uploading && (
-          <CreateVideoOptions
+          <CreateVideoStylePicker
             value={videoCompilationOptions}
             onChange={setVideoCompilationOptions}
-            tracks={videoSoundTracks}
-            tracksLoading={videoSoundsLoading}
             disabled={installVideoPosting || pending}
           />
         )}

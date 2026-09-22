@@ -1,15 +1,21 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { VerticalInstallVideo } from "@/components/feed/vertical-install-video";
+import { CreateVideoSoundPicker } from "@/components/feed/create-video-sound-picker";
+import { VideoWithMusicPreview } from "@/components/feed/video-with-music-preview";
+import { useVideoSoundLibrary } from "@/hooks/use-video-sound-library";
 import type { CompilationStatus } from "@/hooks/use-install-video-compilation";
+import type { VideoCompilationAudioSelection } from "@/lib/video-compilation/options";
 
 interface InstallVideoPreviewStageProps {
   status: CompilationStatus;
   videoUrl: string | null;
   posterUrl: string | null;
   error: string | null;
+  selectedAudio: VideoCompilationAudioSelection;
+  onAudioChange: (audio: VideoCompilationAudioSelection) => void;
   onBack: () => void;
   onRegenerate: () => void;
   onPost: () => void;
@@ -18,9 +24,9 @@ interface InstallVideoPreviewStageProps {
 }
 
 const statusLabel: Record<string, string> = {
-  QUEUED: "Preparing your video…",
-  PROCESSING: "Building your vertical video…",
-  READY: "Preview your video",
+  QUEUED: "Building your video…",
+  PROCESSING: "Almost there…",
+  READY: "Add a sound & preview",
   FAILED: "Video generation didn’t work",
 };
 
@@ -29,6 +35,8 @@ export function InstallVideoPreviewStage({
   videoUrl,
   posterUrl,
   error,
+  selectedAudio,
+  onAudioChange,
   onBack,
   onRegenerate,
   onPost,
@@ -36,40 +44,76 @@ export function InstallVideoPreviewStage({
   posting,
 }: InstallVideoPreviewStageProps) {
   const busy = status === "QUEUED" || status === "PROCESSING";
+  const { tracks, loading: tracksLoading } = useVideoSoundLibrary();
+  const [audioReady, setAudioReady] = useState(false);
+  const offeredDefaultSound = useRef(false);
+
+  useEffect(() => {
+    offeredDefaultSound.current = false;
+  }, [videoUrl]);
+
+  useEffect(() => {
+    if (busy || status !== "READY") return;
+    if (tracks.length === 0) {
+      setAudioReady(true);
+      return;
+    }
+    if (selectedAudio !== "none" && !tracks.some((t) => t.id === selectedAudio)) {
+      onAudioChange(tracks[0]!.id);
+    } else if (
+      selectedAudio === "none" &&
+      !offeredDefaultSound.current &&
+      tracks.length > 0
+    ) {
+      offeredDefaultSound.current = true;
+      onAudioChange(tracks[0]!.id);
+    }
+    setAudioReady(true);
+  }, [tracks, busy, status, selectedAudio, onAudioChange]);
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-border bg-card/50 p-4">
-        <p className="text-sm font-medium text-foreground">
-          {statusLabel[status] ?? "Create video"}
-        </p>
+    <div className="space-y-5">
+      <div className="rounded-xl border border-border bg-card/50 px-4 py-3">
+        <p className="text-sm font-medium text-foreground">{statusLabel[status] ?? "Create video"}</p>
         <p className="mt-1 text-xs text-muted">
           {busy
-            ? "Keep this screen open — usually under a minute. You can still go back and change photos."
+            ? "Usually under a minute. You can go back to change photos if you need to."
             : status === "READY"
-              ? "This is how it will look in the feed. Post when you’re happy, or regenerate."
-              : "Your original photos are safe. Try again or post as a normal photo set."}
+              ? "Step 1: watch your clip. Step 2: pick a sound — hear it live. Step 3: post."
+              : "Your photos are safe. Try again or post as a carousel."}
         </p>
       </div>
 
-      <div className="relative min-h-[280px]">
-        {busy && (
-          <div className="flex aspect-[9/16] max-w-md flex-col items-center justify-center gap-3 rounded-2xl bg-gray-900/90 text-white mx-auto">
-            <Loader2 className="h-10 w-10 animate-spin" />
-            <p className="text-sm font-medium">{status === "QUEUED" ? "Uploading finished — starting…" : "Generating…"}</p>
-          </div>
-        )}
+      {busy && (
+        <div className="flex aspect-[9/16] max-w-md flex-col items-center justify-center gap-3 rounded-2xl bg-gray-900/90 text-white mx-auto">
+          <Loader2 className="h-10 w-10 animate-spin" />
+          <p className="text-sm font-medium">{status === "QUEUED" ? "Starting…" : "Generating…"}</p>
+        </div>
+      )}
 
-        {!busy && status === "READY" && videoUrl && (
-          <VerticalInstallVideo url={videoUrl} posterUrl={posterUrl} />
-        )}
+      {!busy && status === "READY" && videoUrl && (
+        <>
+          <VideoWithMusicPreview
+            videoUrl={videoUrl}
+            posterUrl={posterUrl}
+            audioId={selectedAudio}
+            tracks={tracks}
+          />
+          <CreateVideoSoundPicker
+            value={selectedAudio}
+            onChange={onAudioChange}
+            tracks={tracks}
+            loading={tracksLoading}
+            disabled={posting}
+          />
+        </>
+      )}
 
-        {!busy && status === "FAILED" && (
-          <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-            {error ?? "Something went wrong. Your photos are still saved."}
-          </div>
-        )}
-      </div>
+      {!busy && status === "FAILED" && (
+        <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+          {error ?? "Something went wrong. Your photos are still saved."}
+        </div>
+      )}
 
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <Button type="button" variant="outline" onClick={onBack} disabled={posting}>
@@ -87,11 +131,11 @@ export function InstallVideoPreviewStage({
         )}
         <Button
           type="button"
-          className="sm:ml-auto"
+          className="sm:ml-auto min-h-11"
           onClick={onPost}
-          disabled={posting || status !== "READY"}
+          disabled={posting || status !== "READY" || !audioReady}
         >
-          {posting ? "Posting…" : "Post video"}
+          {posting ? "Posting…" : "Post to feed"}
         </Button>
       </div>
     </div>
