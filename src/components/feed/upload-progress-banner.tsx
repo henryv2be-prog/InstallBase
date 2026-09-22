@@ -40,7 +40,7 @@ export function UploadProgressBanner() {
 
   return (
     <Link
-      href="/feed"
+      href="/feed/watch"
       className={cn(
         "fixed left-3 right-3 z-40 mx-auto max-w-lg rounded-2xl border border-border bg-card/95 p-3 shadow-lg backdrop-blur-xl",
         "bottom-[calc(var(--app-mobile-nav-reserve)+env(safe-area-inset-bottom))] md:bottom-6 md:left-auto md:right-6"
