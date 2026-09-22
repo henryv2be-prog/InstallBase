@@ -361,6 +361,7 @@ model Post {
   generatedVideoUrl      String?
   generatedVideoPosterUrl String?
   videoCompilationError  String?
+  videoCompilationOptions Json?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 

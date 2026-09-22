@@ -37,7 +37,12 @@ import {
 } from "@/components/feed/work-details-fields";
 import { shouldAutoCompileInstallVideo } from "@/lib/video-compilation/eligibility";
 import { InstallVideoPreviewStage } from "@/components/feed/install-video-preview-stage";
+import { CreateVideoOptions } from "@/components/feed/create-video-options";
 import { useInstallVideoCompilation } from "@/hooks/use-install-video-compilation";
+import {
+  DEFAULT_VIDEO_COMPILATION_OPTIONS,
+  type VideoCompilationOptions,
+} from "@/lib/video-compilation/options";
 
 const DRAFT_KEY = "ib-create-draft-v4";
 
@@ -187,6 +192,9 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
   const [installVideoStep, setInstallVideoStep] = useState<"compose" | "preview">("compose");
   const [installVideoPostId, setInstallVideoPostId] = useState<string | null>(null);
   const [installVideoPosting, setInstallVideoPosting] = useState(false);
+  const [videoCompilationOptions, setVideoCompilationOptions] = useState<VideoCompilationOptions>(
+    () => ({ ...DEFAULT_VIDEO_COMPILATION_OPTIONS })
+  );
   const installCompilation = useInstallVideoCompilation(installVideoPostId);
   const editMediaRef = useRef(editMedia);
   editMediaRef.current = editMedia;
@@ -313,6 +321,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
             order,
           })),
           draft: buildInstallVideoDraftPayload(),
+          compilationOptions: videoCompilationOptions,
         }),
       });
       const data = (await response.json()) as { postId?: string; error?: string };
@@ -322,7 +331,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
       }
       setInstallVideoPostId(data.postId);
       setInstallVideoStep("preview");
-      toast.success("Building your install video…");
+      toast.success("Building your video…");
     } catch {
       toast.error("Could not start video generation");
     } finally {
@@ -663,7 +672,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
           {isEditing
             ? "Edit your post"
             : installVideoStep === "preview"
-              ? "Preview install video"
+              ? "Preview your video"
               : "What's happening on your install?"}
         </h2>
 
@@ -827,10 +836,18 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
           />
         )}
 
+        {installVideoEligible && !uploading && (
+          <CreateVideoOptions
+            value={videoCompilationOptions}
+            onChange={setVideoCompilationOptions}
+            disabled={installVideoPosting || pending}
+          />
+        )}
+
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">
             {installVideoEligible && !uploading
-              ? "Post as photos, or tap Install video to build a vertical clip first."
+              ? "Post as photos, or tap Create video to build a vertical clip first."
               : postQueued && uploading
                 ? "Uploads running — we'll publish as soon as they finish."
                 : uploading
@@ -848,7 +865,7 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
                 disabled={!canPost || installVideoPosting || pending}
                 className="min-h-11 min-w-28 touch-manipulation"
               >
-                {installVideoPosting ? "Starting…" : "Install video"}
+                {installVideoPosting ? "Starting…" : "Create video"}
               </Button>
             )}
             <Button

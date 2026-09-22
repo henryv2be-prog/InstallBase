@@ -18,9 +18,9 @@ interface InstallVideoPreviewStageProps {
 }
 
 const statusLabel: Record<string, string> = {
-  QUEUED: "Preparing your install video…",
+  QUEUED: "Preparing your video…",
   PROCESSING: "Building your vertical video…",
-  READY: "Preview your install video",
+  READY: "Preview your video",
   FAILED: "Video generation didn’t work",
 };
 
@@ -41,7 +41,7 @@ export function InstallVideoPreviewStage({
     <div className="space-y-4">
       <div className="rounded-xl border border-border bg-card/50 p-4">
         <p className="text-sm font-medium text-foreground">
-          {statusLabel[status] ?? "Install video"}
+          {statusLabel[status] ?? "Create video"}
         </p>
         <p className="mt-1 text-xs text-muted">
           {busy
@@ -91,7 +91,7 @@ export function InstallVideoPreviewStage({
           onClick={onPost}
           disabled={posting || status !== "READY"}
         >
-          {posting ? "Posting…" : "Post install video"}
+          {posting ? "Posting…" : "Post video"}
         </Button>
       </div>
     </div>
