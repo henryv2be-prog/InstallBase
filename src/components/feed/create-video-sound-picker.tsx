@@ -75,9 +75,8 @@ export function CreateVideoSoundPicker({ value, onChange, disabled }: CreateVide
         {ORDER.map((id) => {
           const active = value === id;
           const isNone = id === "none";
-          const meta = isNone ? VIDEO_COMPILATION_AUDIO.none : VIDEO_SOUND_TRACKS[id];
-          const label = isNone ? meta.label : meta.label;
-          const tag = isNone ? "Silent" : meta.tag;
+          const label = isNone ? VIDEO_COMPILATION_AUDIO.none.label : VIDEO_SOUND_TRACKS[id].label;
+          const tag = isNone ? "Silent" : VIDEO_SOUND_TRACKS[id].tag;
           const isPlaying = previewing === id;
 
           return (
