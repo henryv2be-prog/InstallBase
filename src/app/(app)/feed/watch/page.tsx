@@ -83,17 +83,14 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
             next="/feed/watch?tab=following"
           />
         ) : (
-          <>
-            <AdSlot placement={AD_PLACEMENTS.FEED_TOP} className="mb-2 px-3 lg:px-0" />
-            <ImmersiveFeedWithAds
-              initialPosts={posts}
-              initialCursor={nextCursor}
-              initialHasMore={hasMore}
-              tab={followingTab ? "following" : "popular"}
-              currentUserId={userId}
-              followingIds={followingSet}
-            />
-          </>
+          <ImmersiveFeedWithAds
+            initialPosts={posts}
+            initialCursor={nextCursor}
+            initialHasMore={hasMore}
+            tab={followingTab ? "following" : "popular"}
+            currentUserId={userId}
+            followingIds={followingSet}
+          />
         )}
       </div>
 
