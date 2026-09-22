@@ -13,7 +13,8 @@ export function CreateFlowViewport({
   return (
     <div
       className={cn(
-        "create-flow-root flex max-h-[var(--create-flow-h)] min-h-0 w-full flex-col overflow-hidden",
+        "create-flow-root flex min-h-0 w-full flex-col overflow-hidden",
+        "max-md:flex-1 md:max-h-[var(--create-flow-h)] md:h-[var(--create-flow-h)]",
         className
       )}
     >

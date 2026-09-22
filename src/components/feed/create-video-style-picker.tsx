@@ -84,7 +84,7 @@ export function CreateVideoStylePicker({
 
   if (compact) {
     return (
-      <div className="mb-0 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card/30 p-2">
+      <div className="mb-0 max-h-[min(11.5rem,28vh)] shrink-0 flex flex-col overflow-hidden rounded-xl border border-border bg-card/30 p-2">
         <div className="flex shrink-0 items-center gap-2">
           <CreateVideoStyleLivePreview
             styleId={value.style}
