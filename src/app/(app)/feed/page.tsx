@@ -46,7 +46,6 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
 
   const followingIds = userId ? await getFollowingIds(userId) : [];
   const platformRoles = userId ? await getUserPlatformRoles(userId) : [];
-  const followingSet = userId ? new Set(followingIds) : undefined;
   const followingTab =
     tab === "following" || (tab !== "popular" && !!userId && followingIds.length > 0);
 
@@ -151,7 +150,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               currentUserId={userId}
               showInlineComments
               feedContext={followingTab ? "following" : "popular"}
-              followingIds={followingSet}
+              followingIds={userId ? followingIds : undefined}
             />
           </>
         )}

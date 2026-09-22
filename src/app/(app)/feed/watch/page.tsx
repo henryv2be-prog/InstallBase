@@ -24,7 +24,6 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
   const userId = session?.user?.id;
 
   const followingIds = userId ? await getFollowingIds(userId) : [];
-  const followingSet = userId ? new Set(followingIds) : undefined;
   const followingTab =
     tab === "following" || (tab !== "popular" && !!userId && followingIds.length > 0);
 
@@ -87,7 +86,7 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
             initialHasMore={hasMore}
             tab={followingTab ? "following" : "popular"}
             currentUserId={userId}
-            followingIds={followingSet}
+            followingIds={userId ? followingIds : undefined}
           />
         )}
       </div>

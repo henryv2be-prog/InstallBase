@@ -21,7 +21,7 @@ interface ImmersiveFeedWithAdsProps {
   initialHasMore: boolean;
   tab: FeedTab;
   currentUserId?: string;
-  followingIds?: Set<string>;
+  followingIds?: string[];
 }
 
 export async function ImmersiveFeedWithAds(props: ImmersiveFeedWithAdsProps) {

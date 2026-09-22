@@ -631,7 +631,9 @@ export async function toggleFollow(userId: string) {
   }
 
   revalidatePath("/feed");
+  revalidatePath("/feed/watch");
   revalidatePath("/discover");
+  revalidatePath("/discover/watch");
   revalidatePath("/notifications");
   if (target.profile?.username) {
     revalidatePath(`/profile/${target.profile.username}`);

@@ -35,7 +35,7 @@ interface ImmersiveFeedProps {
   initialHasMore: boolean;
   tab: FeedTab;
   currentUserId?: string;
-  followingIds?: Set<string>;
+  followingIds?: string[];
   slideHeightClass?: string;
   betweenAds?: AdCreative[];
   betweenAdsPlacementKey?: string;

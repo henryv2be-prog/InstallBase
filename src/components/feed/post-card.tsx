@@ -34,7 +34,7 @@ interface PostCardProps {
   /** Compact mode tones down brag chrome — used on leaderboard lists. */
   bragPresentation?: "default" | "compact";
   feedContext?: "following" | "popular";
-  followingIds?: Set<string>;
+  followingIds?: string[];
   /** Off-screen feed cards skip heavy paint until scrolled near. */
   deferHeavyContent?: boolean;
 }
@@ -306,7 +306,7 @@ export function PostFeed({
   showInlineComments?: boolean;
   bragPresentation?: "default" | "compact";
   feedContext?: "following" | "popular";
-  followingIds?: Set<string>;
+  followingIds?: string[];
   emptyTitle?: string;
   emptyDescription?: string;
   emptyAction?: { label: string; href: string };

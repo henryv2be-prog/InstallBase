@@ -14,11 +14,12 @@ import { getPostIntentLabel, getPostTradeGroupLabel, shouldShowPostLocation } fr
 import { promptJoin } from "@/components/auth/guest-cta";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { isFollowingUser } from "@/lib/following-ids";
 
 interface ImmersiveSlideOverlayProps {
   post: PostCardData;
   currentUserId?: string;
-  followingIds?: Set<string>;
+  followingIds?: string[];
 }
 
 export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: ImmersiveSlideOverlayProps) {
@@ -105,7 +106,7 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
           <FollowButton
             userId={post.authorId}
             currentUserId={currentUserId}
-            initialFollowing={followingIds?.has(post.authorId)}
+            initialFollowing={isFollowingUser(followingIds, post.authorId)}
             targetName={post.author.name?.split(" ")[0]}
           />
         </div>

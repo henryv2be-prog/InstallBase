@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSession } from "@/lib/session";
-import { getTrendingFeedPage } from "@/lib/queries";
+import { getFollowingIds, getTrendingFeedPage } from "@/lib/queries";
 import { ImmersiveFeedWithAds } from "@/components/feed/immersive/immersive-feed-with-ads";
 import { classicExploreHref } from "@/lib/discover-routes";
 
@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function DiscoverWatchPage() {
   const session = await getSession();
   const userId = session?.user?.id;
+  const followingIds = userId ? await getFollowingIds(userId) : [];
   const { posts, nextCursor, hasMore } = await getTrendingFeedPage(userId);
   const classicHref = classicExploreHref("trending");
 
@@ -32,6 +33,7 @@ export default async function DiscoverWatchPage() {
           initialHasMore={hasMore}
           tab="explore"
           currentUserId={userId}
+          followingIds={userId ? followingIds : undefined}
         />
       </div>
 

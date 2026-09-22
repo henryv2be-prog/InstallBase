@@ -9,7 +9,7 @@ interface ImmersiveSlideProps {
   post: PostCardData;
   active: boolean;
   currentUserId?: string;
-  followingIds?: Set<string>;
+  followingIds?: string[];
   onVisible?: () => void;
   slideHeightClass: string;
 }
