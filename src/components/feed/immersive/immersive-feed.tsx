@@ -10,6 +10,7 @@ import { ImmersiveAdSlide } from "@/components/feed/immersive/immersive-ad-slide
 import { Button } from "@/components/ui/button";
 import type { AdCreative } from "@/lib/advertising/types";
 import { interleaveFeedWithAds } from "@/lib/advertising/interleave-feed-ads";
+import { useImmersiveScrollerHeight } from "@/components/feed/immersive/use-immersive-scroller-height";
 
 /** Apply brag/bookmark viewer fields from a fresh server row without replacing the feed list. */
 function mergePostViewerFields(existing: PostCardData, fresh: PostCardData): PostCardData {
@@ -54,12 +55,13 @@ export function ImmersiveFeed({
   tab,
   currentUserId,
   followingIds,
-  slideHeightClass = "h-[var(--immersive-slide-h,100dvh)]",
+  slideHeightClass = "h-[var(--immersive-slide-h)] min-h-[var(--immersive-slide-h)]",
   betweenAds = [],
   betweenAdsPlacementKey = "feed_between_posts",
   minPostsBetweenAds = 4,
 }: ImmersiveFeedProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  useImmersiveScrollerHeight(scrollerRef);
   const tabRef = useRef(tab);
   const [posts, setPosts] = useState(initialPosts.filter(postHasImmersiveMedia));
   const [cursor, setCursor] = useState(initialCursor);
@@ -158,7 +160,7 @@ export function ImmersiveFeed({
   return (
     <div
       ref={scrollerRef}
-      className="immersive-feed-scroll w-full max-w-full snap-y snap-mandatory overflow-y-auto scroll-smooth max-lg:flex-1 max-lg:min-h-0 lg:h-[var(--immersive-slide-h,100dvh)]"
+      className="immersive-feed-scroll w-full max-w-full snap-y snap-mandatory overflow-y-auto scroll-smooth max-lg:flex-1 max-lg:min-h-0 lg:h-[var(--immersive-slide-h,min(88dvh,900px))]"
     >
       {feedItems.map((item) => {
         const key = feedSlideKey(item);

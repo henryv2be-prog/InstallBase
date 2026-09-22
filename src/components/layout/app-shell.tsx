@@ -350,11 +350,30 @@ export function AppShell({ children, user }: AppShellProps) {
   );
 }
 
+function isViewportLockPath(pathname: string) {
+  return (
+    pathname.startsWith("/feed/watch") ||
+    pathname.startsWith("/discover/watch") ||
+    pathname === "/create" ||
+    /^\/post\/[^/]+\/edit$/.test(pathname)
+  );
+}
+
 /** Chrome shown while the signed-in session is resolving — keeps the PWA from flashing a blank page. */
 export function AppShellFallback({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isViewportLockRoute = isViewportLockPath(pathname);
+  const isAdminRoute = pathname.startsWith("/admin");
+
   return (
-    <div className="relative min-h-dvh tech-bg">
-      <header className="sticky top-0 z-50 border-b border-border bg-card/70 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+    <div
+      className={cn(
+        "relative min-h-dvh tech-bg",
+        !isAdminRoute && "app-shell-mobile-new-look",
+        isViewportLockRoute && "app-shell-viewport-lock"
+      )}
+    >
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[rgba(8,12,22,0.55)] pt-[env(safe-area-inset-top)] backdrop-blur-xl max-md:border-white/10 md:border-border md:bg-card/70">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:h-16 sm:px-4 lg:px-6">
           <Link href="/feed/watch" className="min-w-0 shrink">
             <Logo size="md" />
@@ -382,12 +401,21 @@ export function AppShellFallback({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:px-4 lg:px-6 md:pb-8 md:pt-6">
-        {children}
+      <main
+        className={cn(
+          "relative z-10 mx-auto max-w-7xl md:pt-6",
+          isViewportLockRoute
+            ? "mx-0 w-full max-w-none px-0 pt-0 md:pb-8"
+            : "px-3 pt-4 sm:px-4 lg:px-6 max-md:pb-[var(--app-mobile-bottom-clearance)] md:pb-8"
+        )}
+      >
+        <div className={cn(isViewportLockRoute && "app-main-slot flex min-h-0 flex-1 flex-col")}>
+          {children}
+        </div>
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
-        <div className="flex items-center justify-around px-1 py-1.5">
+      <nav className="pointer-events-none fixed bottom-0 left-0 right-0 z-[60] border-0 bg-transparent px-3 pb-[var(--app-mobile-nav-watch-edge)] md:hidden">
+        <div className="mobile-nav-glass-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5">
           {memberMobileNav.map((item) => {
             if (item.highlight) {
               return (
