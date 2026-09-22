@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import type { PostCardData } from "@/lib/queries";
-import { FEED_MAX_LOADED_POSTS } from "@/lib/feed-pagination";
+import { FEED_MAX_LOADED_POSTS, type FeedTab } from "@/lib/feed-pagination";
 import { postHasImmersiveMedia } from "@/lib/immersive-feed-media";
 import { ImmersiveSlide } from "@/components/feed/immersive/immersive-slide";
 import { ImmersiveAdSlide } from "@/components/feed/immersive/immersive-ad-slide";
@@ -33,7 +33,7 @@ interface ImmersiveFeedProps {
   initialPosts: PostCardData[];
   initialCursor: string | null;
   initialHasMore: boolean;
-  tab: "popular" | "following";
+  tab: FeedTab;
   currentUserId?: string;
   followingIds?: Set<string>;
   slideHeightClass?: string;
@@ -158,7 +158,7 @@ export function ImmersiveFeed({
   return (
     <div
       ref={scrollerRef}
-      className="immersive-feed-scroll snap-y snap-mandatory overflow-y-auto overscroll-y-contain scroll-smooth"
+      className="immersive-feed-scroll w-full max-w-full snap-y snap-mandatory overflow-y-auto scroll-smooth"
       style={{ height: "var(--immersive-slide-h, 100dvh)" }}
     >
       {feedItems.map((item) => {

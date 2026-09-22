@@ -1,16 +1,29 @@
 import { NextResponse } from "next/server";
 import { decodeFeedCursor } from "@/lib/feed-pagination";
-import { getFollowingFeedPage, getPopularFeedPage } from "@/lib/queries";
+import {
+  getFollowingFeedPage,
+  getPopularFeedPage,
+  getTrendingFeedPage,
+} from "@/lib/queries";
 import { getSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const tab = searchParams.get("tab") === "following" ? "following" : "popular";
+  const tabParam = searchParams.get("tab");
+  const tab =
+    tabParam === "following" ? "following" : tabParam === "explore" ? "explore" : "popular";
   const cursor = decodeFeedCursor(searchParams.get("cursor"));
   const session = await getSession();
   const userId = session?.user?.id;
+
+  if (tab === "explore") {
+    const page = await getTrendingFeedPage(userId, undefined, cursor);
+    return NextResponse.json(page, {
+      headers: { "Cache-Control": "private, no-cache" },
+    });
+  }
 
   if (tab === "following") {
     if (!userId) {

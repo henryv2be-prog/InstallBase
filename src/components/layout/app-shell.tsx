@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -23,12 +24,12 @@ import { getInitials } from "@/lib/utils";
 
 const desktopNav = [
   { href: "/feed/watch", label: "Home", icon: Home },
-  { href: "/discover", label: "Explore", icon: Compass },
+  { href: "/discover/watch", label: "Explore", icon: Compass },
 ];
 
 const memberMobileNav = [
   { href: "/feed/watch", label: "Home", icon: Home },
-  { href: "/discover", label: "Explore", icon: Compass },
+  { href: "/discover/watch", label: "Explore", icon: Compass },
   { href: "/create", label: "Create", icon: Plus, highlight: true },
   { href: "/activity", label: "Activity", icon: Bell, badge: true },
   { href: "/profile", label: "Profile", icon: null },
@@ -36,7 +37,7 @@ const memberMobileNav = [
 
 const guestMobileNav = [
   { href: "/feed/watch", label: "Home", icon: Home },
-  { href: "/discover", label: "Explore", icon: Compass },
+  { href: "/discover/watch", label: "Explore", icon: Compass },
   { href: "/signup", label: "Join", icon: Plus, highlight: true },
   { href: "/login", label: "Log in", icon: null },
 ];
@@ -56,7 +57,8 @@ export function AppShell({ children, user }: AppShellProps) {
   const signedIn = Boolean(user);
   const isAdmin = user?.role === "ADMIN";
   const isAdminRoute = pathname.startsWith("/admin");
-  const isImmersiveWatch = pathname.startsWith("/feed/watch");
+  const isImmersiveRoute =
+    pathname.startsWith("/feed/watch") || pathname.startsWith("/discover/watch");
   const isClassicFeed = pathname === "/feed" || pathname.startsWith("/feed?");
   /** Glass floating nav on all mobile app routes (New look chrome). */
   const glassMobileNav = !isAdminRoute;
@@ -67,8 +69,28 @@ export function AppShell({ children, user }: AppShellProps) {
     isClassicFeed ||
     pathname === "/feed";
 
+  useEffect(() => {
+    if (!isImmersiveRoute) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.overflow;
+    const prevBody = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = prevHtml;
+      body.style.overflow = prevBody;
+    };
+  }, [isImmersiveRoute]);
+
   return (
-    <div className={cn("relative min-h-dvh tech-bg", glassMobileNav && "app-shell-mobile-new-look")}>
+    <div
+      className={cn(
+        "relative min-h-dvh tech-bg",
+        glassMobileNav && "app-shell-mobile-new-look",
+        isImmersiveRoute && "app-shell-immersive"
+      )}
+    >
       <header
         className={cn(
           "sticky top-0 z-50 border-b pt-[env(safe-area-inset-top)] backdrop-blur-xl",
@@ -168,7 +190,7 @@ export function AppShell({ children, user }: AppShellProps) {
             )}
           </div>
         </div>
-        {!signedIn && (
+        {!signedIn && !isImmersiveRoute && (
           <div className="border-t border-blue-500/15 bg-blue-500/10 px-3 py-2 text-center text-xs sm:text-sm">
             <span className="text-foreground/80">Browsing as a guest. Join to post, follow, and message.</span>
             <Link href="/signup" className="ml-2 font-semibold text-blue-600 dark:text-cyan-400">Join free</Link>
@@ -181,17 +203,17 @@ export function AppShell({ children, user }: AppShellProps) {
       <main
         className={cn(
           "relative z-10 mx-auto max-w-7xl md:pt-6",
-          isImmersiveWatch ? "max-w-none px-0 pt-0" : "px-3 pt-4 sm:px-4 lg:px-6",
+          isImmersiveRoute ? "max-w-none px-0 pt-0" : "px-3 pt-4 sm:px-4 lg:px-6",
           isAdminRoute
             ? "pb-6 md:pb-8"
             : glassMobileNav
-              ? isImmersiveWatch
+              ? isImmersiveRoute
                 ? "max-md:pb-0 md:pb-8"
                 : "pb-[calc(var(--app-mobile-nav-watch-total)+0.75rem+env(safe-area-inset-bottom))] md:pb-8"
               : "pb-[calc(var(--app-mobile-nav-reserve)+0.75rem+env(safe-area-inset-bottom))] md:pb-8"
         )}
       >
-        <div className={cn(!isImmersiveWatch && !isAdminRoute && "mobile-app-page-inner md:contents")}>
+        <div className={cn(!isImmersiveRoute && !isAdminRoute && "mobile-app-page-inner md:contents")}>
           {children}
         </div>
       </main>

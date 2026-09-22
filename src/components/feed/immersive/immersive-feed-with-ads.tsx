@@ -5,6 +5,7 @@ import { getTargetingContext } from "@/lib/advertising/context";
 import { getAdSettings } from "@/lib/advertising/settings";
 import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 import type { PostCardData } from "@/lib/queries";
+import type { FeedTab } from "@/lib/feed-pagination";
 import { ImmersiveFeed } from "@/components/feed/immersive/immersive-feed";
 
 function detectDevice(userAgent: string): "mobile" | "desktop" | "tablet" {
@@ -18,7 +19,7 @@ interface ImmersiveFeedWithAdsProps {
   initialPosts: PostCardData[];
   initialCursor: string | null;
   initialHasMore: boolean;
-  tab: "popular" | "following";
+  tab: FeedTab;
   currentUserId?: string;
   followingIds?: Set<string>;
 }

@@ -67,7 +67,7 @@ export function ImmersiveInstallPhoto({
           isLandscape || orientation === "unknown"
             ? cn(
                 "object-contain",
-                panorama && active && "immersive-panorama-pan"
+                panorama && active && "immersive-panorama-pan max-w-none will-change-transform"
               )
             : cn(
                 "object-cover transition-transform duration-[3800ms] ease-out",

@@ -26,17 +26,28 @@ import { LeaderboardPanel } from "@/components/discover/leaderboard-panel";
 import { EmptyState } from "@/components/ui/empty-state";
 import { AdSlot } from "@/components/ads/ad-slot";
 import { AD_PLACEMENTS } from "@/lib/advertising/placements";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { isMobileUserAgent } from "@/lib/feed-routes";
 
 export const metadata = { title: "Explore" };
 export const dynamic = "force-dynamic";
 
 interface DiscoverPageProps {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; view?: string }>;
 }
 
 export default async function DiscoverPage({ searchParams }: DiscoverPageProps) {
   const session = await getSession();
-  const { tab = "trending" } = await searchParams;
+  const { tab = "trending", view } = await searchParams;
+
+  const isTrendingTab = tab === "trending" || !tab;
+  if (view !== "classic" && isTrendingTab) {
+    const ua = (await headers()).get("user-agent") ?? "";
+    if (isMobileUserAgent(ua)) {
+      redirect("/discover/watch");
+    }
+  }
   const userId = session?.user?.id;
 
   const isTrending = tab === "trending" || !tab;
