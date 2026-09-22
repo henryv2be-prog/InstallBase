@@ -291,6 +291,39 @@ body {
   }
 }
 
+/* Create / edit post — one screen per step, no document scroll on mobile */
+.create-flow-root {
+  --create-flow-h: calc(
+    100dvh - var(--app-header-h) - env(safe-area-inset-top) - var(--app-mobile-nav-watch-total) - 0.5rem
+  );
+}
+
+@media (min-width: 768px) {
+  .create-flow-root {
+    --create-flow-h: calc(100dvh - var(--app-header-h) - env(safe-area-inset-top) - 2rem);
+  }
+}
+
+@media (max-width: 1023px) {
+  .app-shell-create {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-shell-create > header {
+    flex-shrink: 0;
+  }
+
+  .app-shell-create > main {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
 @media (max-width: 1023px) {
   .immersive-feed-root {
     /* One offset only — sit post meta/actions just above the floating dock */

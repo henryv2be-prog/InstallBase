@@ -13,6 +13,8 @@ interface VideoWithMusicPreviewProps {
   audioId: VideoCompilationAudioSelection;
   tracks: VideoSoundTrackClient[];
   className?: string;
+  /** Fill remaining create-flow height instead of fixed 9:16 block. */
+  fillAvailable?: boolean;
 }
 
 export function VideoWithMusicPreview({
@@ -21,6 +23,7 @@ export function VideoWithMusicPreview({
   audioId,
   tracks,
   className,
+  fillAvailable,
 }: VideoWithMusicPreviewProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -101,8 +104,19 @@ export function VideoWithMusicPreview({
   }, [audioSrc, playBoth, pauseBoth]);
 
   return (
-    <div className={cn("relative mx-auto w-full max-w-md", className)}>
-      <div className="relative aspect-[9/16] overflow-hidden rounded-2xl bg-black shadow-lg ring-1 ring-border/50">
+    <div
+      className={cn(
+        "relative mx-auto w-full max-w-md",
+        fillAvailable && "flex min-h-0 flex-1 flex-col",
+        className
+      )}
+    >
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-2xl bg-black shadow-lg ring-1 ring-border/50",
+          fillAvailable ? "min-h-0 flex-1" : "aspect-[9/16]"
+        )}
+      >
         <video
           ref={videoRef}
           key={videoUrl}
@@ -153,9 +167,11 @@ export function VideoWithMusicPreview({
           {playing ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 pl-0.5" />}
         </button>
       </div>
-      <p className="mt-2 text-center text-xs text-muted">
-        Photos loop while the track plays — same as your posted video. Tap to play or pause.
-      </p>
+      {!fillAvailable && (
+        <p className="mt-2 text-center text-xs text-muted">
+          Photos loop while the track plays — same as your posted video. Tap to play or pause.
+        </p>
+      )}
     </div>
   );
 }

@@ -29,6 +29,7 @@ import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { isMobileUserAgent } from "@/lib/feed-routes";
+import { newLookExploreHref, classicExploreHref } from "@/lib/discover-routes";
 
 export const metadata = { title: "Explore" };
 export const dynamic = "force-dynamic";
@@ -92,6 +93,15 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
       <div>
         <h1 className="text-2xl font-bold">Explore</h1>
         <p className="text-muted">Trending installations, installers, and products</p>
+        {view === "classic" ? (
+          <Link href={newLookExploreHref()} className="mt-2 inline-block text-sm font-semibold text-primary hover:underline">
+            Switch to New look explore →
+          </Link>
+        ) : (
+          <Link href={classicExploreHref(tab)} className="mt-2 inline-block text-sm font-medium text-muted hover:text-foreground">
+            Classic explore grid
+          </Link>
+        )}
       </div>
 
       <Suspense fallback={null}>

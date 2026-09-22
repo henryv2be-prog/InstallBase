@@ -133,6 +133,8 @@ interface CreatePostCardProps {
   userName?: string | null;
   userImage?: string | null;
   compact?: boolean;
+  /** Dedicated /create page — layout fits one viewport without page scroll. */
+  fitViewport?: boolean;
   editPost?: EditPostInitial;
 }
 
@@ -162,7 +164,7 @@ function hasWorkDetails(state: WorkDetailsFormState) {
   );
 }
 
-export function CreatePostCard({ userName, compact, editPost }: CreatePostCardProps) {
+export function CreatePostCard({ userName, compact, fitViewport, editPost }: CreatePostCardProps) {
   const isEditing = Boolean(editPost);
   const globalUpload = useMediaUpload();
   const router = useRouter();
@@ -668,11 +670,183 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
     );
   }
 
+  const mediaGrid = (
+    <div
+      className={cn(
+        fitViewport
+          ? "flex shrink-0 snap-x snap-mandatory gap-2 overflow-x-auto pb-0.5 [-webkit-overflow-scrolling:touch]"
+          : "mb-3 grid grid-cols-3 gap-2 sm:grid-cols-4"
+      )}
+    >
+      {media.map((item, index) => (
+        <div
+          key={item.id}
+          className={cn(
+            "relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800",
+            fitViewport ? "h-[4.25rem] w-[4.25rem] shrink-0 snap-start" : "aspect-square"
+          )}
+        >
+          {item.kind === "video" ? (
+            <video src={item.previewUrl} className="h-full w-full object-cover" muted playsInline />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={item.previewUrl} alt="" className="h-full w-full object-cover" />
+          )}
+          {item.status === "uploading" && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/45 p-1 text-center">
+              <Loader2 className="h-5 w-5 animate-spin text-white" />
+              {typeof item.progress === "number" && item.progress > 0 && (
+                <p className="text-[9px] font-medium text-white">{item.progress}%</p>
+              )}
+            </div>
+          )}
+          {item.status === "error" && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/60 p-1 text-center">
+              <p className="text-[9px] leading-tight text-white">{item.error || "Failed"}</p>
+              <button
+                type="button"
+                className="rounded-full bg-white/20 p-0.5 text-white"
+                onClick={() => retryMedia(item)}
+                aria-label="Retry upload"
+              >
+                <RotateCcw className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+          {!isEditing && installVideoEligible && media.length > 1 && !fitViewport && (
+            <div className="absolute bottom-1 left-1 flex flex-col gap-0.5">
+              <button
+                type="button"
+                disabled={index === 0}
+                onClick={() => globalUpload.moveItem(item.id, "up")}
+                className="rounded-full bg-black/70 p-0.5 text-white disabled:opacity-30"
+                aria-label="Move earlier"
+              >
+                <ChevronUp className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                disabled={index === media.length - 1}
+                onClick={() => globalUpload.moveItem(item.id, "down")}
+                className="rounded-full bg-black/70 p-0.5 text-white disabled:opacity-30"
+                aria-label="Move later"
+              >
+                <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => removeMedia(item.id)}
+            className="absolute right-0.5 top-0.5 rounded-full bg-black/70 p-0.5 text-white"
+            aria-label="Remove photo"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </div>
+      ))}
+      {media.length < MAX_POST_MEDIA && (
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className={cn(
+            "flex flex-col items-center justify-center gap-0.5 rounded-xl border border-dashed border-border bg-card/40 text-muted hover:border-blue-500/50 hover:text-foreground",
+            fitViewport
+              ? "h-[4.25rem] w-[4.25rem] shrink-0 snap-start"
+              : "aspect-square"
+          )}
+        >
+          <ImagePlus className={cn(fitViewport ? "h-5 w-5" : "h-6 w-6")} />
+          {!fitViewport && (
+            <span className="text-[11px] font-medium">{media.length === 0 ? "Add photo or video" : "Add more"}</span>
+          )}
+        </button>
+      )}
+    </div>
+  );
+
+  const actionFooter = (
+    <div
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-2",
+        fitViewport && "shrink-0 border-t border-border/60 pt-2"
+      )}
+    >
+      {!fitViewport && (
+        <p className="text-xs text-muted">
+          {installVideoEligible && !uploading
+            ? "Post as photos, or tap Create video to build a vertical clip first."
+            : postQueued && uploading
+              ? "Uploads running — we'll publish as soon as they finish."
+              : uploading
+                ? "Uploading in the background — keep browsing, or tap Post now."
+                : media.length > 0
+                  ? `${readyUrls.length} of ${media.length} file${media.length === 1 ? "" : "s"} ready`
+                  : "Photos are compressed on your phone. Videos up to 200MB upload over Wi‑Fi when possible."}
+        </p>
+      )}
+      <div
+        className={cn(
+          "flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end",
+          fitViewport && "sm:w-full"
+        )}
+      >
+        {!isEditing && installVideoEligible && (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleCreateInstallVideo}
+            disabled={!canPost || installVideoPosting || pending}
+            className="min-h-11 min-w-28 touch-manipulation"
+          >
+            {installVideoPosting ? "Starting…" : "Create video"}
+          </Button>
+        )}
+        <Button
+          type="button"
+          onClick={handleSubmit}
+          disabled={!canPost || installVideoPosting}
+          className="min-h-11 min-w-28 touch-manipulation"
+        >
+          {pending
+            ? isEditing
+              ? "Saving..."
+              : "Posting..."
+            : postQueued && uploading
+              ? "Publishing soon..."
+              : uploading
+                ? "Post anyway"
+                : isEditing
+                  ? "Save changes"
+                  : installVideoEligible
+                    ? "Post photos"
+                    : "Post"}
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
-    <Card className="glass-card">
+    <Card
+      className={cn(
+        "glass-card",
+        fitViewport && "flex h-full max-h-full min-h-0 flex-col overflow-hidden"
+      )}
+    >
       {fileInput}
-      <CardContent className={cn("p-5", compact && "pt-5")}>
-        <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">
+      <CardContent
+        className={cn(
+          "p-5",
+          compact && "pt-5",
+          fitViewport && "flex min-h-0 flex-1 flex-col gap-2 overflow-hidden p-3 sm:p-4"
+        )}
+      >
+        <h2
+          className={cn(
+            "mb-3 font-semibold text-gray-900 dark:text-white",
+            fitViewport && "mb-0 shrink-0 text-base leading-snug"
+          )}
+        >
           {isEditing
             ? "Edit your post"
             : installVideoStep === "preview"
@@ -681,36 +855,38 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         </h2>
 
         {installVideoStep === "preview" && !isEditing ? (
-          <>
-          <Textarea
-            placeholder="Add a caption for your install…"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={2}
-            className="mb-3"
-          />
-          <InstallVideoPreviewStage
-            key={installVideoPostId ?? "preview"}
-            status={installCompilation.status}
-            videoUrl={installCompilation.videoUrl}
-            posterUrl={installCompilation.posterUrl}
-            error={installCompilation.error}
-            selectedAudio={previewSelectedAudio}
-            onAudioChange={setPreviewSelectedAudio}
-            onBack={() => void exitInstallVideoPreview()}
-            onRegenerate={() => {
-              setPreviewSelectedAudio("none");
-              void installCompilation.regenerate();
-            }}
-            onPost={() => void publishInstallVideo()}
-            onPostAsPhotos={() => void publishAsCarouselFallback()}
-            posting={installVideoPosting}
-          />
-          </>
+          <div className={cn(fitViewport && "flex min-h-0 flex-1 flex-col overflow-hidden")}>
+            <Textarea
+              placeholder="Add a caption for your install…"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={fitViewport ? 1 : 2}
+              className={cn(fitViewport ? "mb-1 shrink-0 min-h-9 py-2 text-sm" : "mb-3")}
+            />
+            <InstallVideoPreviewStage
+              key={installVideoPostId ?? "preview"}
+              fitViewport={fitViewport}
+              status={installCompilation.status}
+              videoUrl={installCompilation.videoUrl}
+              posterUrl={installCompilation.posterUrl}
+              error={installCompilation.error}
+              selectedAudio={previewSelectedAudio}
+              onAudioChange={setPreviewSelectedAudio}
+              onBack={() => void exitInstallVideoPreview()}
+              onRegenerate={() => {
+                setPreviewSelectedAudio("none");
+                void installCompilation.regenerate();
+              }}
+              onPost={() => void publishInstallVideo()}
+              onPostAsPhotos={() => void publishAsCarouselFallback()}
+              posting={installVideoPosting}
+            />
+          </div>
         ) : (
           <>
+        <div className={cn(fitViewport && "flex min-h-0 flex-1 flex-col gap-2 overflow-hidden")}>
         {!isEditing && (
-        <div className="mb-3 flex flex-wrap items-center gap-2">
+        <div className={cn("flex flex-wrap items-center gap-1.5", fitViewport ? "shrink-0" : "mb-3 gap-2")}>
           <Button
             type="button"
             variant={type === "POST" || type === "VIDEO" ? "secondary" : "ghost"}
@@ -743,89 +919,14 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         </div>
         )}
 
-        <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {media.map((item, index) => (
-            <div
-              key={item.id}
-              className="relative aspect-square overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800"
-            >
-              {item.kind === "video" ? (
-                <video src={item.previewUrl} className="h-full w-full object-cover" muted playsInline />
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.previewUrl} alt="" className="h-full w-full object-cover" />
-              )}
-              {item.status === "uploading" && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/45 p-2 text-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-white" />
-                  {typeof item.progress === "number" && item.progress > 0 && (
-                    <p className="text-[10px] font-medium text-white">{item.progress}%</p>
-                  )}
-                </div>
-              )}
-              {item.status === "error" && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/60 p-2 text-center">
-                  <p className="text-[10px] leading-tight text-white">{item.error || "Failed"}</p>
-                  <button
-                    type="button"
-                    className="rounded-full bg-white/20 p-1 text-white"
-                    onClick={() => retryMedia(item)}
-                    aria-label="Retry upload"
-                  >
-                    <RotateCcw className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              )}
-              {!isEditing && installVideoEligible && media.length > 1 && (
-                <div className="absolute bottom-1 left-1 flex flex-col gap-0.5">
-                  <button
-                    type="button"
-                    disabled={index === 0}
-                    onClick={() => globalUpload.moveItem(item.id, "up")}
-                    className="rounded-full bg-black/70 p-0.5 text-white disabled:opacity-30"
-                    aria-label="Move earlier"
-                  >
-                    <ChevronUp className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    disabled={index === media.length - 1}
-                    onClick={() => globalUpload.moveItem(item.id, "down")}
-                    className="rounded-full bg-black/70 p-0.5 text-white disabled:opacity-30"
-                    aria-label="Move later"
-                  >
-                    <ChevronDown className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => removeMedia(item.id)}
-                className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white"
-                aria-label="Remove photo"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))}
-          {media.length < MAX_POST_MEDIA && (
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border bg-card/40 text-muted hover:border-blue-500/50 hover:text-foreground"
-            >
-              <ImagePlus className="h-6 w-6" />
-              <span className="text-[11px] font-medium">{media.length === 0 ? "Add photo or video" : "Add more"}</span>
-            </button>
-          )}
-        </div>
+        {mediaGrid}
 
         <Textarea
           placeholder="Add a caption (optional if you added photos)..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          rows={3}
-          className="mb-3"
+          rows={fitViewport ? 2 : 3}
+          className={cn(fitViewport ? "shrink-0 py-2 text-sm" : "mb-3")}
         />
         {(type === "QUESTION" || type === "PROJECT") && (
           <Input
@@ -837,17 +938,24 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
         )}
 
         {(type === "PROJECT" || type === "POST" || type === "VIDEO") && (
-          <WorkDetailsFields
-            open={showWorkDetails}
-            onToggle={() => setShowWorkDetails((value) => !value)}
-            state={work}
-            onChange={(patch) => setWork((prev) => ({ ...prev, ...patch }))}
-            showIntentPicker={type !== "PROJECT"}
-          />
+          <div
+            className={cn(
+              fitViewport && showWorkDetails && "min-h-0 max-h-[38%] flex-1 overflow-y-auto overscroll-contain"
+            )}
+          >
+            <WorkDetailsFields
+              open={showWorkDetails}
+              onToggle={() => setShowWorkDetails((value) => !value)}
+              state={work}
+              onChange={(patch) => setWork((prev) => ({ ...prev, ...patch }))}
+              showIntentPicker={type !== "PROJECT"}
+            />
+          </div>
         )}
 
         {installVideoEligible && !uploading && (
           <CreateVideoStylePicker
+            compact={fitViewport}
             value={videoCompilationOptions}
             onChange={setVideoCompilationOptions}
             previewImageUrls={media
@@ -856,53 +964,9 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
             disabled={installVideoPosting || pending}
           />
         )}
-
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-muted">
-            {installVideoEligible && !uploading
-              ? "Post as photos, or tap Create video to build a vertical clip first."
-              : postQueued && uploading
-                ? "Uploads running — we'll publish as soon as they finish."
-                : uploading
-                  ? "Uploading in the background — keep browsing, or tap Post now."
-                  : media.length > 0
-                    ? `${readyUrls.length} of ${media.length} file${media.length === 1 ? "" : "s"} ready`
-                    : "Photos are compressed on your phone. Videos up to 200MB upload over Wi‑Fi when possible."}
-          </p>
-          <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
-            {!isEditing && installVideoEligible && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleCreateInstallVideo}
-                disabled={!canPost || installVideoPosting || pending}
-                className="min-h-11 min-w-28 touch-manipulation"
-              >
-                {installVideoPosting ? "Starting…" : "Create video"}
-              </Button>
-            )}
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!canPost || installVideoPosting}
-              className="min-h-11 min-w-28 touch-manipulation"
-            >
-              {pending
-                ? isEditing
-                  ? "Saving..."
-                  : "Posting..."
-                : postQueued && uploading
-                  ? "Publishing soon..."
-                  : uploading
-                    ? "Post anyway"
-                    : isEditing
-                      ? "Save changes"
-                      : installVideoEligible
-                        ? "Post photos"
-                        : "Post"}
-            </Button>
-          </div>
         </div>
+
+        {actionFooter}
           </>
         )}
       </CardContent>
