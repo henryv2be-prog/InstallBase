@@ -19,4 +19,9 @@ describe("parseVideoCompilationOptions", () => {
       audio: "none",
     });
   });
+
+  it("maps legacy synthetic audio ids to library tracks", () => {
+    assert.equal(parseVideoCompilationOptions({ audio: "ambient" }).audio, "chill_vlog");
+    assert.equal(parseVideoCompilationOptions({ audio: "pulse" }).audio, "install_hype");
+  });
 });

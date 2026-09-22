@@ -1,19 +1,15 @@
+import fs from "fs";
 import path from "path";
 import { runFfmpeg } from "@/lib/video-compilation/run-ffmpeg";
 import type { VideoCompilationAudioId } from "@/lib/video-compilation/options";
+import { soundtrackRelativeFile } from "@/lib/video-compilation/sound-tracks";
 
-function lavfiForTrack(track: VideoCompilationAudioId, durationSec: number): string {
-  const d = Math.max(1, Math.ceil(durationSec));
-  switch (track) {
-    case "ambient":
-      return `anoisesrc=color=pink:duration=${d}:sample_rate=44100,afade=t=in:st=0:d=1,afade=t=out:st=${Math.max(0, d - 1.5)}:d=1.5,volume=0.08`;
-    case "pulse":
-      return `sine=frequency=92:duration=${d},tremolo=f=1.2:d=0.35,volume=0.12,afade=t=in:st=0:d=0.8,afade=t=out:st=${Math.max(0, d - 1)}:d=1`;
-    case "focus":
-      return `sine=frequency=196:duration=${d},volume=0.06,afade=t=in:st=0:d=1.2,afade=t=out:st=${Math.max(0, d - 2)}:d=2`;
-    default:
-      return `anullsrc=r=44100:cl=stereo:d=${d}`;
-  }
+function resolveSoundtrackFilePath(track: VideoCompilationAudioId): string | null {
+  const file = soundtrackRelativeFile(track);
+  if (!file) return null;
+  const filePath = path.join(process.cwd(), "public", "audio", "video-compilation", file);
+  if (!fs.existsSync(filePath)) return null;
+  return filePath;
 }
 
 export async function muxAudioOntoVideo(
@@ -27,33 +23,34 @@ export async function muxAudioOntoVideo(
     return;
   }
 
-  const audioPath = path.join(path.dirname(videoPath), `audio-${track}.m4a`);
-  await runFfmpeg([
-    "-y",
-    "-f",
-    "lavfi",
-    "-i",
-    lavfiForTrack(track, durationSec),
-    "-c:a",
-    "aac",
-    "-b:a",
-    "128k",
-    audioPath,
-  ]);
+  const soundtrackPath = resolveSoundtrackFilePath(track);
+  if (!soundtrackPath) {
+    throw new Error("That sound track is missing on the server — pick another or post without audio");
+  }
+
+  const duration = Math.max(0.5, durationSec);
+  const fadeOutStart = Math.max(0, duration - 1.5);
 
   await runFfmpeg([
     "-y",
     "-i",
     videoPath,
+    "-stream_loop",
+    "-1",
     "-i",
-    audioPath,
+    soundtrackPath,
+    "-filter_complex",
+    `[1:a]atrim=0:${duration},asetpts=PTS-STARTPTS,volume=0.92,afade=t=in:st=0:d=0.25,afade=t=out:st=${fadeOutStart}:d=1.5[a]`,
+    "-map",
+    "0:v",
+    "-map",
+    "[a]",
     "-c:v",
     "copy",
     "-c:a",
     "aac",
     "-b:a",
-    "128k",
-    "-shortest",
+    "192k",
     "-movflags",
     "+faststart",
     destPath,

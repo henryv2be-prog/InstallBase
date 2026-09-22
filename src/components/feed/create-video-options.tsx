@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  VIDEO_COMPILATION_AUDIO,
   VIDEO_COMPILATION_STYLES,
   type VideoCompilationAudioId,
   type VideoCompilationOptions,
   type VideoCompilationStyleId,
 } from "@/lib/video-compilation/options";
+import { CreateVideoSoundPicker } from "@/components/feed/create-video-sound-picker";
 import { cn } from "@/lib/utils";
 
 interface CreateVideoOptionsProps {
@@ -15,7 +15,7 @@ interface CreateVideoOptionsProps {
   disabled?: boolean;
 }
 
-function OptionChip({
+function StyleChip({
   active,
   label,
   description,
@@ -52,37 +52,21 @@ export function CreateVideoOptions({ value, onChange, disabled }: CreateVideoOpt
   const setAudio = (audio: VideoCompilationAudioId) => onChange({ ...value, audio });
 
   return (
-    <div className="mb-4 space-y-4 rounded-xl border border-border bg-card/30 p-4">
+    <div className="mb-4 space-y-5 rounded-xl border border-border bg-card/30 p-4">
+      <CreateVideoSoundPicker value={value.audio} onChange={setAudio} disabled={disabled} />
+
       <div>
         <p className="text-sm font-semibold text-foreground">Video style</p>
-        <p className="mt-0.5 text-xs text-muted">How your photos are paced and framed in the clip.</p>
+        <p className="mt-0.5 text-xs text-muted">Pacing and motion between your photos.</p>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {(Object.entries(VIDEO_COMPILATION_STYLES) as [VideoCompilationStyleId, (typeof VIDEO_COMPILATION_STYLES)[VideoCompilationStyleId]][]).map(
             ([id, meta]) => (
-              <OptionChip
+              <StyleChip
                 key={id}
                 active={value.style === id}
                 label={meta.label}
                 description={meta.description}
                 onClick={() => setStyle(id)}
-                disabled={disabled}
-              />
-            )
-          )}
-        </div>
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-foreground">Background audio</p>
-        <p className="mt-0.5 text-xs text-muted">Optional subtle soundtrack mixed into the final MP4.</p>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          {(Object.entries(VIDEO_COMPILATION_AUDIO) as [VideoCompilationAudioId, (typeof VIDEO_COMPILATION_AUDIO)[VideoCompilationAudioId]][]).map(
-            ([id, meta]) => (
-              <OptionChip
-                key={id}
-                active={value.audio === id}
-                label={meta.label}
-                description={meta.description}
-                onClick={() => setAudio(id)}
                 disabled={disabled}
               />
             )
