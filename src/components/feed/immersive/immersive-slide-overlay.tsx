@@ -7,7 +7,8 @@ import type { PostCardData } from "@/lib/queries";
 import { PresenceAvatar } from "@/components/presence/presence-avatar";
 import { FollowButton } from "@/components/profile/follow-button";
 import { InlineComments } from "@/components/feed/inline-comments";
-import { toggleMediaBragPoint } from "@/lib/actions";
+import { toggleBookmark, toggleMediaBragPoint } from "@/lib/actions";
+import { PostOptionsMenu } from "@/components/feed/post-options-menu";
 import { isBraggableType } from "@/lib/brag";
 import { mediaForImmersiveDisplay } from "@/lib/immersive-feed-media";
 import { getPostIntentLabel, getPostTradeGroupLabel, shouldShowPostLocation } from "@/lib/work-posts";
@@ -43,6 +44,7 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
   });
 
   const commentCount = post.type === "QUESTION" ? post._count.answers : post._count.comments;
+  const isSaved = currentUserId ? post.bookmarks.some((b) => b.userId === currentUserId) : false;
 
   const handleShare = async () => {
     const url = `${window.location.origin}/post/${post.id}`;
@@ -56,6 +58,25 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
     } catch (error) {
       if ((error as Error).name !== "AbortError") toast.error("Could not share");
     }
+  };
+
+  const handleBookmark = () => {
+    if (!currentUserId) {
+      promptJoin("save posts");
+      return;
+    }
+    startTransition(async () => {
+      try {
+        const result = await toggleBookmark(post.id);
+        if (result.saved) {
+          toast.success("Saved to your profile");
+        } else {
+          toast.success("Removed from saved");
+        }
+      } catch {
+        toast.error("Something went wrong");
+      }
+    });
   };
 
   const handleBrag = () => {
@@ -108,6 +129,16 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
             currentUserId={currentUserId}
             initialFollowing={isFollowingUser(followingIds, post.authorId)}
             targetName={post.author.name?.split(" ")[0]}
+          />
+          <PostOptionsMenu
+            postId={post.id}
+            authorId={post.authorId}
+            currentUserId={currentUserId}
+            isSaved={isSaved}
+            onBookmark={handleBookmark}
+            onShare={() => void handleShare()}
+            triggerClassName="h-10 w-10 shrink-0 p-0 text-white hover:bg-white/15 hover:text-white data-[state=open]:bg-white/15"
+            contentClassName="z-[80]"
           />
         </div>
 
