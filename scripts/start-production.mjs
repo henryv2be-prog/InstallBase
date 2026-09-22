@@ -80,6 +80,18 @@ if (migrate.status !== 0) {
 
 console.log("Migrations complete.");
 
+console.log("\n→ Ensuring active policy versions (terms / privacy consent gate)");
+const policySeed = spawnSync("npx", ["tsx", "prisma/seed-policies-cli.ts"], {
+  stdio: "inherit",
+  shell: true,
+  env: process.env,
+});
+if (policySeed.status !== 0) {
+  console.error("\n❌ Policy version seed failed — acceptance gate requires active policy rows.\n");
+  process.exit(policySeed.status ?? 1);
+}
+console.log("Policy versions OK.");
+
 if (process.env.SEED_DEMO_AD_ONLY === "true" || process.env.SEED_DEMO_AD_ONLY === "1") {
   console.log("\n→ Seeding demo ad campaign (SEED_DEMO_AD_ONLY — safe upsert, no other data touched)");
   const seed = spawnSync("npx", ["tsx", "prisma/seed.ts"], {

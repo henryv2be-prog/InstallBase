@@ -23,9 +23,12 @@ export async function getLatestAcceptancesByUser(userId: string) {
 
 export async function isUserPolicyCompliant(userId: string): Promise<boolean> {
   const active = await getActivePolicyVersions();
-  if (active.length === 0) return true;
   const required = active.filter((v) => REQUIRED_POLICY_TYPES.includes(v.policyType));
-  if (required.length === 0) return true;
+
+  // All five policy types must be active before we enforce acceptance.
+  if (required.length < REQUIRED_POLICY_TYPES.length) {
+    return true;
+  }
 
   const latest = await getLatestAcceptancesByUser(userId);
   return required.every((policy) => {

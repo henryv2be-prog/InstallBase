@@ -31,3 +31,17 @@ if (result.status !== 0) {
 }
 
 console.log("Migrations complete.");
+
+console.log("Ensuring active policy versions...");
+const policySeed = spawnSync("npx", ["tsx", "prisma/seed-policies-cli.ts"], {
+  stdio: "inherit",
+  shell: true,
+  env: process.env,
+});
+
+if (policySeed.status !== 0) {
+  console.error("\n❌ Policy version seed failed.\n");
+  process.exit(policySeed.status ?? 1);
+}
+
+console.log("Policy versions OK.");
