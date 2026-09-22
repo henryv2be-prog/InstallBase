@@ -86,19 +86,18 @@
     width: 100%;
     max-width: 100%;
     overflow-y: auto;
-    --immersive-slide-h: calc(
-      100dvh - var(--app-header-h) - env(safe-area-inset-top, 0px) - var(--immersive-watch-subnav-h) -
-        var(--app-mobile-bottom-clearance)
-    );
+    /* One slide = one scroller viewport (main already clears the glass nav). */
+    --immersive-slide-h: 100%;
   }
 
   .app-shell-viewport-lock .immersive-feed-scroll > .immersive-feed-slide {
     height: var(--immersive-slide-h);
     min-height: var(--immersive-slide-h);
+    box-sizing: border-box;
   }
 
-  .immersive-feed-root {
-    --immersive-overlay-bottom-pad: 0.5rem;
+  .app-shell-viewport-lock .immersive-feed-root {
+    --immersive-overlay-bottom-pad: 0.75rem;
   }
 }
 
