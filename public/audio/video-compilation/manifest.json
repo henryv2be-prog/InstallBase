@@ -1,0 +1,21 @@
+{
+  "tracks": {
+    "down-to-business": {
+      "label": "Down to business",
+      "tag": "Montage",
+      "description": "Hype montage beat — swap this file with a Pixabay download"
+    },
+    "install-hype": {
+      "label": "Install hype",
+      "tag": "Hype"
+    },
+    "chill-vlog": {
+      "label": "Chill vlog",
+      "tag": "Vlog"
+    },
+    "epic-montage": {
+      "label": "Epic montage",
+      "tag": "Epic"
+    }
+  }
+}

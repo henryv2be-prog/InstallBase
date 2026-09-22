@@ -33,69 +33,65 @@ export const VIDEO_COMPILATION_STYLES = {
   },
 } as const;
 
-/** Sound ids map to loopable MP3s in public/audio/video-compilation/ */
-export const VIDEO_COMPILATION_AUDIO = {
-  none: {
-    label: "Original",
-    description: "No music — video only",
-  },
-  down_to_business: {
-    label: "Down to business",
-    description: "Hype montage beat for install timelapses",
-  },
-  install_hype: {
-    label: "Install hype",
-    description: "Fast trap-style energy",
-  },
-  chill_vlog: {
-    label: "Chill vlog",
-    description: "Laid-back background",
-  },
-  epic_montage: {
-    label: "Epic montage",
-    description: "Cinematic build",
-  },
-} as const;
-
 export type VideoCompilationStyleId = keyof typeof VIDEO_COMPILATION_STYLES;
-export type VideoCompilationAudioId = keyof typeof VIDEO_COMPILATION_AUDIO;
+
+/** `none` = silent; otherwise id matches mp3 basename in public/audio/video-compilation/ */
+export type VideoCompilationAudioSelection = "none" | string;
 
 export type VideoCompilationOptions = {
   style: VideoCompilationStyleId;
-  audio: VideoCompilationAudioId;
+  audio: VideoCompilationAudioSelection;
 };
 
 export const DEFAULT_VIDEO_COMPILATION_OPTIONS: VideoCompilationOptions = {
   style: "cinematic",
-  audio: "down_to_business",
+  audio: "none",
 };
 
 const STYLE_IDS = new Set<string>(Object.keys(VIDEO_COMPILATION_STYLES));
-const AUDIO_IDS = new Set<string>(Object.keys(VIDEO_COMPILATION_AUDIO));
 
-/** Older drafts used synthetic lavfi track ids — map to the new library. */
-const LEGACY_AUDIO: Record<string, VideoCompilationAudioId> = {
-  ambient: "chill_vlog",
-  pulse: "install_hype",
-  focus: "epic_montage",
+/** Map old enum ids and synthetic ids to slug filenames. */
+const LEGACY_AUDIO_TO_SLUG: Record<string, string> = {
+  ambient: "chill-vlog",
+  pulse: "install-hype",
+  focus: "epic-montage",
+  down_to_business: "down-to-business",
+  install_hype: "install-hype",
+  chill_vlog: "chill-vlog",
+  epic_montage: "epic-montage",
 };
 
-export function parseVideoCompilationOptions(raw: unknown): VideoCompilationOptions {
+export function parseVideoCompilationOptions(
+  raw: unknown,
+  availableTrackIds?: string[]
+): VideoCompilationOptions {
+  const available = new Set(availableTrackIds ?? []);
+  const defaultAudio =
+    availableTrackIds && availableTrackIds.length > 0
+      ? availableTrackIds[0]!
+      : DEFAULT_VIDEO_COMPILATION_OPTIONS.audio;
+
   if (!raw || typeof raw !== "object") {
-    return { ...DEFAULT_VIDEO_COMPILATION_OPTIONS };
+    return { style: DEFAULT_VIDEO_COMPILATION_OPTIONS.style, audio: defaultAudio };
   }
   const record = raw as Record<string, unknown>;
   const style =
     typeof record.style === "string" && STYLE_IDS.has(record.style)
       ? (record.style as VideoCompilationStyleId)
       : DEFAULT_VIDEO_COMPILATION_OPTIONS.style;
-  let audioRaw = typeof record.audio === "string" ? record.audio : "";
-  if (LEGACY_AUDIO[audioRaw]) {
-    audioRaw = LEGACY_AUDIO[audioRaw];
+
+  let audioRaw = typeof record.audio === "string" ? record.audio.trim() : "";
+  if (LEGACY_AUDIO_TO_SLUG[audioRaw]) {
+    audioRaw = LEGACY_AUDIO_TO_SLUG[audioRaw];
   }
-  const audio =
-    audioRaw && AUDIO_IDS.has(audioRaw)
-      ? (audioRaw as VideoCompilationAudioId)
-      : DEFAULT_VIDEO_COMPILATION_OPTIONS.audio;
-  return { style, audio };
+
+  if (audioRaw === "none") {
+    return { style, audio: "none" };
+  }
+
+  if (audioRaw && (available.size === 0 || available.has(audioRaw))) {
+    return { style, audio: audioRaw };
+  }
+
+  return { style, audio: defaultAudio };
 }

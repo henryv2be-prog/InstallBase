@@ -2,16 +2,19 @@
 
 import {
   VIDEO_COMPILATION_STYLES,
-  type VideoCompilationAudioId,
+  type VideoCompilationAudioSelection,
   type VideoCompilationOptions,
   type VideoCompilationStyleId,
 } from "@/lib/video-compilation/options";
 import { CreateVideoSoundPicker } from "@/components/feed/create-video-sound-picker";
+import type { VideoSoundTrackClient } from "@/lib/video-compilation/sound-tracks";
 import { cn } from "@/lib/utils";
 
 interface CreateVideoOptionsProps {
   value: VideoCompilationOptions;
   onChange: (next: VideoCompilationOptions) => void;
+  tracks: VideoSoundTrackClient[];
+  tracksLoading?: boolean;
   disabled?: boolean;
 }
 
@@ -47,13 +50,25 @@ function StyleChip({
   );
 }
 
-export function CreateVideoOptions({ value, onChange, disabled }: CreateVideoOptionsProps) {
+export function CreateVideoOptions({
+  value,
+  onChange,
+  tracks,
+  tracksLoading,
+  disabled,
+}: CreateVideoOptionsProps) {
   const setStyle = (style: VideoCompilationStyleId) => onChange({ ...value, style });
-  const setAudio = (audio: VideoCompilationAudioId) => onChange({ ...value, audio });
+  const setAudio = (audio: VideoCompilationAudioSelection) => onChange({ ...value, audio });
 
   return (
     <div className="mb-4 space-y-5 rounded-xl border border-border bg-card/30 p-4">
-      <CreateVideoSoundPicker value={value.audio} onChange={setAudio} disabled={disabled} />
+      <CreateVideoSoundPicker
+        value={value.audio}
+        onChange={setAudio}
+        tracks={tracks}
+        loading={tracksLoading}
+        disabled={disabled}
+      />
 
       <div>
         <p className="text-sm font-semibold text-foreground">Video style</p>

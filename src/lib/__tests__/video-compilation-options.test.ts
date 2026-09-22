@@ -6,22 +6,32 @@ import {
 } from "@/lib/video-compilation/options";
 
 describe("parseVideoCompilationOptions", () => {
-  it("returns defaults for invalid input", () => {
+  it("returns defaults for invalid input when library empty", () => {
     assert.deepEqual(parseVideoCompilationOptions(null), DEFAULT_VIDEO_COMPILATION_OPTIONS);
-    assert.deepEqual(parseVideoCompilationOptions({ style: "nope" }), {
-      ...DEFAULT_VIDEO_COMPILATION_OPTIONS,
+  });
+
+  it("defaults audio to first library track when available", () => {
+    assert.deepEqual(parseVideoCompilationOptions(null, ["alpha", "beta"]), {
+      style: "cinematic",
+      audio: "alpha",
     });
   });
 
-  it("accepts valid style and audio", () => {
-    assert.deepEqual(parseVideoCompilationOptions({ style: "quick", audio: "none" }), {
+  it("accepts valid style and audio slug", () => {
+    assert.deepEqual(parseVideoCompilationOptions({ style: "quick", audio: "none" }, ["alpha"]), {
       style: "quick",
       audio: "none",
     });
+    assert.deepEqual(parseVideoCompilationOptions({ style: "quick", audio: "my-beat" }, ["my-beat"]), {
+      style: "quick",
+      audio: "my-beat",
+    });
   });
 
-  it("maps legacy synthetic audio ids to library tracks", () => {
-    assert.equal(parseVideoCompilationOptions({ audio: "ambient" }).audio, "chill_vlog");
-    assert.equal(parseVideoCompilationOptions({ audio: "pulse" }).audio, "install_hype");
+  it("maps legacy enum ids to slug filenames", () => {
+    assert.equal(
+      parseVideoCompilationOptions({ audio: "down_to_business" }, ["down-to-business"]).audio,
+      "down-to-business"
+    );
   });
 });

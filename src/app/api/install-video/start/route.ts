@@ -7,6 +7,7 @@ import {
   type InstallVideoMediaInput,
 } from "@/lib/video-compilation/draft-post";
 import { parseVideoCompilationOptions } from "@/lib/video-compilation/options";
+import { listVideoSoundTracks } from "@/lib/video-compilation/sound-library.server";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -45,7 +46,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const compilationOptions = parseVideoCompilationOptions(body.compilationOptions);
+    const library = await listVideoSoundTracks();
+    const compilationOptions = parseVideoCompilationOptions(
+      body.compilationOptions,
+      library.map((t) => t.id)
+    );
     const { postId } = await upsertInstallVideoDraft(
       session.user.id,
       media,

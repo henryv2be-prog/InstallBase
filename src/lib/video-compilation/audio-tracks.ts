@@ -1,21 +1,14 @@
-import fs from "fs";
-import path from "path";
 import { runFfmpeg } from "@/lib/video-compilation/run-ffmpeg";
-import type { VideoCompilationAudioId } from "@/lib/video-compilation/options";
-import { soundtrackRelativeFile } from "@/lib/video-compilation/sound-tracks";
-
-function resolveSoundtrackFilePath(track: VideoCompilationAudioId): string | null {
-  const file = soundtrackRelativeFile(track);
-  if (!file) return null;
-  const filePath = path.join(process.cwd(), "public", "audio", "video-compilation", file);
-  if (!fs.existsSync(filePath)) return null;
-  return filePath;
-}
+import type { VideoCompilationAudioSelection } from "@/lib/video-compilation/options";
+import {
+  absolutePathForTrack,
+  resolveVideoSoundTrack,
+} from "@/lib/video-compilation/sound-library.server";
 
 export async function muxAudioOntoVideo(
   videoPath: string,
   destPath: string,
-  track: VideoCompilationAudioId,
+  track: VideoCompilationAudioSelection,
   durationSec: number
 ) {
   if (track === "none") {
@@ -23,11 +16,12 @@ export async function muxAudioOntoVideo(
     return;
   }
 
-  const soundtrackPath = resolveSoundtrackFilePath(track);
-  if (!soundtrackPath) {
-    throw new Error("That sound track is missing on the server — pick another or post without audio");
+  const meta = await resolveVideoSoundTrack(track);
+  if (!meta) {
+    throw new Error("That sound is no longer available — pick another or use Original");
   }
 
+  const soundtrackPath = absolutePathForTrack(meta);
   const duration = Math.max(0.5, durationSec);
   const fadeOutStart = Math.max(0, duration - 1.5);
 

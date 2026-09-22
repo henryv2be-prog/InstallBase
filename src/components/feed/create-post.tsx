@@ -39,6 +39,7 @@ import { shouldAutoCompileInstallVideo } from "@/lib/video-compilation/eligibili
 import { InstallVideoPreviewStage } from "@/components/feed/install-video-preview-stage";
 import { CreateVideoOptions } from "@/components/feed/create-video-options";
 import { useInstallVideoCompilation } from "@/hooks/use-install-video-compilation";
+import { useVideoSoundLibrary } from "@/hooks/use-video-sound-library";
 import {
   DEFAULT_VIDEO_COMPILATION_OPTIONS,
   type VideoCompilationOptions,
@@ -196,6 +197,17 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
     () => ({ ...DEFAULT_VIDEO_COMPILATION_OPTIONS })
   );
   const installCompilation = useInstallVideoCompilation(installVideoPostId);
+  const { tracks: videoSoundTracks, loading: videoSoundsLoading } = useVideoSoundLibrary();
+
+  useEffect(() => {
+    if (videoSoundTracks.length === 0) return;
+    setVideoCompilationOptions((prev) => {
+      if (prev.audio !== "none" && videoSoundTracks.some((t) => t.id === prev.audio)) {
+        return prev;
+      }
+      return { ...prev, audio: videoSoundTracks[0]!.id };
+    });
+  }, [videoSoundTracks]);
   const editMediaRef = useRef(editMedia);
   editMediaRef.current = editMedia;
 
@@ -840,6 +852,8 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
           <CreateVideoOptions
             value={videoCompilationOptions}
             onChange={setVideoCompilationOptions}
+            tracks={videoSoundTracks}
+            tracksLoading={videoSoundsLoading}
             disabled={installVideoPosting || pending}
           />
         )}
