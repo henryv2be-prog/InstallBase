@@ -18,8 +18,8 @@ describe("parseVideoCompilationOptions", () => {
   });
 
   it("accepts valid style and audio slug", () => {
-    assert.deepEqual(parseVideoCompilationOptions({ style: "quick", audio: "none" }, ["alpha"]), {
-      style: "quick",
+    assert.deepEqual(parseVideoCompilationOptions({ style: "slide_left", audio: "none" }, ["alpha"]), {
+      style: "slide_left",
       audio: "none",
     });
     assert.deepEqual(parseVideoCompilationOptions({ style: "quick", audio: "my-beat" }, ["my-beat"]), {

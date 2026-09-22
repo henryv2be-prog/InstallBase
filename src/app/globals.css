@@ -321,3 +321,145 @@ body {
     animation: none;
   }
 }
+
+/* Create-video style live preview (CapCut-style) */
+@keyframes ib-ken-burns {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.08) translate3d(-2%, -1%, 0);
+  }
+}
+
+@keyframes ib-ken-burns-strong {
+  from {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.14) translate3d(-3%, -2%, 0);
+  }
+}
+
+.animate-ken-burns {
+  animation: ib-ken-burns 3.5s ease-out forwards;
+}
+
+.animate-ken-burns-strong {
+  animation: ib-ken-burns-strong 2.2s ease-out forwards;
+}
+
+@keyframes ib-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ib-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-fade-in {
+  animation: ib-fade-in ease both;
+}
+
+.animate-fade-out {
+  animation: ib-fade-out ease both;
+}
+
+@keyframes ib-slide-in-left {
+  from {
+    transform: translateX(100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes ib-slide-out-left {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0.5;
+  }
+}
+
+.animate-slide-in-left {
+  animation: ib-slide-in-left ease both;
+}
+
+.animate-slide-out-left {
+  animation: ib-slide-out-left ease both;
+}
+
+@keyframes ib-slide-in-right {
+  from {
+    transform: translateX(-100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes ib-slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0.5;
+  }
+}
+
+.animate-slide-in-right {
+  animation: ib-slide-in-right ease both;
+}
+
+.animate-slide-out-right {
+  animation: ib-slide-out-right ease both;
+}
+
+@keyframes ib-zoom-pop-in {
+  from {
+    transform: scale(1.18);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-zoom-pop-in {
+  animation: ib-zoom-pop-in ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ken-burns,
+  .animate-ken-burns-strong,
+  .animate-fade-in,
+  .animate-fade-out,
+  .animate-slide-in-left,
+  .animate-slide-out-left,
+  .animate-slide-in-right,
+  .animate-slide-out-right,
+  .animate-zoom-pop-in {
+    animation: none !important;
+  }
+}

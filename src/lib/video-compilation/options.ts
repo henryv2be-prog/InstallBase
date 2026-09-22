@@ -1,39 +1,9 @@
-export const VIDEO_COMPILATION_STYLES = {
-  cinematic: {
-    label: "Cinematic zoom",
-    description: "Slow Ken Burns motion on portrait shots",
-    photoDurationSec: 3.5,
-    zoom: true,
-    zoomStrength: "normal" as const,
-    landscapeBlur: true,
-  },
-  quick: {
-    label: "Quick cuts",
-    description: "Faster pacing, minimal motion",
-    photoDurationSec: 2,
-    zoom: false,
-    zoomStrength: "normal" as const,
-    landscapeBlur: true,
-  },
-  steady: {
-    label: "Steady hold",
-    description: "Longer on each photo, calm feel",
-    photoDurationSec: 5,
-    zoom: false,
-    zoomStrength: "normal" as const,
-    landscapeBlur: true,
-  },
-  dramatic: {
-    label: "Dramatic zoom",
-    description: "Stronger zoom, full-frame crop",
-    photoDurationSec: 4,
-    zoom: true,
-    zoomStrength: "strong" as const,
-    landscapeBlur: false,
-  },
-} as const;
+import {
+  VIDEO_COMPILATION_STYLES,
+  type VideoCompilationStyleId,
+} from "@/lib/video-compilation/style-presets";
 
-export type VideoCompilationStyleId = keyof typeof VIDEO_COMPILATION_STYLES;
+export { VIDEO_COMPILATION_STYLES, type VideoCompilationStyleId };
 
 /** `none` = silent; otherwise id matches mp3 basename in public/audio/video-compilation/ */
 export type VideoCompilationAudioSelection = "none" | string;

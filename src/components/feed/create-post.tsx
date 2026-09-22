@@ -850,6 +850,9 @@ export function CreatePostCard({ userName, compact, editPost }: CreatePostCardPr
           <CreateVideoStylePicker
             value={videoCompilationOptions}
             onChange={setVideoCompilationOptions}
+            previewImageUrls={media
+              .filter((item) => item.status === "ready")
+              .map((item) => item.previewUrl)}
             disabled={installVideoPosting || pending}
           />
         )}
