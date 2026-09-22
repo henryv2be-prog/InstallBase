@@ -1,0 +1,104 @@
+{
+  "batchSlug": "agricultural-technology-p1-november-2022",
+  "label": "NSC November 2022 · Agricultural Technology Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Agricultural Technology Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "agricultural-technology",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Agricultural Technology Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "agri-technology",
+      "subtopicSlug": "tools-and-equipment",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Agricultural Technology Paper 1 · Question 1.1\n\nBefore operating agricultural machinery, the FIRST safety step is to —",
+      "options": [
+        {
+          "id": "a",
+          "text": "remove all guards to work faster"
+        },
+        {
+          "id": "b",
+          "text": "read/check controls, PPE, and surroundings"
+        },
+        {
+          "id": "c",
+          "text": "allow untrained learners to operate alone"
+        },
+        {
+          "id": "d",
+          "text": "work alone in a closed silo"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Agri-technology CAPS emphasises safe equipment use and maintenance."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "agri-technology",
+      "subtopicSlug": "structures-and-water",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Agricultural Technology · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Farm structures and water systems\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply farm structures and water systems in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Agricultural Technology: Agri-technology · Farm structures and water systems — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "workshop-practice",
+      "subtopicSlug": "maintenance-and-safety",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Agricultural Technology · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Maintenance and safety\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply maintenance and safety in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Agricultural Technology: Workshop practice · Maintenance and safety — assessed through applied exam-style work."
+    }
+  ]
+}

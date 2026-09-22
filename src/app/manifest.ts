@@ -3,18 +3,18 @@ import { iconUrl } from "@/lib/icon-version";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    id: "/",
-    name: "InstallBase",
-    short_name: "InstallBase",
-    description: "Where installers share what they build.",
-    start_url: "/feed",
+    id: "/study",
+    name: "Grade 12 Study Coach",
+    short_name: "Study Coach",
+    description: "Know what to study next for your Grade 12 NSC exams.",
+    start_url: "/study",
     scope: "/",
     display: "standalone",
     prefer_related_applications: false,
     orientation: "portrait",
-    background_color: "#050810",
-    theme_color: "#050810",
-    categories: ["social", "productivity"],
+    background_color: "#0c1222",
+    theme_color: "#0c1222",
+    categories: ["education"],
     icons: [
       {
         src: iconUrl("icon-192.png"),

@@ -1,0 +1,175 @@
+{
+  "batchSlug": "2022-afrikaans-first-additional-language-p1-november",
+  "label": "NSC November 2022 · Afrikaans First Additional Language Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Afrikaans FAL Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "afrikaans-first-additional-language",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Afrikaans First Additional Language Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "taalstrukture-fal",
+      "subtopicSlug": "grammatika-basis",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · Afrikaans EAT Paper 1 · Vraag 1.1\n\nKies die korrekte artikel: ___ hond is vriendelik.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Die"
+        },
+        {
+          "id": "b",
+          "text": "Dié"
+        },
+        {
+          "id": "c",
+          "text": "'n"
+        },
+        {
+          "id": "d",
+          "text": "Geen"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "\"Die hond\" — bepaalde lidwoord vir 'n spesifieke hond."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "lees-fal",
+      "subtopicSlug": "kort-tekste",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Afrikaans EAT Paper 1 · Vraag 2.1\n\nWat is die hoofdoel van die eerste paragraaf in 'n kort teks?",
+      "correctAnswerText": "inleiding",
+      "acceptableAnswers": [
+        "introduce the topic",
+        "orient the reader",
+        "context"
+      ],
+      "explanation": "Inleiding orienteer die leser oor onderwerp en konteks."
+    },
+    {
+      "sourceQuestionRef": "3.1",
+      "topicSlug": "skryf-fal",
+      "subtopicSlug": "informele-formele",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · Afrikaans EAT Paper 1 · Vraag 3.1\n\n\"Haai!\" is tipies …",
+      "options": [
+        {
+          "id": "a",
+          "text": "informeel"
+        },
+        {
+          "id": "b",
+          "text": "formeel"
+        },
+        {
+          "id": "c",
+          "text": "wetenskaplik"
+        },
+        {
+          "id": "d",
+          "text": "regstellend"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Informele groet vs formele \"Geagte\" in transaksioneel."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "taalstrukture-fal",
+      "subtopicSlug": "woordeskat-en-spelling",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Afrikaans First Additional Language · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Woordeskat en spelling\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply woordeskat en spelling in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Afrikaans First Additional Language: Taalstrukture · Woordeskat en spelling — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "lees-fal",
+      "subtopicSlug": "lang-tekste",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Afrikaans First Additional Language · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Langer tekste en opsomming\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply langer tekste en opsomming in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Afrikaans First Additional Language: Lees en begrip · Langer tekste en opsomming — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "skryf-fal",
+      "subtopicSlug": "kreatiewe-skryf-fal",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Afrikaans First Additional Language · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Kreatiewe skryfwerk\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply kreatiewe skryfwerk in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Afrikaans First Additional Language: Skryf · Kreatiewe skryfwerk — assessed through applied exam-style work."
+    }
+  ]
+}

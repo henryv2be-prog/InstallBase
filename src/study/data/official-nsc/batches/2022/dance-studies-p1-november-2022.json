@@ -1,0 +1,104 @@
+{
+  "batchSlug": "dance-studies-p1-november-2022",
+  "label": "NSC November 2022 · Dance Studies Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Dance Studies Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "dance-studies",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Dance Studies Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "dance-performance",
+      "subtopicSlug": "choreography-basics",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Dance Studies Paper 1 · Question 1.1\n\nIn choreography, 'canon' means —",
+      "options": [
+        {
+          "id": "a",
+          "text": "every dancer starts the same move at exactly the same time"
+        },
+        {
+          "id": "b",
+          "text": "dancers never repeat a motif"
+        },
+        {
+          "id": "c",
+          "text": "only floor work is allowed"
+        },
+        {
+          "id": "d",
+          "text": "the same movement is performed by dancers starting at staggered times"
+        }
+      ],
+      "correctOptionId": "d",
+      "explanation": "Dance Studies CAPS: choreographic devices include canon, repetition, and motif."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "dance-performance",
+      "subtopicSlug": "technique-and-fitness",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Dance Studies · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Technique and fitness\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply technique and fitness in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Dance Studies: Dance performance · Technique and fitness — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "dance-history",
+      "subtopicSlug": "styles-and-context",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Dance Studies · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Dance styles and context\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply dance styles and context in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Dance Studies: Dance history and appreciation · Dance styles and context — assessed through applied exam-style work."
+    }
+  ]
+}

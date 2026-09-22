@@ -1,0 +1,110 @@
+{
+  "batchSlug": "music-p1-november-2022",
+  "label": "NSC November 2022 · Music Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Music Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "music",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Music Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "music-literacy",
+      "subtopicSlug": "theory-and-notation",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Music Paper 1 · Question 1.1\n\nWrite the time signature that means 'four crotchet beats per bar'.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply theory and notation skills in Grade 12 exam contexts"
+        },
+        {
+          "id": "b",
+          "text": "Ignore curriculum outcomes for this subtopic"
+        },
+        {
+          "id": "c",
+          "text": "This subtopic is not part of NSC ${entry.name}"
+        },
+        {
+          "id": "d",
+          "text": "Only primary school content applies here"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Music theory: 4/4 (common time) = four quarter-note beats per measure.",
+      "correctAnswerText": "4/4",
+      "acceptableAnswers": [
+        "4/4",
+        "4 4",
+        "common time"
+      ]
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "music-literacy",
+      "subtopicSlug": "harmony-and-composition",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Music · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Harmony and composition basics\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply harmony and composition basics in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Music: Music literacy · Harmony and composition basics — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "performance",
+      "subtopicSlug": "performing-and-appraising",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Music · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Performing and appraising\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply performing and appraising in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Music: Performance · Performing and appraising — assessed through applied exam-style work."
+    }
+  ]
+}

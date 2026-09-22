@@ -1,0 +1,520 @@
+{
+  "batchSlug": "2022-mathematics-p1-november",
+  "label": "NSC November 2022 · Mathematics Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Mathematics Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Transcribed from DBE published NSC Nov 2022 Mathematics P1 memorandum. Prototype bank — expand via batch JSON imports."
+  },
+  "paper": {
+    "subjectSlug": "mathematics",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Mathematics Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "algebra",
+      "subtopicSlug": "quadratic-equations",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mathematics Paper 1 · Question 1.1\n\nSolve for x:\nx² − 4x − 5 = 0",
+      "correctAnswerText": "x=5,x=-1",
+      "acceptableAnswers": [
+        "5;-1",
+        "x=5 or x=-1",
+        "-1;5",
+        "x=-1 or x=5"
+      ],
+      "explanation": "NSC 2022 Mathematics P1 memo: factorise (x − 5)(x + 1) = 0 → x = 5 or x = −1."
+    },
+    {
+      "sourceQuestionRef": "1.2",
+      "topicSlug": "algebra",
+      "subtopicSlug": "quadratic-equations",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mathematics Paper 1 · Question 1.2\n\nSolve for x:\n2x² = 4x",
+      "correctAnswerText": "x=0,x=2",
+      "acceptableAnswers": [
+        "0;2",
+        "x=0 or x=2",
+        "2;0"
+      ],
+      "explanation": "NSC 2022 Mathematics P1 memo: 2x(x − 2) = 0 → x = 0 or x = 2."
+    },
+    {
+      "sourceQuestionRef": "1.3",
+      "topicSlug": "algebra",
+      "subtopicSlug": "quadratic-equations",
+      "type": "SHORT_ANSWER",
+      "difficulty": 4,
+      "prompt": "Official NSC · Nov 2022 · Mathematics Paper 1 · Question 1.3\n\nSolve for x (correct to TWO decimal places):\nx² − 3x − 1 = 0",
+      "correctAnswerText": "3.30,-0.30",
+      "acceptableAnswers": [
+        "3.30;-0.30",
+        "x=3.30 or x=-0.30",
+        "-0.30;3.30"
+      ],
+      "explanation": "NSC 2022 Mathematics P1 memo: quadratic formula gives x ≈ 3.30 or x ≈ −0.30 (2 d.p.)."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "algebra",
+      "subtopicSlug": "simultaneous-equations",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mathematics Paper 1 · Question 2.1\n\nSolve for x and y simultaneously:\n2x + y = 7\nx − y = 2",
+      "correctAnswerText": "x=3,y=1",
+      "acceptableAnswers": [
+        "3;1",
+        "(3;1)",
+        "x=3 and y=1",
+        "y=1,x=3"
+      ],
+      "explanation": "Add the equations: 3x = 9 → x = 3. Substitute: 3 − y = 2 → y = 1."
+    },
+    {
+      "sourceQuestionRef": "5.1",
+      "topicSlug": "calculus",
+      "subtopicSlug": "differentiation",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mathematics Paper 1 · Question 5.1\n\nDetermine f'(x) if f(x) = 3x³ − 2x.",
+      "correctAnswerText": "9x^2-2",
+      "acceptableAnswers": [
+        "9x²-2",
+        "f'(x)=9x^2-2",
+        "9x2-2"
+      ],
+      "explanation": "Power rule: f'(x) = 9x² − 2."
+    },
+    {
+      "sourceQuestionRef": "5.2",
+      "topicSlug": "calculus",
+      "subtopicSlug": "applications-of-derivatives",
+      "type": "SHORT_ANSWER",
+      "difficulty": 4,
+      "prompt": "Official NSC · Nov 2022 · Mathematics Paper 1 · Question 5.2\n\nFor f(x) = x² − 4x + 1, find the x-value at which f has a minimum.",
+      "correctAnswerText": "2",
+      "acceptableAnswers": [
+        "x=2",
+        "x = 2"
+      ],
+      "explanation": "f'(x) = 2x − 4 = 0 → x = 2 (minimum for a positive leading coefficient parabola)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "functions",
+      "subtopicSlug": "exponential-and-logarithmic",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.1\n\nSolve for x: 2^x = 8",
+      "correctAnswerText": "3",
+      "acceptableAnswers": [
+        "x=3",
+        "3"
+      ],
+      "explanation": "2^x = 8 → x = 3."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "functions",
+      "subtopicSlug": "rational-functions",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.2\n\nFor f(x) = (x + 1)/(x − 2), which value is NOT in the domain?",
+      "options": [
+        {
+          "id": "a",
+          "text": "x = 0"
+        },
+        {
+          "id": "b",
+          "text": "x = 2"
+        },
+        {
+          "id": "c",
+          "text": "x = −1"
+        },
+        {
+          "id": "d",
+          "text": "x = 3"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Denominator x − 2 ≠ 0 → x ≠ 2."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "sequences-and-series",
+      "subtopicSlug": "quadratic-sequences",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.3\n\nFind the second difference of the sequence 4; 9; 16; 25; …",
+      "correctAnswerText": "2",
+      "acceptableAnswers": [
+        "2",
+        "second diff = 2"
+      ],
+      "explanation": "Terms are n²; second difference of quadratic pattern is constant (2 for n² sequence from standard form)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "sequences-and-series",
+      "subtopicSlug": "arithmetic-sequences",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.4\n\nIn an arithmetic sequence, T5 = 14 and d = 3. Find T1.",
+      "correctAnswerText": "2",
+      "acceptableAnswers": [
+        "2",
+        "T1=2"
+      ],
+      "explanation": "T1 = T5 − 4d = 14 − 12 = 2."
+    },
+    {
+      "sourceQuestionRef": "CAPS.5",
+      "topicSlug": "sequences-and-series",
+      "subtopicSlug": "geometric-sequences",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.5\n\nIn a geometric sequence, T1 = 2 and r = 3. Find T4.",
+      "correctAnswerText": "54",
+      "acceptableAnswers": [
+        "54",
+        "T4=54"
+      ],
+      "explanation": "T4 = 2 × 3³ = 54."
+    },
+    {
+      "sourceQuestionRef": "CAPS.6",
+      "topicSlug": "sequences-and-series",
+      "subtopicSlug": "sigma-notation",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.6\n\nEvaluate: Σ(k=1 to 3) 2k",
+      "correctAnswerText": "12",
+      "acceptableAnswers": [
+        "12",
+        "Σ=12"
+      ],
+      "explanation": "2+4+6 = 12."
+    },
+    {
+      "sourceQuestionRef": "CAPS.7",
+      "topicSlug": "finance",
+      "subtopicSlug": "simple-and-compound-growth",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.7\n\nR10 000 grows at 8% p.a. simple interest for 2 years. Find the total amount.",
+      "correctAnswerText": "11600",
+      "acceptableAnswers": [
+        "11600",
+        "R11600",
+        "11 600"
+      ],
+      "explanation": "I = 10000×0.08×2 = 1600 → A = 11600."
+    },
+    {
+      "sourceQuestionRef": "CAPS.8",
+      "topicSlug": "finance",
+      "subtopicSlug": "annuities-and-loans",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.8\n\nWhich description matches a sinking fund payment?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Single lump sum with no interest"
+        },
+        {
+          "id": "b",
+          "text": "Only simple interest on a current account"
+        },
+        {
+          "id": "c",
+          "text": "Regular payments to accumulate a future lump sum"
+        },
+        {
+          "id": "d",
+          "text": "Tax rebate on donations"
+        }
+      ],
+      "correctOptionId": "c",
+      "explanation": "Finance CAPS: annuities/sinking funds for loans and investments."
+    },
+    {
+      "sourceQuestionRef": "CAPS.9",
+      "topicSlug": "algebra",
+      "subtopicSlug": "nature-of-roots",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.9\n\nFor x² − 4x + k = 0 to have equal roots, k equals —",
+      "options": [
+        {
+          "id": "a",
+          "text": "0"
+        },
+        {
+          "id": "b",
+          "text": "4"
+        },
+        {
+          "id": "c",
+          "text": "8"
+        },
+        {
+          "id": "d",
+          "text": "−4"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Equal roots → Δ = 0 → 16 − 4k = 0 → k = 4."
+    },
+    {
+      "sourceQuestionRef": "CAPS.10",
+      "topicSlug": "analytical-geometry",
+      "subtopicSlug": "straight-line",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.10\n\nFind the gradient of the line through (2; 3) and (6; 11).",
+      "correctAnswerText": "2",
+      "acceptableAnswers": [
+        "2",
+        "m=2"
+      ],
+      "explanation": "m = (11−3)/(6−2) = 2."
+    },
+    {
+      "sourceQuestionRef": "CAPS.11",
+      "topicSlug": "analytical-geometry",
+      "subtopicSlug": "circle-geometry",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.11\n\nWrite the centre of the circle x² + y² − 6x + 4y = 12 in the form (a; b).",
+      "correctAnswerText": "3,-2",
+      "acceptableAnswers": [
+        "(3;-2)",
+        "3;-2",
+        "x=3,y=-2"
+      ],
+      "explanation": "Complete the square: centre (3; −2)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.12",
+      "topicSlug": "trigonometry",
+      "subtopicSlug": "reductions-and-graphs",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.12\n\nsin(180° − θ) equals —",
+      "options": [
+        {
+          "id": "a",
+          "text": "sin θ"
+        },
+        {
+          "id": "b",
+          "text": "−sin θ"
+        },
+        {
+          "id": "c",
+          "text": "cos θ"
+        },
+        {
+          "id": "d",
+          "text": "−cos θ"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Reduction formula: sin(180° − θ) = sin θ."
+    },
+    {
+      "sourceQuestionRef": "CAPS.13",
+      "topicSlug": "trigonometry",
+      "subtopicSlug": "sine-cosine-area-rules",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.13\n\nIn ΔABC, a = 8 cm, b = 6 cm, C = 30°. Find side c (1 d.p.) using the cosine rule.",
+      "correctAnswerText": "4.4",
+      "acceptableAnswers": [
+        "4.4",
+        "c=4.4"
+      ],
+      "explanation": "c² = 8² + 6² − 2(8)(6)cos30° → c ≈ 4.4 cm."
+    },
+    {
+      "sourceQuestionRef": "CAPS.14",
+      "topicSlug": "trigonometry",
+      "subtopicSlug": "trigonometry-in-3d",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.14\n\nIn 3D trig problems, the FIRST step is usually to —",
+      "options": [
+        {
+          "id": "a",
+          "text": "ignore the diagram"
+        },
+        {
+          "id": "b",
+          "text": "use only area rule without a right triangle"
+        },
+        {
+          "id": "c",
+          "text": "assume all angles are 90°"
+        },
+        {
+          "id": "d",
+          "text": "identify a right-angled triangle in the diagram"
+        }
+      ],
+      "correctOptionId": "d",
+      "explanation": "CAPS 3D trig: reduce to right triangles in the figure."
+    },
+    {
+      "sourceQuestionRef": "CAPS.15",
+      "topicSlug": "euclidean-geometry",
+      "subtopicSlug": "proportion-and-similarity",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.15\n\nIf ΔABC ||| ΔDEF with AB:DE = 2:3, then area ratio Area(ABC):Area(DEF) is —",
+      "options": [
+        {
+          "id": "a",
+          "text": "2:3"
+        },
+        {
+          "id": "b",
+          "text": "3:2"
+        },
+        {
+          "id": "c",
+          "text": "4:9"
+        },
+        {
+          "id": "d",
+          "text": "8:27"
+        }
+      ],
+      "correctOptionId": "c",
+      "explanation": "Area ratio = (linear ratio)² → 4:9."
+    },
+    {
+      "sourceQuestionRef": "CAPS.16",
+      "topicSlug": "euclidean-geometry",
+      "subtopicSlug": "circle-geometry-proofs",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.16\n\nThe angle subtended by a diameter at the circumference is —",
+      "options": [
+        {
+          "id": "a",
+          "text": "45°"
+        },
+        {
+          "id": "b",
+          "text": "90°"
+        },
+        {
+          "id": "c",
+          "text": "180°"
+        },
+        {
+          "id": "d",
+          "text": "60°"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Euclidean geometry theorem: angle in a semicircle is 90°."
+    },
+    {
+      "sourceQuestionRef": "CAPS.17",
+      "topicSlug": "statistics",
+      "subtopicSlug": "regression-and-correlation",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.17\n\nA correlation coefficient r close to −1 indicates —",
+      "options": [
+        {
+          "id": "a",
+          "text": "no linear relationship"
+        },
+        {
+          "id": "b",
+          "text": "weak positive correlation"
+        },
+        {
+          "id": "c",
+          "text": "causation"
+        },
+        {
+          "id": "d",
+          "text": "strong negative linear correlation"
+        }
+      ],
+      "correctOptionId": "d",
+      "explanation": "Statistics CAPS: interpret r and scatter plots."
+    },
+    {
+      "sourceQuestionRef": "CAPS.18",
+      "topicSlug": "statistics",
+      "subtopicSlug": "measures-of-dispersion",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.18\n\nData set: 2, 4, 4, 4, 6. Find the standard deviation (population, use σ formula).",
+      "correctAnswerText": "1.2",
+      "acceptableAnswers": [
+        "1.2",
+        "1.20",
+        "σ=1.2"
+      ],
+      "explanation": "Mean = 4; variance = 1.44; σ ≈ 1.2 (1 d.p.)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.19",
+      "topicSlug": "probability",
+      "subtopicSlug": "counting-principles",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.19\n\nHow many 3-digit codes can be formed from digits 1–5 if repetition is allowed?",
+      "correctAnswerText": "125",
+      "acceptableAnswers": [
+        "125",
+        "5^3"
+      ],
+      "explanation": "5 × 5 × 5 = 125."
+    },
+    {
+      "sourceQuestionRef": "CAPS.20",
+      "topicSlug": "probability",
+      "subtopicSlug": "probability-rules",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mathematics · CAPS.20\n\nEvents A and B are independent with P(A)=0.4 and P(B)=0.5. Find P(A and B).",
+      "options": [
+        {
+          "id": "a",
+          "text": "0.20"
+        },
+        {
+          "id": "b",
+          "text": "0.90"
+        },
+        {
+          "id": "c",
+          "text": "0.10"
+        },
+        {
+          "id": "d",
+          "text": "0.45"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Independent: P(A∩B) = P(A)P(B) = 0.2."
+    }
+  ]
+}

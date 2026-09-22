@@ -1,0 +1,132 @@
+{
+  "batchSlug": "religion-studies-p1-november-2022",
+  "label": "NSC November 2022 · Religion Studies Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Religion Studies Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "religion-studies",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Religion Studies Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "world-religions",
+      "subtopicSlug": "beliefs-and-practices",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Religion Studies Paper 1 · Question 1.1\n\nWhich pair correctly links a religion with a core practice?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Christianity — Five Pillars of faith"
+        },
+        {
+          "id": "b",
+          "text": "Islam — Salah (daily prayer) as part of religious practice"
+        },
+        {
+          "id": "c",
+          "text": "Hinduism — receiving communion"
+        },
+        {
+          "id": "d",
+          "text": "Judaism — pilgrimage to Mecca only"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Religion Studies CAPS: know major beliefs and practices of world religions (illustrative NSC-style MCQ)."
+    },
+    {
+      "sourceQuestionRef": "1.2",
+      "topicSlug": "ethics-and-society",
+      "subtopicSlug": "moral-decision-making",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Religion Studies Paper 1 · Question 1.2\n\nA learner finds a wallet with cash. According to CAPS ethical reasoning, the BEST first step is to —",
+      "options": [
+        {
+          "id": "a",
+          "text": "keep the money because 'finders keepers'"
+        },
+        {
+          "id": "b",
+          "text": "post photos of the ID on social media without consent"
+        },
+        {
+          "id": "c",
+          "text": "consider honesty, harm, and report/hand it to a responsible adult or authority"
+        },
+        {
+          "id": "d",
+          "text": "ignore the wallet"
+        }
+      ],
+      "correctOptionId": "c",
+      "explanation": "Ethics outcomes: moral decisions weigh values, consequences, and responsibility."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "world-religions",
+      "subtopicSlug": "sacred-texts",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Religion Studies · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Sacred texts and interpretation\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply sacred texts and interpretation in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Religion Studies: World religions · Sacred texts and interpretation — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "ethics-and-society",
+      "subtopicSlug": "religion-and-social-issues",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Religion Studies · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Religion and contemporary issues\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply religion and contemporary issues in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Religion Studies: Ethics and society · Religion and contemporary issues — assessed through applied exam-style work."
+    }
+  ]
+}

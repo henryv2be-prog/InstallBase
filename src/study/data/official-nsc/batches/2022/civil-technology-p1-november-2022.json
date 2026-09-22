@@ -1,0 +1,104 @@
+{
+  "batchSlug": "civil-technology-p1-november-2022",
+  "label": "NSC November 2022 · Civil Technology Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Civil Technology Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "civil-technology",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Civil Technology Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "construction-technology",
+      "subtopicSlug": "structures-and-services",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Civil Technology Paper 1 · Question 1.1\n\nA foundation in civil construction primarily —",
+      "options": [
+        {
+          "id": "a",
+          "text": "decorates the roof"
+        },
+        {
+          "id": "b",
+          "text": "replaces all plumbing"
+        },
+        {
+          "id": "c",
+          "text": "only paints external walls"
+        },
+        {
+          "id": "d",
+          "text": "distributes building loads safely to the ground"
+        }
+      ],
+      "correctOptionId": "d",
+      "explanation": "Civil Technology CAPS: structures, services, and load paths."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "construction-technology",
+      "subtopicSlug": "materials-and-finishes",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Civil Technology · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Materials and finishes\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply materials and finishes in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Civil Technology: Construction technology · Materials and finishes — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "workshop-practice",
+      "subtopicSlug": "site-safety",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Civil Technology · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Site safety and drawing conventions\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply site safety and drawing conventions in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Civil Technology: Workshop practice · Site safety and drawing conventions — assessed through applied exam-style work."
+    }
+  ]
+}

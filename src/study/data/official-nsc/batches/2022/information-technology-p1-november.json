@@ -1,0 +1,132 @@
+{
+  "batchSlug": "2022-information-technology-p1-november",
+  "label": "NSC November 2022 · Information Technology Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Information Technology Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "information-technology",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Information Technology Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "programming",
+      "subtopicSlug": "algorithms-and-code",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · IT Paper 1 · Question 1.1\n\nWhich structure repeats code while a condition is true?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Loop"
+        },
+        {
+          "id": "b",
+          "text": "Variable declaration only"
+        },
+        {
+          "id": "c",
+          "text": "Comment"
+        },
+        {
+          "id": "d",
+          "text": "Font size"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Iteration/loop structures execute repeatedly while the condition holds."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "programming",
+      "subtopicSlug": "data-structures",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Information Technology (IT) · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Data structures and files\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply data structures and files in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Information Technology (IT): Programming and problem-solving · Data structures and files — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "hardware-software",
+      "subtopicSlug": "system-components",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Information Technology (IT) · CAPS.2\n\nWhich outcome best matches NSC assessment of \"System components and architecture\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply system components and architecture in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Information Technology (IT): Hardware and software · System components and architecture — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "social-implications",
+      "subtopicSlug": "ethics-and-security",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Information Technology (IT) · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Ethics, security and legal issues\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply ethics, security and legal issues in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Information Technology (IT): Social implications of IT · Ethics, security and legal issues — assessed through applied exam-style work."
+    }
+  ]
+}

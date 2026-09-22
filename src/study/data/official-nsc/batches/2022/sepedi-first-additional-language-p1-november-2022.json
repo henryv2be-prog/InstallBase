@@ -1,0 +1,188 @@
+{
+  "batchSlug": "sepedi-first-additional-language-p1-november-2022",
+  "label": "NSC November 2022 · Sepedi First Additional Language Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Sepedi First Additional Language Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "sepedi-first-additional-language",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Sepedi First Additional Language Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "taalstrukture-fal",
+      "subtopicSlug": "grammatika-basis",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Sepedi First Additional Language Paper 1 · Question 1.1\n\nKies die sin met korrekte werkwoordtyd (teenwoordige tyd).",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ek lees elke aand 'n boek."
+        },
+        {
+          "id": "b",
+          "text": "Ek het elke aand 'n boek lees."
+        },
+        {
+          "id": "c",
+          "text": "Ek sal elke aand 'n boek lees gegaan."
+        },
+        {
+          "id": "d",
+          "text": "Ek lees elke aand 'n boek gehad."
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "FAL taalstrukture: korrekte tyd en werkwoordvorm in konteks."
+    },
+    {
+      "sourceQuestionRef": "1.2",
+      "topicSlug": "lees-fal",
+      "subtopicSlug": "kort-tekste",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Sepedi First Additional Language Paper 1 · Question 1.2\n\nWat is die DOEL van die eerste alinea in 'n kort leesteks?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Om slegs die skrywer se adres te gee"
+        },
+        {
+          "id": "b",
+          "text": "Om die leser aan die onderwerp en konteks bekend te stel"
+        },
+        {
+          "id": "c",
+          "text": "Om die hele argument te herhaal"
+        },
+        {
+          "id": "d",
+          "text": "Om onnodige detail te lys"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Begrip: inleiding stel onderwerp en konteks bekend (CAPS leesvaardigheid)."
+    },
+    {
+      "sourceQuestionRef": "1.3",
+      "topicSlug": "skryf-fal",
+      "subtopicSlug": "informele-formele",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Sepedi First Additional Language Paper 1 · Question 1.3\n\nWatter aanhef is die MEEST geskik vir 'n formele brief aan die skoolhoof?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Geagte Mnr./Mev. [Van]"
+        },
+        {
+          "id": "b",
+          "text": "Haai ouens"
+        },
+        {
+          "id": "c",
+          "text": "Hallo daar!"
+        },
+        {
+          "id": "d",
+          "text": "Yo skoolhoof"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Formele register vereis beleefde, professionele aanhef en slot."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "taalstrukture-fal",
+      "subtopicSlug": "woordeskat-spelling",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Sepedi First Additional Language · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Vocabulary and spelling\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply vocabulary and spelling in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Sepedi First Additional Language: Taalstrukture · Vocabulary and spelling — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "lees-fal",
+      "subtopicSlug": "lang-tekste",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Sepedi First Additional Language · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Longer texts and summary\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply longer texts and summary in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Sepedi First Additional Language: Lees en begrip · Longer texts and summary — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "skryf-fal",
+      "subtopicSlug": "kreatiewe-skryf-fal",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Sepedi First Additional Language · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Creative writing\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply creative writing in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Sepedi First Additional Language: Skryf · Creative writing — assessed through applied exam-style work."
+    }
+  ]
+}

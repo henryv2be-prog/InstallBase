@@ -149,6 +149,7 @@ model User {
   pushSubscriptions PushSubscription[]
   passwordResetTokens PasswordResetToken[]
   platformRoles     UserPlatformRole[]
+  studyLearner      StudyLearner?
 }
 
 model UserPlatformRole {
@@ -815,4 +816,362 @@ model PageViewDailyStats {
   uniqueViews Int      @default(0)
 
   @@unique([pageKey, date])
+}
+
+// ─── Grade 12 Study Coach (experimental — namespaced, additive) ─────────────
+
+enum StudyQuestionType {
+  MULTIPLE_CHOICE
+  SHORT_ANSWER
+}
+
+enum StudyContentSourceKind {
+  OFFICIAL_CURRICULUM
+  OFFICIAL_PAST_PAPER
+  PRACTICE
+  GENERATED_PRACTICE
+  PROTOTYPE
+}
+
+enum StudyPriorityBand {
+  NEEDS_ATTENTION
+  KEEP_PRACTISING
+  ON_TRACK
+}
+
+enum StudyNscExamSession {
+  NOVEMBER
+  MAY_JUNE
+  SUPPLEMENTARY
+  OTHER
+}
+
+enum StudyOfficialVerificationStatus {
+  DRAFT
+  PENDING_REVIEW
+  VERIFIED
+  REJECTED
+}
+
+enum StudySelfConfidence {
+  UNDERSTANDS
+  UNSURE
+  DONT_UNDERSTAND
+}
+
+enum StudyRecommendationAction {
+  PRACTICE_TOPIC
+  REVIEW_TOPIC
+  LEARN_CONCEPT
+  REVISIT_PREREQUISITE
+  TAKE_ASSESSMENT
+  TRY_HARDER_QUESTIONS
+  DO_PAST_PAPER
+}
+
+model StudySubject {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  grade       Int      @default(12)
+  description String?
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  curricula       StudyCurriculum[]
+  learnerSubjects StudyLearnerSubject[]
+  questions       StudyQuestion[]
+  nscPapers       StudyNscPaper[]
+}
+
+model StudyCurriculum {
+  id            String                 @id @default(cuid())
+  subjectId     String
+  name          String
+  sourceKind    StudyContentSourceKind
+  sourceTitle   String?
+  sourceUrl     String?
+  versionLabel  String?
+  isComplete    Boolean                @default(false)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  subject StudySubject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topics  StudyTopic[]
+
+  @@index([subjectId])
+}
+
+model StudyTopic {
+  id           String   @id @default(cuid())
+  curriculumId String
+  slug         String
+  name         String
+  sortOrder    Int      @default(0)
+  importance   Float    @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  curriculum StudyCurriculum @relation(fields: [curriculumId], references: [id], onDelete: Cascade)
+  subtopics  StudySubtopic[]
+
+  @@unique([curriculumId, slug])
+}
+
+model StudySubtopic {
+  id                     String   @id @default(cuid())
+  topicId                String
+  slug                   String
+  name                   String
+  sortOrder              Int      @default(0)
+  prerequisiteSubtopicId String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  topic                StudyTopic                 @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  prerequisiteSubtopic StudySubtopic?             @relation("SubtopicPrerequisite", fields: [prerequisiteSubtopicId], references: [id], onDelete: SetNull)
+  dependentSubtopics   StudySubtopic[]            @relation("SubtopicPrerequisite")
+  questions            StudyQuestion[]
+  masteries            StudyMastery[]
+  planItems            StudyPlanItem[]
+  assessmentSessions   StudyAssessmentSession[]
+  recommendations      StudyRecommendationLog[]
+
+  @@unique([topicId, slug])
+  @@index([prerequisiteSubtopicId])
+}
+
+model StudyLearner {
+  id                       String    @id @default(cuid())
+  userId                   String?   @unique
+  displayName              String
+  grade                    Int       @default(12)
+  schoolYear               Int       @default(2026)
+  /** Typical daily study budget (minutes) for generated plans. */
+  defaultAvailableMinutes  Int       @default(45)
+  onboardedAt              DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  user                 User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  subjects             StudyLearnerSubject[]
+  masteries            StudyMastery[]
+  questionAttempts     StudyQuestionAttempt[]
+  assessmentSessions   StudyAssessmentSession[]
+  planDays             StudyPlanDay[]
+  recommendationLogs   StudyRecommendationLog[]
+}
+
+model StudyLearnerSubject {
+  id                   String   @id @default(cuid())
+  learnerId            String
+  subjectId            String
+  currentMarkPct       Float
+  /** Rolling estimate from subtopic quiz evidence (updated after sessions). */
+  demonstratedMarkPct  Float?
+  targetMarkPct        Float
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  learner   StudyLearner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  subject   StudySubject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  exams     StudyExam[]
+  planItems StudyPlanItem[]
+
+  @@unique([learnerId, subjectId])
+}
+
+model StudyExam {
+  id               String   @id @default(cuid())
+  learnerSubjectId String
+  examAt           DateTime @db.Date
+  paperNumber      Int?
+  durationMinutes  Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  learnerSubject StudyLearnerSubject @relation(fields: [learnerSubjectId], references: [id], onDelete: Cascade)
+
+  @@index([learnerSubjectId, examAt])
+}
+
+model StudyMastery {
+  id                 String             @id @default(cuid())
+  learnerId          String
+  subtopicId         String
+  masteryPct         Float              @default(0)
+  questionsAttempted Int                @default(0)
+  questionsCorrect   Int                @default(0)
+  lastPracticedAt    DateTime?
+  confidencePct      Float?
+  priorityScore      Float?
+  priorityBand       StudyPriorityBand?
+  selfConfidence     StudySelfConfidence?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  learner  StudyLearner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  subtopic StudySubtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+
+  @@unique([learnerId, subtopicId])
+  @@index([learnerId])
+}
+
+model StudyRecommendationLog {
+  id            String                    @id @default(cuid())
+  learnerId     String
+  subtopicId    String
+  action        StudyRecommendationAction
+  reasonSummary String                    @db.Text
+  reasonDetail  Json
+  priorityScore Float
+  shownAt       DateTime                  @default(now())
+  followedAt    DateTime?
+  dismissedAt   DateTime?
+  sessionId     String?
+
+  learner  StudyLearner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  subtopic StudySubtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+
+  @@index([learnerId, shownAt])
+  @@index([learnerId, subtopicId])
+}
+
+model StudyQuestionImportBatch {
+  id                  String                          @id
+  slug                String                          @unique
+  label               String
+  sourceDocumentTitle String?
+  verificationStatus  StudyOfficialVerificationStatus @default(PENDING_REVIEW)
+  verifiedAt          DateTime?
+  verificationNotes   String?                         @db.Text
+  importedAt          DateTime                        @default(now())
+  updatedAt           DateTime                        @updatedAt
+
+  nscPaper  StudyNscPaper?
+  questions StudyQuestion[]
+}
+
+model StudyNscPaper {
+  id                String              @id @default(cuid())
+  subjectId         String
+  examYear          Int
+  examSession       StudyNscExamSession
+  paperNumber       Int
+  title             String
+  questionPaperUrl  String?
+  memorandumUrl     String?
+  dbePortalUrl      String?
+  importBatchId     String              @unique
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  subject     StudySubject               @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  importBatch StudyQuestionImportBatch   @relation(fields: [importBatchId], references: [id], onDelete: Cascade)
+  questions   StudyQuestion[]
+
+  @@unique([subjectId, examYear, examSession, paperNumber])
+  @@index([subjectId, examYear])
+}
+
+model StudyQuestion {
+  id                 String                           @id @default(cuid())
+  subjectId          String
+  subtopicId         String
+  nscPaperId         String?
+  importBatchId      String?
+  type               StudyQuestionType                @default(MULTIPLE_CHOICE)
+  difficulty         Int                              @default(3)
+  prompt             String                           @db.Text
+  options            Json
+  correctOptionId    String
+  explanation        String?                          @db.Text
+  sourceKind         StudyContentSourceKind
+  sourceLabel        String?                          @unique
+  sourceYear         Int?
+  sourcePaperNumber  Int?
+  sourceQuestionRef  String?
+  officialSourceUrl  String?
+  correctAnswerText  String?
+  acceptableAnswers  Json?
+  verificationStatus StudyOfficialVerificationStatus?
+  generatorMeta      Json?
+  active             Boolean                          @default(true)
+  createdAt          DateTime                         @default(now())
+  updatedAt          DateTime                         @updatedAt
+
+  subject      StudySubject              @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subtopic     StudySubtopic             @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+  nscPaper     StudyNscPaper?            @relation(fields: [nscPaperId], references: [id], onDelete: SetNull)
+  importBatch  StudyQuestionImportBatch? @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
+
+  @@index([sourceKind, subtopicId])
+  attempts     StudyQuestionAttempt[]
+
+  @@index([subtopicId, active])
+  @@index([subjectId])
+  @@index([importBatchId])
+  @@index([verificationStatus, sourceKind])
+}
+
+model StudyAssessmentSession {
+  id          String    @id @default(cuid())
+  learnerId   String
+  subtopicId  String
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  learner  StudyLearner           @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  subtopic StudySubtopic          @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+  attempts StudyQuestionAttempt[]
+
+  @@index([learnerId, startedAt])
+}
+
+model StudyQuestionAttempt {
+  id               String   @id @default(cuid())
+  learnerId        String
+  questionId       String
+  sessionId        String?
+  selectedOptionId String?
+  isCorrect        Boolean
+  attemptedAt      DateTime @default(now())
+
+  learner  StudyLearner            @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  question StudyQuestion           @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  session  StudyAssessmentSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([learnerId, attemptedAt])
+  @@index([questionId])
+}
+
+model StudyPlanDay {
+  id               String   @id @default(cuid())
+  learnerId        String
+  planDate         DateTime @db.Date
+  availableMinutes Int
+  generatedAt      DateTime @default(now())
+
+  learner StudyLearner    @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  items   StudyPlanItem[]
+
+  @@unique([learnerId, planDate])
+}
+
+model StudyPlanItem {
+  id               String  @id @default(cuid())
+  planDayId        String
+  learnerSubjectId String
+  subtopicId       String
+  allocatedMinutes Int
+  sortOrder        Int     @default(0)
+  notes            String?
+
+  planDay        StudyPlanDay        @relation(fields: [planDayId], references: [id], onDelete: Cascade)
+  learnerSubject StudyLearnerSubject @relation(fields: [learnerSubjectId], references: [id], onDelete: Cascade)
+  subtopic       StudySubtopic       @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+
+  @@index([planDayId, sortOrder])
 }

@@ -1,0 +1,318 @@
+{
+  "batchSlug": "2022-business-studies-p1-november",
+  "label": "NSC November 2022 · Business Studies Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Business Studies Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "business-studies",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Business Studies Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "business-environments",
+      "subtopicSlug": "micro-market-macro",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · Business Studies Paper 1 · Question 1.1\n\nAn increase in VAT affects businesses through the … environment.",
+      "options": [
+        {
+          "id": "a",
+          "text": "macro"
+        },
+        {
+          "id": "b",
+          "text": "micro"
+        },
+        {
+          "id": "c",
+          "text": "market only"
+        },
+        {
+          "id": "d",
+          "text": "internal"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Government tax policy is part of the macro business environment."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "leadership-management",
+      "subtopicSlug": "management-and-leadership",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Business Studies Paper 1 · Question 2.1\n\nState ONE function of management.",
+      "correctAnswerText": "planning",
+      "acceptableAnswers": [
+        "organising",
+        "organizing",
+        "leading",
+        "control",
+        "controlling",
+        "motivating"
+      ],
+      "explanation": "Classic management functions include planning, organising, leading and control."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "business-environments",
+      "subtopicSlug": "business-sectors",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Business Studies · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Primary, secondary and tertiary sectors\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply primary, secondary and tertiary sectors in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Business Studies: Business environments · Primary, secondary and tertiary sectors — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "leadership-management",
+      "subtopicSlug": "motivation-and-communication",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Business Studies · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Motivation, communication and teams\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply motivation, communication and teams in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Business Studies: Leadership and management · Motivation, communication and teams — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "investments-insurance",
+      "subtopicSlug": "investment-securities",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Business Studies · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Investment and insurance options\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply investment and insurance options in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Business Studies: Investments and insurance · Investment and insurance options — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "creative-thinking",
+      "subtopicSlug": "business-opportunities",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Business Studies · CAPS.4\n\nWhich outcome best matches NSC assessment of \"Business opportunities and feasibility\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply business opportunities and feasibility in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Business Studies: Creative thinking and problem solving · Business opportunities and feasibility — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.5",
+      "topicSlug": "forms-of-ownership",
+      "subtopicSlug": "ownership-types",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Business Studies · CAPS.5\n\nWhich outcome best matches NSC assessment of \"Sole trader, partnership, company, close corporation\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply sole trader, partnership, company, close corporation in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Business Studies: Forms of ownership · Sole trader, partnership, company, close corporation — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.6",
+      "topicSlug": "human-resources",
+      "subtopicSlug": "recruitment-and-training",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Business Studies · CAPS.6\n\nWhich outcome best matches NSC assessment of \"Recruitment, selection and training\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply recruitment, selection and training in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Business Studies: Human resources · Recruitment, selection and training — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.7",
+      "topicSlug": "human-resources",
+      "subtopicSlug": "labour-legislation",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Business Studies · CAPS.7\n\nWhich outcome best matches NSC assessment of \"Labour relations and legislation\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply labour relations and legislation in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Business Studies: Human resources · Labour relations and legislation — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.8",
+      "topicSlug": "marketing",
+      "subtopicSlug": "marketing-mix",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Business Studies · CAPS.8\n\nWhich outcome best matches NSC assessment of \"Marketing mix and strategies\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply marketing mix and strategies in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Business Studies: Marketing · Marketing mix and strategies — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.9",
+      "topicSlug": "production",
+      "subtopicSlug": "production-operations",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Business Studies · CAPS.9\n\nWhich outcome best matches NSC assessment of \"Production, quality and productivity\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply production, quality and productivity in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Business Studies: Production function · Production, quality and productivity — assessed through applied exam-style work."
+    }
+  ]
+}

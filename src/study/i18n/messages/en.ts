@@ -1,0 +1,306 @@
+import type { StudyMessages } from "@/study/i18n/types";
+
+const encouragement = [
+  "You've got this.",
+  "One session at a time.",
+  "Small steps add up.",
+  "Let's make today count.",
+];
+
+export const en: StudyMessages = {
+  locale: "en",
+  langTag: "en-ZA",
+  brand: { short: "12", full: "Study Coach" },
+  nav: {
+    aria: "Study Coach navigation",
+    home: "Home",
+    subjects: "Subjects",
+    practice: "Practice",
+    progress: "Progress",
+    profile: "You",
+  },
+  common: {
+    back: "Back",
+    continue: "Continue",
+    start: "Start",
+    saving: "Saving…",
+    minutes: "min",
+    mastery: "How you're doing",
+    target: "Goal",
+    days: "days",
+    daysUntil: (subject) => `days until ${subject}`,
+    tryAgain: "Try again",
+    hmm: "Hmm…",
+    soon: "Soon",
+    nsc: "NSC",
+    examStyle: "Exam-style",
+    quizzes: "Quizzes",
+    topicsSoon: "Coming soon",
+    marksNowToGoal: (current, goal) => `Now ${current}% → aiming for ${goal}%`,
+    atPercent: (pct) => `You're at ${pct}% here`,
+  },
+  landing: {
+    pill: "Grade 12 · Matric",
+    titleLine1: "Don't stress.",
+    titleLine2: "We'll figure out what's next.",
+    lead: "Tell us your subjects and marks — we'll show where you stand and what to work on today.",
+    setupTitle: "About 2 minutes",
+    setupBullet1: "Your name & subjects",
+    setupBullet2: "Where you are now & what you want",
+    setupBullet3: "When your exams are",
+    cta: "Get started",
+    footnote: "Free · works on your phone · no sign-in required",
+  },
+  dashboard: {
+    examDaysPrefix: "days until",
+    yourSubjects: "Your subjects",
+    subjectsLead: "Where you are now vs what you're aiming for.",
+    seeTopics: "See topics",
+    nextStep: "Best thing to do next",
+    nextStepLead: "Based on your marks, exams, and recent practice.",
+    weeklyFocus: "This week's focus",
+    todayPlan: "Today's study plan",
+    planMinutes: (used, total) => `${used} / ${total} min planned`,
+    emptyTitle: "Let's find your starting point",
+    emptyLead: "Do a short practice round so we can see what to focus on.",
+    emptyCta: "Start practice",
+    progress: "Your progress",
+    coachPicked: (subtopic) => `Working on ${subtopic}`,
+    streak: "day streak",
+    sessionsDone: "sessions done",
+    comingUp: "Coming up",
+    override: "Want something else?",
+    chooseElse: "Pick another topic",
+    controlNote: "You're in charge.",
+  },
+  nextStep: {
+    why: "Why this one?",
+    start: "Start here",
+    notNow: "Not now — suggest something else",
+    atScore: (pct) => `About ${pct}% on this topic so far`,
+  },
+  subjects: {
+    title: "Your subjects",
+    lead: "Tap a subject to see where you're strong — and where to focus.",
+    target: (pct) => `Target ${pct}%`,
+    mapSoon: "We're still adding topics for this subject.",
+    topicsOnWay: "Topics coming soon",
+    topicsOnWayLead: "You can still set your marks and exam dates in your profile.",
+    browsePractice: "Find something to practice",
+    masteryMap: "How you're doing",
+    practice: "Practice",
+  },
+  practice: {
+    title: "Practice",
+    lead: "Start with what needs the most work.",
+    needsWork: "This needs some work",
+    practiceNow: "Practice now",
+    allTopics: "All topics",
+    answered: "answered",
+    estimateOnly: "estimate only",
+  },
+  progress: {
+    title: "Progress",
+    lead: "See how your practice is going.",
+    sessions: "Sessions completed",
+    streak: "Day streak",
+    matricGoals: "Matric goals",
+    inRange: "You're in range",
+    toGo: (pct) => `${pct}% to go`,
+    weeklyFocus: "This week's focus",
+    gettingStronger: "Getting stronger",
+    emptyTitle: "Let's start",
+    emptyLead: "Your first study session will appear here.",
+    emptyCta: "Start your first session",
+    biggestGaps: "Needs the most work",
+    needsAttention: "Needs attention",
+    practiceThis: "Practice this",
+  },
+  profile: {
+    title: "Your matric profile",
+    gradeLine: (year) => `Grade 12 · ${year}`,
+    subjectsTargets: "Subjects & targets",
+    nowAiming: (current, target) => `Now ~${current}% → aiming for ${target}%`,
+    demonstrated: (pct) => `From practice: ~${pct}%`,
+    selfReported: (pct) => `You said: ~${pct}% at signup`,
+    dailyStudyTime: "Daily study time",
+    dailyStudyTimeLead: "Used to build today's plan (you can change this anytime).",
+    saveDailyTime: "Save daily time",
+    update: "Update subjects & exam dates",
+    about: "About Study Coach",
+    appearance: "Appearance",
+    appearanceLead: "Dark is easier at night; light works better in bright rooms.",
+    themeDark: "Dark",
+    themeLight: "Light",
+    language: "App language",
+    languageLead: "Menus and guidance — your subjects stay the same.",
+  },
+  onboarding: {
+    signInHint: "Optional:",
+    signInLink: "Sign in",
+    signInRest: "to sync your profile if you use more than one device.",
+    subjectsMissing:
+      "Subjects are not loaded yet. On Railway this usually fills in automatically when the app starts after a deploy — check deploy logs for “Study curriculum seed”, wait a minute, then refresh. If it still fails, redeploy or ask your admin to check the database connection.",
+    hey: "Hey 👋 Let's build your matric study plan.",
+    planIntro: "",
+    nameLabel: "What's your name?",
+    namePlaceholder: "e.g. Thabo",
+    dailyMinutesLabel: "How much time can you study on a typical day?",
+    gradeLine: "Grade 12 · 2026",
+    subjectsTitle: "What are you studying this year?",
+    subjectsLead: "Tap your Grade 12 subjects.",
+    goalsTitle: "What are you aiming for?",
+    goalsLead: "Honest current mark + your target.",
+    currentMark: "Where you are now",
+    targetMark: "Where you want to be",
+    examsTitle: "When are your exams?",
+    examsLead: "Paper 1 dates are fine — we'll remind you what's coming up.",
+    examDate: "Exam date",
+    paper: "Paper",
+    minutes: "Minutes",
+    readyTitle: (name) => `You're ready, ${name}. We've got your starting point.`,
+    readyLead: (count) => `${count} subjects · personalised daily mission on your home screen.`,
+    showPlan: "Show my plan",
+    errors: {
+      name: "What should we call you?",
+      subjects: "Pick at least one Grade 12 subject.",
+    },
+  },
+  quiz: {
+    notFound: "Topic not found.",
+    notEnrolled: "This subject is not on your profile.",
+    noQuestions: "Practice questions for this topic are not available yet.",
+    backPractice: "Back to practice",
+    check: "Check answer",
+    checking: "Checking…",
+    pickAnswer: "Pick or type an answer first.",
+    questionOf: (n, total) => `Question ${n} of ${total}`,
+    yourAnswer: "Your answer",
+    shortPlaceholder: "Type your final answer",
+    nice: "Nice.",
+    gotIt: "You got it.",
+    almost: "Almost.",
+    almostLead: "Here's why it matters.",
+    memoAnswer: "Correct answer:",
+    nextOne: "Ready for the next one?",
+    finishSession: "Finish session",
+    whyTopicLabel: "Why this topic?",
+    savingProgress: "Saving your progress…",
+    sessionComplete: "Session complete",
+    niceWork: "Nice work.",
+    masteryLabel: "on this topic",
+    stepCloser: (delta) => `+${delta}% — nice, you're moving up`,
+    nextUp: "Try this next",
+    nextGap: (name) => `${name} could use some work`,
+    doneToday: "Done for today",
+    confidencePrompt: "How confident do you feel about this topic now?",
+    confidenceUnderstands: "I get it",
+    confidenceUnsure: "Still unsure",
+    confidenceDontUnderstand: "Need more help",
+    confidenceSaved: "Saved — we'll factor that into your next step.",
+    introMastery: (pct, attempted) => `About ${pct}% here · ${attempted} questions done`,
+    introBaseline: "A few quick questions — then we'll know what to focus on.",
+    questionType: "Which questions?",
+    questionsReady: (n) => `${n} question${n === 1 ? "" : "s"} ready`,
+    official: "Real exam questions",
+    officialHint: "From past matric papers",
+    practiceDrills: "Quick practice",
+    practiceHint: "Shorter questions to build confidence",
+    mixed: "Mix of both",
+    mixedHint: "Exam + practice",
+    readyCount: (n) => `${n} available`,
+    letsGo: "Let's go",
+    startQuestions: "Start questions",
+    loading: "Loading…",
+    modes: {
+      official: "Past exam questions",
+      practice: "Quick practice",
+      all: "Mix of both",
+    },
+  },
+  homeHelpers: {
+    greetingMorning: (name) => `Good morning, ${name}`,
+    greetingAfternoon: (name) => `Good afternoon, ${name}`,
+    greetingEvening: (name) => `Good evening, ${name}`,
+    encouragement,
+    examPassed: "Exam date passed — update your profile if needed.",
+    examToday: "Exam is today. Breathe — you've prepared.",
+    finalOnTrack: "Final stretch — you're on track.",
+    finalFocus: "Final stretch — a little extra focus helps.",
+    onTrack: "You're on track.",
+    needFocus: "A little more focus needed.",
+    plentyOnTrack: "Plenty of time — stay consistent.",
+    plentyMomentum: "Let's build momentum.",
+  },
+  masteryBand: {
+    strong: "Doing well",
+    building: "Getting there",
+    focus: "Needs work",
+  },
+  recommendation: {
+    examSoon: (subject, days) =>
+      `${subject} exam in ${days} day${days === 1 ? "" : "s"} — good time to practice.`,
+    strengthenPrereq: (prereq, pct, topic) =>
+      `${prereq} is only at ${pct}%. Nail that first — it helps with ${topic}.`,
+    recentAttemptsLow: (count, avg) =>
+      `Your last ${count} tries here averaged ${avg}%.`,
+    recentWrongStreak: (count) =>
+      `Your last ${count} answers in a row missed here — worth a focused retry.`,
+    bigGap: (pct) => `You're at about ${pct}% on this topic — room to grow.`,
+    noBaseline: () => "You haven't practiced this topic yet — a short session will show where you stand.",
+    lightPractice: (attempts) =>
+      `Only ${attempts} question${attempts === 1 ? "" : "s"} tried here so far — more practice will sharpen your picture.`,
+    improving: () => "You're improving here — keep going.",
+    defaultReason: () => "This fits your marks, exams, and what you've been practicing.",
+    subjectMarkGap: (subject, current, target, gap) =>
+      gap <= 0
+        ? `${subject}: you're at ~${current}% and already near your ${target}% target — great base to build on.`
+        : `${subject}: you're at ~${current}% with a ${target}% target — about ${gap}% still to close on your overall mark.`,
+    topicLevel: (subtopic, masteryPct, target) =>
+      `On "${subtopic}", your practice estimate is ~${masteryPct}% (aiming for ~${target}% overall in this subject).`,
+    highExamWeight: (topic) =>
+      `${topic} is a high-weight area in matric — time here usually pays off in the final exam.`,
+    solidExamWeight: (topic) =>
+      `${topic} carries solid exam weight — worth keeping on your radar.`,
+    examCountdown: (subject, days) =>
+      days <= 0
+        ? `${subject} exam date has passed — update your profile if needed, or keep consolidating.`
+        : days === 1
+          ? `${subject} exam is tomorrow — focused practice still helps.`
+          : `${subject} exam in ${days} days — enough time for meaningful progress if you stay consistent.`,
+    examDateUnknown: (subject) =>
+      `Add your ${subject} exam date in your profile for sharper timing — we'll still prioritise your biggest gaps.`,
+    encouragement: (subtopic, subjectGap, examDays, neverPractised) => {
+      if (neverPractised) {
+        return `A focused session on ${subtopic} is a smart way to map a gap without overwhelming yourself.`;
+      }
+      if (subjectGap >= 15 && examDays != null && examDays <= 42) {
+        return `Steady work on ${subtopic} now helps close your mark gap before the exam — one step at a time.`;
+      }
+      if (subjectGap >= 10) {
+        return `${subtopic} is a high-return choice right now — small wins here add up across the paper.`;
+      }
+      return `You're building momentum — ${subtopic} fits where you are today. Don't stress; just start.`;
+    },
+    weeklyFocusHeadline: (subject, gap, target) =>
+      `Prioritise ${subject} this week — ~${gap}% to your ${target}% target.`,
+    weeklyFocusDetail: (subject, gap, examDays, neverPractisedCount, weakTopicCount) => {
+      const parts: string[] = [];
+      if (examDays != null && examDays > 0) {
+        parts.push(`${examDays} day${examDays === 1 ? "" : "s"} until the exam`);
+      }
+      if (neverPractisedCount > 0) {
+        parts.push(
+          `${neverPractisedCount} topic${neverPractisedCount === 1 ? "" : "s"} not tried yet`,
+        );
+      }
+      if (weakTopicCount > 0) {
+        parts.push(`${weakTopicCount} below where you want to be`);
+      }
+      const tail = parts.length > 0 ? ` (${parts.join(" · ")})` : "";
+      return `Your biggest mark gap is in ${subject}${tail}. Even two short sessions can shift your confidence.`;
+    },
+    summaryStrengthen: (name) => `Start with ${name}.`,
+    summaryFocus: (name) => `Work on ${name} next.`,
+  },
+};

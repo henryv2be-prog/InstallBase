@@ -1,0 +1,104 @@
+{
+  "batchSlug": "hospitality-studies-p1-november-2022",
+  "label": "NSC November 2022 · Hospitality Studies Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Hospitality Studies Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "hospitality-studies",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Hospitality Studies Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "hospitality-operations",
+      "subtopicSlug": "food-and-beverage-service",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Hospitality Studies Paper 1 · Question 1.1\n\nIn hospitality service, cross-contamination is BEST prevented by —",
+      "options": [
+        {
+          "id": "a",
+          "text": "separate boards/utensils for raw and cooked foods and proper hand washing"
+        },
+        {
+          "id": "b",
+          "text": "reusing the same cloth for all surfaces without washing"
+        },
+        {
+          "id": "c",
+          "text": "storing raw meat above ready-to-eat food"
+        },
+        {
+          "id": "d",
+          "text": "ignoring temperature control"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Hospitality Studies CAPS: hygiene and safe food-handling practices."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "hospitality-operations",
+      "subtopicSlug": "kitchen-operations",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Hospitality Studies · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Kitchen operations and hygiene\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply kitchen operations and hygiene in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Hospitality Studies: Hospitality operations · Kitchen operations and hygiene — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "hospitality-management",
+      "subtopicSlug": "customer-service",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Hospitality Studies · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Customer service and entrepreneurship\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply customer service and entrepreneurship in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Hospitality Studies: Hospitality management · Customer service and entrepreneurship — assessed through applied exam-style work."
+    }
+  ]
+}

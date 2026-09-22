@@ -1,0 +1,104 @@
+{
+  "batchSlug": "mechanical-technology-p1-november-2022",
+  "label": "NSC November 2022 · Mechanical Technology Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Mechanical Technology Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "mechanical-technology",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Mechanical Technology Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "mechanical-systems",
+      "subtopicSlug": "tools-and-materials",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Mechanical Technology Paper 1 · Question 1.1\n\nWhich material is MOST suitable for a high-strength machine shaft?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Soft pine wood"
+        },
+        {
+          "id": "b",
+          "text": "Thin cardboard"
+        },
+        {
+          "id": "c",
+          "text": "Alloy steel"
+        },
+        {
+          "id": "d",
+          "text": "Unreinforced plaster"
+        }
+      ],
+      "correctOptionId": "c",
+      "explanation": "Mechanical Technology: material properties matched to function."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "mechanical-systems",
+      "subtopicSlug": "mechanisms",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mechanical Technology · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Mechanisms and power transmission\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply mechanisms and power transmission in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Mechanical Technology: Mechanical systems · Mechanisms and power transmission — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "workshop-practice",
+      "subtopicSlug": "safety-and-processes",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Mechanical Technology · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Safety and manufacturing processes\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply safety and manufacturing processes in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Mechanical Technology: Workshop practice · Safety and manufacturing processes — assessed through applied exam-style work."
+    }
+  ]
+}

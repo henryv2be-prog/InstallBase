@@ -1,0 +1,132 @@
+{
+  "batchSlug": "2022-computer-applications-technology-p1-november",
+  "label": "NSC November 2022 · CAT Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Computer Applications Technology Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "computer-applications-technology",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Computer Applications Technology Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "systems-technologies",
+      "subtopicSlug": "hardware-and-software",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · CAT Paper 1 · Question 1.1\n\nWhich component is hardware?",
+      "options": [
+        {
+          "id": "a",
+          "text": "CPU"
+        },
+        {
+          "id": "b",
+          "text": "Word processor"
+        },
+        {
+          "id": "c",
+          "text": "Web browser"
+        },
+        {
+          "id": "d",
+          "text": "Operating system"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CPU is physical hardware; the others are software."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "systems-technologies",
+      "subtopicSlug": "networks-and-internet",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Computer Applications Technology (CAT) · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Networks, internet and security\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply networks, internet and security in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Computer Applications Technology (CAT): Systems technologies · Networks, internet and security — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "information-management",
+      "subtopicSlug": "data-and-databases",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Computer Applications Technology (CAT) · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Data handling and databases\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply data handling and databases in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Computer Applications Technology (CAT): Information management · Data handling and databases — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "integrated-applications",
+      "subtopicSlug": "word-processing-spreadsheets",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Computer Applications Technology (CAT) · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Word processing and spreadsheets\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply word processing and spreadsheets in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Computer Applications Technology (CAT): Integrated applications · Word processing and spreadsheets — assessed through applied exam-style work."
+    }
+  ]
+}

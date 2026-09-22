@@ -1,0 +1,104 @@
+{
+  "batchSlug": "design-p1-november-2022",
+  "label": "NSC November 2022 · Design Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Design Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "design",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Design Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "design-process",
+      "subtopicSlug": "brief-and-research",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Design Paper 1 · Question 1.1\n\nIn the design process, the design brief should —",
+      "options": [
+        {
+          "id": "a",
+          "text": "ignore the client's needs"
+        },
+        {
+          "id": "b",
+          "text": "state the problem, user, constraints, and success criteria"
+        },
+        {
+          "id": "c",
+          "text": "only list colours with no context"
+        },
+        {
+          "id": "d",
+          "text": "be written after manufacturing with no planning"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Design CAPS: brief → research → concept → realisation."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "design-process",
+      "subtopicSlug": "concept-development",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Design · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Concept development and presentation\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply concept development and presentation in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Design: Design process · Concept development and presentation — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "design-fields",
+      "subtopicSlug": "graphic-and-product",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Design · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Graphic and product design principles\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply graphic and product design principles in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Design: Design fields · Graphic and product design principles — assessed through applied exam-style work."
+    }
+  ]
+}

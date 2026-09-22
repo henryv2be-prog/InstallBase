@@ -1,0 +1,147 @@
+{
+  "batchSlug": "2022-history-p1-november",
+  "label": "NSC November 2022 · History Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 History Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "history",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "History Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "cold-war",
+      "subtopicSlug": "origins-and-escalation",
+      "type": "SHORT_ANSWER",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · History Paper 1 · Question 1.1\n\nName the policy the USA used to contain the spread of communism after 1945.",
+      "correctAnswerText": "containment",
+      "acceptableAnswers": [
+        "Containment",
+        "Truman Doctrine",
+        "Marshall Plan"
+      ],
+      "explanation": "Containment aimed to stop Soviet influence expanding beyond Eastern Europe."
+    },
+    {
+      "sourceQuestionRef": "2.1",
+      "topicSlug": "civil-society-protests",
+      "subtopicSlug": "south-africa-1970s-1990s",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · History Paper 1 · Question 2.1\n\nThe Soweto Uprising (1976) was primarily a protest against …",
+      "options": [
+        {
+          "id": "a",
+          "text": "Afrikaans as a medium of instruction"
+        },
+        {
+          "id": "b",
+          "text": "the end of apartheid"
+        },
+        {
+          "id": "c",
+          "text": "universal suffrage in 1948"
+        },
+        {
+          "id": "d",
+          "text": "World War II conscription"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Students protested Bantu Education language policy imposing Afrikaans in schools."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "cold-war",
+      "subtopicSlug": "collapse-and-impact",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · History · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Collapse of the Soviet Union and global impact\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply collapse of the soviet union and global impact in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS History: The Cold War · Collapse of the Soviet Union and global impact — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "civil-society-protests",
+      "subtopicSlug": "global-protest-movements",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · History · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Global protest movements\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply global protest movements in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS History: Civil society protests (1970s–1990s) · Global protest movements — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "independent-africa",
+      "subtopicSlug": "decolonisation-case-studies",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · History · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Decolonisation case studies\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply decolonisation case studies in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS History: Independent Africa · Decolonisation case studies — assessed through applied exam-style work."
+    }
+  ]
+}

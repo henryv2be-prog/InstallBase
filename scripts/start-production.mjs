@@ -46,20 +46,6 @@ if (missing.length > 0) {
 
 console.log("Environment variables OK.");
 
-console.log("\n→ Checking ffmpeg (install video)");
-const ffmpegCheck = spawnSync("ffmpeg", ["-version"], {
-  encoding: "utf8",
-  stdio: ["ignore", "pipe", "pipe"],
-});
-if (ffmpegCheck.status === 0) {
-  const firstLine = ffmpegCheck.stdout?.split("\n")[0] ?? "ffmpeg ok";
-  console.log(`   ${firstLine.trim()}`);
-} else {
-  console.warn(
-    "   ⚠ ffmpeg not on PATH — install video posts will fail until ffmpeg is installed (nixpacks) or FFMPEG_PATH is set"
-  );
-}
-
 console.log("\n→ Preparing upload storage");
 setupUploadVolume();
 
@@ -79,6 +65,24 @@ if (migrate.status !== 0) {
 }
 
 console.log("Migrations complete.");
+
+const skipStudySeed =
+  process.env.SEED_STUDY_CURRICULUM === "false" || process.env.SEED_STUDY_CURRICULUM === "0";
+if (!skipStudySeed) {
+  console.log("\n→ Seeding Grade 12 Study Coach curriculum (idempotent upsert)");
+  const studySeed = spawnSync("npx", ["tsx", "prisma/seed-study-curriculum.ts"], {
+    stdio: "inherit",
+    shell: true,
+    env: process.env,
+  });
+  if (studySeed.status !== 0) {
+    console.error(
+      "\n⚠ Study curriculum seed failed — subjects and practice may be empty until the next redeploy.\n",
+    );
+  } else {
+    console.log("Study curriculum seed complete (subjects, practice, and NSC bank — idempotent).");
+  }
+}
 
 if (process.env.SEED_DEMO_AD_ONLY === "true" || process.env.SEED_DEMO_AD_ONLY === "1") {
   console.log("\n→ Seeding demo ad campaign (SEED_DEMO_AD_ONLY — safe upsert, no other data touched)");

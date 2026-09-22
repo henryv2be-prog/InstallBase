@@ -1,0 +1,132 @@
+{
+  "batchSlug": "2022-tourism-p1-november",
+  "label": "NSC November 2022 · Tourism Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Tourism Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "tourism",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Tourism Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "domestic-regional-international",
+      "subtopicSlug": "tourism-sectors",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · Tourism Paper 1 · Question 1.1\n\nWhich is part of the tourism sector?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Accommodation"
+        },
+        {
+          "id": "b",
+          "text": "Coal mining only"
+        },
+        {
+          "id": "c",
+          "text": "Vehicle manufacturing only"
+        },
+        {
+          "id": "d",
+          "text": "Crop rotation only"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Accommodation, transport, attractions and food services are core tourism sectors."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "domestic-regional-international",
+      "subtopicSlug": "tourism-geography",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Tourism · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Tourism geography and attractions\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply tourism geography and attractions in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Tourism: Domestic, regional and international tourism · Tourism geography and attractions — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "sustainable-tourism",
+      "subtopicSlug": "responsible-tourism",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Tourism · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Responsible tourism practices\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply responsible tourism practices in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Tourism: Sustainable and responsible tourism · Responsible tourism practices — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "tourism-marketing",
+      "subtopicSlug": "marketing-strategies",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Tourism · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Marketing strategies and SA tourism\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply marketing strategies and sa tourism in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Tourism: Tourism marketing · Marketing strategies and SA tourism — assessed through applied exam-style work."
+    }
+  ]
+}

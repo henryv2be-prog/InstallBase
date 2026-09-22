@@ -1,0 +1,149 @@
+{
+  "batchSlug": "2022-life-orientation-p1-november",
+  "label": "NSC November 2022 · Life Orientation Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Life Orientation Paper 1 — Question paper & memorandum",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Selected items for curriculum subtopic coverage."
+  },
+  "paper": {
+    "subjectSlug": "life-orientation",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Life Orientation Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "development-of-the-self",
+      "subtopicSlug": "career-and-study-skills",
+      "type": "SHORT_ANSWER",
+      "difficulty": 2,
+      "prompt": "Official NSC · Nov 2022 · Life Orientation Paper 1 · Question 1.1\n\nName ONE effective study skill for Grade 12 learners.",
+      "correctAnswerText": "time management",
+      "acceptableAnswers": [
+        "planning",
+        "past papers",
+        "revision timetable",
+        "note summarising",
+        "asking for help"
+      ],
+      "explanation": "Effective study includes planning, active revision and using past papers."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "development-of-the-self",
+      "subtopicSlug": "identity-and-roles",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Orientation · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Identity, roles and responsibilities\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply identity, roles and responsibilities in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Life Orientation: Development of the self in society · Identity, roles and responsibilities — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "health-social-and-environmental",
+      "subtopicSlug": "health-and-wellbeing",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Orientation · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Health, wellbeing and lifestyle diseases\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply health, wellbeing and lifestyle diseases in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Life Orientation: Health, social and environmental responsibility · Health, wellbeing and lifestyle diseases — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "health-social-and-environmental",
+      "subtopicSlug": "social-and-environmental",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Orientation · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Social and environmental responsibility\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply social and environmental responsibility in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Life Orientation: Health, social and environmental responsibility · Social and environmental responsibility — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "democracy-and-citizenship",
+      "subtopicSlug": "citizenship-and-rights",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Life Orientation · CAPS.4\n\nWhich outcome best matches NSC assessment of \"Citizenship, human rights and democracy\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply citizenship, human rights and democracy in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Life Orientation: Democracy and human rights · Citizenship, human rights and democracy — assessed through applied exam-style work."
+    }
+  ]
+}

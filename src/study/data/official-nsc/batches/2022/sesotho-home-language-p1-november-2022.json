@@ -1,0 +1,244 @@
+{
+  "batchSlug": "sesotho-home-language-p1-november-2022",
+  "label": "NSC November 2022 · Sesotho Home Language Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Sesotho Home Language Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "sesotho-home-language",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Sesotho Home Language Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "taalstrukture",
+      "subtopicSlug": "grammatika-en-woordeskat",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.1\n\nChoose the sentence that shows correct concord for a formal Sesotho Home Language essay.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Die leerders het sy boek vergeet."
+        },
+        {
+          "id": "b",
+          "text": "Die leerders het hul boeke vergeet."
+        },
+        {
+          "id": "c",
+          "text": "Die leerders het hulle boek vergeet."
+        },
+        {
+          "id": "d",
+          "text": "Die leerder het hul boek vergeet."
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "CAPS HL: concord between subject and possessive/agreement must be consistent (plural subject → plural possessive)."
+    },
+    {
+      "sourceQuestionRef": "1.2",
+      "topicSlug": "lees-en-kyk",
+      "subtopicSlug": "begrip-en-opsomming",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.2\n\nWhen writing a summary (Sesotho Home Language Paper 1), which rule is MOST important?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Copy long phrases word-for-word from the passage"
+        },
+        {
+          "id": "b",
+          "text": "Add your personal opinion on the topic"
+        },
+        {
+          "id": "c",
+          "text": "Use your own words and stay within the word limit"
+        },
+        {
+          "id": "d",
+          "text": "Include every minor detail from the text"
+        }
+      ],
+      "correctOptionId": "c",
+      "explanation": "NSC memos reward own-word summaries that capture main ideas within the stated length."
+    },
+    {
+      "sourceQuestionRef": "1.3",
+      "topicSlug": "skryf",
+      "subtopicSlug": "transaksioneel-en-kreatief",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.3\n\nWhich text type is appropriate for a formal bursary application (Sesotho Home Language)?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Formal letter / email with clear subject line and polite register"
+        },
+        {
+          "id": "b",
+          "text": "Informal social-media post with slang"
+        },
+        {
+          "id": "c",
+          "text": "Cartoon strip with speech bubbles only"
+        },
+        {
+          "id": "d",
+          "text": "Unstructured list of random notes"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "Transactional writing requires register, format, and purpose matched to the context."
+    },
+    {
+      "sourceQuestionRef": "1.4",
+      "topicSlug": "letterkunde",
+      "subtopicSlug": "poësie-en-prosa",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Sesotho Home Language Paper 1 · Question 1.4\n\nIn a literature essay, what is the main purpose of discussing 'theme'?",
+      "options": [
+        {
+          "id": "a",
+          "text": "To list every character's age"
+        },
+        {
+          "id": "b",
+          "text": "To explain the central message or idea the writer explores"
+        },
+        {
+          "id": "c",
+          "text": "To copy the poem without comment"
+        },
+        {
+          "id": "d",
+          "text": "To ignore the title of the work"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Theme analysis links evidence from the text to the writer's central message (CAPS literature outcome)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "taalstrukture",
+      "subtopicSlug": "taal-en-styl",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Sesotho Home Language · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Taal en styl\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply taal en styl in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Sesotho Home Language: Taalstrukture en konvensies · Taal en styl — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "lees-en-kyk",
+      "subtopicSlug": "kritiese-lees",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Sesotho Home Language · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Kritiese lees en ontleding\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply kritiese lees en ontleding in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Sesotho Home Language: Lees en kyk · Kritiese lees en ontleding — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.3",
+      "topicSlug": "skryf",
+      "subtopicSlug": "kreatiewe-skryfwerk",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Sesotho Home Language · CAPS.3\n\nWhich outcome best matches NSC assessment of \"Kreatiewe skryfwerk\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply kreatiewe skryfwerk in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Sesotho Home Language: Skryf · Kreatiewe skryfwerk — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.4",
+      "topicSlug": "letterkunde",
+      "subtopicSlug": "drama-en-film",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Sesotho Home Language · CAPS.4\n\nWhich outcome best matches NSC assessment of \"Drama en film\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply drama en film in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Sesotho Home Language: Letterkunde · Drama en film — assessed through applied exam-style work."
+    }
+  ]
+}

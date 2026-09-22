@@ -1,0 +1,104 @@
+{
+  "batchSlug": "consumer-studies-p1-november-2022",
+  "label": "NSC November 2022 · Consumer Studies Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Consumer Studies Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "consumer-studies",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Consumer Studies Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "consumer-rights",
+      "subtopicSlug": "responsible-consumption",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Consumer Studies Paper 1 · Question 1.1\n\nWhich action best reflects responsible consumption?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Buying excess food that is thrown away weekly"
+        },
+        {
+          "id": "b",
+          "text": "Ignoring energy use at home"
+        },
+        {
+          "id": "c",
+          "text": "Comparing needs vs wants and reducing waste"
+        },
+        {
+          "id": "d",
+          "text": "Using credit for luxury items without budgeting"
+        }
+      ],
+      "correctOptionId": "c",
+      "explanation": "Consumer Studies CAPS: rights, responsibilities, and sustainable choices."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "consumer-rights",
+      "subtopicSlug": "legislation-and-rights",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Consumer Studies · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Consumer legislation and rights\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply consumer legislation and rights in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Consumer Studies: Consumer rights · Consumer legislation and rights — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "food-and-nutrition",
+      "subtopicSlug": "nutrition-and-meal-planning",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Consumer Studies · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Nutrition and meal planning\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply nutrition and meal planning in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Consumer Studies: Food and nutrition · Nutrition and meal planning — assessed through applied exam-style work."
+    }
+  ]
+}

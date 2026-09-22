@@ -1,0 +1,104 @@
+{
+  "batchSlug": "engineering-graphics-and-design-p1-november-2022",
+  "label": "NSC November 2022 · Engineering Graphics & Design (EGD) Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Engineering Graphics & Design (EGD) Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "engineering-graphics-and-design",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Engineering Graphics & Design (EGD) Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "geometric-construction",
+      "subtopicSlug": "orthographic-projection",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Engineering Graphics & Design (EGD) Paper 1 · Question 1.1\n\nIn EGD orthographic projection, the TOP view shows —",
+      "options": [
+        {
+          "id": "a",
+          "text": "the object as seen from above (plan view)"
+        },
+        {
+          "id": "b",
+          "text": "the object as seen from the right only"
+        },
+        {
+          "id": "c",
+          "text": "hidden lines only, with no visible edges"
+        },
+        {
+          "id": "d",
+          "text": "a pictorial sketch with no scale"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "EGD CAPS: first-angle orthographic views (plan, front, side) and line types."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "geometric-construction",
+      "subtopicSlug": "isometric-and-oblique",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Engineering Graphics & Design (EGD) · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Isometric and oblique drawing\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply isometric and oblique drawing in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Engineering Graphics & Design (EGD): Geometric construction · Isometric and oblique drawing — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "design-process",
+      "subtopicSlug": "design-brief-and-solution",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Engineering Graphics & Design (EGD) · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Design brief and solution development\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply design brief and solution development in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Engineering Graphics & Design (EGD): Design process · Design brief and solution development — assessed through applied exam-style work."
+    }
+  ]
+}

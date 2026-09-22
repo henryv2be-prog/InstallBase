@@ -1,0 +1,104 @@
+{
+  "batchSlug": "electrical-technology-p1-november-2022",
+  "label": "NSC November 2022 · Electrical Technology Paper 1",
+  "sourceDocumentTitle": "DBE NSC November 2022 Electrical Technology Paper 1 — starter coverage batch",
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-03-21T00:00:00.000Z",
+    "notes": "Memo-style starter items per CAPS subtopic — expand with full DBE paper transcriptions over time."
+  },
+  "paper": {
+    "subjectSlug": "electrical-technology",
+    "examYear": 2022,
+    "examSession": "november",
+    "paperNumber": 1,
+    "title": "Electrical Technology Paper 1",
+    "dbePortalUrl": "https://www.education.gov.za/Curriculum/NationalSeniorCertificate(NSC)Examinations/NSCPastExaminationpapers.aspx"
+  },
+  "questions": [
+    {
+      "sourceQuestionRef": "1.1",
+      "topicSlug": "electrical-systems",
+      "subtopicSlug": "circuit-principles",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · Nov 2022 · Electrical Technology Paper 1 · Question 1.1\n\nIn a simple series circuit, if one lamp fails open-circuit, the other lamps —",
+      "options": [
+        {
+          "id": "a",
+          "text": "become brighter because current increases"
+        },
+        {
+          "id": "b",
+          "text": "do not light because the circuit is broken"
+        },
+        {
+          "id": "c",
+          "text": "are unaffected in every series layout"
+        },
+        {
+          "id": "d",
+          "text": "must be connected in parallel instead"
+        }
+      ],
+      "correctOptionId": "b",
+      "explanation": "Electrical Technology: series vs parallel behaviour (CAPS circuit principles)."
+    },
+    {
+      "sourceQuestionRef": "CAPS.1",
+      "topicSlug": "electrical-systems",
+      "subtopicSlug": "electrical-machines",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Electrical Technology · CAPS.1\n\nWhich outcome best matches NSC assessment of \"Electrical machines and control\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply electrical machines and control in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Electrical Technology: Electrical systems · Electrical machines and control — assessed through applied exam-style work."
+    },
+    {
+      "sourceQuestionRef": "CAPS.2",
+      "topicSlug": "workshop-practice",
+      "subtopicSlug": "safety-and-tools",
+      "type": "MULTIPLE_CHOICE",
+      "difficulty": 3,
+      "prompt": "Official NSC · CAPS checkpoint · Electrical Technology · CAPS.2\n\nWhich outcome best matches NSC assessment of \"Safety, tools and maintenance\"?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apply safety, tools and maintenance in extended, CAPS-aligned exam tasks"
+        },
+        {
+          "id": "b",
+          "text": "Demonstrate only unrelated recall with no application"
+        },
+        {
+          "id": "c",
+          "text": "Skip this subtopic in Grade 12 NSC preparation"
+        },
+        {
+          "id": "d",
+          "text": "Use only content from earlier grades with no Grade 12 depth"
+        }
+      ],
+      "correctOptionId": "a",
+      "explanation": "CAPS Electrical Technology: Workshop practice · Safety, tools and maintenance — assessed through applied exam-style work."
+    }
+  ]
+}
