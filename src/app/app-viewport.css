@@ -15,7 +15,8 @@
 }
 
 .immersive-feed-root {
-  --immersive-watch-subnav-h: 2.75rem;
+  /* min-h-11 row + py-2 on watch subnav (Popular / Following) */
+  --immersive-watch-subnav-h: 3.75rem;
 }
 
 /* —— Viewport-locked routes (Home/Explore watch, Create) —— */
