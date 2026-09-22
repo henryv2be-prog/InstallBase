@@ -29,25 +29,17 @@ export function VideoWithMusicPreview({
   const track = audioId === "none" ? null : tracks.find((t) => t.id === audioId) ?? null;
   const audioSrc = previewUrlForTrack(track);
 
-  const syncAudioToVideo = useCallback(() => {
-    const video = videoRef.current;
-    const audio = audioRef.current;
-    if (!video || !audio || !audioSrc) return;
-    if (video.paused) return;
-    const drift = Math.abs(audio.currentTime - (video.currentTime % (audio.duration || 1)));
-    if (Number.isFinite(audio.duration) && audio.duration > 0 && drift > 0.35) {
-      audio.currentTime = video.currentTime % audio.duration;
-    }
-  }, [audioSrc]);
-
   const playBoth = useCallback(async () => {
     const video = videoRef.current;
     const audio = audioRef.current;
     if (!video) return;
     try {
+      if (audio && audioSrc) {
+        audio.currentTime = 0;
+      }
+      video.currentTime = 0;
       await video.play();
       if (audio && audioSrc) {
-        audio.currentTime = video.currentTime % (audio.duration || 1);
         await audio.play();
       }
       setPlaying(true);
@@ -68,13 +60,6 @@ export function VideoWithMusicPreview({
   }, [pauseBoth, playBoth]);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.addEventListener("timeupdate", syncAudioToVideo);
-    return () => video.removeEventListener("timeupdate", syncAudioToVideo);
-  }, [syncAudioToVideo]);
-
-  useEffect(() => {
     pauseBoth();
     const video = videoRef.current;
     const audio = audioRef.current;
@@ -90,6 +75,21 @@ export function VideoWithMusicPreview({
     const video = videoRef.current;
     if (video) video.currentTime = 0;
   }, [videoUrl, pauseBoth]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !audioSrc) return;
+
+    const onEnded = () => {
+      const video = videoRef.current;
+      video?.pause();
+      if (video) video.currentTime = 0;
+      setPlaying(false);
+    };
+
+    audio.addEventListener("ended", onEnded);
+    return () => audio.removeEventListener("ended", onEnded);
+  }, [audioSrc]);
 
   useEffect(() => {
     if (!audioSrc) return;
@@ -115,10 +115,14 @@ export function VideoWithMusicPreview({
           preload="auto"
           onClick={togglePlay}
           onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
+          onPause={() => {
+            const audio = audioRef.current;
+            if (audio && audioSrc && !audio.paused && !audio.ended) return;
+            setPlaying(false);
+          }}
         />
         {audioSrc ? (
-          <audio ref={audioRef} src={audioSrc} loop preload="auto" className="hidden" />
+          <audio ref={audioRef} src={audioSrc} preload="auto" className="hidden" />
         ) : null}
 
         <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-between bg-gradient-to-b from-black/60 to-transparent p-3">
@@ -150,7 +154,7 @@ export function VideoWithMusicPreview({
         </button>
       </div>
       <p className="mt-2 text-center text-xs text-muted">
-        Tap the video to play or pause. Changing a sound updates this preview instantly.
+        Photos loop while the track plays — same as your posted video. Tap to play or pause.
       </p>
     </div>
   );
