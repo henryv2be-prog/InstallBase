@@ -467,3 +467,107 @@ const ACCOUNTING = {
 
 /** @type {Record<string, (ctx: object) => object>} */
 const SPECIFIC = {};
+
+export const CAPS_PRACTICE_DEPTH_PER_SUBTOPIC = 6;
+
+function hashSlug(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/** @param {object} ctx @param {number} slot 2..6 */
+function buildPracticeVariant(ctx, slot) {
+  const h = hashSlug(`${ctx.subjectSlug}/${ctx.subtopicSlug}/${slot}`);
+  const difficulty = 2 + (h % 3);
+  const name = ctx.subtopicName;
+  const topic = ctx.topicName;
+
+  const variants = [
+    () =>
+      mcq(
+        `Practice · ${topic}: Which approach best matches CAPS assessment of "${name}"?`,
+        "a",
+        [
+          { id: "a", text: `Apply ${name.toLowerCase()} in multi-step exam-style problems` },
+          { id: "b", text: "Memorise definitions only with no application" },
+          { id: "c", text: "Skip this subtopic in Grade 12 revision" },
+          { id: "d", text: "Use only Grade 10 methods with no Grade 12 depth" },
+        ],
+        `CAPS expects applied work on ${name}, not rote-only recall.`,
+        difficulty,
+      ),
+    () =>
+      mcq(
+        `Practice · ${name}: A common mistake in NSC scripts is to —`,
+        "c",
+        [
+          { id: "a", text: "Show all working clearly" },
+          { id: "b", text: "Use correct units and notation" },
+          { id: "c", text: "Mix up concepts from unrelated topics" },
+          { id: "d", text: "Check the reasonableness of the final answer" },
+        ],
+        `Coach tip: keep ${name} linked to ${topic} methods from CAPS.`,
+        difficulty,
+      ),
+    () =>
+      mcq(
+        `Practice · Before attempting ${name} in an exam, you should —`,
+        "b",
+        [
+          { id: "a", text: "Ignore the diagram or given data" },
+          { id: "b", text: "Identify givens, required, and a suitable method" },
+          { id: "c", text: "Copy a memorised answer without reading the question" },
+          { id: "d", text: "Change the subject to an easier one mid-question" },
+        ],
+        `Exam technique for ${name}: plan from the stem, then execute.`,
+        difficulty,
+      ),
+    () =>
+      mcq(
+        `Practice · ${name} at Grade 12 level typically includes —`,
+        "d",
+        [
+          { id: "a", text: "Only one-mark recall questions" },
+          { id: "b", text: "No links to other topics in the same subject" },
+          { id: "c", text: "Content from outside the CAPS document" },
+          { id: "d", text: `Extended tasks combining concepts from ${topic}` },
+        ],
+        `CAPS ${ctx.subjectName}: ${name} is assessed with Grade 12 depth.`,
+        difficulty,
+      ),
+    () =>
+      appliedMcq(
+        ctx,
+        `Practice · Past-paper style: ${name} is often combined with other ${topic} ideas. Best strategy:`,
+      ),
+    () =>
+      mcq(
+        `Practice · If your first attempt at a ${name} question fails, the best next step is —`,
+        "a",
+        [
+          { id: "a", text: "Diagnose the error, revise the method, try a similar item" },
+          { id: "b", text: "Stop practising this subtopic entirely" },
+          { id: "c", text: "Guess randomly on the next ten questions" },
+          { id: "d", text: "Only reread the textbook without doing questions" },
+        ],
+        `Adaptive practice: learn from mistakes on ${name}.`,
+        difficulty,
+      ),
+  ];
+
+  const pick = variants[(slot - 2 + h) % variants.length];
+  const body = pick();
+  return { ...body, difficulty: body.difficulty ?? difficulty };
+}
+
+/** Six CAPS-aligned practice bodies per subtopic (slot 1 = checkpoint-style core). */
+export function buildCapsPracticeDepthSet(ctx) {
+  const out = [];
+  const core = buildCapsCheckpointBody(ctx);
+  out.push({ ...core, difficulty: core.difficulty ?? 3 });
+  for (let slot = 2; slot <= CAPS_PRACTICE_DEPTH_PER_SUBTOPIC; slot += 1) {
+    out.push(buildPracticeVariant(ctx, slot));
+  }
+  return out;
+}

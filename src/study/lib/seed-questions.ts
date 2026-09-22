@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { importOfficialNscFromManifest } from "@/study/lib/nsc-import/import-from-manifest";
 import { loadNscImportManifest } from "@/study/lib/nsc-import/load-manifest";
 import { PRACTICE_QUESTIONS } from "@/study/data/practice-questions";
+import { loadCapsPracticeBankQuestions } from "@/study/lib/load-caps-practice-bank";
 import { seedGeneratedPracticeQuestions } from "@/study/lib/generated-practice/seed-generated-practice";
 import { buildAllValidatedGeneratedDrafts } from "@/study/lib/generated-practice/build-all-drafts";
 
@@ -21,7 +22,13 @@ type QuestionSeed = {
   options: { id: string; text: string }[];
   correctOptionId: string;
   explanation: string;
+  correctAnswerText?: string;
+  acceptableAnswers?: string[];
 };
+
+function allPracticeSeeds(): QuestionSeed[] {
+  return [...PRACTICE_QUESTIONS, ...loadCapsPracticeBankQuestions()];
+}
 
 async function upsertPracticeQuestion(q: QuestionSeed) {
   const subject = await prisma.studySubject.findUnique({ where: { slug: q.subjectSlug } });
@@ -56,6 +63,8 @@ async function upsertPracticeQuestion(q: QuestionSeed) {
       options: q.options,
       correctOptionId: q.correctOptionId || "n/a",
       explanation: q.explanation,
+      correctAnswerText: q.correctAnswerText ?? null,
+      acceptableAnswers: q.acceptableAnswers ?? undefined,
       sourceKind: StudyContentSourceKind.PRACTICE,
       sourceLabel: q.seedKey,
       active: true,
@@ -66,13 +75,15 @@ async function upsertPracticeQuestion(q: QuestionSeed) {
       options: q.options,
       correctOptionId: q.correctOptionId || "n/a",
       explanation: q.explanation,
+      correctAnswerText: q.correctAnswerText ?? null,
+      acceptableAnswers: q.acceptableAnswers ?? undefined,
       active: true,
     },
   });
 }
 
 export async function seedPracticeQuestions() {
-  for (const q of PRACTICE_QUESTIONS) {
+  for (const q of allPracticeSeeds()) {
     await upsertPracticeQuestion(q);
   }
 }
@@ -101,7 +112,8 @@ export async function ensurePracticeQuestions() {
 
   const manifest = loadNscImportManifest();
 
-  if (practiceCount < PRACTICE_QUESTIONS.length) {
+  const practiceTarget = allPracticeSeeds().length;
+  if (practiceCount < practiceTarget) {
     await seedPracticeQuestions();
   }
   const generatedTarget = buildAllValidatedGeneratedDrafts().length;

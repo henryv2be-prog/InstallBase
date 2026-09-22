@@ -5,17 +5,19 @@
 
 import { MATH_DEPTH_QUESTIONS } from "@/study/data/practice-questions-math-depth";
 import { STEM_DEPTH_QUESTIONS } from "@/study/data/practice-questions-stem-depth";
-
 export type PracticeQuestionDef = {
   seedKey: string;
   subjectSlug: string;
   topicSlug: string;
   subtopicSlug: string;
+  type?: "MULTIPLE_CHOICE" | "SHORT_ANSWER";
   difficulty: number;
   prompt: string;
   options: { id: string; text: string }[];
   correctOptionId: string;
   explanation: string;
+  correctAnswerText?: string;
+  acceptableAnswers?: string[];
 };
 
 export const PRACTICE_QUESTIONS: PracticeQuestionDef[] = [
