@@ -10,4 +10,8 @@ describe("capImmersiveSlideHeightPx", () => {
   it("leaves height unchanged when the nav is below the scrollport", () => {
     assert.equal(capImmersiveSlideHeightPx(400, 120, 900), 400);
   });
+
+  it("does not cap when nav top is invalid (hidden header nav on mobile)", () => {
+    assert.equal(capImmersiveSlideHeightPx(600, 120, 0), 600);
+  });
 });
