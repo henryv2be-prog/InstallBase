@@ -16,6 +16,7 @@ import { getUserPlatformRoles } from "@/lib/queries";
 import { needsProfessionalDetails } from "@/lib/platform-roles";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { LegalFooterLinks } from "@/components/legal/legal-footer-links";
 
 export const metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -121,6 +122,16 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted">
           <InstallInstructions />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Legal & policies</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-muted">
+          <p>Review InstallBase terms, privacy and community rules.</p>
+          <LegalFooterLinks />
         </CardContent>
       </Card>
 

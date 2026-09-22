@@ -30,7 +30,14 @@ interface PostOptionsMenuProps {
 }
 
 const reportReasons = [
+  { value: "COPYRIGHT", label: "Copyright / intellectual property" },
+  { value: "PRIVACY", label: "Privacy concern" },
+  { value: "CONFIDENTIAL_INFO", label: "Confidential information" },
+  { value: "SECURITY_SENSITIVE", label: "Security-sensitive information" },
+  { value: "HARASSMENT", label: "Harassment or abuse" },
   { value: "SPAM", label: "Spam" },
+  { value: "ILLEGAL_CONTENT", label: "Illegal content" },
+  { value: "FAKE_ACCOUNT", label: "Impersonation / fake account" },
   { value: "OFFENSIVE", label: "Offensive content" },
   { value: "UNSAFE_ADVICE", label: "Unsafe advice" },
   { value: "ADVERTISING", label: "Unwanted advertising" },

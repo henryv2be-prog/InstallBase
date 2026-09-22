@@ -5,6 +5,7 @@ import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 import { DEMO_IMAGES } from "../src/lib/constants";
 import { logDemoAdSeedResult, seedDemoAdCampaign } from "./seed-demo-ad";
+import { seedPolicyVersions } from "./seed-policies";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -482,6 +483,9 @@ async function main() {
   // Sample advertising (internal provider demo)
   const demoAd = await seedDemoAdCampaign(prisma);
   logDemoAdSeedResult(demoAd);
+
+  await seedPolicyVersions(prisma);
+  console.log("   Policy versions seeded (v1.0 active)");
 
   console.log("✅ Seed complete!");
   console.log(`   ${users.length} installers`);

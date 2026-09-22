@@ -6,6 +6,8 @@ import { AppProviders } from "@/components/layout/app-providers";
 import { NotificationPrompt } from "@/components/pwa/notification-prompt";
 import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { getVapidPublicKey } from "@/lib/vapid";
+import { isUserPolicyCompliant } from "@/lib/legal/compliance";
+import { PolicyGate } from "@/components/legal/policy-gate";
 
 export const dynamic = "force-dynamic";
 
@@ -27,11 +29,14 @@ async function AppLayoutSession({ children }: { children: React.ReactNode }) {
   const session = await getSession();
   const user = session?.user ?? null;
   const vapidPublicKey = getVapidPublicKey();
+  const policyCompliant = user?.id ? await isUserPolicyCompliant(user.id) : true;
 
   return (
     <>
       <AppProviders signedIn={Boolean(user)}>
-        <AppShell user={user}>{children}</AppShell>
+        <AppShell user={user}>
+          <PolicyGate compliant={policyCompliant}>{children}</PolicyGate>
+        </AppShell>
       </AppProviders>
       {user ? <PresenceHeartbeat /> : null}
       {user && vapidPublicKey ? <NotificationPrompt vapidPublicKey={vapidPublicKey} /> : null}

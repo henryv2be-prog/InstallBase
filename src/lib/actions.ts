@@ -41,10 +41,14 @@ import {
   resolveComposerIntent,
 } from "@/lib/work-posts";
 import { memberTierForSignupRank } from "@/lib/membership";
+import { recordPolicyAcceptanceForUser, requirePolicyCompliance } from "@/lib/legal/policy-actions";
 
-async function getCurrentUserId() {
+async function getCurrentUserId(options?: { skipPolicyCheck?: boolean }) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!options?.skipPolicyCheck) {
+    await requirePolicyCompliance(session.user.id);
+  }
   return session.user.id;
 }
 
@@ -60,6 +64,13 @@ export async function registerUser(formData: FormData) {
   const purposeIds = formData.getAll("purposes") as string[];
   const platformRoles = purposeIdsToRoles(purposeIds);
   const requireProfessional = needsProfessionalDetails(platformRoles);
+  const policiesAccepted = formData.get("policiesAccepted") === "true";
+
+  if (!policiesAccepted) {
+    return {
+      error: "Please read and accept the InstallBase policies to create an account.",
+    };
+  }
 
   const validationErrors = {
     ...validateAccountInput({ name, username, email, password }),
@@ -114,6 +125,16 @@ export async function registerUser(formData: FormData) {
         },
       },
     });
+
+    try {
+      await recordPolicyAcceptanceForUser(user.id);
+    } catch (policyError) {
+      console.error("Policy acceptance recording failed:", policyError);
+      return {
+        error:
+          "Your account was created but policy versions are not configured yet. Please contact support.",
+      };
+    }
 
     await signIn("credentials", { email, password, redirect: false });
     return { success: true, userId: user.id, platformRoles };

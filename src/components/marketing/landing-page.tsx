@@ -9,6 +9,7 @@ import { LandingCommunityRail } from "@/components/marketing/landing-community-r
 import { LandingTrustBar, type LandingCommunityStats } from "@/components/marketing/landing-trust-bar";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { LANDING_PAGE_KEY } from "@/lib/constants";
+import { LegalFooterLinks } from "@/components/legal/legal-footer-links";
 import type { PostCardData } from "@/lib/queries";
 
 type InstallerRow = {
@@ -171,6 +172,9 @@ export function LandingPage({
         <div className="mx-auto max-w-7xl px-4 text-center text-sm text-muted lg:px-6">
           <Logo size="sm" className="justify-center" />
           <p className="mt-2">Your work is your reputation.</p>
+          <div className="mt-4 flex justify-center">
+            <LegalFooterLinks />
+          </div>
         </div>
       </footer>
     </div>

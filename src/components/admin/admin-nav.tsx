@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Megaphone } from "lucide-react";
+import { LayoutDashboard, Megaphone, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/ads", label: "Advertising", icon: Megaphone, exact: false },
+  { href: "/admin/policies", label: "Policies", icon: Scale, exact: false },
 ];
 
 export function AdminNav() {

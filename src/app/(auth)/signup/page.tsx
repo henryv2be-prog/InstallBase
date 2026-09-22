@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { safeAuthNext } from "@/lib/auth-urls";
+import { LegalFooterLinks } from "@/components/legal/legal-footer-links";
 
 export const metadata = { title: "Sign up" };
 
@@ -24,12 +25,15 @@ export default async function SignupPage({
       </Link>
       <div className="relative z-10 w-full max-w-xl animate-fade-in">
         <SignupForm next={next} />
-        <p className="mt-6 text-center text-sm text-muted">
-          Or{" "}
-          <Link href="/feed" className="font-semibold text-blue-600 hover:underline dark:text-cyan-400">
-            browse the live site as a guest
-          </Link>
-        </p>
+        <div className="mt-6 space-y-4 text-center text-sm text-muted">
+          <LegalFooterLinks className="justify-center" />
+          <p>
+            Or{" "}
+            <Link href="/feed" className="font-semibold text-blue-600 hover:underline dark:text-cyan-400">
+              browse the live site as a guest
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

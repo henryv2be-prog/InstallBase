@@ -90,7 +90,21 @@ enum ReportReason {
   OFFENSIVE
   UNSAFE_ADVICE
   ADVERTISING
+  COPYRIGHT
+  PRIVACY
+  CONFIDENTIAL_INFO
+  SECURITY_SENSITIVE
+  HARASSMENT
+  ILLEGAL_CONTENT
   OTHER
+}
+
+enum PolicyType {
+  TERMS
+  PRIVACY
+  COMMUNITY_GUIDELINES
+  CONTENT_POLICY
+  COOKIES
 }
 
 enum ReportStatus {
@@ -149,6 +163,41 @@ model User {
   pushSubscriptions PushSubscription[]
   passwordResetTokens PasswordResetToken[]
   platformRoles     UserPlatformRole[]
+  policyAcceptances UserPolicyAcceptance[]
+}
+
+model PolicyVersion {
+  id          String     @id @default(cuid())
+  policyType  PolicyType
+  version     String
+  effectiveAt DateTime
+  publishedAt DateTime   @default(now())
+  contentHash String
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+
+  acceptances UserPolicyAcceptance[]
+
+  @@unique([policyType, version])
+  @@index([policyType, active])
+}
+
+model UserPolicyAcceptance {
+  id            String     @id @default(cuid())
+  userId        String
+  policyType    PolicyType
+  policyVersion String
+  policyVersionId String?
+  acceptedAt    DateTime   @default(now())
+  ipAddress     String?
+  userAgent     String?    @db.VarChar(512)
+  createdAt     DateTime   @default(now())
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  policyVersionRef PolicyVersion? @relation(fields: [policyVersionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, policyType])
+  @@index([userId, acceptedAt])
 }
 
 model UserPlatformRole {

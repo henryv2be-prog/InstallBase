@@ -26,6 +26,7 @@ import {
 } from "@/lib/platform-roles";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PolicySignupConsent } from "@/components/legal/policy-signup-consent";
 
 const experienceLevels = [
   { value: "APPRENTICE", label: "Apprentice" },
@@ -48,6 +49,8 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
   const [specialties, setSpecialties] = useState<string[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<SignupValidationErrors>({});
+  const [policiesAccepted, setPoliciesAccepted] = useState(false);
+  const [policyError, setPolicyError] = useState<string | undefined>();
   const [form, setForm] = useState({
     name: "",
     username: "",
@@ -115,6 +118,14 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
 
   const submitRegistration = () => {
     setFormError(null);
+    setPolicyError(undefined);
+
+    if (!policiesAccepted) {
+      const message = "Please read and accept the InstallBase policies to create an account.";
+      setPolicyError(message);
+      toast.error(message);
+      return;
+    }
 
     const errors = {
       ...validateAccountInput(form),
@@ -136,6 +147,7 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
     formData.append("city", form.city.trim());
     purposes.forEach((purpose) => formData.append("purposes", purpose));
     specialties.forEach((s) => formData.append("specialties", s));
+    formData.append("policiesAccepted", policiesAccepted ? "true" : "false");
 
     startTransition(async () => {
       try {
@@ -256,11 +268,26 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                 </p>
               </div>
               <PlatformPurposePicker value={purposes} onChange={setPurposes} disabled={pending} />
+              {!requireProfessional ? (
+                <PolicySignupConsent
+                  checked={policiesAccepted}
+                  onChange={(v) => {
+                    setPoliciesAccepted(v);
+                    setPolicyError(undefined);
+                  }}
+                  error={policyError}
+                />
+              ) : null}
               <div className="flex gap-2 pt-1">
                 <Button type="button" variant="outline" onClick={() => setStep(1)}>
                   Back
                 </Button>
-                <Button type="button" className="flex-1" onClick={continueFromPurposes} disabled={pending}>
+                <Button
+                  type="button"
+                  className="flex-1"
+                  onClick={continueFromPurposes}
+                  disabled={pending || (!requireProfessional && !policiesAccepted)}
+                >
                   {requireProfessional ? "Continue" : pending ? "Creating account..." : "Create account"}
                 </Button>
               </div>
@@ -344,11 +371,19 @@ export function SignupForm({ next = "/feed" }: { next?: string }) {
                   <FieldError message={fieldErrors.city} />
                 </div>
               </div>
+              <PolicySignupConsent
+                checked={policiesAccepted}
+                onChange={(v) => {
+                  setPoliciesAccepted(v);
+                  setPolicyError(undefined);
+                }}
+                error={policyError}
+              />
               <div className="flex gap-2 pt-1">
                 <Button type="button" variant="outline" onClick={() => setStep(2)}>
                   Back
                 </Button>
-                <Button type="submit" className="flex-1" disabled={pending}>
+                <Button type="submit" className="flex-1" disabled={pending || !policiesAccepted}>
                   {pending ? "Creating account..." : "Create account"}
                 </Button>
               </div>
