@@ -13,7 +13,7 @@ import { updateMasteryAfterQuiz } from "@/study/lib/update-mastery-after-quiz";
 import { markRecommendationFollowed } from "@/study/lib/recommendation/service";
 import { getStudyLocale } from "@/study/i18n/get-locale";
 import { localizeFromSubtopicGraph } from "@/study/i18n/localize-content";
-import { getWeakestMasteries } from "@/study/lib/queries";
+import { getNextStudyRecommendation } from "@/study/lib/recommendation/service";
 import { PRACTICE_LIKE_SOURCE_KINDS } from "@/study/lib/question-source-kinds";
 import {
   selectQuestionsForQuiz,
@@ -283,8 +283,17 @@ export async function completeSubtopicQuiz(sessionId: string, answers: QuizAnswe
   revalidatePath("/study/progress");
   revalidatePath("/study/profile");
 
-  const weakest = await getWeakestMasteries(learner.id, 5);
-  const nextFocus = weakest.find((w) => w.subtopicId !== session.subtopicId) ?? null;
+  const nextRec = await getNextStudyRecommendation(learner.id);
+  const nextFocus =
+    nextRec && nextRec.subtopicId !== session.subtopicId
+      ? {
+          subtopicId: nextRec.subtopicId,
+          subtopicName: nextRec.subtopicName,
+          topicName: nextRec.topicName,
+          subjectName: nextRec.subjectName,
+          masteryPct: nextRec.masteryPct,
+        }
+      : null;
   const subtopicMeta = await prisma.studySubtopic.findUnique({
     where: { id: session.subtopicId },
     select: {
@@ -305,7 +314,11 @@ export async function completeSubtopicQuiz(sessionId: string, answers: QuizAnswe
     ? localizeFromSubtopicGraph(locale, subtopicMeta)
     : { subjectName: "", topicName: "", subtopicName: "" };
   const nextLabels = nextFocus
-    ? localizeFromSubtopicGraph(locale, nextFocus.subtopic)
+    ? {
+        subtopicName: nextFocus.subtopicName,
+        topicName: nextFocus.topicName,
+        subjectName: nextFocus.subjectName,
+      }
     : null;
 
   const total = answers.length;

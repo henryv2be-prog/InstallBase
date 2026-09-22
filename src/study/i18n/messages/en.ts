@@ -59,6 +59,8 @@ export const en: StudyMessages = {
     nextStep: "Best thing to do next",
     nextStepLead: "Based on your marks, exams, and recent practice.",
     weeklyFocus: "This week's focus",
+    todayPlan: "Today's study plan",
+    planMinutes: (used, total) => `${used} / ${total} min planned`,
     emptyTitle: "Let's find your starting point",
     emptyLead: "Do a short practice round so we can see what to focus on.",
     emptyCta: "Start practice",
@@ -74,6 +76,7 @@ export const en: StudyMessages = {
   nextStep: {
     why: "Why this one?",
     start: "Start here",
+    notNow: "Not now — suggest something else",
     atScore: (pct) => `About ${pct}% on this topic so far`,
   },
   subjects: {
@@ -118,6 +121,11 @@ export const en: StudyMessages = {
     gradeLine: (year) => `Grade 12 · ${year}`,
     subjectsTargets: "Subjects & targets",
     nowAiming: (current, target) => `Now ~${current}% → aiming for ${target}%`,
+    demonstrated: (pct) => `From practice: ~${pct}%`,
+    selfReported: (pct) => `You said: ~${pct}% at signup`,
+    dailyStudyTime: "Daily study time",
+    dailyStudyTimeLead: "Used to build today's plan (you can change this anytime).",
+    saveDailyTime: "Save daily time",
     update: "Update subjects & exam dates",
     about: "About Study Coach",
     language: "App language",
@@ -133,6 +141,7 @@ export const en: StudyMessages = {
     planIntro: "",
     nameLabel: "What's your name?",
     namePlaceholder: "e.g. Thabo",
+    dailyMinutesLabel: "How much time can you study on a typical day?",
     gradeLine: "Grade 12 · 2026",
     subjectsTitle: "What are you studying this year?",
     subjectsLead: "Tap your Grade 12 subjects.",
@@ -231,6 +240,8 @@ export const en: StudyMessages = {
       `${prereq} is only at ${pct}%. Nail that first — it helps with ${topic}.`,
     recentAttemptsLow: (count, avg) =>
       `Your last ${count} tries here averaged ${avg}%.`,
+    recentWrongStreak: (count) =>
+      `Your last ${count} answers in a row missed here — worth a focused retry.`,
     bigGap: (pct) => `You're at about ${pct}% on this topic — room to grow.`,
     noBaseline: () => "You haven't practiced this topic yet — a short session will show where you stand.",
     lightPractice: (attempts) =>

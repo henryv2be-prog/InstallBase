@@ -5,6 +5,7 @@ export type LearnerProfile = {
   learnerId: string;
   displayName: string;
   schoolYear: number;
+  defaultAvailableMinutes: number;
   subjects: LearnerSubjectGoal[];
 };
 
@@ -44,6 +45,8 @@ export type TopicMasteryState = {
   lastPracticedAt: Date | null;
   /** Last N attempt outcomes (newest first), 0–100 each. */
   recentAttemptScores: number[];
+  /** Consecutive incorrect attempts from the most recent (stops at first correct). */
+  recentIncorrectStreak: number;
   /** Last completed session scores on this subtopic (percent correct). */
   recentSessionScores: number[];
   improvementTrend: number | null;

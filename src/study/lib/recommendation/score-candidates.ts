@@ -6,6 +6,7 @@ import {
 } from "@/study/i18n/localize-content";
 import type { RecommendationCopy, StudyLocale } from "@/study/i18n/types";
 import { en } from "@/study/i18n/messages/en";
+import type { RecommendationFeedback } from "@/study/lib/recommendation/feedback-types";
 import type { LearningState, StudyRecommendation, TopicMasteryState } from "@/study/lib/learner-model/types";
 import { estimateSessionMinutes } from "@/study/lib/home-helpers";
 import { QUIZ_SIZE } from "@/study/lib/quiz-types";
@@ -216,6 +217,10 @@ function buildWhyExplanation(params: {
     }
   }
 
+  if (focus.recentIncorrectStreak >= 2) {
+    reasonDetail.push(copy.recentWrongStreak(focus.recentIncorrectStreak));
+  }
+
   const reasonEncouragement = copy.encouragement(
     focusLabels.subtopicName,
     subjectMarkGap,
@@ -231,6 +236,7 @@ export function scoreRecommendationCandidates(
   state: LearningState,
   copy: RecommendationCopy = en.recommendation,
   locale: StudyLocale = "en",
+  feedback?: RecommendationFeedback,
 ): ScoredCandidate[] {
   const now = state.generatedAt;
   const byId = new Map(state.topics.map((t) => [t.subtopicId, t]));
@@ -284,6 +290,8 @@ export function scoreRecommendationCandidates(
     const prereqBoost =
       action === StudyRecommendationAction.REVISIT_PREREQUISITE ? focusGap * 0.3 : 0;
     const avoidedBoost = avoided.has(focus.subtopicId) ? 8 : 0;
+    const dismissPenalty = feedback?.dismissedSubtopicIds.has(focus.subtopicId) ? 22 : 0;
+    const stalePenalty = feedback?.staleSuggestionSubtopicIds.has(focus.subtopicId) ? 10 : 0;
 
     const returnScore =
       subjectMarkGap * 0.42 +
@@ -298,7 +306,10 @@ export function scoreRecommendationCandidates(
       avoidedBoost;
 
     const priorityScore =
-      returnScore * (0.45 + urgency * 0.55) - (focus.masteryPct > STRONG_MASTERY ? 12 : 0);
+      returnScore * (0.45 + urgency * 0.55) -
+      (focus.masteryPct > STRONG_MASTERY ? 12 : 0) -
+      dismissPenalty -
+      stalePenalty;
 
     const { reasonDetail, reasonEncouragement } = buildWhyExplanation({
       focus,
@@ -366,8 +377,9 @@ export function recommendFromLearningState(
   state: LearningState,
   copy: RecommendationCopy = en.recommendation,
   locale: StudyLocale = "en",
+  feedback?: RecommendationFeedback,
 ): StudyRecommendation | null {
-  const scored = scoreRecommendationCandidates(state, copy, locale);
+  const scored = scoreRecommendationCandidates(state, copy, locale, feedback);
   const top = scored[0];
   if (!top) return null;
   return candidateToRecommendation(top, state, copy, locale);

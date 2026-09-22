@@ -944,14 +944,16 @@ model StudySubtopic {
 }
 
 model StudyLearner {
-  id          String    @id @default(cuid())
-  userId      String?   @unique
-  displayName String
-  grade       Int       @default(12)
-  schoolYear  Int       @default(2026)
-  onboardedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                       String    @id @default(cuid())
+  userId                   String?   @unique
+  displayName              String
+  grade                    Int       @default(12)
+  schoolYear               Int       @default(2026)
+  /** Typical daily study budget (minutes) for generated plans. */
+  defaultAvailableMinutes  Int       @default(45)
+  onboardedAt              DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
 
   user                 User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
   subjects             StudyLearnerSubject[]

@@ -29,6 +29,7 @@ function topic(partial: Partial<TopicMasteryState> & Pick<TopicMasteryState, "su
     selfConfidence: null,
     lastPracticedAt: new Date(),
     recentAttemptScores: partial.recentAttemptScores ?? [80, 85, 90],
+    recentIncorrectStreak: partial.recentIncorrectStreak ?? 0,
     recentSessionScores: partial.recentSessionScores ?? [80],
     improvementTrend: partial.improvementTrend ?? null,
     avgDifficultyCorrect: partial.avgDifficultyCorrect ?? 2,
@@ -95,6 +96,7 @@ describe("generated practice", () => {
         learnerId: "l1",
         displayName: "Test",
         schoolYear: 12,
+        defaultAvailableMinutes: 45,
         subjects: [
           {
             subjectId: "s1",

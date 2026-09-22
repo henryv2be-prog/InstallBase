@@ -10,20 +10,28 @@ import {
   recommendFromLearningState,
   scoreRecommendationCandidates,
 } from "@/study/lib/recommendation/score-candidates";
+import { loadRecommendationFeedback } from "@/study/lib/recommendation/feedback";
 import { getWeeklyStudyFocus } from "@/study/lib/recommendation/weekly-study-focus";
 import type { WeeklyStudyFocus } from "@/study/lib/recommendation/weekly-study-focus";
+import { getOrBuildTodayStudyPlan } from "@/study/lib/study-plan/build-today-plan";
+import type { TodayStudyPlan } from "@/study/lib/study-plan/build-today-plan";
 
 export async function getLearningStateForLearner(learnerId: string) {
   return buildLearningState(learnerId);
 }
 
 export async function getNextStudyRecommendation(learnerId: string): Promise<StudyRecommendation | null> {
-  const [{ locale, t }, state] = await Promise.all([
+  const [{ locale, t }, state, feedback] = await Promise.all([
     getStudyMessages(),
     buildLearningState(learnerId),
+    loadRecommendationFeedback(learnerId),
   ]);
   if (!state) return null;
-  return recommendFromLearningState(state, t.recommendation, locale);
+  return recommendFromLearningState(state, t.recommendation, locale, feedback);
+}
+
+export async function getTodayStudyPlanForLearner(learnerId: string): Promise<TodayStudyPlan | null> {
+  return getOrBuildTodayStudyPlan(learnerId);
 }
 
 export async function getWeeklyFocusForLearner(learnerId: string): Promise<WeeklyStudyFocus | null> {
@@ -105,4 +113,65 @@ export async function markRecommendationFollowed(params: {
       sessionId: params.sessionId,
     },
   });
+}
+
+export async function dismissStudyRecommendation(params: {
+  learnerId: string;
+  subtopicId: string;
+  recommendationLogId?: string | null;
+}) {
+  const now = new Date();
+  if (params.recommendationLogId) {
+    await prisma.studyRecommendationLog.updateMany({
+      where: {
+        id: params.recommendationLogId,
+        learnerId: params.learnerId,
+        dismissedAt: null,
+      },
+      data: { dismissedAt: now },
+    });
+    return;
+  }
+
+  const open = await prisma.studyRecommendationLog.findFirst({
+    where: {
+      learnerId: params.learnerId,
+      subtopicId: params.subtopicId,
+      dismissedAt: null,
+    },
+    orderBy: { shownAt: "desc" },
+  });
+
+  if (open) {
+    await prisma.studyRecommendationLog.update({
+      where: { id: open.id },
+      data: { dismissedAt: now },
+    });
+    return;
+  }
+
+  await prisma.studyRecommendationLog.create({
+    data: {
+      learnerId: params.learnerId,
+      subtopicId: params.subtopicId,
+      action: StudyRecommendationAction.PRACTICE_TOPIC,
+      reasonSummary: "Learner dismissed this suggestion.",
+      reasonDetail: [],
+      priorityScore: 0,
+      dismissedAt: now,
+    },
+  });
+
+  await prisma.studyPlanItem.deleteMany({
+    where: {
+      subtopicId: params.subtopicId,
+      planDay: { learnerId: params.learnerId, planDate: startOfToday() },
+    },
+  });
+}
+
+function startOfToday(): Date {
+  const d = new Date();
+  d.setUTCHours(0, 0, 0, 0);
+  return d;
 }

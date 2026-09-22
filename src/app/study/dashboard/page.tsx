@@ -17,9 +17,11 @@ import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learn
 import { getLearnerProgressStats } from "@/study/lib/queries";
 import {
   getNextStudyRecommendation,
+  getTodayStudyPlanForLearner,
   getWeeklyFocusForLearner,
   logRecommendationShown,
 } from "@/study/lib/recommendation/service";
+import { StudyTodayPlan } from "@/study/components/study-today-plan";
 import { getSubjectTheme } from "@/study/lib/subject-theme";
 
 export const dynamic = "force-dynamic";
@@ -32,14 +34,16 @@ export default async function StudyDashboardPage() {
 
   const { locale, t } = await getStudyMessages();
   const firstName = learner.displayName.split(" ")[0] ?? learner.displayName;
-  const [recommendation, weeklyFocus, activity] = await Promise.all([
+  const [recommendation, weeklyFocus, activity, todayPlan] = await Promise.all([
     getNextStudyRecommendation(learner.id),
     getWeeklyFocusForLearner(learner.id),
     getLearnerProgressStats(learner.id),
+    getTodayStudyPlanForLearner(learner.id),
   ]);
 
+  let recommendationLogId: string | null = null;
   if (recommendation) {
-    await logRecommendationShown(learner.id, recommendation);
+    recommendationLogId = await logRecommendationShown(learner.id, recommendation);
   }
 
   const exams = learner.subjects
@@ -77,6 +81,14 @@ export default async function StudyDashboardPage() {
           </p>
         ) : null}
       </header>
+
+      {todayPlan ? (
+        <StudyTodayPlan
+          plan={todayPlan}
+          title={t.dashboard.todayPlan}
+          minutesLabel={t.dashboard.planMinutes}
+        />
+      ) : null}
 
       {weeklyFocus ? (
         <StudyWeeklyFocus focus={weeklyFocus} sectionLabel={t.dashboard.weeklyFocus} />
@@ -121,7 +133,7 @@ export default async function StudyDashboardPage() {
       </section>
 
       {recommendation ? (
-        <StudyNextStep recommendation={recommendation} />
+        <StudyNextStep recommendation={recommendation} recommendationLogId={recommendationLogId} />
       ) : (
         <section className="study-panel--mission mb-6 relative z-[1]">
           <p className="study-section-label mb-2">{t.dashboard.nextStep}</p>

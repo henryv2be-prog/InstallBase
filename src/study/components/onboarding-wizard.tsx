@@ -63,6 +63,7 @@ export function OnboardingWizard({
   const [error, setError] = useState<string | null>(null);
 
   const [displayName, setDisplayName] = useState(initialName);
+  const [dailyMinutes, setDailyMinutes] = useState(45);
   const [marks, setMarks] = useState<Record<string, SubjectMarks>>(() =>
     initialMarks ??
     Object.fromEntries(
@@ -169,7 +170,11 @@ export function OnboardingWizard({
     setError(null);
     startTransition(async () => {
       const payload = {
-        basics: { displayName: displayName.trim(), schoolYear: 2026 },
+        basics: {
+          displayName: displayName.trim(),
+          schoolYear: 2026,
+          defaultAvailableMinutes: dailyMinutes,
+        },
         subjects: selectedSubjects.map((s) => ({
           subjectId: s.id,
           currentMarkPct: marks[s.id].currentMarkPct,
@@ -223,6 +228,19 @@ export function OnboardingWizard({
             />
           </label>
           <p className="text-sm text-[var(--study-muted)]">{t.onboarding.gradeLine}</p>
+          <label className="block space-y-2 pt-2">
+            <span className="text-sm font-bold">{t.onboarding.dailyMinutesLabel}</span>
+            <input
+              type="range"
+              min={15}
+              max={180}
+              step={15}
+              value={dailyMinutes}
+              onChange={(e) => setDailyMinutes(Number(e.target.value))}
+              className="w-full"
+            />
+            <p className="text-sm font-extrabold tabular-nums study-text-emphasis">{dailyMinutes} min</p>
+          </label>
         </section>
       ) : null}
 

@@ -35,6 +35,7 @@ function subtopic(
     selfConfidence: null,
     lastPracticedAt: extra.lastPracticedAt ?? new Date(),
     recentAttemptScores: extra.recentAttemptScores ?? [],
+    recentIncorrectStreak: extra.recentIncorrectStreak ?? 0,
     recentSessionScores: extra.recentSessionScores ?? [],
     improvementTrend: extra.improvementTrend ?? null,
     avgDifficultyCorrect: null,
@@ -53,6 +54,7 @@ function baseState(topics: TopicMasteryState[]): LearningState {
       learnerId: "learner-test",
       displayName: "Test",
       schoolYear: 2026,
+      defaultAvailableMinutes: 45,
       subjects: [
         {
           ...SUBJECT,

@@ -59,6 +59,8 @@ export const af: StudyMessages = {
     nextStep: "Beste volgende ding",
     nextStepLead: "Gebaseer op jou punte, eksamens en onlangse oefening.",
     weeklyFocus: "Hierdie week se fokus",
+    todayPlan: "Vandag se studieplan",
+    planMinutes: (used, total) => `${used} / ${total} min beplan`,
     emptyTitle: "Kom ons vind jou beginpunt",
     emptyLead: "Doen 'n kort oefen-rondte sodat ons weet waar om te fokus.",
     emptyCta: "Begin oefen",
@@ -74,6 +76,7 @@ export const af: StudyMessages = {
   nextStep: {
     why: "Hoekom hierdie een?",
     start: "Begin hier",
+    notNow: "Nie nou nie — stel iets anders voor",
     atScore: (pct) => `Ongeveer ${pct}% op hierdie onderwerp sover`,
   },
   subjects: {
@@ -118,6 +121,11 @@ export const af: StudyMessages = {
     gradeLine: (year) => `Graad 12 · ${year}`,
     subjectsTargets: "Vakke & teikens",
     nowAiming: (current, target) => `Nou ~${current}% → mik na ${target}%`,
+    demonstrated: (pct) => `Uit oefening: ~${pct}%`,
+    selfReported: (pct) => `Jy gesê: ~${pct}% by aanmelding`,
+    dailyStudyTime: "Daaglikse studietyd",
+    dailyStudyTimeLead: "Gebruik om vandag se plan te bou (jy kan dit enige tyd verander).",
+    saveDailyTime: "Stoor daaglikse tyd",
     update: "Werk vakke & eksamendatums by",
     about: "Oor Studie-afrigter",
     language: "App-taal",
@@ -133,6 +141,7 @@ export const af: StudyMessages = {
     planIntro: "",
     nameLabel: "Wat is jou naam?",
     namePlaceholder: "bv. Thabo",
+    dailyMinutesLabel: "Hoeveel tyd kan jy tipies per dag studeer?",
     gradeLine: "Graad 12 · 2026",
     subjectsTitle: "Wat studeer jy hierdie jaar?",
     subjectsLead: "Tik jou Graad 12-vakke.",
@@ -232,6 +241,8 @@ export const af: StudyMessages = {
       prereq + " is net " + pct + " persent. Sorteer dit eers — dit help met " + topic + ".",
     recentAttemptsLow: (count, avg) =>
       "Jou laaste " + count + " pogings hier was gemiddeld " + avg + " persent.",
+    recentWrongStreak: (count) =>
+      "Jou laaste " + count + " antwoorde agtereenvolgens was verkeerd hier — fokus-oefening help.",
     bigGap: (pct) => `Jy is op ongeveer ${pct}% op hierdie onderwerp — nog spasie om te groei.`,
     noBaseline: () =>
       "Jy het nog nie hierdie onderwerp geoefen nie — 'n kort sessie wys waar jy staan.",

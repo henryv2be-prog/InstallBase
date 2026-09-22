@@ -6,6 +6,7 @@ import { getStudyMessages } from "@/study/i18n/get-locale";
 import { localizeSubjectName } from "@/study/i18n/localize-content";
 import { daysUntilExam } from "@/study/lib/days-until-exam";
 import { getStudyLearnerForRequest, isLearnerOnboarded } from "@/study/lib/learner-session";
+import { StudyDailyMinutesForm } from "@/study/components/study-daily-minutes-form";
 import { getSubjectTheme } from "@/study/lib/subject-theme";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,16 @@ export default async function StudyProfilePage() {
       </section>
 
       <section className="study-panel p-4 mb-5">
+        <p className="study-section-label mb-1">{t.profile.dailyStudyTime}</p>
+        <p className="mb-3 text-sm text-[var(--study-muted)]">{t.profile.dailyStudyTimeLead}</p>
+        <StudyDailyMinutesForm
+          initialMinutes={learner.defaultAvailableMinutes}
+          label={t.profile.dailyStudyTime}
+          saveLabel={t.profile.saveDailyTime}
+        />
+      </section>
+
+      <section className="study-panel p-4 mb-5">
         <p className="study-section-label mb-3">{t.profile.subjectsTargets}</p>
         <ul className="space-y-3">
           {learner.subjects.map((ls) => {
@@ -57,8 +68,18 @@ export default async function StudyProfilePage() {
                   ) : null}
                 </div>
                 <p className="mt-1 text-sm text-[var(--study-muted)]">
-                  {t.profile.nowAiming(ls.currentMarkPct, ls.targetMarkPct)}
+                  {t.profile.nowAiming(
+                    ls.demonstratedMarkPct ?? ls.currentMarkPct,
+                    ls.targetMarkPct,
+                  )}
                 </p>
+                {ls.demonstratedMarkPct != null &&
+                Math.abs(ls.demonstratedMarkPct - ls.currentMarkPct) >= 4 ? (
+                  <p className="mt-1 text-xs text-[var(--study-muted)]">
+                    {t.profile.demonstrated(Math.round(ls.demonstratedMarkPct))} ·{" "}
+                    {t.profile.selfReported(Math.round(ls.currentMarkPct))}
+                  </p>
+                ) : null}
               </li>
             );
           })}

@@ -23,7 +23,9 @@ Persisted activity (already in schema):
 
 Deterministic Phase 2 rules in `recommendation/score-candidates.ts` (not in React).
 
-Factors: mastery gap, exam urgency, target mark gap, topic importance, recent attempt scores, improvement trend, time since practice, self-confidence signal, curriculum prerequisites.
+Factors: mastery gap, exam urgency, target mark gap, topic importance, recent attempt scores, improvement trend, time since practice, self-confidence signal, curriculum prerequisites, dismissed/stale recommendations, avoided subtopics.
+
+Daily `StudyPlanDay` items are built from the same ranked candidates and the learner's `defaultAvailableMinutes`.
 
 Actions: `PRACTICE_TOPIC`, `REVISIT_PREREQUISITE`, `TRY_HARDER_QUESTIONS`, `DO_PAST_PAPER`, etc.
 

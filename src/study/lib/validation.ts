@@ -3,6 +3,7 @@ import { z } from "zod";
 export const studyBasicsSchema = z.object({
   displayName: z.string().trim().min(2, "Enter your name").max(80),
   schoolYear: z.coerce.number().int().min(2026).max(2027).default(2026),
+  defaultAvailableMinutes: z.coerce.number().int().min(15).max(240).default(45),
 });
 
 export const studySubjectMarksSchema = z.object({

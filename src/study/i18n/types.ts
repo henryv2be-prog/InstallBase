@@ -3,6 +3,7 @@ export type StudyLocale = "en" | "af";
 export type RecommendationCopy = {
   strengthenPrereq: (prereq: string, pct: number, topic: string) => string;
   recentAttemptsLow: (count: number, avg: number) => string;
+  recentWrongStreak: (count: number) => string;
   bigGap: (pct: number) => string;
   noBaseline: () => string;
   lightPractice: (attempts: number) => string;
@@ -85,6 +86,8 @@ export type StudyMessages = {
     nextStep: string;
     nextStepLead: string;
     weeklyFocus: string;
+    todayPlan: string;
+    planMinutes: (used: number, total: number) => string;
     emptyTitle: string;
     emptyLead: string;
     emptyCta: string;
@@ -100,6 +103,7 @@ export type StudyMessages = {
   nextStep: {
     why: string;
     start: string;
+    notNow: string;
     atScore: (pct: number) => string;
   };
   subjects: {
@@ -144,6 +148,11 @@ export type StudyMessages = {
     gradeLine: (year: number) => string;
     subjectsTargets: string;
     nowAiming: (current: number, target: number) => string;
+    demonstrated: (pct: number) => string;
+    selfReported: (pct: number) => string;
+    dailyStudyTime: string;
+    dailyStudyTimeLead: string;
+    saveDailyTime: string;
     update: string;
     about: string;
     language: string;
@@ -158,6 +167,7 @@ export type StudyMessages = {
     planIntro: string;
     nameLabel: string;
     namePlaceholder: string;
+    dailyMinutesLabel: string;
     gradeLine: string;
     subjectsTitle: string;
     subjectsLead: string;

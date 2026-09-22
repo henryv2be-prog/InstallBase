@@ -18,6 +18,15 @@ function sessionScorePercent(correct: number, total: number): number {
   return Math.round((correct / total) * 100);
 }
 
+function recentIncorrectStreak(scores: number[]): number {
+  let n = 0;
+  for (const s of scores) {
+    if (s >= 50) break;
+    n += 1;
+  }
+  return n;
+}
+
 function computeTrend(scores: number[]): number | null {
   if (scores.length < 4) return null;
   const recent = scores.slice(0, Math.min(5, scores.length));
@@ -116,6 +125,7 @@ export async function buildLearningState(learnerId: string): Promise<LearningSta
     learnerId: learner.id,
     displayName: learner.displayName,
     schoolYear: learner.schoolYear,
+    defaultAvailableMinutes: learner.defaultAvailableMinutes,
     subjects: learner.subjects.map((ls) => {
       const demonstratedMarkPct = ls.demonstratedMarkPct ?? null;
       const effectiveMarkPct = demonstratedMarkPct ?? ls.currentMarkPct;
@@ -195,6 +205,7 @@ export async function buildLearningState(learnerId: string): Promise<LearningSta
       selfConfidence: m.selfConfidence,
       lastPracticedAt: m.lastPracticedAt,
       recentAttemptScores,
+      recentIncorrectStreak: recentIncorrectStreak(recentAttemptScores),
       recentSessionScores,
       improvementTrend: computeTrend(recentAttemptScores),
       avgDifficultyCorrect: avgDiffCorrect,

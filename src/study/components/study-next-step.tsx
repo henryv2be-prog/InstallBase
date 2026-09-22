@@ -1,16 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import type { StudyRecommendation } from "@/study/lib/learner-model/types";
 import { useStudyContentLabels, useStudyT } from "@/study/components/study-locale-provider";
+import { dismissNextStepRecommendation } from "@/study/lib/study-coach-actions";
 import { getSubjectTheme } from "@/study/lib/subject-theme";
 
 type Props = {
   recommendation: StudyRecommendation;
+  recommendationLogId?: string | null;
 };
 
-export function StudyNextStep({ recommendation }: Props) {
+export function StudyNextStep({ recommendation, recommendationLogId }: Props) {
   const t = useStudyT();
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
   const content = useStudyContentLabels();
   const theme = getSubjectTheme(recommendation.subjectSlug);
   const subjectName = content.subject(recommendation.subjectSlug, recommendation.subjectName);
@@ -43,6 +49,20 @@ export function StudyNextStep({ recommendation }: Props) {
       >
         {t.nextStep.start}
       </Link>
+
+      <button
+        type="button"
+        disabled={pending}
+        className="study-btn study-btn-ghost study-touch-target mt-2 w-full text-center text-sm"
+        onClick={() => {
+          startTransition(async () => {
+            await dismissNextStepRecommendation(recommendation.subtopicId, recommendationLogId ?? undefined);
+            router.refresh();
+          });
+        }}
+      >
+        {t.nextStep.notNow}
+      </button>
 
       <details className="mt-4 rounded-xl border border-[var(--study-border)] bg-black/20 px-4 py-3">
         <summary className="cursor-pointer text-sm font-bold study-text-link">
