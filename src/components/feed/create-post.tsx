@@ -769,7 +769,8 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
     <div
       className={cn(
         "flex flex-wrap items-center justify-between gap-2",
-        fitViewport && "shrink-0 border-t border-border/60 pt-2"
+        fitViewport &&
+          "create-flow-action-dock sticky bottom-0 z-20 -mx-3 shrink-0 border-t border-border/70 bg-card/95 px-3 pt-2 backdrop-blur-md sm:mx-0 sm:bg-transparent sm:backdrop-blur-none md:static md:pb-0"
       )}
     >
       {!fitViewport && (
@@ -884,7 +885,12 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
           </div>
         ) : (
           <>
-        <div className={cn(fitViewport && "flex min-h-0 flex-1 flex-col gap-2 overflow-hidden")}>
+        <div
+          className={cn(
+            fitViewport &&
+              "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch]"
+          )}
+        >
         {!isEditing && (
         <div className={cn("flex flex-wrap items-center gap-1.5", fitViewport ? "shrink-0" : "mb-3 gap-2")}>
           <Button
