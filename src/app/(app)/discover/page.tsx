@@ -26,17 +26,29 @@ import { LeaderboardPanel } from "@/components/discover/leaderboard-panel";
 import { EmptyState } from "@/components/ui/empty-state";
 import { AdSlot } from "@/components/ads/ad-slot";
 import { AD_PLACEMENTS } from "@/lib/advertising/placements";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { isMobileUserAgent } from "@/lib/feed-routes";
+import { newLookExploreHref, classicExploreHref } from "@/lib/discover-routes";
 
 export const metadata = { title: "Explore" };
 export const dynamic = "force-dynamic";
 
 interface DiscoverPageProps {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; view?: string }>;
 }
 
 export default async function DiscoverPage({ searchParams }: DiscoverPageProps) {
   const session = await getSession();
-  const { tab = "trending" } = await searchParams;
+  const { tab = "trending", view } = await searchParams;
+
+  const isTrendingTab = tab === "trending" || !tab;
+  if (view !== "classic" && isTrendingTab) {
+    const ua = (await headers()).get("user-agent") ?? "";
+    if (isMobileUserAgent(ua)) {
+      redirect("/discover/watch");
+    }
+  }
   const userId = session?.user?.id;
 
   const isTrending = tab === "trending" || !tab;
@@ -81,6 +93,15 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
       <div>
         <h1 className="text-2xl font-bold">Explore</h1>
         <p className="text-muted">Trending installations, installers, and products</p>
+        {view === "classic" ? (
+          <Link href={newLookExploreHref()} className="mt-2 inline-block text-sm font-semibold text-primary hover:underline">
+            Switch to New look explore →
+          </Link>
+        ) : (
+          <Link href={classicExploreHref(tab)} className="mt-2 inline-block text-sm font-medium text-muted hover:text-foreground">
+            Classic explore grid
+          </Link>
+        )}
       </div>
 
       <Suspense fallback={null}>

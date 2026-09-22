@@ -20,17 +20,28 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ReengagementOpenTracker } from "@/components/reengagement/open-tracker";
 import { WatchInstallsFeedEntry } from "@/components/feed/watch-installs-promo";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { isMobileUserAgent } from "@/lib/feed-routes";
 
-export const metadata = { title: "Feed" };
+export const metadata = { title: "Classic feed" };
 export const dynamic = "force-dynamic";
 
 interface FeedPageProps {
-  searchParams: Promise<{ tab?: string; ref?: string; nid?: string }>;
+  searchParams: Promise<{ tab?: string; ref?: string; nid?: string; view?: string }>;
 }
 
 export default async function FeedPage({ searchParams }: FeedPageProps) {
   const session = await getSession();
-  const { tab, ref, nid } = await searchParams;
+  const { tab, ref, nid, view } = await searchParams;
+
+  if (view !== "classic") {
+    const ua = (await headers()).get("user-agent") ?? "";
+    if (isMobileUserAgent(ua)) {
+      const tabParam = tab === "following" || tab === "popular" ? `?tab=${tab}` : "";
+      redirect(`/feed/watch${tabParam}`);
+    }
+  }
   const userId = session?.user?.id;
 
   const followingIds = userId ? await getFollowingIds(userId) : [];
@@ -72,7 +83,8 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
 
         <div>
           <WatchInstallsFeedEntry
-            watchHref={`/feed/watch?tab=${followingTab ? "following" : "popular"}`}
+            newLookHref={`/feed/watch?tab=${followingTab ? "following" : "popular"}`}
+            showClassicHint
             waitForWelcomeDismiss={Boolean(userId)}
           />
           <div className="flex rounded-xl bg-card/60 p-1 border border-border">

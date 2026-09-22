@@ -6,12 +6,14 @@ export const FEED_MAX_LOADED_POSTS = 60;
 /** Bound popular-tab exclude id lists carried in cursors. */
 export const FEED_MAX_CURSOR_EXCLUDE_IDS = 80;
 
-export type FeedTab = "popular" | "following";
+export type FeedTab = "popular" | "following" | "explore";
 
 export type FeedCursor = {
   createdAt: string;
   id: string;
   excludeIds?: string[];
+  /** Trending / explore tab — order by brag score descending. */
+  bragScore?: number;
 };
 
 export type FeedPageResult<T> = {
@@ -52,6 +54,28 @@ export function feedCursorWhere(cursor: FeedCursor): Prisma.PostWhereInput {
     OR: [
       { createdAt: { lt: createdAt } },
       { AND: [{ createdAt }, { id: { lt: cursor.id } }] },
+    ],
+  };
+}
+
+/** Explore feed: bragScore desc, then createdAt desc, then id desc. */
+export function trendingFeedCursorWhere(cursor: FeedCursor): Prisma.PostWhereInput {
+  const bragScore = cursor.bragScore ?? 0;
+  const createdAt = new Date(cursor.createdAt);
+  return {
+    OR: [
+      { bragScore: { lt: bragScore } },
+      {
+        AND: [
+          { bragScore },
+          {
+            OR: [
+              { createdAt: { lt: createdAt } },
+              { AND: [{ createdAt }, { id: { lt: cursor.id } }] },
+            ],
+          },
+        ],
+      },
     ],
   };
 }
