@@ -6,7 +6,10 @@ import type { PostCardData } from "@/lib/queries";
 import { FEED_MAX_LOADED_POSTS } from "@/lib/feed-pagination";
 import { postHasImmersiveMedia } from "@/lib/immersive-feed-media";
 import { ImmersiveSlide } from "@/components/feed/immersive/immersive-slide";
+import { ImmersiveAdSlide } from "@/components/feed/immersive/immersive-ad-slide";
 import { Button } from "@/components/ui/button";
+import type { AdCreative } from "@/lib/advertising/types";
+import { interleaveFeedWithAds } from "@/lib/advertising/interleave-feed-ads";
 
 /** Apply brag/bookmark viewer fields from a fresh server row without replacing the feed list. */
 function mergePostViewerFields(existing: PostCardData, fresh: PostCardData): PostCardData {
@@ -34,6 +37,14 @@ interface ImmersiveFeedProps {
   currentUserId?: string;
   followingIds?: Set<string>;
   slideHeightClass?: string;
+  betweenAds?: AdCreative[];
+  betweenAdsPlacementKey?: string;
+  minPostsBetweenAds?: number;
+}
+
+function feedSlideKey(item: ReturnType<typeof interleaveFeedWithAds<PostCardData>>[number]): string {
+  if (item.kind === "item") return item.value.id;
+  return `ad-${item.ad.id}-${item.adSlot}`;
 }
 
 export function ImmersiveFeed({
@@ -44,6 +55,9 @@ export function ImmersiveFeed({
   currentUserId,
   followingIds,
   slideHeightClass = "h-[var(--immersive-slide-h,100dvh)]",
+  betweenAds = [],
+  betweenAdsPlacementKey = "feed_between_posts",
+  minPostsBetweenAds = 4,
 }: ImmersiveFeedProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const tabRef = useRef(tab);
@@ -51,7 +65,14 @@ export function ImmersiveFeed({
   const [cursor, setCursor] = useState(initialCursor);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
-  const [activeId, setActiveId] = useState<string | null>(posts[0]?.id ?? null);
+  const feedItems = useMemo(
+    () => interleaveFeedWithAds(posts, betweenAds, minPostsBetweenAds),
+    [posts, betweenAds, minPostsBetweenAds]
+  );
+
+  const [activeId, setActiveId] = useState<string | null>(() =>
+    feedItems[0] ? feedSlideKey(feedItems[0]) : null
+  );
 
   useEffect(() => {
     const tabChanged = tabRef.current !== tab;
@@ -61,7 +82,9 @@ export function ImmersiveFeed({
       setPosts(initialPosts.filter(postHasImmersiveMedia));
       setCursor(initialCursor);
       setHasMore(initialHasMore);
-      setActiveId(initialPosts.find(postHasImmersiveMedia)?.id ?? null);
+      const nextPosts = initialPosts.filter(postHasImmersiveMedia);
+      const nextItems = interleaveFeedWithAds(nextPosts, betweenAds, minPostsBetweenAds);
+      setActiveId(nextItems[0] ? feedSlideKey(nextItems[0]) : null);
       scrollerRef.current?.scrollTo(0, 0);
       return;
     }
@@ -74,7 +97,7 @@ export function ImmersiveFeed({
         return fresh ? mergePostViewerFields(post, fresh) : post;
       })
     );
-  }, [initialPosts, initialCursor, initialHasMore, tab]);
+  }, [initialPosts, initialCursor, initialHasMore, tab, betweenAds, minPostsBetweenAds]);
 
   const loadMore = useCallback(async () => {
     if (!hasMore || loading || !cursor || posts.length >= FEED_MAX_LOADED_POSTS) return;
@@ -104,23 +127,25 @@ export function ImmersiveFeed({
   loadMoreRef.current = loadMore;
 
   useEffect(() => {
-    const index = posts.findIndex((p) => p.id === activeId);
-    if (index >= posts.length - 3 && hasMore && !loading) {
+    const index = feedItems.findIndex((item) => feedSlideKey(item) === activeId);
+    const postsSeen = index >= 0 ? feedItems.slice(0, index + 1).filter((i) => i.kind === "item").length : 0;
+    if (postsSeen >= posts.length - 3 && hasMore && !loading) {
       void loadMoreRef.current();
     }
-  }, [activeId, posts.length, hasMore, loading]);
+  }, [activeId, feedItems, posts.length, hasMore, loading]);
 
-  const onSlideVisible = useCallback((postId: string) => {
-    setActiveId(postId);
+  const onSlideVisible = useCallback((slideKey: string) => {
+    setActiveId(slideKey);
   }, []);
 
   const slideCallbacks = useMemo(() => {
     const map = new Map<string, () => void>();
-    for (const post of posts) {
-      map.set(post.id, () => onSlideVisible(post.id));
+    for (const item of feedItems) {
+      const key = feedSlideKey(item);
+      map.set(key, () => onSlideVisible(key));
     }
     return map;
-  }, [posts, onSlideVisible]);
+  }, [feedItems, onSlideVisible]);
 
   if (posts.length === 0) {
     return (
@@ -136,17 +161,32 @@ export function ImmersiveFeed({
       className="immersive-feed-scroll snap-y snap-mandatory overflow-y-auto overscroll-y-contain scroll-smooth"
       style={{ height: "var(--immersive-slide-h, 100dvh)" }}
     >
-      {posts.map((post) => (
-        <ImmersiveSlide
-          key={post.id}
-          post={post}
-          active={post.id === activeId}
-          currentUserId={currentUserId}
-          followingIds={followingIds}
-          onVisible={slideCallbacks.get(post.id)}
-          slideHeightClass={slideHeightClass}
-        />
-      ))}
+      {feedItems.map((item) => {
+        const key = feedSlideKey(item);
+        if (item.kind === "ad") {
+          return (
+            <ImmersiveAdSlide
+              key={key}
+              ad={item.ad}
+              placementKey={betweenAdsPlacementKey}
+              active={key === activeId}
+              onVisible={slideCallbacks.get(key)}
+              slideHeightClass={slideHeightClass}
+            />
+          );
+        }
+        return (
+          <ImmersiveSlide
+            key={key}
+            post={item.value}
+            active={key === activeId}
+            currentUserId={currentUserId}
+            followingIds={followingIds}
+            onVisible={slideCallbacks.get(key)}
+            slideHeightClass={slideHeightClass}
+          />
+        );
+      })}
 
       {(loading || hasMore) && (
         <div className={`flex items-center justify-center ${slideHeightClass}`}>

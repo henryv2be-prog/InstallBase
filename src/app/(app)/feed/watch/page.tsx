@@ -5,7 +5,9 @@ import {
   getFollowingIds,
   getPopularFeedPage,
 } from "@/lib/queries";
-import { ImmersiveFeed } from "@/components/feed/immersive/immersive-feed";
+import { ImmersiveFeedWithAds } from "@/components/feed/immersive/immersive-feed-with-ads";
+import { AdSlot } from "@/components/ads/ad-slot";
+import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 import { cn } from "@/lib/utils";
 import { GuestJoinCard } from "@/components/auth/guest-cta";
 import { WatchInstallsPromoSeenOnMount } from "@/components/feed/watch-installs-promo";
@@ -81,14 +83,17 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
             next="/feed/watch?tab=following"
           />
         ) : (
-          <ImmersiveFeed
-            initialPosts={posts}
-            initialCursor={nextCursor}
-            initialHasMore={hasMore}
-            tab={followingTab ? "following" : "popular"}
-            currentUserId={userId}
-            followingIds={followingSet}
-          />
+          <>
+            <AdSlot placement={AD_PLACEMENTS.FEED_TOP} className="mb-2 px-3 lg:px-0" />
+            <ImmersiveFeedWithAds
+              initialPosts={posts}
+              initialCursor={nextCursor}
+              initialHasMore={hasMore}
+              tab={followingTab ? "following" : "popular"}
+              currentUserId={userId}
+              followingIds={followingSet}
+            />
+          </>
         )}
       </div>
 
@@ -101,6 +106,7 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
           <Link href={classicHref} className="text-sm font-medium text-primary hover:underline">
             Switch to classic feed
           </Link>
+          <AdSlot placement={AD_PLACEMENTS.FEED_SIDEBAR} className="mt-2" />
           <div className="flex rounded-xl bg-card/80 p-1 border border-border">
             <Link
               href="/feed/watch?tab=popular"
