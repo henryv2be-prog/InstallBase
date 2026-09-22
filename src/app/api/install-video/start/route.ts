@@ -6,6 +6,8 @@ import {
   type InstallVideoDraftInput,
   type InstallVideoMediaInput,
 } from "@/lib/video-compilation/draft-post";
+import { parseVideoCompilationOptions } from "@/lib/video-compilation/options";
+import { listVideoSoundTracks } from "@/lib/video-compilation/sound-library.server";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -14,6 +16,7 @@ type Body = {
   postId?: string;
   media: InstallVideoMediaInput[];
   draft: InstallVideoDraftInput;
+  compilationOptions?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -43,11 +46,19 @@ export async function POST(request: Request) {
       );
     }
 
+    const library = await listVideoSoundTracks();
+    const compilationOptions = parseVideoCompilationOptions(
+      body.compilationOptions,
+      library.map((t) => t.id)
+    );
+    // Music is chosen after preview — compile silent first.
+    compilationOptions.audio = "none";
     const { postId } = await upsertInstallVideoDraft(
       session.user.id,
       media,
       body.draft ?? { content: "", postIntent: "GENERAL", showExactLocation: false },
-      body.postId
+      body.postId,
+      compilationOptions
     );
 
     return NextResponse.json({ postId, status: "QUEUED" });

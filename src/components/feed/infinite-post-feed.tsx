@@ -19,7 +19,7 @@ interface InfinitePostFeedProps {
   currentUserId?: string;
   showInlineComments?: boolean;
   feedContext?: "following" | "popular";
-  followingIds?: Set<string>;
+  followingIds?: string[];
   betweenAds: AdCreative[];
   minPostsBetweenAds: number;
 }

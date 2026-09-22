@@ -52,7 +52,7 @@ export async function probeImageDimensions(
   });
 }
 
-export async function probeVideoDurationSec(filePath: string): Promise<number> {
+export async function probeMediaDurationSec(filePath: string): Promise<number> {
   let bin: string;
   try {
     bin = resolveFfprobeBinary();
@@ -97,4 +97,11 @@ export async function probeVideoDurationSec(filePath: string): Promise<number> {
       resolve(value);
     });
   });
+}
+
+/** @deprecated alias */
+export const probeVideoDurationSec = probeMediaDurationSec;
+
+export async function probeAudioDurationSec(filePath: string): Promise<number> {
+  return probeMediaDurationSec(filePath);
 }

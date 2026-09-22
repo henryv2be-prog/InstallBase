@@ -14,11 +14,12 @@ import { getPostIntentLabel, getPostTradeGroupLabel, shouldShowPostLocation } fr
 import { promptJoin } from "@/components/auth/guest-cta";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { isFollowingUser } from "@/lib/following-ids";
 
 interface ImmersiveSlideOverlayProps {
   post: PostCardData;
   currentUserId?: string;
-  followingIds?: Set<string>;
+  followingIds?: string[];
 }
 
 export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: ImmersiveSlideOverlayProps) {
@@ -86,7 +87,7 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/35" />
 
       {!commentsOpen && (
-      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col gap-3 p-4 pb-[var(--immersive-overlay-bottom-pad,1.25rem)] text-white pointer-events-auto">
+      <div className="immersive-slide-overlay-panel absolute inset-x-0 bottom-0 z-10 flex w-full flex-col gap-2 px-3 pt-3 pb-[var(--immersive-overlay-bottom-pad,1.25rem)] text-white pointer-events-auto sm:gap-3 sm:p-4">
         <div className="flex items-center gap-3">
           <Link href={profile ? `/profile/${profile.username}` : "#"} className="flex min-w-0 flex-1 items-center gap-2">
             <PresenceAvatar
@@ -105,7 +106,7 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
           <FollowButton
             userId={post.authorId}
             currentUserId={currentUserId}
-            initialFollowing={followingIds?.has(post.authorId)}
+            initialFollowing={isFollowingUser(followingIds, post.authorId)}
             targetName={post.author.name?.split(" ")[0]}
           />
         </div>
@@ -118,35 +119,35 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
           <p className="text-xs text-white/70">{post.location}</p>
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2">
           {canBrag && (
             <button
               type="button"
               disabled={pending}
               onClick={handleBrag}
               className={cn(
-                "inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-transform active:scale-95",
+                "inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-transform active:scale-95 sm:min-h-11 sm:px-4",
                 bragged ? "bg-orange-500 text-white" : "bg-white/15 text-orange-200 backdrop-blur-sm"
               )}
             >
-              <Trophy className="h-4 w-4" />
+              <Trophy className="h-4 w-4 shrink-0" />
               {bragScore > 0 ? bragScore : "Brag"}
             </button>
           )}
           <button
             type="button"
             onClick={() => setCommentsOpen(true)}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur-sm"
+            className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-2 text-sm font-semibold backdrop-blur-sm sm:min-h-11 sm:px-4"
           >
-            <MessageCircle className="h-4 w-4" />
+            <MessageCircle className="h-4 w-4 shrink-0" />
             {commentCount}
           </button>
           <button
             type="button"
             onClick={() => void handleShare()}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur-sm"
+            className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-2 text-sm font-semibold backdrop-blur-sm sm:min-h-11 sm:px-4"
           >
-            <Share2 className="h-4 w-4" />
+            <Share2 className="h-4 w-4 shrink-0" />
             Share
           </button>
         </div>
@@ -155,12 +156,12 @@ export function ImmersiveSlideOverlay({ post, currentUserId, followingIds }: Imm
 
       {commentsOpen && (
         <div
-          className="fixed inset-0 z-[70] flex flex-col justify-end bg-black/55 pb-[var(--app-mobile-nav-watch-total,4.75rem)] pointer-events-auto md:pb-0"
+          className="fixed inset-0 z-[70] flex flex-col justify-end bg-black/55 pb-[var(--app-mobile-bottom-clearance,4.75rem)] pointer-events-auto md:pb-0"
           onClick={() => setCommentsOpen(false)}
           role="presentation"
         >
           <div
-            className="flex max-h-[min(calc(100dvh-var(--app-mobile-nav-watch-total,4.75rem)-2rem),78dvh)] flex-col rounded-t-2xl bg-card text-foreground shadow-xl md:max-h-[min(72dvh,82%)]"
+            className="flex max-h-[min(calc(100dvh-var(--app-mobile-bottom-clearance,4.75rem)-2rem),78dvh)] flex-col rounded-t-2xl bg-card text-foreground shadow-xl md:max-h-[min(72dvh,82%)]"
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"
