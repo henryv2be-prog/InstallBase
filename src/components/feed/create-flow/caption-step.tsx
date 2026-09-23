@@ -53,7 +53,7 @@ export function CreateFlowCaptionStep({
         />
       </div>
 
-      <div className="pointer-events-none relative z-20 mt-auto space-y-3 px-3 pb-[calc(var(--app-mobile-bottom-clearance)+0.5rem)] pt-24">
+      <div className="pointer-events-none relative z-20 mt-auto space-y-3 px-3 pb-[calc(var(--app-mobile-bottom-clearance)+1rem)] pt-24">
         <div className="pointer-events-auto rounded-2xl border border-white/15 bg-black/45 p-3 backdrop-blur-xl">
           <Textarea
             placeholder="Add a caption…"

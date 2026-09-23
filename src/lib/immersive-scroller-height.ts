@@ -31,6 +31,12 @@ function viewportBottomPx(): number {
  * One slide = full column from scroller top through the glass nav zone (Reels-style).
  * UI overlays pad above the dock; media scrolls under the glass while swiping.
  */
+/** Usable column height for /create (from flow root top to visual viewport bottom). */
+export function measureCreateFlowHeightPx(root: HTMLElement): number {
+  const top = root.getBoundingClientRect().top;
+  return Math.floor(viewportBottomPx() - top);
+}
+
 export function measureImmersiveSlideHeightPx(scroller: HTMLElement): number {
   const top = scroller.getBoundingClientRect().top;
   const fullBleed = Math.floor(viewportBottomPx() - top);

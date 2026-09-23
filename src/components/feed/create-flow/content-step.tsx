@@ -72,7 +72,7 @@ export function CreateFlowContentStep({
         </div>
       )}
 
-      <div className="create-flow-action-dock shrink-0 space-y-3 px-1 pt-3">
+      <div className="create-flow-action-dock z-20 shrink-0 space-y-3 border-t border-border/40 bg-[var(--background)]/90 px-1 pt-3 backdrop-blur-md">
         <div className="rounded-2xl border border-white/10 bg-black/35 p-3 backdrop-blur-xl">
           <Textarea
             placeholder={isQuestion ? "Type your question…" : "Add a caption…"}
