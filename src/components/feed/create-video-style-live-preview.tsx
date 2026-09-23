@@ -143,16 +143,20 @@ function PreviewSlide({
           ? "animate-slide-in-right"
           : transition === "zoom-pop"
             ? "animate-zoom-pop-in"
-            : transition === "fade"
-              ? "animate-fade-in"
-              : ""
+            : transition === "wipe-up"
+              ? "animate-wipe-in-up"
+              : transition === "fade"
+                ? "animate-fade-in"
+                : ""
       : transition === "slide-left"
         ? "animate-slide-out-left"
         : transition === "slide-right"
           ? "animate-slide-out-right"
-          : transition === "fade"
-            ? "animate-fade-out"
-            : "";
+          : transition === "wipe-up"
+            ? "animate-wipe-out-up"
+            : transition === "fade"
+              ? "animate-fade-out"
+              : "";
 
   return (
     // eslint-disable-next-line @next/next/no-img-element

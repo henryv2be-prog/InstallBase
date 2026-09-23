@@ -2,7 +2,13 @@
 
 export type VideoTransitionKind = "cut" | "fade" | "slideleft" | "slideright" | "wipeup";
 
-export type StylePreviewTransition = "cut" | "fade" | "slide-left" | "slide-right" | "zoom-pop";
+export type StylePreviewTransition =
+  | "cut"
+  | "fade"
+  | "slide-left"
+  | "slide-right"
+  | "zoom-pop"
+  | "wipe-up";
 
 export type VideoStylePreset = {
   label: string;
@@ -137,6 +143,22 @@ export const VIDEO_COMPILATION_STYLES = {
       transitionMs: 60,
     },
   },
+  wipe_up: {
+    label: "Wipe up",
+    description: "Reveal next shot upward",
+    category: "Slide",
+    photoDurationSec: 2.8,
+    zoom: false,
+    zoomStrength: "normal",
+    landscapeBlur: true,
+    transition: "wipeup",
+    transitionSec: 0.45,
+    preview: {
+      kenBurns: false,
+      transition: "wipe-up",
+      transitionMs: 450,
+    },
+  },
   /** Legacy ids kept for older drafts */
   quick: {
     label: "Quick cuts",
@@ -155,8 +177,8 @@ export const VIDEO_COMPILATION_STYLES = {
     },
   },
   steady: {
-    label: "Steady hold",
-    description: "Longer on each photo (legacy)",
+    label: "Slow hold",
+    description: "Linger on each photo",
     category: "Motion",
     photoDurationSec: 5,
     zoom: false,

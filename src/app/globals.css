@@ -481,6 +481,36 @@ body {
   animation: ib-zoom-pop-in ease both;
 }
 
+@keyframes ib-wipe-in-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0.85;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes ib-wipe-out-up {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0.6;
+  }
+}
+
+.animate-wipe-in-up {
+  animation: ib-wipe-in-up ease both;
+}
+
+.animate-wipe-out-up {
+  animation: ib-wipe-out-up ease both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-ken-burns,
   .animate-ken-burns-strong,
@@ -490,7 +520,9 @@ body {
   .animate-slide-out-left,
   .animate-slide-in-right,
   .animate-slide-out-right,
-  .animate-zoom-pop-in {
+  .animate-zoom-pop-in,
+  .animate-wipe-in-up,
+  .animate-wipe-out-up {
     animation: none !important;
   }
 }
