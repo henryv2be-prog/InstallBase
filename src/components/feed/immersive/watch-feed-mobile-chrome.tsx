@@ -15,8 +15,18 @@ export function WatchFeedMobileChrome({
   userId,
   classicHref,
 }: WatchFeedMobileChromeProps) {
-  const scrollToTop = () => {
-    requestAnimationFrame(() => scrollImmersiveFeedToTop("smooth"));
+  const onPopularClick = (e: React.MouseEvent) => {
+    if (!followingTab) {
+      e.preventDefault();
+    }
+    scrollImmersiveFeedToTop("instant");
+  };
+
+  const onFollowingClick = (e: React.MouseEvent) => {
+    if (followingTab) {
+      e.preventDefault();
+    }
+    scrollImmersiveFeedToTop("instant");
   };
 
   return (
@@ -33,7 +43,7 @@ export function WatchFeedMobileChrome({
           <div className="classic-feed-tab-rail shrink-0 text-xs font-semibold">
             <Link
               href="/feed/watch?tab=popular"
-              onClick={scrollToTop}
+              onClick={onPopularClick}
               className={cn(
                 "classic-feed-tab inline-flex min-h-9 items-center px-3 py-2",
                 !followingTab && "classic-feed-tab-active"
@@ -44,7 +54,7 @@ export function WatchFeedMobileChrome({
             {userId ? (
               <Link
                 href="/feed/watch?tab=following"
-                onClick={scrollToTop}
+                onClick={onFollowingClick}
                 className={cn(
                   "classic-feed-tab inline-flex min-h-9 items-center px-3 py-2",
                   followingTab && "classic-feed-tab-active"

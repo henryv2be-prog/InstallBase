@@ -11,6 +11,7 @@ import { GuestJoinCard } from "@/components/auth/guest-cta";
 import { WatchInstallsPromoSeenOnMount } from "@/components/feed/watch-installs-promo";
 import { classicFeedHref } from "@/lib/feed-routes";
 import { WatchFeedMobileChrome } from "@/components/feed/immersive/watch-feed-mobile-chrome";
+import { WatchFeedSideTabs } from "@/components/feed/immersive/watch-feed-side-tabs";
 
 export const metadata = { title: "New look" };
 export const dynamic = "force-dynamic";
@@ -49,6 +50,7 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
           />
         ) : (
           <ImmersiveFeedWithAds
+            key={followingTab ? "following" : "popular"}
             initialPosts={posts}
             initialCursor={nextCursor}
             initialHasMore={hasMore}
@@ -73,28 +75,7 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
           <Link href={classicHref} className="text-sm font-medium text-primary hover:underline">
             Switch to classic feed
           </Link>
-          <div className="flex rounded-xl bg-card/80 p-1 border border-border">
-            <Link
-              href="/feed/watch?tab=popular"
-              className={cn(
-                "flex-1 rounded-lg py-2 text-center text-sm font-semibold",
-                !followingTab ? "bg-card shadow-sm" : "text-muted"
-              )}
-            >
-              Popular
-            </Link>
-            {userId ? (
-              <Link
-                href="/feed/watch?tab=following"
-                className={cn(
-                  "flex-1 rounded-lg py-2 text-center text-sm font-semibold",
-                  followingTab ? "bg-card shadow-sm" : "text-muted"
-                )}
-              >
-                Following
-              </Link>
-            ) : null}
-          </div>
+          <WatchFeedSideTabs followingTab={followingTab} userId={userId} />
         </div>
       </aside>
     </div>
