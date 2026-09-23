@@ -5,7 +5,7 @@ export function findMobileTabNav(shell: Element | null): HTMLElement | null {
   return nav instanceof HTMLElement ? nav : null;
 }
 
-/** Cap scrollport height so slide overlays sit above the floating mobile nav. */
+/** Cap scrollport height (legacy helper — prefer full-bleed slide measure). */
 export function capImmersiveSlideHeightPx(
   scrollClientHeight: number,
   scrollTop: number,
@@ -21,23 +21,24 @@ export function capImmersiveSlideHeightPx(
   return h;
 }
 
-function mobileNavClearanceTop(nav: HTMLElement | null): number | null {
-  if (!nav) return null;
-  const dock = nav.querySelector(".mobile-nav-glass-dock");
-  const ref = dock instanceof HTMLElement ? dock : nav;
-  const rect = ref.getBoundingClientRect();
-  if (rect.height > 0 && rect.top > 0) return rect.top;
-  return null;
+function viewportBottomPx(): number {
+  const vv = window.visualViewport;
+  if (vv) return vv.offsetTop + vv.height;
+  return window.innerHeight;
 }
 
-/** Visible scrollport: scroller top → top of floating tab dock (one slide = one screen). */
+/**
+ * One slide = full column from scroller top through the glass nav zone (Reels-style).
+ * UI overlays pad above the dock; media scrolls under the glass while swiping.
+ */
 export function measureImmersiveSlideHeightPx(scroller: HTMLElement): number {
-  const shell = scroller.closest(".app-shell-viewport-lock");
-  const nav = findMobileTabNav(shell);
-  const navTop = mobileNavClearanceTop(nav);
-  return capImmersiveSlideHeightPx(
-    scroller.clientHeight,
-    scroller.getBoundingClientRect().top,
-    navTop
-  );
+  const top = scroller.getBoundingClientRect().top;
+  const fullBleed = Math.floor(viewportBottomPx() - top);
+  const client = scroller.clientHeight;
+  if (fullBleed > 64 && client > 64) {
+    /* Prefer the live scrollport when it already matches the visual viewport. */
+    return Math.abs(client - fullBleed) <= 2 ? client : fullBleed;
+  }
+  if (fullBleed > 64) return fullBleed;
+  return client;
 }
