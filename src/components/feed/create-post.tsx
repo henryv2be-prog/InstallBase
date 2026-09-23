@@ -369,7 +369,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
       }
       toast.success("Posted!");
       resetComposer();
-      router.push(`/post/${installVideoPostId}`);
+      router.push("/feed/watch?tab=popular");
       router.refresh();
     } catch {
       toast.error("Failed to publish");
@@ -392,7 +392,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
       }
       toast.success("Posted as photos");
       resetComposer();
-      router.push(`/post/${result.postId}`);
+      router.push("/feed/watch?tab=popular");
       router.refresh();
     } catch {
       toast.error("Failed to publish");

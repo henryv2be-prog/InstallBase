@@ -241,6 +241,8 @@ export async function createPost(formData: FormData) {
   });
 
   revalidatePath("/feed");
+  revalidatePath("/feed/watch");
+  revalidatePath("/discover/watch");
   revalidatePath("/brags");
   revalidatePath("/questions");
   revalidatePath(`/post/${post.id}`);
@@ -1243,6 +1245,8 @@ export async function publishInstallVideoPost(formData: FormData) {
   }
 
   revalidatePath("/feed");
+  revalidatePath("/feed/watch");
+  revalidatePath("/discover/watch");
   revalidatePath("/brags");
   revalidatePath(`/post/${postId}`);
   revalidateTag("posts", "max");
@@ -1295,6 +1299,8 @@ export async function publishInstallVideoAsCarousel(formData: FormData) {
   }
 
   revalidatePath("/feed");
+  revalidatePath("/feed/watch");
+  revalidatePath("/discover/watch");
   revalidatePath(`/post/${postId}`);
   revalidateTag("posts", "max");
   return { success: true, postId };

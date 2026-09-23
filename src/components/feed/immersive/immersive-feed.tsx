@@ -64,6 +64,8 @@ export function ImmersiveFeed({
   useImmersiveScrollerHeight(scrollerRef);
   const tabRef = useRef(tab);
   const [posts, setPosts] = useState(initialPosts.filter(postHasImmersiveMedia));
+  const postsRef = useRef(posts);
+  postsRef.current = posts;
   const [cursor, setCursor] = useState(initialCursor);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
@@ -77,24 +79,44 @@ export function ImmersiveFeed({
   );
 
   useEffect(() => {
+    const incoming = initialPosts.filter(postHasImmersiveMedia);
     const tabChanged = tabRef.current !== tab;
     tabRef.current = tab;
 
+    const scrollToTop = () => {
+      scrollerRef.current?.scrollTo({ top: 0, behavior: "instant" });
+    };
+
     if (tabChanged) {
-      setPosts(initialPosts.filter(postHasImmersiveMedia));
+      setPosts(incoming);
       setCursor(initialCursor);
       setHasMore(initialHasMore);
-      const nextPosts = initialPosts.filter(postHasImmersiveMedia);
-      const nextItems = interleaveFeedWithAds(nextPosts, betweenAds, minPostsBetweenAds);
+      const nextItems = interleaveFeedWithAds(incoming, betweenAds, minPostsBetweenAds);
       setActiveId(nextItems[0] ? feedSlideKey(nextItems[0]) : null);
-      scrollerRef.current?.scrollTo(0, 0);
+      scrollToTop();
       return;
     }
 
-    // Server actions (e.g. brag) refresh route props — merge scores only, keep scroll + loaded pages.
+    const current = postsRef.current;
+    const incomingHeadId = incoming[0]?.id;
+    const newPostAtTop =
+      Boolean(incomingHeadId) &&
+      incomingHeadId !== current[0]?.id &&
+      !current.some((post) => post.id === incomingHeadId);
+
+    if (newPostAtTop) {
+      setPosts(incoming);
+      setCursor(initialCursor);
+      setHasMore(initialHasMore);
+      const nextItems = interleaveFeedWithAds(incoming, betweenAds, minPostsBetweenAds);
+      setActiveId(nextItems[0] ? feedSlideKey(nextItems[0]) : null);
+      scrollToTop();
+      return;
+    }
+
     const freshById = new Map(initialPosts.map((post) => [post.id, post]));
-    setPosts((current) =>
-      current.map((post) => {
+    setPosts((prev) =>
+      prev.map((post) => {
         const fresh = freshById.get(post.id);
         return fresh ? mergePostViewerFields(post, fresh) : post;
       })
@@ -160,7 +182,7 @@ export function ImmersiveFeed({
   return (
     <div
       ref={scrollerRef}
-      className="immersive-feed-scroll w-full max-w-full snap-y snap-mandatory overflow-y-auto scroll-smooth max-lg:flex-1 max-lg:min-h-0 lg:h-[var(--immersive-slide-h,min(88dvh,900px))]"
+      className="immersive-feed-scroll w-full max-w-full snap-y snap-mandatory overflow-y-auto max-lg:flex-1 max-lg:min-h-0 lg:h-[var(--immersive-slide-h,min(88dvh,900px))] lg:scroll-smooth"
     >
       {feedItems.map((item) => {
         const key = feedSlideKey(item);
