@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { decodeFeedCursor } from "@/lib/feed-pagination";
+import { decodeFeedCursor, FEED_PAGE_SIZE } from "@/lib/feed-pagination";
 import {
   getFollowingFeedPage,
   getPopularFeedPage,
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Sign in required" }, { status: 401 });
     }
 
-    const page = await getFollowingFeedPage(userId, undefined, cursor);
+    const page = await getFollowingFeedPage(userId, FEED_PAGE_SIZE, cursor);
     return NextResponse.json(page, {
       headers: { "Cache-Control": "private, no-cache" },
     });
