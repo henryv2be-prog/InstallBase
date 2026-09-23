@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { CreateFlowChrome } from "@/components/feed/create-flow/create-flow-chrome";
 import { CreateFlowMediaStep } from "@/components/feed/create-flow/media-step";
@@ -13,6 +13,7 @@ import type { CreateFlowMediaItem, CreateFlowStep, FlowPostKind } from "@/compon
 import { flowKindToPostType } from "@/components/feed/create-flow/types";
 import type { WorkDetailsFormState } from "@/components/feed/work-details-fields";
 import type { VideoCompilationOptions, VideoCompilationAudioSelection } from "@/lib/video-compilation/options";
+import type { VideoCompilationStyleId } from "@/lib/video-compilation/style-presets";
 import type { CompilationStatus } from "@/hooks/use-install-video-compilation";
 import type { VideoSoundTrackClient } from "@/lib/video-compilation/sound-tracks";
 import { useVideoSoundLibrary } from "@/hooks/use-video-sound-library";
@@ -45,11 +46,8 @@ export interface ImmersiveCreateFlowProps {
   onCompilationOptionsChange: (next: VideoCompilationOptions) => void;
   previewSelectedAudio: VideoCompilationAudioSelection;
   onPreviewAudioChange: (audio: VideoCompilationAudioSelection) => void;
-  onStartInstallVideo: () => Promise<void>;
-  onRecompileInstallVideo: (options: VideoCompilationOptions) => Promise<void>;
+  onStartInstallVideo: (optionsOverride?: VideoCompilationOptions) => Promise<void>;
   onPublishInstallVideo: () => void;
-  onPublishAsCarousel: () => void;
-  onRegenerateVideo: () => void;
   onSubmitStandardPost: () => void;
   installVideoPosting: boolean;
   standardPostPending: boolean;
@@ -85,10 +83,7 @@ export function ImmersiveCreateFlow({
   previewSelectedAudio,
   onPreviewAudioChange,
   onStartInstallVideo,
-  onRecompileInstallVideo,
   onPublishInstallVideo,
-  onPublishAsCarousel,
-  onRegenerateVideo,
   onSubmitStandardPost,
   installVideoPosting,
   standardPostPending,
@@ -97,10 +92,18 @@ export function ImmersiveCreateFlow({
 }: ImmersiveCreateFlowProps) {
   const [step, setStep] = useState<CreateFlowStep>(initialStep);
   const [flowKind, setFlowKind] = useState<FlowPostKind | null>(initialFlowKind);
-  const [styleBusy, setStyleBusy] = useState(false);
-  const startedCompileRef = useRef(false);
+  const [effectsContinuing, setEffectsContinuing] = useState(false);
+  const lastRenderedStyleRef = useRef<VideoCompilationStyleId | null>(null);
   const { tracks, loading: tracksLoading } = useVideoSoundLibrary();
   const offeredDefaultSound = useRef(false);
+
+  const stylePreviewUrls = useMemo(
+    () =>
+      media
+        .filter((item) => item.status === "ready")
+        .map((item) => item.previewUrl),
+    [media]
+  );
 
   const installVideoEligible = shouldAutoCompileInstallVideo(
     media.map((item) => ({ kind: item.kind, status: item.status }))
@@ -121,7 +124,6 @@ export function ImmersiveCreateFlow({
         setStep("post-type");
         break;
       case "effects":
-        startedCompileRef.current = false;
         setStep("post-type");
         break;
       case "music":
@@ -141,7 +143,6 @@ export function ImmersiveCreateFlow({
       onSetPostType(flowKindToPostType(kind));
       if (kind === "auto_video") {
         setStep("effects");
-        startedCompileRef.current = false;
       } else {
         setStep("content");
       }
@@ -149,24 +150,33 @@ export function ImmersiveCreateFlow({
     [onSetPostType]
   );
 
-  useEffect(() => {
-    if (step !== "effects" || flowKind !== "auto_video") return;
-    if (startedCompileRef.current) return;
-    if (installVideoPostId && compilationStatus === "READY") {
-      startedCompileRef.current = true;
-      return;
-    }
-    if (installVideoPosting) return;
-    startedCompileRef.current = true;
-    void onStartInstallVideo();
+  const needsHdRender = useCallback(() => {
+    if (!installVideoPostId) return true;
+    if (compilationStatus !== "READY" || !videoUrl) return true;
+    if (lastRenderedStyleRef.current !== videoCompilationOptions.style) return true;
+    return false;
   }, [
-    step,
-    flowKind,
     installVideoPostId,
     compilationStatus,
-    installVideoPosting,
-    onStartInstallVideo,
+    videoUrl,
+    videoCompilationOptions.style,
   ]);
+
+  const startHdRenderIfNeeded = useCallback(async () => {
+    if (!needsHdRender()) return;
+    await onStartInstallVideo(videoCompilationOptions);
+    lastRenderedStyleRef.current = videoCompilationOptions.style;
+  }, [needsHdRender, onStartInstallVideo, videoCompilationOptions]);
+
+  const handleEffectsContinue = async () => {
+    setEffectsContinuing(true);
+    setStep("music");
+    try {
+      await startHdRenderIfNeeded();
+    } finally {
+      setEffectsContinuing(false);
+    }
+  };
 
   useEffect(() => {
     if (step !== "music" && step !== "caption") return;
@@ -183,22 +193,10 @@ export function ImmersiveCreateFlow({
   }, [videoUrl]);
 
   useEffect(() => {
-    if (compilationStatus === "FAILED") {
-      startedCompileRef.current = false;
+    if (compilationStatus === "READY" && videoUrl) {
+      lastRenderedStyleRef.current = videoCompilationOptions.style;
     }
-  }, [compilationStatus]);
-
-  const handleStyleChange = async (styleId: VideoCompilationOptions["style"]) => {
-    if (styleId === videoCompilationOptions.style) return;
-    const next = { ...videoCompilationOptions, style: styleId };
-    onCompilationOptionsChange(next);
-    setStyleBusy(true);
-    try {
-      await onRecompileInstallVideo(next);
-    } finally {
-      setStyleBusy(false);
-    }
-  };
+  }, [compilationStatus, videoUrl, videoCompilationOptions.style]);
 
   const contentCanPost =
     flowKind === "question"
@@ -266,33 +264,28 @@ export function ImmersiveCreateFlow({
 
         {step === "effects" && flowKind === "auto_video" && (
           <CreateFlowEffectsStep
-            status={compilationStatus}
-            videoUrl={videoUrl}
-            posterUrl={posterUrl}
-            error={compilationError}
+            previewImageUrls={stylePreviewUrls}
             compilationOptions={videoCompilationOptions}
-            onStyleChange={(id) => void handleStyleChange(id)}
-            styleBusy={styleBusy}
-            onContinue={() => setStep("music")}
-            continueDisabled={!videoUrl || compilationStatus !== "READY"}
-            onRegenerate={onRegenerateVideo}
-            onPostAsPhotos={onPublishAsCarousel}
-            onRetryStart={() => {
-              startedCompileRef.current = false;
-              void onStartInstallVideo();
-            }}
+            onStyleChange={(id) => onCompilationOptionsChange({ ...videoCompilationOptions, style: id })}
+            onContinue={() => void handleEffectsContinue()}
+            continuing={effectsContinuing || installVideoPosting}
           />
         )}
 
-        {step === "music" && flowKind === "auto_video" && videoUrl && (
+        {step === "music" && flowKind === "auto_video" && (
           <CreateFlowMusicStep
             videoUrl={videoUrl}
             posterUrl={posterUrl}
+            compilationStatus={compilationStatus}
+            compilationError={compilationError}
+            previewImageUrls={stylePreviewUrls}
+            styleId={videoCompilationOptions.style}
             selectedAudio={previewSelectedAudio}
             onAudioChange={onPreviewAudioChange}
             tracks={tracks as VideoSoundTrackClient[]}
             tracksLoading={tracksLoading}
             onContinue={() => setStep("caption")}
+            onRetryRender={() => void startHdRenderIfNeeded()}
           />
         )}
 

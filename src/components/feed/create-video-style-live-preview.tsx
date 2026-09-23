@@ -11,6 +11,8 @@ interface CreateVideoStyleLivePreviewProps {
   styleId: VideoCompilationStyleId;
   imageUrls: string[];
   className?: string;
+  /** Full-bleed create flow — fills parent, minimal chrome */
+  immersive?: boolean;
 }
 
 /** Instant style preview — cycles uploaded photo previews without server render. */
@@ -18,6 +20,7 @@ export function CreateVideoStyleLivePreview({
   styleId,
   imageUrls,
   className,
+  immersive,
 }: CreateVideoStyleLivePreviewProps) {
   const style = VIDEO_COMPILATION_STYLES[styleId];
   const slides = useMemo(() => imageUrls.filter(Boolean).slice(0, 12), [imageUrls]);
@@ -49,7 +52,10 @@ export function CreateVideoStyleLivePreview({
     return (
       <div
         className={cn(
-          "flex aspect-[9/16] max-w-[220px] items-center justify-center rounded-2xl border border-dashed border-border bg-muted/20 text-center text-xs text-muted",
+          "flex items-center justify-center text-center text-xs text-muted",
+          immersive
+            ? "h-full w-full bg-black text-white/70"
+            : "aspect-[9/16] max-w-[220px] rounded-2xl border border-dashed border-border bg-muted/20",
           className
         )}
       >
@@ -63,8 +69,20 @@ export function CreateVideoStyleLivePreview({
   const showPrevious = index !== prevIndex && style.preview.transition !== "cut";
 
   return (
-    <div className={cn("relative mx-auto w-full max-w-[220px]", className)}>
-      <div className="relative aspect-[9/16] overflow-hidden rounded-2xl bg-black shadow-md ring-1 ring-border/60">
+    <div
+      className={cn(
+        "relative w-full",
+        !immersive && "mx-auto max-w-[220px]",
+        immersive && "h-full min-h-0",
+        className
+      )}
+    >
+      <div
+        className={cn(
+          "relative overflow-hidden bg-black",
+          immersive ? "h-full min-h-0 w-full" : "aspect-[9/16] rounded-2xl shadow-md ring-1 ring-border/60"
+        )}
+      >
         {showPrevious && (
           <PreviewSlide
             key={`prev-${animKey}`}
@@ -83,10 +101,18 @@ export function CreateVideoStyleLivePreview({
           transition={style.preview.transition}
           transitionMs={transitionMs}
         />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-2 pt-6">
-          <p className="text-[10px] font-medium text-white/90">Live preview</p>
-          <p className="text-[9px] text-white/70">Final export uses HD ffmpeg</p>
-        </div>
+        {!immersive ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-2 pt-6">
+            <p className="text-[10px] font-medium text-white/90">Live preview</p>
+            <p className="text-[9px] text-white/70">Final export uses HD ffmpeg</p>
+          </div>
+        ) : (
+          <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-end bg-gradient-to-b from-black/50 to-transparent p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+            <span className="rounded-full bg-black/45 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+              Live preview
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
