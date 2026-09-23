@@ -12,7 +12,7 @@ const outDir = join(repoRoot, "public", "icons");
 const appDir = join(repoRoot, "src", "app");
 
 await ensureMasterPng();
-console.log("→ refreshed assets/brand/app-icon-1024.png from reference mark");
+console.log("→ refreshed assets/brand/app-icon-1024.png from vector mark");
 
 const sizes = [192, 512];
 

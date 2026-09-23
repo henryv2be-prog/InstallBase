@@ -1,5 +1,5 @@
 /** Bump when PWA / notification icon assets change (cache-busts immutable CDN/browser cache). */
-export const ICON_VERSION = 14;
+export const ICON_VERSION = 15;
 
 export function iconUrl(filename: string) {
   return `/icons/${filename}?v=${ICON_VERSION}`;

@@ -1,9 +1,7 @@
 import { cn } from "@/lib/utils";
+import { IB_MARK_ACCENT, IB_MARK_VIEWBOX } from "@/lib/brand-mark";
 
-export const IB_MARK_VIEWBOX = "0 0 56 40";
-
-/** Cyan accent for the i-dot — matches the reference app icon mark. */
-export const IB_MARK_ACCENT = "#5eead4";
+export { IB_MARK_VIEWBOX, IB_MARK_ACCENT };
 
 /** Default in-app mark scale inside the blue rounded square. */
 export const IB_MARK_BOX_CLASS = "h-[68%] w-[84%]";
@@ -14,10 +12,6 @@ interface IbMarkProps {
   monochrome?: boolean;
 }
 
-/**
- * Stylized iB monogram: lowercase i with accent dot + geometric B,
- * inspired by the InstallBase reference mark.
- */
 export function IbMark({ className, monochrome = false }: IbMarkProps) {
   const letterColor = "currentColor";
   const dotColor = monochrome ? letterColor : IB_MARK_ACCENT;
