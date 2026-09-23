@@ -18,14 +18,28 @@ export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement
     const mq = window.matchMedia(MOBILE_MQ);
     if (!mq.matches) return;
 
+    let lastAppliedH = 0;
+
     const apply = () => {
       if (!mq.matches) {
         el.style.removeProperty("--immersive-slide-h");
+        el.style.removeProperty("height");
+        el.style.removeProperty("max-height");
+        el.style.removeProperty("flex");
         return;
       }
       const h = Math.round(measureImmersiveSlideHeightPx(el));
       if (h > MIN_SLIDE_H) {
         el.style.setProperty("--immersive-slide-h", `${h}px`);
+        /* Match scrollport to slide height so the next post cannot peek under the glass nav. */
+        el.style.height = `${h}px`;
+        el.style.maxHeight = `${h}px`;
+        el.style.flex = "0 0 auto";
+        if (Math.abs(h - lastAppliedH) > 1 && lastAppliedH > 0) {
+          const idx = Math.round(el.scrollTop / lastAppliedH);
+          el.scrollTop = idx * h;
+        }
+        lastAppliedH = h;
       }
     };
 
@@ -83,6 +97,9 @@ export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement
       window.removeEventListener("load", apply);
       mq.removeEventListener("change", apply);
       el.style.removeProperty("--immersive-slide-h");
+      el.style.removeProperty("height");
+      el.style.removeProperty("max-height");
+      el.style.removeProperty("flex");
     };
   }, [scrollerRef]);
 }

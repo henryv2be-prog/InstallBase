@@ -21,12 +21,20 @@ export function capImmersiveSlideHeightPx(
   return h;
 }
 
+function mobileNavClearanceTop(nav: HTMLElement | null): number | null {
+  if (!nav) return null;
+  const dock = nav.querySelector(".mobile-nav-glass-dock");
+  const ref = dock instanceof HTMLElement ? dock : nav;
+  const rect = ref.getBoundingClientRect();
+  if (rect.height > 0 && rect.top > 0) return rect.top;
+  return null;
+}
+
+/** Visible scrollport: scroller top → top of floating tab dock (one slide = one screen). */
 export function measureImmersiveSlideHeightPx(scroller: HTMLElement): number {
   const shell = scroller.closest(".app-shell-viewport-lock");
   const nav = findMobileTabNav(shell);
-  const navRect = nav?.getBoundingClientRect();
-  const navTop =
-    navRect && navRect.height > 0 && navRect.top > 0 ? navRect.top : null;
+  const navTop = mobileNavClearanceTop(nav);
   return capImmersiveSlideHeightPx(
     scroller.clientHeight,
     scroller.getBoundingClientRect().top,
