@@ -665,14 +665,8 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
         onCompilationOptionsChange={setVideoCompilationOptions}
         previewSelectedAudio={previewSelectedAudio}
         onPreviewAudioChange={setPreviewSelectedAudio}
-        onStartInstallVideo={() => startInstallVideoCompilation()}
-        onRecompileInstallVideo={(options) => startInstallVideoCompilation(options)}
+        onStartInstallVideo={(options) => startInstallVideoCompilation(options)}
         onPublishInstallVideo={() => void publishInstallVideo()}
-        onPublishAsCarousel={() => void publishAsCarouselFallback()}
-        onRegenerateVideo={() => {
-          setPreviewSelectedAudio("none");
-          void installCompilation.regenerate();
-        }}
         onSubmitStandardPost={handleSubmit}
         installVideoPosting={installVideoPosting}
         standardPostPending={pending}
