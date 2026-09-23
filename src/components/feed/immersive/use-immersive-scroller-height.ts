@@ -23,7 +23,7 @@ export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement
         el.style.removeProperty("--immersive-slide-h");
         return;
       }
-      const h = measureImmersiveSlideHeightPx(el);
+      const h = Math.round(measureImmersiveSlideHeightPx(el));
       if (h > MIN_SLIDE_H) {
         el.style.setProperty("--immersive-slide-h", `${h}px`);
       }

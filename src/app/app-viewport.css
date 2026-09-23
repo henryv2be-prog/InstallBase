@@ -102,7 +102,9 @@
   .app-shell-viewport-lock .immersive-feed-scroll > .immersive-feed-slide {
     height: var(--immersive-slide-h);
     min-height: var(--immersive-slide-h);
+    max-height: var(--immersive-slide-h);
     box-sizing: border-box;
+    scroll-snap-stop: always;
   }
 
   .app-shell-viewport-lock .immersive-feed-root {
@@ -119,10 +121,17 @@
 
 .immersive-feed-scroll {
   scroll-snap-type: y mandatory;
+  scroll-behavior: auto;
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
-  overscroll-behavior: none;
+  overscroll-behavior-y: contain;
   touch-action: pan-y;
+}
+
+@media (min-width: 1024px) {
+  .immersive-feed-scroll {
+    scroll-behavior: smooth;
+  }
 }
 
 /* —— Create / edit post —— */

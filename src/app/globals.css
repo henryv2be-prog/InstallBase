@@ -244,6 +244,12 @@ body {
   padding-top: env(safe-area-inset-top);
 }
 
+/* New look watch — floating glass chrome below app header */
+.immersive-watch-top-chrome {
+  position: relative;
+  z-index: 20;
+}
+
 /* Floating mobile tab bar over immersive watch feed */
 .mobile-nav-glass-dock {
   overflow: visible;
