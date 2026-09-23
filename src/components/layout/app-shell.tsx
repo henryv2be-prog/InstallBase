@@ -98,7 +98,7 @@ export function AppShell({ children, user }: AppShellProps) {
         className={cn(
           "sticky top-0 z-50 border-b pt-[env(safe-area-inset-top)] backdrop-blur-xl",
           glassMobileNav
-            ? "max-md:border-border max-md:bg-card/60 md:border-border md:bg-card/70"
+            ? "max-md:border-border max-md:bg-[var(--card)] md:border-border md:bg-card/70"
             : "border-border bg-card/70"
         )}
       >
@@ -242,7 +242,7 @@ export function AppShell({ children, user }: AppShellProps) {
         <div
           className={cn(
             glassMobileNav
-              ? "glass-frost-panel mobile-frost-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5"
+              ? "glass-card glass-frost-panel mobile-frost-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5"
               : "mx-auto flex min-h-[var(--app-mobile-nav-reserve)] max-w-lg items-center justify-around px-2 pt-1"
           )}
         >
@@ -368,7 +368,7 @@ export function AppShellFallback({ children }: { children: React.ReactNode }) {
         isViewportLockRoute && "app-shell-viewport-lock"
       )}
     >
-      <header className="sticky top-0 z-50 border-b border-border bg-card/60 pt-[env(safe-area-inset-top)] backdrop-blur-xl md:bg-card/70">
+      <header className="glass-card sticky top-0 z-50 border-b border-border bg-[var(--card)] pt-[env(safe-area-inset-top)] backdrop-blur-xl md:bg-card/70">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:h-16 sm:px-4 lg:px-6">
           <Link href="/feed/watch" className="min-w-0 shrink">
             <Logo size="md" />
@@ -410,7 +410,7 @@ export function AppShellFallback({ children }: { children: React.ReactNode }) {
       </main>
 
       <nav className="app-mobile-tab-nav pointer-events-none fixed bottom-0 left-0 right-0 z-[60] border-0 bg-transparent px-3 pb-[var(--app-mobile-nav-watch-edge)] md:hidden">
-        <div className="glass-frost-panel mobile-frost-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5">
+        <div className="glass-card glass-frost-panel mobile-frost-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5">
           {memberMobileNav.map((item) => {
             if (item.highlight) {
               return (
