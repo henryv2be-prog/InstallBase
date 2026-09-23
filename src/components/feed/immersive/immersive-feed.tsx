@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import type { AdCreative } from "@/lib/advertising/types";
 import { interleaveFeedWithAds } from "@/lib/advertising/interleave-feed-ads";
 import { useImmersiveScrollerHeight } from "@/components/feed/immersive/use-immersive-scroller-height";
+import { IMMERSIVE_FEED_RESET_EVENT } from "@/components/feed/immersive/immersive-feed-scroll";
 
 /** Apply brag/bookmark viewer fields from a fresh server row without replacing the feed list. */
 function mergePostViewerFields(existing: PostCardData, fresh: PostCardData): PostCardData {
@@ -63,6 +64,8 @@ export function ImmersiveFeed({
   const scrollerRef = useRef<HTMLDivElement>(null);
   useImmersiveScrollerHeight(scrollerRef);
   const tabRef = useRef(tab);
+  const betweenAdsRef = useRef(betweenAds);
+  betweenAdsRef.current = betweenAds;
   const [posts, setPosts] = useState(initialPosts.filter(postHasImmersiveMedia));
   const postsRef = useRef(posts);
   postsRef.current = posts;
@@ -78,22 +81,42 @@ export function ImmersiveFeed({
     feedItems[0] ? feedSlideKey(feedItems[0]) : null
   );
 
+  const snapFeedToTop = useCallback(
+    (sourcePosts?: PostCardData[]) => {
+      const source = sourcePosts ?? postsRef.current;
+      const items = interleaveFeedWithAds(source, betweenAdsRef.current, minPostsBetweenAds);
+      setActiveId(items[0] ? feedSlideKey(items[0]) : null);
+      const el = scrollerRef.current;
+      if (!el) return;
+      const snap = () => {
+        el.scrollTop = 0;
+        el.scrollTo({ top: 0, behavior: "instant" });
+      };
+      snap();
+      requestAnimationFrame(snap);
+      window.setTimeout(snap, 0);
+      window.setTimeout(snap, 50);
+      window.setTimeout(snap, 150);
+    },
+    [minPostsBetweenAds]
+  );
+
+  useEffect(() => {
+    const onReset = () => snapFeedToTop();
+    window.addEventListener(IMMERSIVE_FEED_RESET_EVENT, onReset);
+    return () => window.removeEventListener(IMMERSIVE_FEED_RESET_EVENT, onReset);
+  }, [snapFeedToTop]);
+
   useEffect(() => {
     const incoming = initialPosts.filter(postHasImmersiveMedia);
     const tabChanged = tabRef.current !== tab;
     tabRef.current = tab;
 
-    const scrollToTop = () => {
-      scrollerRef.current?.scrollTo({ top: 0, behavior: "instant" });
-    };
-
     if (tabChanged) {
       setPosts(incoming);
       setCursor(initialCursor);
       setHasMore(initialHasMore);
-      const nextItems = interleaveFeedWithAds(incoming, betweenAds, minPostsBetweenAds);
-      setActiveId(nextItems[0] ? feedSlideKey(nextItems[0]) : null);
-      scrollToTop();
+      snapFeedToTop(incoming);
       return;
     }
 
@@ -108,9 +131,7 @@ export function ImmersiveFeed({
       setPosts(incoming);
       setCursor(initialCursor);
       setHasMore(initialHasMore);
-      const nextItems = interleaveFeedWithAds(incoming, betweenAds, minPostsBetweenAds);
-      setActiveId(nextItems[0] ? feedSlideKey(nextItems[0]) : null);
-      scrollToTop();
+      snapFeedToTop(incoming);
       return;
     }
 
