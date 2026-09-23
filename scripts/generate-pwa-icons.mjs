@@ -1,26 +1,40 @@
-import { mkdirSync, writeFileSync, copyFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { copyFileSync } from "node:fs";
+import { join } from "node:path";
+import {
+  buildNotificationBadge,
+  ensureMasterPng,
+  repoRoot,
+  resizeAppIcon,
+  writePng,
+} from "./lib/brand-icon.mjs";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const outDir = join(root, "public", "icons");
+const outDir = join(repoRoot, "public", "icons");
+const appDir = join(repoRoot, "src", "app");
 
-const { renderAppIcon, renderNotificationBadge } = await import(join(root, "src/lib/app-icon.tsx"));
+await ensureMasterPng();
+console.log("→ refreshed assets/brand/app-icon-1024.png from reference mark");
 
 const sizes = [192, 512];
 
-mkdirSync(outDir, { recursive: true });
-
 for (const size of sizes) {
   const filename = `icon-${size}.png`;
-  const response = renderAppIcon(size, false);
-  const bytes = Buffer.from(await response.arrayBuffer());
-  writeFileSync(join(outDir, filename), bytes);
+  const bytes = await resizeAppIcon(size);
+  const outPath = join(outDir, filename);
+  writePng(outPath, bytes);
   // Maskable must match exactly — Android launchers pick either; mismatches look broken.
-  copyFileSync(join(outDir, filename), join(outDir, `icon-${size}-maskable.png`));
+  copyFileSync(outPath, join(outDir, `icon-${size}-maskable.png`));
   console.log(`→ wrote public/icons/${filename} + maskable (${bytes.length} bytes)`);
 }
 
-const badge = renderNotificationBadge(96);
-writeFileSync(join(outDir, "badge.png"), Buffer.from(await badge.arrayBuffer()));
+const badge = await buildNotificationBadge(96);
+writePng(join(outDir, "badge.png"), badge);
 console.log("→ wrote public/icons/badge.png");
+
+for (const [size, name] of [
+  [32, "icon.png"],
+  [180, "apple-icon.png"],
+]) {
+  const bytes = await resizeAppIcon(size);
+  writePng(join(appDir, name), bytes);
+  console.log(`→ wrote src/app/${name} (${size}×${size})`);
+}

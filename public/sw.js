@@ -1,5 +1,5 @@
-const CACHE = "installbase-v12";
-const ICON_V = "12";
+const CACHE = "installbase-v13";
+const ICON_V = "13";
 const PRECACHE = [
   "/login",
   `/icons/icon-192.png?v=${ICON_V}`,

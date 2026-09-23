@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils";
 
 export const IB_MARK_VIEWBOX = "0 0 56 40";
 
-/** Cyan accent for the i-dot — reads on the blue gradient like the reference mark. */
-export const IB_MARK_ACCENT = "#67e8f9";
+/** Cyan accent for the i-dot — matches the reference app icon mark. */
+export const IB_MARK_ACCENT = "#5eead4";
 
 /** Default in-app mark scale inside the blue rounded square. */
 export const IB_MARK_BOX_CLASS = "h-[68%] w-[84%]";

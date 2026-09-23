@@ -10,6 +10,7 @@ import {
   getTrendingBrags,
 } from "@/lib/queries";
 import { redirect } from "next/navigation";
+import { iconUrl } from "@/lib/icon-version";
 
 const title = "InstallBase — Your Work Is Your Reputation | Installer Community";
 const description =
@@ -24,13 +25,13 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "InstallBase",
     url: getAppUrl(),
-    images: [{ url: "/icons/icon-512.png", width: 512, height: 512, alt: "InstallBase" }],
+    images: [{ url: iconUrl("icon-512.png"), width: 512, height: 512, alt: "InstallBase" }],
   },
   twitter: {
     card: "summary",
     title,
     description,
-    images: ["/icons/icon-512.png"],
+    images: [iconUrl("icon-512.png")],
   },
 };
 
