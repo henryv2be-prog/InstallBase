@@ -15,6 +15,8 @@ interface VideoWithMusicPreviewProps {
   className?: string;
   /** Fill remaining create-flow height instead of fixed 9:16 block. */
   fillAvailable?: boolean;
+  /** Full-bleed watch-style preview (no max width / outer rounding). */
+  edgeToEdge?: boolean;
 }
 
 export function VideoWithMusicPreview({
@@ -24,6 +26,7 @@ export function VideoWithMusicPreview({
   tracks,
   className,
   fillAvailable,
+  edgeToEdge,
 }: VideoWithMusicPreviewProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -103,18 +106,22 @@ export function VideoWithMusicPreview({
     };
   }, [audioSrc, playBoth, pauseBoth]);
 
+  const immersive = edgeToEdge || fillAvailable;
+
   return (
     <div
       className={cn(
-        "relative mx-auto w-full max-w-md",
+        "relative w-full",
+        !edgeToEdge && "mx-auto max-w-md",
         fillAvailable && "flex min-h-0 flex-1 flex-col",
         className
       )}
     >
       <div
         className={cn(
-          "relative overflow-hidden rounded-2xl bg-black shadow-lg ring-1 ring-border/50",
-          fillAvailable ? "min-h-0 flex-1" : "aspect-[9/16]"
+          "relative overflow-hidden bg-black",
+          !edgeToEdge && "rounded-2xl shadow-lg ring-1 ring-border/50",
+          immersive ? "min-h-0 flex-1 h-full" : "aspect-[9/16]"
         )}
       >
         <video
@@ -139,10 +146,18 @@ export function VideoWithMusicPreview({
           <audio ref={audioRef} src={audioSrc} preload="auto" className="hidden" />
         ) : null}
 
-        <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-between bg-gradient-to-b from-black/60 to-transparent p-3">
-          <span className="rounded-full bg-black/45 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
-            Feed preview
-          </span>
+        <div
+          className={cn(
+            "pointer-events-none absolute inset-x-0 top-0 flex justify-between bg-gradient-to-b from-black/60 to-transparent p-3",
+            edgeToEdge && "pt-[max(0.75rem,env(safe-area-inset-top))]"
+          )}
+        >
+          {!edgeToEdge && (
+            <span className="rounded-full bg-black/45 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+              Feed preview
+            </span>
+          )}
+          {edgeToEdge && <span />}
           <span className="flex items-center gap-1 rounded-full bg-black/45 px-2.5 py-1 text-[11px] text-white backdrop-blur-sm">
             {audioSrc ? (
               <>
@@ -158,16 +173,26 @@ export function VideoWithMusicPreview({
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={togglePlay}
-          className="absolute bottom-4 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full bg-white/25 text-white backdrop-blur-md transition hover:bg-white/35"
-          aria-label={playing ? "Pause preview" : "Play preview"}
-        >
-          {playing ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 pl-0.5" />}
-        </button>
+        {!edgeToEdge && (
+          <button
+            type="button"
+            onClick={togglePlay}
+            className="absolute bottom-4 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full bg-white/25 text-white backdrop-blur-md transition hover:bg-white/35"
+            aria-label={playing ? "Pause preview" : "Play preview"}
+          >
+            {playing ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 pl-0.5" />}
+          </button>
+        )}
+        {edgeToEdge && (
+          <button
+            type="button"
+            onClick={togglePlay}
+            className="absolute inset-0 z-[1]"
+            aria-label={playing ? "Pause preview" : "Play preview"}
+          />
+        )}
       </div>
-      {!fillAvailable && (
+      {!fillAvailable && !edgeToEdge && (
         <p className="mt-2 text-center text-xs text-muted">
           Photos loop while the track plays — same as your posted video. Tap to play or pause.
         </p>

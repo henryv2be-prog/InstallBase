@@ -20,7 +20,7 @@ export default async function CreatePage() {
   }
 
   return (
-    <CreateFlowViewport title="Create Post" className="mx-auto max-w-2xl">
+    <CreateFlowViewport className="mx-auto w-full max-w-3xl">
       <CreatePostCard userName={session.user.name} fitViewport />
     </CreateFlowViewport>
   );
