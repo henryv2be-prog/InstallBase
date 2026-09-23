@@ -17,7 +17,7 @@ interface PostFeedWithAdsProps {
   currentUserId?: string;
   showInlineComments?: boolean;
   feedContext?: "following" | "popular";
-  followingIds?: Set<string>;
+  followingIds?: string[];
   emptyTitle?: string;
   emptyDescription?: string;
   emptyAction?: { label: string; href: string };

@@ -1,0 +1,180 @@
+/**
+ * Mobile shell layout: header + scroll/flex main + floating glass nav.
+ * Use --app-mobile-bottom-clearance everywhere content must sit above the dock.
+ */
+
+:root {
+  --app-mobile-content-gap: 0.375rem;
+  --app-mobile-bottom-clearance: calc(
+    var(--app-mobile-nav-watch-total) + var(--app-mobile-content-gap)
+  );
+  /* Usable main column between header and dock (excludes main padding-bottom) */
+  --app-mobile-main-area-h: calc(
+    100dvh - var(--app-header-h) - env(safe-area-inset-top, 0px) - var(--app-mobile-bottom-clearance)
+  );
+}
+
+.immersive-feed-root {
+  /* Top watch chrome floats over the scroller — not part of the scrollport. */
+  --immersive-watch-subnav-h: 0px;
+  --immersive-watch-top-chrome-h: 3.75rem;
+}
+
+/* —— Viewport-locked routes (Home/Explore watch, Create) —— */
+@media (max-width: 1023px) {
+  .app-shell-viewport-lock {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-shell-viewport-lock > header {
+    flex-shrink: 0;
+  }
+
+  .app-shell-viewport-lock > main {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-bottom: var(--app-mobile-bottom-clearance);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Watch feeds: media runs under the floating tab bar; overlays use bottom pad instead. */
+  .app-shell-viewport-lock > main:has(.immersive-viewport-page) {
+    padding-bottom: 0;
+  }
+
+  .app-shell-viewport-lock .app-main-slot {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .app-shell-viewport-lock .app-main-slot .immersive-viewport-page {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* —— Immersive feed (flex height; slides fill scroller) —— */
+.immersive-feed-root {
+  --immersive-slide-h: calc(
+    100dvh - var(--app-header-h) - env(safe-area-inset-top, 0px) - var(--immersive-watch-subnav-h)
+  );
+}
+
+@media (max-width: 1023px) {
+  .app-shell-viewport-lock .immersive-feed-root {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-shell-viewport-lock .immersive-feed-root {
+    position: relative;
+  }
+
+  .app-shell-viewport-lock .immersive-feed-column {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .app-shell-viewport-lock .immersive-feed-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-y: auto;
+    /* --immersive-slide-h: set in px by useImmersiveScrollerHeight (100% fails before flex settles). */
+  }
+
+  .app-shell-viewport-lock .immersive-feed-scroll > .immersive-feed-slide {
+    height: var(--immersive-slide-h);
+    min-height: var(--immersive-slide-h);
+    max-height: var(--immersive-slide-h);
+    box-sizing: border-box;
+    scroll-snap-stop: always;
+  }
+
+  .app-shell-viewport-lock .immersive-feed-root {
+    /* Clear floating dock + raised Create control + small breathing room */
+    --immersive-overlay-bottom-pad: calc(var(--app-mobile-bottom-clearance) + 0.625rem);
+  }
+
+  .app-shell-viewport-lock .immersive-slide-overlay-panel {
+    padding-bottom: var(--immersive-overlay-bottom-pad, var(--app-mobile-bottom-clearance));
+  }
+}
+
+@media (min-width: 1024px) {
+  .immersive-feed-root {
+    --immersive-watch-subnav-h: 0px;
+    --immersive-slide-h: min(88dvh, 900px);
+  }
+}
+
+.immersive-feed-scroll {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
+
+@media (min-width: 1024px) {
+  .immersive-feed-scroll {
+    scroll-behavior: smooth;
+  }
+}
+
+/* —— Create / edit post —— */
+.create-flow-root {
+  --create-flow-h: var(--app-mobile-main-area-h);
+}
+
+@media (max-width: 1023px) {
+  .app-shell-viewport-lock .create-flow-root {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    height: auto;
+  }
+}
+
+.create-flow-action-dock {
+  padding-bottom: var(--app-mobile-bottom-clearance);
+}
+
+.app-shell-viewport-lock .create-flow-action-dock,
+.app-shell-viewport-lock .install-preview-action-dock {
+  padding-bottom: 0.25rem;
+}
+
+/* Standard scroll pages: content clears floating nav (no double safe-area) */
+@media (max-width: 1023px) {
+  .app-shell-mobile-new-look .app-scroll-page {
+    padding-bottom: var(--app-mobile-bottom-clearance);
+  }
+}

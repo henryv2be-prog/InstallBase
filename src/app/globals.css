@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./app-viewport.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -243,6 +244,11 @@ body {
   padding-top: env(safe-area-inset-top);
 }
 
+/* New look watch — glass chrome overlays the feed scroller (posts slide underneath) */
+.immersive-watch-top-chrome {
+  z-index: 20;
+}
+
 /* Floating mobile tab bar over immersive watch feed */
 .mobile-nav-glass-dock {
   overflow: visible;
@@ -276,33 +282,6 @@ body {
   background: rgba(59, 130, 246, 0.22);
 }
 
-.immersive-feed-root {
-  --immersive-watch-subnav-h: 2.75rem;
-  /* Slides fill the viewport; glass nav overlays the bottom */
-  --immersive-slide-h: calc(
-    100dvh - var(--app-header-h) - env(safe-area-inset-top) - var(--immersive-watch-subnav-h)
-  );
-}
-
-@media (max-width: 1023px) {
-  .immersive-feed-root {
-    /* One offset only — sit post meta/actions just above the floating dock */
-    --immersive-overlay-bottom-pad: calc(var(--app-mobile-nav-watch-total) + 0.375rem);
-  }
-}
-
-@media (min-width: 1024px) {
-  .immersive-feed-root {
-    --immersive-watch-subnav-h: 0px;
-    --immersive-slide-h: min(88dvh, 900px);
-  }
-}
-
-.immersive-feed-scroll {
-  scroll-snap-type: y mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-
 @keyframes immersive-panorama-pan {
   from {
     transform: scale(1.02) translateX(-3%);
@@ -314,10 +293,171 @@ body {
 
 .immersive-panorama-pan {
   animation: immersive-panorama-pan 14s ease-in-out infinite alternate;
+  max-width: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .immersive-panorama-pan {
     animation: none;
+  }
+}
+
+/* Mobile “New look” shell — glass nav + cards aligned with immersive feed */
+@media (max-width: 767px) {
+  .app-shell-mobile-new-look .mobile-app-page-inner {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 42rem;
+    width: 100%;
+  }
+
+  .app-shell-mobile-new-look .glass-card,
+  .app-shell-mobile-new-look .mobile-app-page-inner > .rounded-xl,
+  .app-shell-mobile-new-look .mobile-app-page-inner > div > .rounded-xl {
+    border-color: color-mix(in srgb, var(--border) 70%, transparent);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* Create-video style live preview */
+@keyframes ib-ken-burns {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.08) translate3d(-2%, -1%, 0);
+  }
+}
+
+@keyframes ib-ken-burns-strong {
+  from {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.14) translate3d(-3%, -2%, 0);
+  }
+}
+
+.animate-ken-burns {
+  animation: ib-ken-burns 3.5s ease-out forwards;
+}
+
+.animate-ken-burns-strong {
+  animation: ib-ken-burns-strong 2.2s ease-out forwards;
+}
+
+@keyframes ib-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ib-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-fade-in {
+  animation: ib-fade-in ease both;
+}
+
+.animate-fade-out {
+  animation: ib-fade-out ease both;
+}
+
+@keyframes ib-slide-in-left {
+  from {
+    transform: translateX(100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes ib-slide-out-left {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0.5;
+  }
+}
+
+.animate-slide-in-left {
+  animation: ib-slide-in-left ease both;
+}
+
+.animate-slide-out-left {
+  animation: ib-slide-out-left ease both;
+}
+
+@keyframes ib-slide-in-right {
+  from {
+    transform: translateX(-100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes ib-slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0.5;
+  }
+}
+
+.animate-slide-in-right {
+  animation: ib-slide-in-right ease both;
+}
+
+.animate-slide-out-right {
+  animation: ib-slide-out-right ease both;
+}
+
+@keyframes ib-zoom-pop-in {
+  from {
+    transform: scale(1.18);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-zoom-pop-in {
+  animation: ib-zoom-pop-in ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ken-burns,
+  .animate-ken-burns-strong,
+  .animate-fade-in,
+  .animate-fade-out,
+  .animate-slide-in-left,
+  .animate-slide-out-left,
+  .animate-slide-in-right,
+  .animate-slide-out-right,
+  .animate-zoom-pop-in {
+    animation: none !important;
   }
 }

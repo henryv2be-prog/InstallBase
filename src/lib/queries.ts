@@ -14,6 +14,7 @@ import {
   type FeedPageResult,
   encodeFeedCursor,
   feedCursorWhere,
+  trendingFeedCursorWhere,
   toFeedCursor,
 } from "@/lib/feed-pagination";
 import { publishedFeedWhere } from "@/lib/feed-published";
@@ -282,6 +283,51 @@ async function scorePopularFeedPosts(userId?: string, limit = FEED_PAGE_SIZE) {
 
   scored.sort((a, b) => b.score - a.score);
   return scored.slice(0, limit).map((s) => s.post);
+}
+
+export async function getTrendingFeedPage(
+  userId?: string,
+  limit = FEED_PAGE_SIZE,
+  cursor?: FeedCursor | null
+): Promise<FeedPageResult<PostCardData>> {
+  const baseWhere = {
+    ...publishedFeedWhere,
+    ...braggablePostWhere,
+    bragScore: { gt: 0 },
+  };
+  const orderBy = [
+    { bragScore: "desc" as const },
+    { createdAt: "desc" as const },
+    { id: "desc" as const },
+  ];
+
+  const rows = await prisma.post.findMany({
+    where: {
+      ...baseWhere,
+      ...(cursor ? trendingFeedCursorWhere(cursor) : {}),
+    },
+    include: postCardInclude,
+    orderBy,
+    take: limit + 1,
+  });
+
+  const hasMore = rows.length > limit;
+  const page = hasMore ? rows.slice(0, limit) : rows;
+  const posts = await withViewerState(page, userId);
+  const last = page[page.length - 1];
+
+  return {
+    posts,
+    hasMore,
+    nextCursor:
+      hasMore && last
+        ? encodeFeedCursor({
+            id: last.id,
+            createdAt: new Date(last.createdAt).toISOString(),
+            bragScore: last.bragScore,
+          })
+        : null,
+  };
 }
 
 export async function getPostsByType(type: PostType, limit = 20, userId?: string) {

@@ -27,6 +27,8 @@ interface PostOptionsMenuProps {
   isSaved?: boolean;
   onBookmark?: () => void;
   onShare?: () => void;
+  triggerClassName?: string;
+  contentClassName?: string;
 }
 
 const reportReasons = [
@@ -51,6 +53,8 @@ export function PostOptionsMenu({
   isSaved = false,
   onBookmark,
   onShare,
+  triggerClassName,
+  contentClassName,
 }: PostOptionsMenuProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -110,7 +114,8 @@ export function PostOptionsMenu({
           size="sm"
           className={cn(
             "shrink-0 touch-pan-y transition-transform",
-            pressing && "scale-95 bg-muted"
+            pressing && "scale-95 bg-muted",
+            triggerClassName
           )}
           disabled={pending}
           aria-label={requiresLongPress ? "Press and hold for post actions" : "More post actions"}
@@ -122,7 +127,10 @@ export function PostOptionsMenu({
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          className="z-50 min-w-[190px] rounded-xl border border-border bg-card p-1 shadow-lg animate-in fade-in-0 zoom-in-95"
+          className={cn(
+            "z-50 min-w-[190px] rounded-xl border border-border bg-card p-1 shadow-lg animate-in fade-in-0 zoom-in-95",
+            contentClassName
+          )}
           align="end"
           sideOffset={6}
           onCloseAutoFocus={(event) => event.preventDefault()}
@@ -192,7 +200,10 @@ export function PostOptionsMenu({
                 </DropdownMenu.SubTrigger>
                 <DropdownMenu.Portal>
                   <DropdownMenu.SubContent
-                    className="z-50 min-w-[180px] rounded-xl border border-border bg-card p-1 shadow-lg"
+                    className={cn(
+                      "z-[80] min-w-[180px] rounded-xl border border-border bg-card p-1 shadow-lg",
+                      contentClassName
+                    )}
                     sideOffset={4}
                   >
                     {reportReasons.map(({ value, label }) => (

@@ -287,8 +287,11 @@ export function MediaUploadProvider({ children }: { children: ReactNode }) {
         }
 
         const postId = result && "postId" in result ? result.postId : payload.editPostId;
-        if (postId) router.push(`/post/${postId}`);
-        else router.push("/feed");
+        if (payload.editPostId && postId) {
+          router.push(`/post/${postId}`);
+        } else {
+          router.push("/feed/watch?tab=popular");
+        }
         router.refresh();
       } catch {
         toast.error(payload.editPostId ? "Failed to update post" : "Failed to create post");
