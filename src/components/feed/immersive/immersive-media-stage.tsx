@@ -2,13 +2,16 @@
 
 import type { PostCardData } from "@/lib/queries";
 import {
+  isReadyCompiledInstallVideo,
   mediaForImmersiveDisplay,
   primaryImmersiveMediaKind,
+  sourceInstallPhotoUrlsForPost,
 } from "@/lib/immersive-feed-media";
 import { isVideoMedia } from "@/lib/media";
 import { ImmersivePhotoStory } from "@/components/feed/immersive/immersive-photo-story";
 import { ImmersiveVideoPlayer } from "@/components/feed/immersive/immersive-video-player";
 import { ImmersiveInstallPhoto } from "@/components/feed/immersive/immersive-install-photo";
+import { ImmersiveCompiledInstallVideo } from "@/components/feed/immersive/immersive-compiled-install-video";
 import { postPrefersUnmutedPlayback } from "@/lib/post-video-audio";
 
 interface ImmersiveMediaStageProps {
@@ -26,6 +29,19 @@ export function ImmersiveMediaStage({ post, active }: ImmersiveMediaStageProps) 
       <div className="flex h-full w-full items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 p-8 text-center text-white/80">
         <p className="line-clamp-6 text-lg">{post.content || "Installation post"}</p>
       </div>
+    );
+  }
+
+  if (isReadyCompiledInstallVideo(post)) {
+    return (
+      <ImmersiveCompiledInstallVideo
+        videoUrl={post.generatedVideoUrl!}
+        posterUrl={post.generatedVideoPosterUrl}
+        sourcePhotoUrls={sourceInstallPhotoUrlsForPost(post)}
+        videoCompilationOptions={post.videoCompilationOptions}
+        active={active}
+        className="h-full w-full"
+      />
     );
   }
 
