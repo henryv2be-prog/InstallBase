@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import type { AdCreative } from "@/lib/advertising/types";
-import { FEED_MAX_LOADED_POSTS } from "@/lib/feed-pagination";
+import { FEED_MAX_LOADED_POSTS, type FeedTab } from "@/lib/feed-pagination";
 import type { PostCardData } from "@/lib/queries";
 import { PostCard } from "@/components/feed/post-card";
 import { FeedWithAds } from "@/components/ads/feed-with-ads";
@@ -15,7 +15,7 @@ interface InfinitePostFeedProps {
   initialPosts: PostCardData[];
   initialCursor: string | null;
   initialHasMore: boolean;
-  tab: "popular" | "following";
+  tab: FeedTab;
   currentUserId?: string;
   showInlineComments?: boolean;
   feedContext?: "following" | "popular";
@@ -67,12 +67,22 @@ export function InfinitePostFeed({
     }
 
     setPosts((current) => {
+      const incomingHeadId = initialPosts[0]?.id;
+      const newPostAtTop =
+        Boolean(incomingHeadId) &&
+        incomingHeadId !== current[0]?.id &&
+        !current.some((post) => post.id === incomingHeadId);
+
+      if (newPostAtTop) {
+        setCursor(initialCursor);
+        setHasMore(initialHasMore);
+        return initialPosts;
+      }
+
       const initialIds = new Set(initialPosts.map((post) => post.id));
       const loadedMore = current.filter((post) => !initialIds.has(post.id));
       return [...initialPosts, ...loadedMore].slice(0, FEED_MAX_LOADED_POSTS);
     });
-    setCursor(initialCursor);
-    setHasMore(initialHasMore);
   }, [initialPosts, initialCursor, initialHasMore, tab]);
 
   useEffect(() => {
@@ -98,7 +108,7 @@ export function InfinitePostFeed({
 
     try {
       const params = new URLSearchParams({ tab, cursor });
-      const response = await fetch(`/api/feed?${params.toString()}`);
+      const response = await fetch(`/api/feed?${params.toString()}`, { cache: "no-store" });
       if (!response.ok) {
         throw new Error(response.status === 401 ? "Sign in to load more" : "Could not load more posts");
       }

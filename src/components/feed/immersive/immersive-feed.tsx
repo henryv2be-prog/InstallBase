@@ -149,7 +149,7 @@ export function ImmersiveFeed({
     setLoading(true);
     try {
       const params = new URLSearchParams({ tab, cursor });
-      const response = await fetch(`/api/feed?${params.toString()}`);
+      const response = await fetch(`/api/feed?${params.toString()}`, { cache: "no-store" });
       if (!response.ok) return;
       const data = (await response.json()) as {
         posts: PostCardData[];
@@ -178,6 +178,12 @@ export function ImmersiveFeed({
       void loadMoreRef.current();
     }
   }, [activeId, feedItems, posts.length, hasMore, loading]);
+
+  /** Prefetch when the feed is short (common on Following before enough media posts appear). */
+  useEffect(() => {
+    if (!hasMore || loading || posts.length >= 8) return;
+    void loadMoreRef.current();
+  }, [hasMore, loading, posts.length, tab]);
 
   const onSlideVisible = useCallback((slideKey: string) => {
     setActiveId(slideKey);

@@ -4,6 +4,7 @@ import { getTargetingContext } from "@/lib/advertising/context";
 import { getAdSettings } from "@/lib/advertising/settings";
 import { AD_PLACEMENTS } from "@/lib/advertising/placements";
 import type { PostCardData } from "@/lib/queries";
+import type { FeedTab } from "@/lib/feed-pagination";
 import { InfiniteFeedShell } from "@/components/feed/infinite-feed-shell";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Camera } from "lucide-react";
@@ -13,7 +14,7 @@ interface PostFeedWithAdsProps {
   posts: PostCardData[];
   nextCursor: string | null;
   hasMore: boolean;
-  tab: "popular" | "following";
+  tab: FeedTab;
   currentUserId?: string;
   showInlineComments?: boolean;
   feedContext?: "following" | "popular";
