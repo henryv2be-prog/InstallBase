@@ -14,7 +14,10 @@ export const STYLE_PICKER_ORDER: VideoCompilationStyleId[] = [
   "smooth_fade",
   "slide_left",
   "slide_right",
+  "wipe_up",
   "zoom_punch",
+  "dramatic",
+  "steady",
   "quick_pop",
   "flash_montage",
 ];
