@@ -244,9 +244,8 @@ body {
   padding-top: env(safe-area-inset-top);
 }
 
-/* New look watch — floating glass chrome below app header */
+/* New look watch — glass chrome overlays the feed scroller (posts slide underneath) */
 .immersive-watch-top-chrome {
-  position: relative;
   z-index: 20;
 }
 

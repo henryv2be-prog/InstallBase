@@ -39,13 +39,8 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
   return (
     <div className="immersive-feed-root flex w-full max-w-full flex-col overflow-hidden max-lg:min-h-0 max-lg:flex-1 lg:mx-auto lg:max-w-6xl lg:flex-row lg:gap-6">
       <WatchInstallsPromoSeenOnMount />
-      <WatchFeedMobileChrome
-        followingTab={followingTab}
-        userId={userId}
-        classicHref={classicHref}
-      />
 
-      <div className="immersive-feed-column min-h-0 min-w-0 w-full flex-1 max-lg:max-w-none lg:max-w-md xl:max-w-lg">
+      <div className="immersive-feed-column relative min-h-0 min-w-0 w-full flex-1 max-lg:max-w-none lg:max-w-md xl:max-w-lg">
         {!userId && followingTab ? (
           <GuestJoinCard
             title="Follow installers to build this feed"
@@ -62,6 +57,11 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
             followingIds={userId ? followingIds : undefined}
           />
         )}
+        <WatchFeedMobileChrome
+          followingTab={followingTab}
+          userId={userId}
+          classicHref={classicHref}
+        />
       </div>
 
       <aside className="hidden w-72 shrink-0 lg:block xl:w-80">

@@ -20,8 +20,8 @@ export function WatchFeedMobileChrome({
   };
 
   return (
-    <div className="immersive-watch-top-chrome shrink-0 px-3 pb-2 pt-1 lg:hidden">
-      <div className="mobile-nav-glass-dock flex min-h-[2.875rem] items-center justify-between gap-2 rounded-2xl p-1.5">
+    <div className="immersive-watch-top-chrome pointer-events-none absolute inset-x-0 top-0 z-20 px-3 pb-2 pt-1 lg:hidden">
+      <div className="mobile-nav-glass-dock pointer-events-auto flex min-h-[2.875rem] items-center justify-between gap-2 rounded-2xl p-1.5">
         <Link
           href={classicHref}
           className="shrink-0 rounded-xl px-2.5 py-2 text-sm font-medium leading-none text-white/75 transition-colors hover:bg-white/10 hover:text-white"
