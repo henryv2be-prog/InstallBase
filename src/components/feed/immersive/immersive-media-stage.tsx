@@ -9,6 +9,7 @@ import { isVideoMedia } from "@/lib/media";
 import { ImmersivePhotoStory } from "@/components/feed/immersive/immersive-photo-story";
 import { ImmersiveVideoPlayer } from "@/components/feed/immersive/immersive-video-player";
 import { ImmersiveInstallPhoto } from "@/components/feed/immersive/immersive-install-photo";
+import { postPrefersUnmutedPlayback } from "@/lib/post-video-audio";
 
 interface ImmersiveMediaStageProps {
   post: PostCardData;
@@ -18,6 +19,7 @@ interface ImmersiveMediaStageProps {
 export function ImmersiveMediaStage({ post, active }: ImmersiveMediaStageProps) {
   const media = mediaForImmersiveDisplay(post);
   const kind = primaryImmersiveMediaKind(post);
+  const preferUnmuted = postPrefersUnmutedPlayback(post);
 
   if (media.length === 0) {
     return (
@@ -37,6 +39,7 @@ export function ImmersiveMediaStage({ post, active }: ImmersiveMediaStageProps) 
         url={post.generatedVideoUrl ?? item.url}
         posterUrl={poster}
         active={active}
+        preferUnmuted={preferUnmuted}
         className="h-full w-full"
       />
     );
@@ -52,7 +55,14 @@ export function ImmersiveMediaStage({ post, active }: ImmersiveMediaStageProps) 
   const videos = media.filter((item) => isVideoMedia(item.type, item.url));
 
   if (videos.length > 0 && photoUrls.length === 0) {
-    return <ImmersiveVideoPlayer url={videos[0].url} active={active} className="h-full w-full" />;
+    return (
+      <ImmersiveVideoPlayer
+        url={videos[0].url}
+        active={active}
+        preferUnmuted={preferUnmuted}
+        className="h-full w-full"
+      />
+    );
   }
 
   if (photoUrls.length > 0) {

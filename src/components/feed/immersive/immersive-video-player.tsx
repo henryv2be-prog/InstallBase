@@ -10,26 +10,62 @@ interface ImmersiveVideoPlayerProps {
   posterUrl?: string | null;
   active: boolean;
   className?: string;
+  /** Try sound on first play (install videos with music, native uploads). */
+  preferUnmuted?: boolean;
 }
 
-export function ImmersiveVideoPlayer({ url, posterUrl, active, className }: ImmersiveVideoPlayerProps) {
+export function ImmersiveVideoPlayer({
+  url,
+  posterUrl,
+  active,
+  className,
+  preferUnmuted = false,
+}: ImmersiveVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(() => !preferUnmuted);
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    setMuted(!preferUnmuted);
+  }, [url, preferUnmuted]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    if (active) {
-      video.muted = muted;
-      void video.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
-    } else {
+    if (!active) {
       video.pause();
       setPlaying(false);
+      return;
     }
-  }, [active, muted, url]);
+
+    const playActive = async () => {
+      if (preferUnmuted) {
+        video.muted = false;
+        try {
+          await video.play();
+          setMuted(false);
+          setPlaying(true);
+          return;
+        } catch {
+          video.muted = true;
+          setMuted(true);
+        }
+      } else {
+        video.muted = true;
+        setMuted(true);
+      }
+      try {
+        await video.play();
+        setPlaying(true);
+      } catch {
+        setPlaying(false);
+      }
+    };
+
+    void playActive();
+  }, [active, url, preferUnmuted]);
 
   useEffect(() => {
     const video = videoRef.current;
