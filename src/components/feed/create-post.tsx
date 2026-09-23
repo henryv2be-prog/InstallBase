@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   Camera,
   HelpCircle,
-  FolderKanban,
   ImagePlus,
   X,
   Loader2,
@@ -250,9 +249,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
 
   useEffect(() => {
     if (isEditing) return;
-    if (type === "PROJECT") {
-      setWork((prev) => ({ ...prev, postIntent: "PROJECT_INSTALLATION" }));
-    } else if (type === "QUESTION") {
+    if (type === "QUESTION") {
       setWork((prev) => ({ ...prev, postIntent: "GENERAL" }));
     }
   }, [isEditing, type]);
@@ -700,7 +697,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
               className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border bg-card/60 px-3 py-2 text-sm font-medium text-primary hover:bg-card"
             >
               <Camera className="h-4 w-4" />
-              Photo or Video
+              Share your work
             </button>
             <button
               type="button"
@@ -708,7 +705,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
               className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border bg-card/60 px-3 py-2 text-sm font-medium text-muted hover:bg-card hover:text-foreground"
             >
               <HelpCircle className="h-4 w-4" />
-              Ask
+              Ask a question
             </button>
           </div>
         </CardContent>
@@ -946,7 +943,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
             onClick={() => setType("POST")}
           >
             <Camera className="h-4 w-4" />
-            Photo / Video
+            Share your work
           </Button>
           <Button
             type="button"
@@ -957,16 +954,6 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
           >
             <HelpCircle className="h-4 w-4" />
             Ask a question
-          </Button>
-          <Button
-            type="button"
-            variant={type === "PROJECT" ? "secondary" : "ghost"}
-            size="sm"
-            onClick={() => setType("PROJECT")}
-            className={type === "PROJECT" ? "text-indigo-600" : ""}
-          >
-            <FolderKanban className="h-4 w-4" />
-            Project
           </Button>
         </div>
         )}
@@ -980,7 +967,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
           rows={fitViewport ? 2 : 3}
           className={cn(fitViewport ? "shrink-0 py-2 text-sm" : "mb-3")}
         />
-        {(type === "QUESTION" || type === "PROJECT") && (
+        {type === "QUESTION" && (
           <Input
             placeholder="Title (optional)"
             value={title}
@@ -989,7 +976,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
           />
         )}
 
-        {(type === "PROJECT" || type === "POST" || type === "VIDEO") && (
+        {(type === "POST" || type === "VIDEO") && (
           <div
             className={cn(
               fitViewport && showWorkDetails && "min-h-0 max-h-[38%] flex-1 overflow-y-auto overscroll-contain"
@@ -1000,7 +987,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
               onToggle={() => setShowWorkDetails((value) => !value)}
               state={work}
               onChange={(patch) => setWork((prev) => ({ ...prev, ...patch }))}
-              showIntentPicker={type !== "PROJECT"}
+              showIntentPicker
             />
           </div>
         )}

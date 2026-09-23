@@ -44,8 +44,7 @@ export function CreateFlowContentStep({
 }: ContentStepProps) {
   const hero = media[0];
   const isQuestion = flowKind === "question";
-  const isProject = flowKind === "project";
-  const showWork = flowKind === "project" || flowKind === "photo_video";
+  const showWork = flowKind === "share_work" || flowKind === "photo_video";
 
   return (
     <div className="flex h-full min-h-0 flex-col pt-10">
@@ -83,7 +82,7 @@ export function CreateFlowContentStep({
           />
         </div>
 
-        {(isQuestion || isProject) && (
+        {isQuestion && (
           <Input
             placeholder="Title (optional)"
             value={title}
@@ -98,7 +97,7 @@ export function CreateFlowContentStep({
             onToggle={onToggleWorkDetails}
             state={work}
             onChange={(patch) => onWorkChange(patch)}
-            showIntentPicker={!isProject}
+            showIntentPicker
           />
         )}
 

@@ -1,8 +1,16 @@
 import type { PostType } from "@/generated/prisma/client";
 
-export type CreateFlowStep = "media" | "post-type" | "content" | "effects" | "music" | "caption";
+export type CreateFlowStep =
+  | "intent"
+  | "media"
+  | "media-ready"
+  | "content"
+  | "effects"
+  | "music"
+  | "caption";
 
-export type FlowPostKind = "photo_video" | "auto_video" | "question" | "project";
+/** User-facing create paths (project is not a create option). */
+export type FlowPostKind = "share_work" | "question" | "photo_video" | "auto_video";
 
 export type CreateFlowMediaItem = {
   id: string;
@@ -18,19 +26,29 @@ export function flowKindToPostType(kind: FlowPostKind): PostType {
   switch (kind) {
     case "question":
       return "QUESTION";
-    case "project":
-      return "PROJECT";
     case "auto_video":
-      return "POST";
+    case "share_work":
+    case "photo_video":
     default:
       return "POST";
   }
 }
 
+function pathForKind(kind: FlowPostKind | null): CreateFlowStep[] {
+  if (kind === "auto_video") {
+    return ["intent", "media", "media-ready", "effects", "music", "caption"];
+  }
+  if (kind === "question") {
+    return ["intent", "media", "content"];
+  }
+  if (kind === "share_work" || kind === "photo_video") {
+    return ["intent", "media", "media-ready", "content"];
+  }
+  return ["intent", "media"];
+}
+
 export function progressForStep(step: CreateFlowStep, kind: FlowPostKind | null): { index: number; total: number } {
-  const autoPath: CreateFlowStep[] = ["media", "post-type", "effects", "music", "caption"];
-  const shortPath: CreateFlowStep[] = ["media", "post-type", "content"];
-  const path = kind === "auto_video" ? autoPath : shortPath;
+  const path = pathForKind(kind);
   const index = Math.max(0, path.indexOf(step));
   return { index: index + 1, total: path.length };
 }
