@@ -9,7 +9,7 @@ import {
 const MOBILE_MQ = "(max-width: 1023px)";
 const MIN_SLIDE_H = 64;
 
-/** Pin slide height to the scrollport’s pixel height so overlays stay above the glass nav. */
+/** Pin slide height to the scrollport’s pixel height (full bleed under glass nav). */
 export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement | null>) {
   useLayoutEffect(() => {
     const el = scrollerRef.current;
@@ -23,18 +23,11 @@ export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement
     const apply = () => {
       if (!mq.matches) {
         el.style.removeProperty("--immersive-slide-h");
-        el.style.removeProperty("height");
-        el.style.removeProperty("max-height");
-        el.style.removeProperty("flex");
         return;
       }
       const h = Math.round(measureImmersiveSlideHeightPx(el));
       if (h > MIN_SLIDE_H) {
         el.style.setProperty("--immersive-slide-h", `${h}px`);
-        /* Match scrollport to slide height so the next post cannot peek under the glass nav. */
-        el.style.height = `${h}px`;
-        el.style.maxHeight = `${h}px`;
-        el.style.flex = "0 0 auto";
         if (Math.abs(h - lastAppliedH) > 1 && lastAppliedH > 0) {
           const idx = Math.round(el.scrollTop / lastAppliedH);
           el.scrollTop = idx * h;
@@ -48,11 +41,7 @@ export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement
     const rafIds: number[] = [];
     const scheduleRafBurst = () => {
       for (let i = 0; i < 4; i++) {
-        rafIds.push(
-          requestAnimationFrame(() => {
-            apply();
-          })
-        );
+        rafIds.push(requestAnimationFrame(() => apply()));
       }
     };
     scheduleRafBurst();
@@ -97,9 +86,6 @@ export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement
       window.removeEventListener("load", apply);
       mq.removeEventListener("change", apply);
       el.style.removeProperty("--immersive-slide-h");
-      el.style.removeProperty("height");
-      el.style.removeProperty("max-height");
-      el.style.removeProperty("flex");
     };
   }, [scrollerRef]);
 }

@@ -47,6 +47,11 @@
     flex-direction: column;
   }
 
+  /* Watch feeds: media runs under the floating tab bar; overlays use bottom pad instead. */
+  .app-shell-viewport-lock > main:has(.immersive-viewport-page) {
+    padding-bottom: 0;
+  }
+
   .app-shell-viewport-lock .app-main-slot {
     display: flex;
     min-height: 0;
@@ -69,8 +74,7 @@
 /* —— Immersive feed (flex height; slides fill scroller) —— */
 .immersive-feed-root {
   --immersive-slide-h: calc(
-    100dvh - var(--app-header-h) - env(safe-area-inset-top, 0px) - var(--immersive-watch-subnav-h) -
-      var(--app-mobile-bottom-clearance)
+    100dvh - var(--app-header-h) - env(safe-area-inset-top, 0px) - var(--immersive-watch-subnav-h)
   );
 }
 
@@ -94,9 +98,6 @@
     flex: 1 1 auto;
     flex-direction: column;
     position: relative;
-    overflow: hidden;
-    align-items: stretch;
-    justify-content: flex-start;
   }
 
   .app-shell-viewport-lock .immersive-feed-scroll {
@@ -117,7 +118,7 @@
   }
 
   .app-shell-viewport-lock .immersive-feed-root {
-    --immersive-overlay-bottom-pad: 0.75rem;
+    --immersive-overlay-bottom-pad: var(--app-mobile-bottom-clearance);
   }
 }
 
