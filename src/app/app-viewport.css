@@ -164,14 +164,18 @@
 }
 
 .create-flow-action-dock {
-  padding-bottom: var(--app-mobile-bottom-clearance);
+  /* Extra 0.5rem clears the raised Create tab on the glass dock */
+  padding-bottom: calc(var(--app-mobile-bottom-clearance) + 0.5rem);
 }
 
 .create-flow-immersive {
   --create-flow-immersive-pad: max(0.5rem, env(safe-area-inset-bottom, 0px));
 }
 
-.app-shell-viewport-lock .create-flow-action-dock,
+.app-shell-viewport-lock .create-flow-action-dock {
+  padding-bottom: calc(var(--app-mobile-bottom-clearance) + 0.5rem);
+}
+
 .app-shell-viewport-lock .install-preview-action-dock {
   padding-bottom: 0.25rem;
 }

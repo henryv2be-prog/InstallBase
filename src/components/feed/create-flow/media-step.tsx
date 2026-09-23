@@ -135,7 +135,7 @@ export function CreateFlowMediaStep({
         )}
       </div>
 
-      <div className="create-flow-action-dock shrink-0 space-y-2 px-1 pt-3">
+      <div className="create-flow-action-dock z-20 shrink-0 space-y-2 border-t border-border/40 bg-[var(--background)]/90 px-1 pt-3 backdrop-blur-md">
         {media.length > 0 && media.length < MAX_POST_MEDIA && (
           <Button type="button" variant="outline" className="min-h-11 w-full touch-manipulation" onClick={onAddClick}>
             {uploading ? "Uploading…" : "Add more"}

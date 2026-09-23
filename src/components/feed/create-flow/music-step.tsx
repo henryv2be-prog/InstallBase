@@ -41,7 +41,7 @@ export function CreateFlowMusicStep({
         />
       </div>
 
-      <div className="pointer-events-none relative z-20 mt-auto space-y-3 px-3 pb-[calc(var(--app-mobile-bottom-clearance)+0.5rem)] pt-20">
+      <div className="pointer-events-none relative z-20 mt-auto space-y-3 px-3 pb-[calc(var(--app-mobile-bottom-clearance)+1rem)] pt-20">
         <div className="pointer-events-auto">
           <GlassPickerShell label="Music">
             {tracksLoading ? (

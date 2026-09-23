@@ -96,7 +96,7 @@ export function CreateFlowEffectsStep({
       </div>
 
       {ready && (
-        <div className="pointer-events-none relative z-20 mt-auto space-y-3 px-3 pb-[calc(var(--app-mobile-bottom-clearance)+0.5rem)] pt-16">
+        <div className="pointer-events-none relative z-20 mt-auto space-y-3 px-3 pb-[calc(var(--app-mobile-bottom-clearance)+1rem)] pt-16">
           <div className="pointer-events-auto">
             <GlassPickerShell label="Style">
               {orderedStyles.map(({ id, meta }) => (
