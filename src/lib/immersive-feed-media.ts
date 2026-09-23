@@ -20,6 +20,23 @@ export function postHasImmersiveMedia(post: PostCardData) {
   return mediaForImmersiveDisplay(post).length > 0;
 }
 
+/** Original install photos/videos used to build a compiled post (excludes COMPILED output). */
+export function sourceInstallMediaForPost(post: PostCardData) {
+  return post.media
+    .filter((item) => item.mediaRole !== "COMPILED")
+    .sort((a, b) => a.order - b.order);
+}
+
+export function sourceInstallPhotoUrlsForPost(post: PostCardData) {
+  return sourceInstallMediaForPost(post)
+    .filter((item) => !isVideoMedia(item.type, item.url))
+    .map((item) => item.url);
+}
+
+export function isReadyCompiledInstallVideo(post: PostCardData) {
+  return post.videoCompilationStatus === "READY" && Boolean(post.generatedVideoUrl);
+}
+
 export function primaryImmersiveMediaKind(post: PostCardData) {
   const media = mediaForImmersiveDisplay(post);
   if (media.length === 0) return "none" as const;
