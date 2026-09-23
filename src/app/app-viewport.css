@@ -94,6 +94,9 @@
     flex: 1 1 auto;
     flex-direction: column;
     position: relative;
+    overflow: hidden;
+    align-items: stretch;
+    justify-content: flex-start;
   }
 
   .app-shell-viewport-lock .immersive-feed-scroll {
