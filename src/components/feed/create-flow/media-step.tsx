@@ -5,9 +5,10 @@ import { ImagePlus, Loader2, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MAX_POST_MEDIA } from "@/lib/prepare-media";
 import { cn } from "@/lib/utils";
-import type { CreateFlowMediaItem } from "@/components/feed/create-flow/types";
+import type { CreateFlowMediaItem, FlowPostKind } from "@/components/feed/create-flow/types";
 
 interface MediaStepProps {
+  flowKind: FlowPostKind;
   media: CreateFlowMediaItem[];
   onAddClick: () => void;
   onRemove: (id: string) => void;
@@ -18,6 +19,7 @@ interface MediaStepProps {
 }
 
 export function CreateFlowMediaStep({
+  flowKind,
   media,
   onAddClick,
   onRemove,
@@ -29,12 +31,19 @@ export function CreateFlowMediaStep({
   const [heroIndex, setHeroIndex] = useState(0);
   const safeHeroIndex = media.length === 0 ? 0 : Math.min(heroIndex, media.length - 1);
   const hero = media[safeHeroIndex];
+  const isQuestion = flowKind === "question";
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="shrink-0 px-1 pb-3 pt-12 text-center sm:pt-14">
-        <h2 className="text-xl font-bold text-foreground sm:text-2xl">Choose what to post</h2>
-        <p className="mt-1 text-sm text-muted">Photos, videos, or both — add up to {MAX_POST_MEDIA}.</p>
+        <h2 className="text-xl font-bold text-foreground sm:text-2xl">
+          {isQuestion ? "Add context (optional)" : "Add your work"}
+        </h2>
+        <p className="mt-1 text-sm text-muted">
+          {isQuestion
+            ? "Photos or video can help others answer — or skip to write your question."
+            : `Photos, videos, or both — up to ${MAX_POST_MEDIA}.`}
+        </p>
       </div>
 
       <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-1 [-webkit-overflow-scrolling:touch]">
@@ -141,9 +150,9 @@ export function CreateFlowMediaStep({
             {uploading ? "Uploading…" : "Add more"}
           </Button>
         )}
-        {!hero && (
+        {isQuestion && !hero && (
           <Button type="button" variant="ghost" className="min-h-11 w-full text-muted" onClick={onContinue} disabled={continueDisabled}>
-            Text-only question
+            Skip — text-only question
           </Button>
         )}
         <Button type="button" className="min-h-12 w-full touch-manipulation text-base" onClick={onContinue} disabled={continueDisabled}>

@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { CreateFlowChrome } from "@/components/feed/create-flow/create-flow-chrome";
 import { CreateFlowMediaStep } from "@/components/feed/create-flow/media-step";
-import { CreateFlowPostTypeStep } from "@/components/feed/create-flow/post-type-step";
+import { CreateFlowIntentStep } from "@/components/feed/create-flow/intent-step";
+import { CreateFlowMediaReadyStep } from "@/components/feed/create-flow/media-ready-step";
 import { CreateFlowContentStep } from "@/components/feed/create-flow/content-step";
 import { CreateFlowEffectsStep } from "@/components/feed/create-flow/effects-step";
 import { CreateFlowMusicStep } from "@/components/feed/create-flow/music-step";
@@ -87,7 +88,7 @@ export function ImmersiveCreateFlow({
   onSubmitStandardPost,
   installVideoPosting,
   standardPostPending,
-  initialStep = "media",
+  initialStep = "intent",
   initialFlowKind = null,
 }: ImmersiveCreateFlowProps) {
   const [step, setStep] = useState<CreateFlowStep>(initialStep);
@@ -109,22 +110,22 @@ export function ImmersiveCreateFlow({
     media.map((item) => ({ kind: item.kind, status: item.status }))
   );
 
-  const photoVideoEnabled = readyUrls.length > 0;
-  const autoVideoEnabled = installVideoEligible && !uploading && failedCount === 0;
-
   const mediaContinueDisabled =
     uploading || failedCount > 0 || (media.length > 0 && readyUrls.length === 0);
 
   const goBack = useCallback(() => {
     switch (step) {
-      case "post-type":
+      case "media":
+        setStep("intent");
+        break;
+      case "media-ready":
         setStep("media");
         break;
       case "content":
-        setStep("post-type");
+        setStep(flowKind === "question" ? "media" : "media-ready");
         break;
       case "effects":
-        setStep("post-type");
+        setStep("media-ready");
         break;
       case "music":
         setStep("effects");
@@ -135,32 +136,49 @@ export function ImmersiveCreateFlow({
       default:
         break;
     }
-  }, [step]);
+  }, [step, flowKind]);
 
-  const selectFlowKind = useCallback(
-    (kind: FlowPostKind) => {
-      setFlowKind(kind);
-      onSetPostType(flowKindToPostType(kind));
-      if (kind === "auto_video") {
-        setStep("effects");
-      } else {
-        setStep("content");
-      }
-    },
-    [onSetPostType]
-  );
+  const startShareWork = useCallback(() => {
+    setFlowKind("share_work");
+    onSetPostType("POST");
+    setStep("media");
+  }, [onSetPostType]);
+
+  const startQuestion = useCallback(() => {
+    setFlowKind("question");
+    onSetPostType("QUESTION");
+    setStep("media");
+  }, [onSetPostType]);
+
+  const continueFromMedia = useCallback(() => {
+    if (flowKind === "question") {
+      setStep("content");
+      return;
+    }
+    if (media.length === 0) return;
+    setFlowKind("share_work");
+    onSetPostType("POST");
+    setStep("media-ready");
+  }, [flowKind, media.length, onSetPostType]);
+
+  const continueWithPhotos = useCallback(() => {
+    setFlowKind("photo_video");
+    onSetPostType("POST");
+    setStep("content");
+  }, [onSetPostType]);
+
+  const startAutoVideo = useCallback(() => {
+    setFlowKind("auto_video");
+    onSetPostType("POST");
+    setStep("effects");
+  }, [onSetPostType]);
 
   const needsHdRender = useCallback(() => {
     if (!installVideoPostId) return true;
     if (compilationStatus !== "READY" || !videoUrl) return true;
     if (lastRenderedStyleRef.current !== videoCompilationOptions.style) return true;
     return false;
-  }, [
-    installVideoPostId,
-    compilationStatus,
-    videoUrl,
-    videoCompilationOptions.style,
-  ]);
+  }, [installVideoPostId, compilationStatus, videoUrl, videoCompilationOptions.style]);
 
   const startHdRenderIfNeeded = useCallback(async () => {
     if (!needsHdRender()) return;
@@ -203,7 +221,10 @@ export function ImmersiveCreateFlow({
       ? content.trim().length > 0 || readyUrls.length > 0
       : readyUrls.length > 0 || content.trim().length > 0;
 
-  const showChromeBack = step !== "media";
+  const showChromeBack = step !== "intent";
+
+  const shareWorkContinueDisabled =
+    flowKind === "share_work" && (media.length === 0 || mediaContinueDisabled);
 
   return (
     <div className="create-flow-immersive relative flex h-full max-h-full min-h-0 flex-col overflow-hidden">
@@ -216,31 +237,28 @@ export function ImmersiveCreateFlow({
           step === "effects" || step === "music" || step === "caption" ? "px-0" : "px-1 sm:px-2"
         )}
       >
-        {step === "media" && (
+        {step === "intent" && <CreateFlowIntentStep onShareWork={startShareWork} onAskQuestion={startQuestion} />}
+
+        {step === "media" && flowKind && (
           <CreateFlowMediaStep
+            flowKind={flowKind}
             media={media}
             onAddClick={onAddClick}
             onRemove={onRemoveMedia}
             onRetry={onRetryMedia}
-            onContinue={() => {
-              if (media.length === 0) {
-                setFlowKind("question");
-                onSetPostType("QUESTION");
-                setStep("content");
-                return;
-              }
-              setStep("post-type");
-            }}
-            continueDisabled={mediaContinueDisabled}
+            onContinue={continueFromMedia}
+            continueDisabled={
+              flowKind === "share_work" ? shareWorkContinueDisabled : mediaContinueDisabled
+            }
             uploading={uploading}
           />
         )}
 
-        {step === "post-type" && (
-          <CreateFlowPostTypeStep
-            autoVideoEnabled={autoVideoEnabled}
-            photoVideoEnabled={photoVideoEnabled}
-            onSelect={selectFlowKind}
+        {step === "media-ready" && flowKind === "share_work" && (
+          <CreateFlowMediaReadyStep
+            autoVideoEnabled={installVideoEligible && !uploading && failedCount === 0}
+            onCreateVideo={startAutoVideo}
+            onContinuePhotos={continueWithPhotos}
           />
         )}
 

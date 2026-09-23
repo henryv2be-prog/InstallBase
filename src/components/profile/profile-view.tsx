@@ -232,8 +232,16 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
         </TabsContent>
         <TabsContent value="projects">
           <p className="mb-4 text-sm text-muted">
-            Full project pages are separate from day-to-day posts. Work shared from posts appears in the Work shared tab.
+            Projects group related work posts into a portfolio story (for example, a full site upgrade). Share individual
+            installs from Create, then organise them into project pages here when that&apos;s ready.
           </p>
+          {isOwnProfile && (
+            <div className="mb-4">
+              <Button asChild size="sm" variant="outline">
+                <Link href="/create">Share your work</Link>
+              </Button>
+            </div>
+          )}
           <div className="space-y-4">
             {user.projects.length === 0 ? (
               <EmptyState
@@ -241,9 +249,10 @@ export async function ProfileView({ username, session: sessionProp }: ProfilePag
                 title="No project pages yet"
                 description={
                   isOwnProfile
-                    ? "Legacy full project write-ups live here. New work evidence is built from tagged posts in the Work tab."
+                    ? "Post your installs first — the Work shared tab collects them. Project pages will let you group those posts into one story (coming soon)."
                     : `${user.name ?? profile.username} hasn't published any project pages yet.`
                 }
+                action={isOwnProfile ? { label: "Share your work", href: "/create" } : undefined}
               />
             ) : (
               user.projects.map((project) => (
