@@ -1,4 +1,8 @@
+"use client";
+
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
+import { useCreateFlowViewportHeight } from "@/components/feed/create-flow/use-create-flow-viewport-height";
 
 /** Full-height create/edit composer — no page scroll; content fits --create-flow-h. */
 export function CreateFlowViewport({
@@ -10,11 +14,16 @@ export function CreateFlowViewport({
   title?: string;
   className?: string;
 }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useCreateFlowViewportHeight(rootRef);
+
   return (
     <div
+      ref={rootRef}
       className={cn(
         "create-flow-root flex min-h-0 w-full flex-col overflow-hidden",
-        "max-md:flex-1 md:max-h-[var(--create-flow-h)] md:h-[var(--create-flow-h)]",
+        "max-md:max-h-[var(--create-flow-h)] max-md:h-[var(--create-flow-h)]",
+        "md:max-h-[var(--create-flow-h)] md:h-[var(--create-flow-h)]",
         className
       )}
     >

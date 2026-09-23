@@ -37,7 +37,7 @@ export function CreateFlowMediaStep({
         <p className="mt-1 text-sm text-muted">Photos, videos, or both — add up to {MAX_POST_MEDIA}.</p>
       </div>
 
-      <div className="relative min-h-0 flex-1 px-1">
+      <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-1 [-webkit-overflow-scrolling:touch]">
         {hero ? (
           <div className="relative mx-auto flex h-full max-h-full w-full max-w-lg flex-col">
             <div className="relative min-h-0 flex-1 overflow-hidden rounded-3xl bg-black shadow-2xl ring-1 ring-border/40">

@@ -69,6 +69,11 @@
     width: 100%;
     max-width: 100%;
   }
+
+  /* Create flow: action dock carries bottom clearance (avoids double pad + nav overlap) */
+  .app-shell-viewport-lock > main:has(.create-flow-root) {
+    padding-bottom: 0;
+  }
 }
 
 /* —— Immersive feed (flex height; slides fill scroller) —— */
@@ -158,8 +163,9 @@
   .app-shell-viewport-lock .create-flow-root {
     flex: 1 1 auto;
     min-height: 0;
-    max-height: none;
-    height: auto;
+    /* --create-flow-h set in px on resume/resize via useCreateFlowViewportHeight */
+    max-height: var(--create-flow-h, var(--app-mobile-main-area-h));
+    height: var(--create-flow-h, auto);
   }
 }
 
