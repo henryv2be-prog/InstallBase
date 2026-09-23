@@ -38,6 +38,7 @@ import {
 import { shouldAutoCompileInstallVideo } from "@/lib/video-compilation/eligibility";
 import { InstallVideoPreviewStage } from "@/components/feed/install-video-preview-stage";
 import { CreateVideoStylePicker } from "@/components/feed/create-video-style-picker";
+import { ImmersiveCreateFlow } from "@/components/feed/create-flow/immersive-create-flow";
 import { useInstallVideoCompilation } from "@/hooks/use-install-video-compilation";
 import {
   DEFAULT_VIDEO_COMPILATION_OPTIONS,
@@ -301,7 +302,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
     type,
   });
 
-  const startInstallVideoCompilation = async () => {
+  const startInstallVideoCompilation = async (optionsOverride?: VideoCompilationOptions) => {
     if (uploading) {
       toast.error("Wait for uploads to finish first");
       return;
@@ -311,6 +312,8 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
       toast.error("Add at least two photos or videos");
       return;
     }
+
+    const compilationOptions = optionsOverride ?? videoCompilationOptions;
 
     setInstallVideoPosting(true);
     try {
@@ -325,7 +328,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
             order,
           })),
           draft: buildInstallVideoDraftPayload(),
-          compilationOptions: videoCompilationOptions,
+          compilationOptions,
         }),
       });
       const data = (await response.json()) as { postId?: string; error?: string };
@@ -334,9 +337,14 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
         return;
       }
       setInstallVideoPostId(data.postId);
-      setPreviewSelectedAudio("none");
+      if (!optionsOverride) {
+        setPreviewSelectedAudio("none");
+      }
+      setVideoCompilationOptions(compilationOptions);
       setInstallVideoStep("preview");
-      toast.success("Building your video…");
+      if (!optionsOverride) {
+        toast.success("Building your video…");
+      }
     } catch {
       toast.error("Could not start video generation");
     } finally {
@@ -627,6 +635,50 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
       onChange={handleFileChange}
     />
   );
+
+  if (fitViewport && !isEditing) {
+    return (
+      <ImmersiveCreateFlow
+        fileInput={fileInput}
+        media={media}
+        uploading={uploading}
+        failedCount={failedCount}
+        readyUrls={readyUrls}
+        content={content}
+        title={title}
+        work={work}
+        showWorkDetails={showWorkDetails}
+        onContentChange={setContent}
+        onTitleChange={setTitle}
+        onToggleWorkDetails={() => setShowWorkDetails((value) => !value)}
+        onWorkChange={(patch) => setWork((prev) => ({ ...prev, ...patch }))}
+        onAddClick={() => fileRef.current?.click()}
+        onRemoveMedia={removeMedia}
+        onRetryMedia={retryMedia}
+        onSetPostType={setType}
+        installVideoPostId={installVideoPostId}
+        compilationStatus={installCompilation.status}
+        videoUrl={installCompilation.videoUrl}
+        posterUrl={installCompilation.posterUrl}
+        compilationError={installCompilation.error}
+        videoCompilationOptions={videoCompilationOptions}
+        onCompilationOptionsChange={setVideoCompilationOptions}
+        previewSelectedAudio={previewSelectedAudio}
+        onPreviewAudioChange={setPreviewSelectedAudio}
+        onStartInstallVideo={() => startInstallVideoCompilation()}
+        onRecompileInstallVideo={(options) => startInstallVideoCompilation(options)}
+        onPublishInstallVideo={() => void publishInstallVideo()}
+        onPublishAsCarousel={() => void publishAsCarouselFallback()}
+        onRegenerateVideo={() => {
+          setPreviewSelectedAudio("none");
+          void installCompilation.regenerate();
+        }}
+        onSubmitStandardPost={handleSubmit}
+        installVideoPosting={installVideoPosting}
+        standardPostPending={pending}
+      />
+    );
+  }
 
   if (compact && !expanded && !isEditing) {
     const openMedia = (e: React.MouseEvent) => {

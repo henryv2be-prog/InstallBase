@@ -167,6 +167,10 @@
   padding-bottom: var(--app-mobile-bottom-clearance);
 }
 
+.create-flow-immersive {
+  --create-flow-immersive-pad: max(0.5rem, env(safe-area-inset-bottom, 0px));
+}
+
 .app-shell-viewport-lock .create-flow-action-dock,
 .app-shell-viewport-lock .install-preview-action-dock {
   padding-bottom: 0.25rem;
