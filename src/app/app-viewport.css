@@ -15,8 +15,9 @@
 }
 
 .immersive-feed-root {
-  /* min-h-11 row + py-2 on watch subnav (Popular / Following) */
-  --immersive-watch-subnav-h: 3.75rem;
+  /* Top watch chrome floats over the scroller — not part of the scrollport. */
+  --immersive-watch-subnav-h: 0px;
+  --immersive-watch-top-chrome-h: 3.75rem;
 }
 
 /* —— Viewport-locked routes (Home/Explore watch, Create) —— */
@@ -83,11 +84,16 @@
     flex-direction: column;
   }
 
+  .app-shell-viewport-lock .immersive-feed-root {
+    position: relative;
+  }
+
   .app-shell-viewport-lock .immersive-feed-column {
     display: flex;
     min-height: 0;
     flex: 1 1 auto;
     flex-direction: column;
+    position: relative;
   }
 
   .app-shell-viewport-lock .immersive-feed-scroll {
