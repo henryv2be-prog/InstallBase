@@ -98,7 +98,7 @@ export function AppShell({ children, user }: AppShellProps) {
         className={cn(
           "sticky top-0 z-50 border-b pt-[env(safe-area-inset-top)] backdrop-blur-xl",
           glassMobileNav
-            ? "max-md:border-white/10 max-md:bg-[rgba(8,12,22,0.55)] md:border-border md:bg-card/70"
+            ? "max-md:border-border max-md:bg-card/60 md:border-border md:bg-card/70"
             : "border-border bg-card/70"
         )}
       >
@@ -242,14 +242,14 @@ export function AppShell({ children, user }: AppShellProps) {
         <div
           className={cn(
             glassMobileNav
-              ? "mobile-nav-glass-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5"
+              ? "glass-frost-panel mobile-frost-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5"
               : "mx-auto flex min-h-[var(--app-mobile-nav-reserve)] max-w-lg items-center justify-around px-2 pt-1"
           )}
         >
           {mobileNavItems.map((item) => {
             const glassTab = cn(
               "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 transition-all duration-200",
-              glassMobileNav && "mobile-nav-glass-btn min-h-[2.875rem]"
+              glassMobileNav && "min-h-[2.875rem] text-muted"
             );
 
             if (item.href === "/profile") {
@@ -260,13 +260,12 @@ export function AppShell({ children, user }: AppShellProps) {
                   className={cn(
                     glassTab,
                     glassMobileNav &&
-                      (pathname.startsWith("/profile")
-                        ? "mobile-nav-glass-btn-active"
-                        : undefined),
+                      pathname.startsWith("/profile") &&
+                      "mobile-frost-tab-active text-foreground",
                     !glassMobileNav && "min-w-[3.25rem] p-2"
                   )}
                 >
-                  <Avatar className="h-6 w-6 border border-white/15">
+                  <Avatar className="h-6 w-6 border border-border">
                     <AvatarImage src={user?.image ?? undefined} />
                     <AvatarFallback className="text-[10px]">{getInitials(user?.name ?? "U")}</AvatarFallback>
                   </Avatar>
@@ -305,11 +304,7 @@ export function AppShell({ children, user }: AppShellProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={cn(
-                    glassTab,
-                    glassMobileNav && "mobile-nav-glass-btn-create",
-                    !glassMobileNav && "min-w-[3.25rem] px-1 py-0.5"
-                  )}
+                  className={cn(glassTab, !glassMobileNav && "min-w-[3.25rem] px-1 py-0.5")}
                 >
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-md ring-1 ring-white/25 btn-glow">
                     <Icon className="h-5 w-5" />
@@ -333,7 +328,7 @@ export function AppShell({ children, user }: AppShellProps) {
                 className={cn(
                   glassTab,
                   "relative",
-                  glassMobileNav && active && "mobile-nav-glass-btn-active",
+                  glassMobileNav && active && "mobile-frost-tab-active text-foreground",
                   !glassMobileNav && "min-w-[3.25rem] p-2",
                   !glassMobileNav && (active ? "text-blue-600 dark:text-cyan-400" : "text-muted")
                 )}
@@ -373,7 +368,7 @@ export function AppShellFallback({ children }: { children: React.ReactNode }) {
         isViewportLockRoute && "app-shell-viewport-lock"
       )}
     >
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[rgba(8,12,22,0.55)] pt-[env(safe-area-inset-top)] backdrop-blur-xl max-md:border-white/10 md:border-border md:bg-card/70">
+      <header className="sticky top-0 z-50 border-b border-border bg-card/60 pt-[env(safe-area-inset-top)] backdrop-blur-xl md:bg-card/70">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:h-16 sm:px-4 lg:px-6">
           <Link href="/feed/watch" className="min-w-0 shrink">
             <Logo size="md" />
@@ -415,7 +410,7 @@ export function AppShellFallback({ children }: { children: React.ReactNode }) {
       </main>
 
       <nav className="app-mobile-tab-nav pointer-events-none fixed bottom-0 left-0 right-0 z-[60] border-0 bg-transparent px-3 pb-[var(--app-mobile-nav-watch-edge)] md:hidden">
-        <div className="mobile-nav-glass-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5">
+        <div className="glass-frost-panel mobile-frost-dock pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-1 rounded-2xl p-1.5">
           {memberMobileNav.map((item) => {
             if (item.highlight) {
               return (
