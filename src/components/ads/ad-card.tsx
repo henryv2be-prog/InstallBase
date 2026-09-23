@@ -46,7 +46,7 @@ export function AdCard({ ad, placementKey, className, compact }: AdCardProps) {
             alt={ad.title}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-contain object-center"
           />
         </div>
       )}
