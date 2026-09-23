@@ -92,7 +92,8 @@ async function extractSquirclePng(jpgPath) {
     const r = out[i];
     const g = out[i + 1];
     const b = out[i + 2];
-    if (isCheckerboard(r, g, b)) {
+    const keep = isMarkPixel(r, g, b) || isBlue(r, g, b);
+    if (!keep || isCheckerboard(r, g, b)) {
       out[i + 3] = 0;
     }
   }
@@ -102,17 +103,30 @@ async function extractSquirclePng(jpgPath) {
   }).png();
 }
 
-/** Full app icon: reference squircle composited on the brand gradient canvas. */
+function blendChannel(fg, bg, alpha) {
+  return Math.round(fg * alpha + bg * (1 - alpha));
+}
+
+/** Full app icon: reference squircle flattened onto an opaque gradient canvas. */
 export async function buildMasterIcon(jpgPath = SOURCE_JPG) {
   if (!existsSync(jpgPath)) {
     throw new Error(`Missing brand source image: ${jpgPath}`);
   }
 
   const squircle = await extractSquirclePng(jpgPath);
-  const fgBuffer = await squircle.resize(1024, 1024).png().toBuffer();
-  const bg = await sharp(Buffer.from(GRADIENT_SVG)).resize(1024, 1024).png().toBuffer();
+  const fg = await squircle.resize(1024, 1024).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const bg = await sharp(Buffer.from(GRADIENT_SVG)).resize(1024, 1024).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 
-  return sharp(bg).composite([{ input: fgBuffer, gravity: "center" }]).png();
+  const out = Buffer.alloc(fg.data.length);
+  for (let i = 0; i < fg.data.length; i += 4) {
+    const alpha = fg.data[i + 3] / 255;
+    out[i] = blendChannel(fg.data[i], bg.data[i], alpha);
+    out[i + 1] = blendChannel(fg.data[i + 1], bg.data[i + 1], alpha);
+    out[i + 2] = blendChannel(fg.data[i + 2], bg.data[i + 2], alpha);
+    out[i + 3] = 255;
+  }
+
+  return sharp(out, { raw: { width: 1024, height: 1024, channels: 4 } }).png();
 }
 
 export async function ensureMasterPng() {
