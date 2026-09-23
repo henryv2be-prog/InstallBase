@@ -118,7 +118,12 @@
   }
 
   .app-shell-viewport-lock .immersive-feed-root {
-    --immersive-overlay-bottom-pad: var(--app-mobile-bottom-clearance);
+    /* Clear floating dock + raised Create control + small breathing room */
+    --immersive-overlay-bottom-pad: calc(var(--app-mobile-bottom-clearance) + 0.625rem);
+  }
+
+  .app-shell-viewport-lock .immersive-slide-overlay-panel {
+    padding-bottom: var(--immersive-overlay-bottom-pad, var(--app-mobile-bottom-clearance));
   }
 }
 
