@@ -10,6 +10,9 @@ import {
 } from "@/components/feed/work-details-fields";
 import { cn } from "@/lib/utils";
 import type { CreateFlowMediaItem, FlowPostKind } from "@/components/feed/create-flow/types";
+import { VideoWithMusicPreview } from "@/components/feed/video-with-music-preview";
+import type { VideoCompilationAudioSelection } from "@/lib/video-compilation/options";
+import type { VideoSoundTrackClient } from "@/lib/video-compilation/sound-tracks";
 
 interface ContentStepProps {
   flowKind: FlowPostKind;
@@ -25,6 +28,9 @@ interface ContentStepProps {
   onPost: () => void;
   posting: boolean;
   postDisabled: boolean;
+  uploadedVideoUrl?: string | null;
+  uploadedVideoAudio?: VideoCompilationAudioSelection;
+  soundTracks?: VideoSoundTrackClient[];
 }
 
 export function CreateFlowContentStep({
@@ -41,16 +47,28 @@ export function CreateFlowContentStep({
   onPost,
   posting,
   postDisabled,
+  uploadedVideoUrl,
+  uploadedVideoAudio = "none",
+  soundTracks = [],
 }: ContentStepProps) {
   const hero = media[0];
   const isQuestion = flowKind === "question";
   const showWork = flowKind === "share_work" || flowKind === "photo_video";
+  const showMusicHero = hero?.kind === "video" && Boolean(uploadedVideoUrl) && flowKind === "photo_video";
 
   return (
     <div className="flex h-full min-h-0 flex-col pt-10">
       {!isQuestion && hero ? (
         <div className="relative mx-auto min-h-0 w-full max-w-lg flex-1 overflow-hidden rounded-3xl bg-black shadow-xl ring-1 ring-border/30">
-          {hero.kind === "video" ? (
+          {showMusicHero ? (
+            <VideoWithMusicPreview
+              videoUrl={uploadedVideoUrl}
+              audioId={uploadedVideoAudio}
+              tracks={soundTracks}
+              fillAvailable
+              className="h-full"
+            />
+          ) : hero.kind === "video" ? (
             <video src={hero.previewUrl} className="h-full w-full object-cover" muted playsInline autoPlay loop />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element

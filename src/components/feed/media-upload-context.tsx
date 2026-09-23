@@ -18,6 +18,7 @@ import { MAX_POST_MEDIA, prepareMediaFile } from "@/lib/prepare-media";
 import { formatUploadLimit, maxBytesForUpload } from "@/lib/upload-limits";
 import type { PostType } from "@/generated/prisma/client";
 import type { WorkDetailsFormState } from "@/components/feed/work-details-fields";
+import type { VideoCompilationAudioSelection } from "@/lib/video-compilation/options";
 
 export type MediaUploadItem = {
   id: string;
@@ -36,6 +37,8 @@ export type PendingPostPayload = {
   title: string;
   work: WorkDetailsFormState;
   editPostId?: string;
+  /** Mix library track into uploaded video(s); `none` keeps original clip audio. */
+  videoAudio?: VideoCompilationAudioSelection;
 };
 
 type MediaUploadContextValue = {
@@ -79,6 +82,9 @@ function buildFormData(payload: PendingPostPayload, mediaUrls: string[]) {
     formData.append("workEquipmentNotes", payload.work.workEquipmentNotes);
   }
   mediaUrls.forEach((url) => formData.append("mediaUrls", url));
+  if (payload.videoAudio) {
+    formData.append("videoAudio", payload.videoAudio);
+  }
   return formData;
 }
 

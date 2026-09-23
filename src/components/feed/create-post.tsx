@@ -39,6 +39,9 @@ import { InstallVideoPreviewStage } from "@/components/feed/install-video-previe
 import { CreateVideoStylePicker } from "@/components/feed/create-video-style-picker";
 import { ImmersiveCreateFlow } from "@/components/feed/create-flow/immersive-create-flow";
 import { useInstallVideoCompilation } from "@/hooks/use-install-video-compilation";
+import { useVideoSoundLibrary } from "@/hooks/use-video-sound-library";
+import { CreateVideoSoundPicker } from "@/components/feed/create-video-sound-picker";
+import { VideoWithMusicPreview } from "@/components/feed/video-with-music-preview";
 import {
   DEFAULT_VIDEO_COMPILATION_OPTIONS,
   type VideoCompilationAudioSelection,
@@ -200,6 +203,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
   );
   const [previewSelectedAudio, setPreviewSelectedAudio] = useState<VideoCompilationAudioSelection>("none");
   const installCompilation = useInstallVideoCompilation(installVideoPostId);
+  const { tracks: videoSoundTracks, loading: videoSoundTracksLoading } = useVideoSoundLibrary();
   const editMediaRef = useRef(editMedia);
   editMediaRef.current = editMedia;
 
@@ -524,12 +528,20 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
       });
   };
 
+  const hasReadyVideo = media.some((item) => item.kind === "video" && item.status === "ready");
+  const primaryUploadedVideoUrl =
+    media.find((item) => item.kind === "video" && item.status === "ready" && item.serverUrl)?.serverUrl ??
+    null;
+  const showUploadedVideoSoundPicker =
+    !isEditing && !fitViewport && installVideoStep === "compose" && hasReadyVideo && !installVideoEligible;
+
   const buildPayload = (): PendingPostPayload => ({
     type,
     content,
     title,
     work,
     editPostId: editPost?.id,
+    videoAudio: hasReadyVideo ? previewSelectedAudio : undefined,
   });
 
   const resetComposer = () => {
@@ -959,6 +971,25 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
         )}
 
         {mediaGrid}
+
+        {showUploadedVideoSoundPicker && primaryUploadedVideoUrl && (
+          <div className="space-y-3">
+            <VideoWithMusicPreview
+              videoUrl={primaryUploadedVideoUrl}
+              audioId={previewSelectedAudio}
+              tracks={videoSoundTracks}
+              className="mx-auto max-w-xs"
+            />
+            <CreateVideoSoundPicker
+              value={previewSelectedAudio}
+              onChange={setPreviewSelectedAudio}
+              tracks={videoSoundTracks}
+              loading={videoSoundTracksLoading}
+              disabled={pending || installVideoPosting}
+              originalSubLabel="Keep video sound"
+            />
+          </div>
+        )}
 
         <Textarea
           placeholder="Add a caption (optional if you added photos)..."

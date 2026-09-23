@@ -9,6 +9,7 @@ import { CreateFlowMediaReadyStep } from "@/components/feed/create-flow/media-re
 import { CreateFlowContentStep } from "@/components/feed/create-flow/content-step";
 import { CreateFlowEffectsStep } from "@/components/feed/create-flow/effects-step";
 import { CreateFlowMusicStep } from "@/components/feed/create-flow/music-step";
+import { CreateFlowVideoMusicStep } from "@/components/feed/create-flow/video-music-step";
 import { CreateFlowCaptionStep } from "@/components/feed/create-flow/caption-step";
 import type { CreateFlowMediaItem, CreateFlowStep, FlowPostKind } from "@/components/feed/create-flow/types";
 import { flowKindToPostType } from "@/components/feed/create-flow/types";
@@ -110,6 +111,20 @@ export function ImmersiveCreateFlow({
     media.map((item) => ({ kind: item.kind, status: item.status }))
   );
 
+  const hasReadyVideo = media.some((item) => item.kind === "video" && item.status === "ready");
+  const primaryVideoUrl =
+    media.find((item) => item.kind === "video" && item.status === "ready" && item.serverUrl)?.serverUrl ??
+    media.find((item) => item.kind === "video" && item.status === "ready")?.previewUrl ??
+    null;
+
+  const pathOptions = useMemo(
+    () => ({
+      includeVideoMusic:
+        hasReadyVideo && (flowKind === "photo_video" || flowKind === "share_work"),
+    }),
+    [flowKind, hasReadyVideo]
+  );
+
   const mediaContinueDisabled =
     uploading || failedCount > 0 || (media.length > 0 && readyUrls.length === 0);
 
@@ -122,7 +137,14 @@ export function ImmersiveCreateFlow({
         setStep("media");
         break;
       case "content":
-        setStep(flowKind === "question" ? "media" : "media-ready");
+        if (flowKind === "photo_video" && hasReadyVideo) {
+          setStep("video-music");
+        } else {
+          setStep(flowKind === "question" ? "media" : "media-ready");
+        }
+        break;
+      case "video-music":
+        setStep("media-ready");
         break;
       case "effects":
         setStep("media-ready");
@@ -136,7 +158,7 @@ export function ImmersiveCreateFlow({
       default:
         break;
     }
-  }, [step, flowKind]);
+  }, [step, flowKind, hasReadyVideo]);
 
   const startShareWork = useCallback(() => {
     setFlowKind("share_work");
@@ -164,8 +186,9 @@ export function ImmersiveCreateFlow({
   const continueWithPhotos = useCallback(() => {
     setFlowKind("photo_video");
     onSetPostType("POST");
-    setStep("content");
-  }, [onSetPostType]);
+    const hasVideo = media.some((item) => item.kind === "video" && item.status === "ready");
+    setStep(hasVideo ? "video-music" : "content");
+  }, [media, onSetPostType]);
 
   const startAutoVideo = useCallback(() => {
     setFlowKind("auto_video");
@@ -229,12 +252,16 @@ export function ImmersiveCreateFlow({
   return (
     <div className="create-flow-immersive relative flex h-full max-h-full min-h-0 flex-col overflow-hidden">
       {fileInput}
-      {showChromeBack && <CreateFlowChrome step={step} flowKind={flowKind} onBack={goBack} />}
+      {showChromeBack && (
+        <CreateFlowChrome step={step} flowKind={flowKind} pathOptions={pathOptions} onBack={goBack} />
+      )}
 
       <div
         className={cn(
           "min-h-0 flex-1 transition-opacity duration-300 motion-reduce:transition-none",
-          step === "effects" || step === "music" || step === "caption" ? "px-0" : "px-1 sm:px-2"
+          step === "effects" || step === "music" || step === "caption" || step === "video-music"
+            ? "px-0"
+            : "px-1 sm:px-2"
         )}
       >
         {step === "intent" && <CreateFlowIntentStep onShareWork={startShareWork} onAskQuestion={startQuestion} />}
@@ -262,6 +289,17 @@ export function ImmersiveCreateFlow({
           />
         )}
 
+        {step === "video-music" && flowKind === "photo_video" && primaryVideoUrl && (
+          <CreateFlowVideoMusicStep
+            videoUrl={primaryVideoUrl}
+            selectedAudio={previewSelectedAudio}
+            onAudioChange={onPreviewAudioChange}
+            tracks={tracks as VideoSoundTrackClient[]}
+            tracksLoading={tracksLoading}
+            onContinue={() => setStep("content")}
+          />
+        )}
+
         {step === "content" && flowKind && flowKind !== "auto_video" && (
           <CreateFlowContentStep
             flowKind={flowKind}
@@ -277,6 +315,9 @@ export function ImmersiveCreateFlow({
             onPost={onSubmitStandardPost}
             posting={standardPostPending}
             postDisabled={!contentCanPost || uploading}
+            uploadedVideoUrl={flowKind === "photo_video" ? primaryVideoUrl : null}
+            uploadedVideoAudio={previewSelectedAudio}
+            soundTracks={tracks as VideoSoundTrackClient[]}
           />
         )}
 

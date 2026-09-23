@@ -2,19 +2,31 @@
 
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { CreateFlowStep, FlowPostKind } from "@/components/feed/create-flow/types";
+import type {
+  CreateFlowPathOptions,
+  CreateFlowStep,
+  FlowPostKind,
+} from "@/components/feed/create-flow/types";
 import { progressForStep } from "@/components/feed/create-flow/types";
 
 interface CreateFlowChromeProps {
   step: CreateFlowStep;
   flowKind: FlowPostKind | null;
+  pathOptions?: CreateFlowPathOptions;
   onBack?: () => void;
   showBack?: boolean;
   className?: string;
 }
 
-export function CreateFlowChrome({ step, flowKind, onBack, showBack = true, className }: CreateFlowChromeProps) {
-  const { index, total } = progressForStep(step, flowKind);
+export function CreateFlowChrome({
+  step,
+  flowKind,
+  pathOptions,
+  onBack,
+  showBack = true,
+  className,
+}: CreateFlowChromeProps) {
+  const { index, total } = progressForStep(step, flowKind, pathOptions);
 
   return (
     <div
