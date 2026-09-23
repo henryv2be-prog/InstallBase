@@ -8,7 +8,11 @@ import { probeVideoDurationSec } from "@/lib/video-compilation/probe";
 import { muxAudioOntoVideo } from "@/lib/video-compilation/audio-tracks";
 import type { VideoCompilationAudioSelection } from "@/lib/video-compilation/options";
 
-/** Mix a chosen soundtrack into an already-compiled silent install video. */
+function isVideoUploadUrl(url: string) {
+  return /\.(mp4|webm|mov)(\?|$)/i.test(url);
+}
+
+/** Mix a library track onto a video URL, or return unchanged for Original / none. */
 export async function bakeAudioIntoInstallVideo(
   silentVideoUrl: string,
   audio: VideoCompilationAudioSelection
@@ -38,4 +42,19 @@ export async function bakeAudioIntoInstallVideo(
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => undefined);
   }
+}
+
+/** Apply optional soundtrack to each video in a post media list (photos unchanged). */
+export async function bakeAudioIntoMediaUrls(
+  mediaUrls: string[],
+  audio: VideoCompilationAudioSelection
+): Promise<string[]> {
+  if (audio === "none") return mediaUrls;
+  return Promise.all(
+    mediaUrls.map(async (url) => {
+      if (!isVideoUploadUrl(url)) return url;
+      const baked = await bakeAudioIntoInstallVideo(url, audio);
+      return baked.videoUrl;
+    })
+  );
 }

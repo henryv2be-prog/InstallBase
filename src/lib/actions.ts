@@ -146,7 +146,7 @@ export async function registerUser(formData: FormData) {
 
 export async function createPost(formData: FormData) {
   const userId = await getCurrentUserId();
-  const mediaUrls = formData.getAll("mediaUrls") as string[];
+  let mediaUrls = formData.getAll("mediaUrls").map((item) => String(item).trim()).filter(Boolean);
   const type = normalizeComposerType(formData.get("type") as string | null, mediaUrls);
   const content = ((formData.get("content") as string) || "").trim();
   const title = formData.get("title") as string | null;
@@ -169,7 +169,25 @@ export async function createPost(formData: FormData) {
     equipmentNotes: (formData.get("workEquipmentNotes") as string | null)?.trim() || undefined,
   });
 
-  const hasMedia = mediaUrls.filter(Boolean).length > 0;
+  const hasMedia = mediaUrls.length > 0;
+
+  const videoAudioRaw = (formData.get("videoAudio") as string | null)?.trim();
+  const hasUploadedVideo = mediaUrls.some((url) => /\.(mp4|webm|mov)(\?|$)/i.test(url));
+  if (hasUploadedVideo && videoAudioRaw && videoAudioRaw !== "none") {
+    const { bakeAudioIntoMediaUrls } = await import("@/lib/video-compilation/bake-audio");
+    const { listVideoSoundTracks } = await import("@/lib/video-compilation/sound-library.server");
+    const { parseVideoCompilationOptions } = await import("@/lib/video-compilation/options");
+    const libraryIds = (await listVideoSoundTracks()).map((t) => t.id);
+    const audio = parseVideoCompilationOptions({ audio: videoAudioRaw }, libraryIds).audio;
+    if (audio !== "none") {
+      try {
+        mediaUrls = await bakeAudioIntoMediaUrls(mediaUrls, audio);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Could not add music to video";
+        return { error: message };
+      }
+    }
+  }
 
   const categoryIds = new Set<string>();
   for (const id of formData.getAll("categoryIds").map((item) => String(item).trim()).filter(Boolean)) {

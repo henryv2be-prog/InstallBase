@@ -13,6 +13,7 @@ interface CreateVideoSoundPickerProps {
   disabled?: boolean;
   /** Compact row for preview step — selection triggers parent preview, no separate play buttons. */
   variant?: "preview";
+  originalSubLabel?: string;
 }
 
 export function CreateVideoSoundPicker({
@@ -21,6 +22,7 @@ export function CreateVideoSoundPicker({
   tracks,
   loading,
   disabled,
+  originalSubLabel = "No music",
 }: CreateVideoSoundPickerProps) {
   return (
     <div className="rounded-xl border border-border bg-card/40 p-4">
@@ -36,7 +38,7 @@ export function CreateVideoSoundPicker({
         <SoundChip
           active={value === "none"}
           label="Original"
-          sub="No music"
+          sub={originalSubLabel}
           disabled={disabled}
           onClick={() => onChange("none")}
           icon={<VolumeX className="h-5 w-5 text-muted" />}
