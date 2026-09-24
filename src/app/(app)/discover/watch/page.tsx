@@ -11,7 +11,9 @@ export default async function DiscoverWatchPage() {
   const session = await getSession();
   const userId = session?.user?.id;
   const followingIds = userId ? await getFollowingIds(userId) : [];
-  const { posts, nextCursor, hasMore } = await getTrendingFeedPage(userId);
+  const { posts, nextCursor, hasMore } = await getTrendingFeedPage(userId, undefined, undefined, {
+    immersiveOnly: true,
+  });
   const classicHref = classicExploreHref("trending");
 
   return (

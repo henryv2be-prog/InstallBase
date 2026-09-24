@@ -10,6 +10,7 @@ import { CreateFlowContentStep } from "@/components/feed/create-flow/content-ste
 import { CreateFlowEffectsStep } from "@/components/feed/create-flow/effects-step";
 import { CreateFlowMusicStep } from "@/components/feed/create-flow/music-step";
 import { CreateFlowVideoMusicStep } from "@/components/feed/create-flow/video-music-step";
+import { CreateFlowPhotoMusicStep } from "@/components/feed/create-flow/photo-music-step";
 import { CreateFlowCaptionStep } from "@/components/feed/create-flow/caption-step";
 import type { CreateFlowMediaItem, CreateFlowStep, FlowPostKind } from "@/components/feed/create-flow/types";
 import { flowKindToPostType } from "@/components/feed/create-flow/types";
@@ -112,6 +113,15 @@ export function ImmersiveCreateFlow({
   );
 
   const hasReadyVideo = media.some((item) => item.kind === "video" && item.status === "ready");
+  const hasReadyPhotoOnly =
+    media.some((item) => item.kind === "image" && item.status === "ready") && !hasReadyVideo;
+  const photoPreviewUrls = useMemo(
+    () =>
+      media
+        .filter((item) => item.status === "ready" && item.kind === "image")
+        .map((item) => item.previewUrl),
+    [media]
+  );
   const primaryVideoUrl =
     media.find((item) => item.kind === "video" && item.status === "ready" && item.serverUrl)?.serverUrl ??
     media.find((item) => item.kind === "video" && item.status === "ready")?.previewUrl ??
@@ -121,8 +131,10 @@ export function ImmersiveCreateFlow({
     () => ({
       includeVideoMusic:
         hasReadyVideo && (flowKind === "photo_video" || flowKind === "share_work"),
+      includePhotoMusic:
+        hasReadyPhotoOnly && (flowKind === "photo_video" || flowKind === "share_work"),
     }),
-    [flowKind, hasReadyVideo]
+    [flowKind, hasReadyPhotoOnly, hasReadyVideo]
   );
 
   const mediaContinueDisabled =
@@ -139,9 +151,14 @@ export function ImmersiveCreateFlow({
       case "content":
         if (flowKind === "photo_video" && hasReadyVideo) {
           setStep("video-music");
+        } else if (flowKind === "photo_video" && hasReadyPhotoOnly) {
+          setStep("photo-music");
         } else {
           setStep(flowKind === "question" ? "media" : "media-ready");
         }
+        break;
+      case "photo-music":
+        setStep("media-ready");
         break;
       case "video-music":
         setStep("media-ready");
@@ -158,7 +175,7 @@ export function ImmersiveCreateFlow({
       default:
         break;
     }
-  }, [step, flowKind, hasReadyVideo]);
+  }, [step, flowKind, hasReadyPhotoOnly, hasReadyVideo]);
 
   const startShareWork = useCallback(() => {
     setFlowKind("share_work");
@@ -187,7 +204,9 @@ export function ImmersiveCreateFlow({
     setFlowKind("photo_video");
     onSetPostType("POST");
     const hasVideo = media.some((item) => item.kind === "video" && item.status === "ready");
-    setStep(hasVideo ? "video-music" : "content");
+    const hasPhotosOnly =
+      media.some((item) => item.kind === "image" && item.status === "ready") && !hasVideo;
+    setStep(hasVideo ? "video-music" : hasPhotosOnly ? "photo-music" : "content");
   }, [media, onSetPostType]);
 
   const startAutoVideo = useCallback(() => {
@@ -259,7 +278,11 @@ export function ImmersiveCreateFlow({
       <div
         className={cn(
           "min-h-0 flex-1 transition-opacity duration-300 motion-reduce:transition-none",
-          step === "effects" || step === "music" || step === "caption" || step === "video-music"
+          step === "effects" ||
+          step === "music" ||
+          step === "caption" ||
+          step === "video-music" ||
+          step === "photo-music"
             ? "px-0"
             : "px-1 sm:px-2"
         )}
@@ -286,6 +309,17 @@ export function ImmersiveCreateFlow({
             autoVideoEnabled={installVideoEligible && !uploading && failedCount === 0}
             onCreateVideo={startAutoVideo}
             onContinuePhotos={continueWithPhotos}
+          />
+        )}
+
+        {step === "photo-music" && flowKind === "photo_video" && photoPreviewUrls.length > 0 && (
+          <CreateFlowPhotoMusicStep
+            previewImageUrls={photoPreviewUrls}
+            selectedAudio={previewSelectedAudio}
+            onAudioChange={onPreviewAudioChange}
+            tracks={tracks as VideoSoundTrackClient[]}
+            tracksLoading={tracksLoading}
+            onContinue={() => setStep("content")}
           />
         )}
 

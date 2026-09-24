@@ -28,9 +28,9 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Body;
     const media = (body.media ?? []).filter((item) => item.url?.trim());
-    if (media.length < 2) {
+    if (media.length < 1) {
       return NextResponse.json(
-        { error: "Add at least two photos or videos to create an install video" },
+        { error: "Add at least one photo or video to create an install video" },
         { status: 400 }
       );
     }

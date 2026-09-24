@@ -39,7 +39,7 @@ export function CreateFlowMediaReadyStep({
           </span>
           <span className="min-w-0">
             <span className="block text-base font-bold text-foreground">Create a video ✨</span>
-            <span className="mt-0.5 block text-sm text-muted">Auto-generated install reel from your photos</span>
+            <span className="mt-0.5 block text-sm text-muted">One photo or many — add motion and music</span>
           </span>
         </button>
 
@@ -60,7 +60,7 @@ export function CreateFlowMediaReadyStep({
 
       <div className="create-flow-action-dock shrink-0 px-1 pt-3">
         {!autoVideoEnabled ? (
-          <p className="text-center text-xs text-muted">Add two or more photos (or mix photos and video) to unlock install video.</p>
+          <p className="text-center text-xs text-muted">Add an install photo to unlock video, or continue to pick a soundtrack for the reel.</p>
         ) : (
           <Button type="button" variant="outline" className="min-h-11 w-full" onClick={onContinuePhotos}>
             Continue with photos / video

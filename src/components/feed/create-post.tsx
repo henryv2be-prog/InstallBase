@@ -309,8 +309,8 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
       return;
     }
     const readyItems = media.filter((item) => item.status === "ready" && item.serverUrl);
-    if (readyItems.length < 2) {
-      toast.error("Add at least two photos or videos");
+    if (!shouldAutoCompileInstallVideo(readyItems.map((item) => ({ kind: item.kind, status: "ready" as const })))) {
+      toast.error("Add at least one install photo or eligible video set");
       return;
     }
 
@@ -529,11 +529,23 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
   };
 
   const hasReadyVideo = media.some((item) => item.kind === "video" && item.status === "ready");
+  const hasReadyPhotoOnly =
+    media.some((item) => item.kind === "image" && item.status === "ready") && !hasReadyVideo;
   const primaryUploadedVideoUrl =
     media.find((item) => item.kind === "video" && item.status === "ready" && item.serverUrl)?.serverUrl ??
     null;
   const showUploadedVideoSoundPicker =
-    !isEditing && !fitViewport && installVideoStep === "compose" && hasReadyVideo && !installVideoEligible;
+    !isEditing &&
+    !fitViewport &&
+    installVideoStep === "compose" &&
+    hasReadyVideo &&
+    !installVideoEligible;
+  const showUploadedPhotoSoundPicker =
+    !isEditing &&
+    !fitViewport &&
+    installVideoStep === "compose" &&
+    hasReadyPhotoOnly &&
+    !installVideoEligible;
 
   const buildPayload = (): PendingPostPayload => ({
     type,
@@ -541,7 +553,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
     title,
     work,
     editPostId: editPost?.id,
-    videoAudio: hasReadyVideo ? previewSelectedAudio : undefined,
+    videoAudio: hasReadyVideo || hasReadyPhotoOnly ? previewSelectedAudio : undefined,
   });
 
   const resetComposer = () => {
@@ -628,7 +640,7 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
       return;
     }
     if (!installVideoEligible) {
-      toast.error("Add at least two photos or mix photos and video");
+      toast.error("Add at least one install photo or eligible video set");
       return;
     }
     void startInstallVideoCompilation();
@@ -989,6 +1001,17 @@ export function CreatePostCard({ userName, compact, fitViewport, editPost }: Cre
               originalSubLabel="Keep video sound"
             />
           </div>
+        )}
+
+        {showUploadedPhotoSoundPicker && (
+          <CreateVideoSoundPicker
+            value={previewSelectedAudio}
+            onChange={setPreviewSelectedAudio}
+            tracks={videoSoundTracks}
+            loading={videoSoundTracksLoading}
+            disabled={pending || installVideoPosting}
+            originalSubLabel="Silent in New look"
+          />
         )}
 
         <Textarea
