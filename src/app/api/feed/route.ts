@@ -15,11 +15,13 @@ export async function GET(request: Request) {
   const tab =
     tabParam === "following" ? "following" : tabParam === "explore" ? "explore" : "popular";
   const cursor = decodeFeedCursor(searchParams.get("cursor"));
+  const immersiveOnly = searchParams.get("immersive") === "1";
+  const feedOptions = immersiveOnly ? { immersiveOnly: true as const } : undefined;
   const session = await getSession();
   const userId = session?.user?.id;
 
   if (tab === "explore") {
-    const page = await getTrendingFeedPage(userId, undefined, cursor);
+    const page = await getTrendingFeedPage(userId, undefined, cursor, feedOptions);
     return NextResponse.json(page, {
       headers: { "Cache-Control": "private, no-cache" },
     });
@@ -30,13 +32,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Sign in required" }, { status: 401 });
     }
 
-    const page = await getFollowingFeedPage(userId, FEED_PAGE_SIZE, cursor);
+    const page = await getFollowingFeedPage(userId, FEED_PAGE_SIZE, cursor, feedOptions);
     return NextResponse.json(page, {
       headers: { "Cache-Control": "private, no-cache" },
     });
   }
 
-  const page = await getPopularFeedPage(userId, undefined, cursor);
+  const page = await getPopularFeedPage(userId, undefined, cursor, feedOptions);
   return NextResponse.json(page, {
     headers: { "Cache-Control": "private, no-cache" },
   });

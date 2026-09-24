@@ -4,6 +4,7 @@ export type CreateFlowStep =
   | "intent"
   | "media"
   | "media-ready"
+  | "photo-music"
   | "video-music"
   | "content"
   | "effects"
@@ -13,6 +14,8 @@ export type CreateFlowStep =
 export type CreateFlowPathOptions = {
   /** Standard post path includes music picker when user uploaded video. */
   includeVideoMusic?: boolean;
+  /** Photo-only uploads can pick a soundtrack for the New look reel. */
+  includePhotoMusic?: boolean;
 };
 
 /** User-facing create paths (project is not a create option). */
@@ -49,6 +52,7 @@ function pathForKind(kind: FlowPostKind | null, options?: CreateFlowPathOptions)
   }
   if (kind === "share_work" || kind === "photo_video") {
     const path: CreateFlowStep[] = ["intent", "media", "media-ready"];
+    if (options?.includePhotoMusic) path.push("photo-music");
     if (options?.includeVideoMusic) path.push("video-music");
     path.push("content");
     return path;

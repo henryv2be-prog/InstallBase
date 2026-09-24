@@ -284,7 +284,7 @@ export async function compileInstallationVideo(
   const style = VIDEO_COMPILATION_STYLES[options.style];
   const ordered = [...sources].sort((a, b) => a.order - b.order);
   if (ordered.length === 0) {
-    throw new Error("Add at least two photos or videos first");
+    throw new Error("Add at least one photo or video first");
   }
 
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "ib-video-"));

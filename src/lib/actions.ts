@@ -173,12 +173,26 @@ export async function createPost(formData: FormData) {
 
   const videoAudioRaw = (formData.get("videoAudio") as string | null)?.trim();
   const hasUploadedVideo = mediaUrls.some((url) => /\.(mp4|webm|mov)(\?|$)/i.test(url));
+  const { listVideoSoundTracks } = await import("@/lib/video-compilation/sound-library.server");
+  const { parseVideoCompilationOptions, DEFAULT_VIDEO_COMPILATION_OPTIONS } = await import(
+    "@/lib/video-compilation/options"
+  );
+  const libraryIds = (await listVideoSoundTracks()).map((t) => t.id);
+  let videoCompilationOptions: ReturnType<typeof parseVideoCompilationOptions> | undefined;
+
+  if (videoAudioRaw) {
+    const parsed = parseVideoCompilationOptions({ audio: videoAudioRaw }, libraryIds);
+    if (parsed.audio !== "none") {
+      videoCompilationOptions = {
+        style: DEFAULT_VIDEO_COMPILATION_OPTIONS.style,
+        audio: parsed.audio,
+      };
+    }
+  }
+
   if (hasUploadedVideo && videoAudioRaw && videoAudioRaw !== "none") {
     const { bakeAudioIntoMediaUrls } = await import("@/lib/video-compilation/bake-audio");
-    const { listVideoSoundTracks } = await import("@/lib/video-compilation/sound-library.server");
-    const { parseVideoCompilationOptions } = await import("@/lib/video-compilation/options");
-    const libraryIds = (await listVideoSoundTracks()).map((t) => t.id);
-    const audio = parseVideoCompilationOptions({ audio: videoAudioRaw }, libraryIds).audio;
+    const audio = videoCompilationOptions?.audio ?? "none";
     if (audio !== "none") {
       try {
         mediaUrls = await bakeAudioIntoMediaUrls(mediaUrls, audio);
@@ -220,6 +234,7 @@ export async function createPost(formData: FormData) {
       showExactLocation,
       inPortfolio,
       bragScore: 0,
+      videoCompilationOptions: videoCompilationOptions ?? undefined,
       media: {
         create: mediaUrls.filter(Boolean).map((url, i) => ({
           url,

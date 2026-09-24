@@ -29,10 +29,11 @@ export default async function WatchFeedPage({ searchParams }: WatchFeedPageProps
   const followingTab =
     tab === "following" || (tab !== "popular" && !!userId && followingIds.length > 0);
 
+  const immersiveFeed = { immersiveOnly: true as const };
   const feedPage =
     followingTab && userId
-      ? await getFollowingFeedPage(userId)
-      : await getPopularFeedPage(userId);
+      ? await getFollowingFeedPage(userId, undefined, undefined, immersiveFeed)
+      : await getPopularFeedPage(userId, undefined, undefined, immersiveFeed);
   const { posts, nextCursor, hasMore } = feedPage;
 
   const classicHref = classicFeedHref(followingTab ? "following" : "popular");

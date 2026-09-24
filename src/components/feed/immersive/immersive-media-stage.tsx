@@ -4,9 +4,12 @@ import type { PostCardData } from "@/lib/queries";
 import {
   isReadyCompiledInstallVideo,
   mediaForImmersiveDisplay,
+  postHasImmersiveSoundtrack,
   primaryImmersiveMediaKind,
   sourceInstallPhotoUrlsForPost,
 } from "@/lib/immersive-feed-media";
+import { ImmersiveInstallPhotoWithMusic } from "@/components/feed/immersive/immersive-install-photo-with-music";
+import { ImmersivePhotoStoryWithMusic } from "@/components/feed/immersive/immersive-photo-story-with-music";
 import { isVideoMedia } from "@/lib/media";
 import { ImmersivePhotoStory } from "@/components/feed/immersive/immersive-photo-story";
 import { ImmersiveVideoPlayer } from "@/components/feed/immersive/immersive-video-player";
@@ -62,6 +65,16 @@ export function ImmersiveMediaStage({ post, active }: ImmersiveMediaStageProps) 
   }
 
   if (kind === "single-photo") {
+    if (postHasImmersiveSoundtrack(post)) {
+      return (
+        <ImmersiveInstallPhotoWithMusic
+          photoUrl={media[0].url}
+          videoCompilationOptions={post.videoCompilationOptions}
+          active={active}
+          className="h-full w-full"
+        />
+      );
+    }
     return (
       <ImmersiveInstallPhoto src={media[0].url} active={active} className="h-full w-full" />
     );
@@ -82,6 +95,16 @@ export function ImmersiveMediaStage({ post, active }: ImmersiveMediaStageProps) 
   }
 
   if (photoUrls.length > 0) {
+    if (postHasImmersiveSoundtrack(post)) {
+      return (
+        <ImmersivePhotoStoryWithMusic
+          urls={photoUrls}
+          videoCompilationOptions={post.videoCompilationOptions}
+          active={active}
+          className="h-full w-full"
+        />
+      );
+    }
     return <ImmersivePhotoStory urls={photoUrls} active={active} className="h-full w-full" />;
   }
 

@@ -148,7 +148,7 @@ export function ImmersiveFeed({
     if (!hasMore || loading || !cursor || posts.length >= FEED_MAX_LOADED_POSTS) return;
     setLoading(true);
     try {
-      const params = new URLSearchParams({ tab, cursor });
+      const params = new URLSearchParams({ tab, cursor, immersive: "1" });
       const response = await fetch(`/api/feed?${params.toString()}`, { cache: "no-store" });
       if (!response.ok) return;
       const data = (await response.json()) as {
