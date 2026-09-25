@@ -8,6 +8,7 @@ import { SessionProvider } from "@/components/providers/session-provider";
 import { ThemeInit } from "@/components/providers/theme-init";
 import { PwaInstallBanner } from "@/components/pwa/install-banner";
 import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker-registrar";
+import { getAppUrl } from "@/lib/app-url";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,6 +21,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getAppUrl()),
   title: {
     default: "InstallBase — Where installers share what they build",
     template: "%s | InstallBase",
