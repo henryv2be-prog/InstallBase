@@ -17,12 +17,14 @@ import { ReengagementDebugPanel } from "@/components/admin/reengagement-debug";
 import { MemberTierBadge } from "@/components/ui/badge";
 import { getMemberTierLabel } from "@/lib/membership";
 import type { MemberTier } from "@/generated/prisma/client";
+import { PresenceAvatar, PresenceLabel } from "@/components/presence/presence-avatar";
 
 interface AdminDashboardProps {
   data: {
     stats: {
       users: number;
       activeUsers: number;
+      usersOnlineNow: number;
       posts: number;
       brags: number;
       questions: number;
@@ -51,6 +53,8 @@ interface AdminDashboardProps {
       role: string;
       suspended: boolean;
       createdAt: Date;
+      lastSeenAt: Date | null;
+      image: string | null;
       profile: { username: string; memberTier: MemberTier | null } | null;
     }>;
     recentPosts: Array<{
@@ -77,6 +81,7 @@ export function AdminDashboard({ data, currentUserId }: AdminDashboardProps & { 
   ];
 
   const platformStats = [
+    { label: "Online now", value: stats.usersOnlineNow },
     { label: "Active users", value: stats.activeUsers },
     { label: "Brags", value: stats.brags },
     { label: "Questions", value: stats.questions },
@@ -256,7 +261,15 @@ export function AdminDashboard({ data, currentUserId }: AdminDashboardProps & { 
                   className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
+                    <div className="flex min-w-0 gap-3">
+                      <PresenceAvatar
+                        src={user.image}
+                        name={user.name}
+                        lastSeenAt={user.lastSeenAt}
+                        className="h-11 w-11"
+                        size="md"
+                      />
+                      <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="truncate font-semibold">{user.name}</p>
                         {user.profile?.memberTier && (
@@ -273,6 +286,8 @@ export function AdminDashboard({ data, currentUserId }: AdminDashboardProps & { 
                       {user.profile?.memberTier && (
                         <p className="text-xs text-muted">{getMemberTierLabel(user.profile.memberTier)}</p>
                       )}
+                      <PresenceLabel lastSeenAt={user.lastSeenAt} className="text-xs" />
+                      </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Button
