@@ -18,6 +18,7 @@ import {
   toFeedCursor,
 } from "@/lib/feed-pagination";
 import { immersiveFeedWhere, publishedFeedWhere } from "@/lib/feed-published";
+import { ONLINE_WINDOW_MS } from "@/lib/presence";
 
 export type FeedQueryOptions = {
   /** New look reel: skip text-only posts without media. */
@@ -838,9 +839,11 @@ export async function getOrCreateConversation(userIdA: string, userIdB: string) 
 
 export async function getAdminStats() {
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
+  const onlineSince = new Date(Date.now() - ONLINE_WINDOW_MS);
   const [
     users,
     activeUsers,
+    usersOnlineNow,
     posts,
     brags,
     questions,
@@ -851,6 +854,7 @@ export async function getAdminStats() {
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { posts: { some: {} } } }),
+    prisma.user.count({ where: { lastSeenAt: { gte: onlineSince } } }),
     prisma.post.count(),
     prisma.post.count({
       where: { ...braggablePostWhere, media: { some: {} } },
@@ -873,6 +877,7 @@ export async function getAdminStats() {
   return {
     users,
     activeUsers,
+    usersOnlineNow,
     posts,
     brags,
     questions,
@@ -908,6 +913,8 @@ export async function getAdminData() {
         role: true,
         suspended: true,
         createdAt: true,
+        lastSeenAt: true,
+        image: true,
         profile: { select: { username: true, memberTier: true } },
       },
       orderBy: { createdAt: "desc" },
