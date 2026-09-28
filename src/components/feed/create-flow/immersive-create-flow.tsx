@@ -272,7 +272,13 @@ export function ImmersiveCreateFlow({
     <div className="create-flow-immersive relative flex h-full max-h-full min-h-0 flex-col overflow-hidden">
       {fileInput}
       {showChromeBack && (
-        <CreateFlowChrome step={step} flowKind={flowKind} pathOptions={pathOptions} onBack={goBack} />
+        <CreateFlowChrome
+          step={step}
+          flowKind={flowKind}
+          pathOptions={pathOptions}
+          onBack={goBack}
+          compilationStatus={compilationStatus}
+        />
       )}
 
       <div
