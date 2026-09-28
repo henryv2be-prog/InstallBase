@@ -8,10 +8,8 @@ import type {
   FlowPostKind,
 } from "@/components/feed/create-flow/types";
 import { progressForStep } from "@/components/feed/create-flow/types";
-import {
-  CreateFlowPublishMilestones,
-  publishMilestoneState,
-} from "@/components/feed/create-flow/create-flow-publish-milestones";
+import { CreateFlowPublishMilestones } from "@/components/feed/create-flow/create-flow-publish-milestones";
+import { publishMilestoneState } from "@/components/feed/create-flow/publish-milestone-state";
 import type { CompilationStatus } from "@/hooks/use-install-video-compilation";
 
 interface CreateFlowChromeProps {

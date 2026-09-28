@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { publishMilestoneState } from "@/components/feed/create-flow/create-flow-publish-milestones";
+import { publishMilestoneState } from "@/components/feed/create-flow/publish-milestone-state";
 
 describe("publishMilestoneState", () => {
   it("hides for non auto_video flows", () => {
