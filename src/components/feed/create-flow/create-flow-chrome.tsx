@@ -8,6 +8,11 @@ import type {
   FlowPostKind,
 } from "@/components/feed/create-flow/types";
 import { progressForStep } from "@/components/feed/create-flow/types";
+import {
+  CreateFlowPublishMilestones,
+  publishMilestoneState,
+} from "@/components/feed/create-flow/create-flow-publish-milestones";
+import type { CompilationStatus } from "@/hooks/use-install-video-compilation";
 
 interface CreateFlowChromeProps {
   step: CreateFlowStep;
@@ -16,6 +21,7 @@ interface CreateFlowChromeProps {
   onBack?: () => void;
   showBack?: boolean;
   className?: string;
+  compilationStatus?: CompilationStatus;
 }
 
 export function CreateFlowChrome({
@@ -25,8 +31,10 @@ export function CreateFlowChrome({
   onBack,
   showBack = true,
   className,
+  compilationStatus = "idle",
 }: CreateFlowChromeProps) {
   const { index, total } = progressForStep(step, flowKind, pathOptions);
+  const publishProgress = publishMilestoneState(step, flowKind, compilationStatus);
 
   return (
     <div
@@ -48,24 +56,34 @@ export function CreateFlowChrome({
         <span className="h-11 w-11 shrink-0" aria-hidden />
       )}
 
-      <div
-        className="pointer-events-none flex flex-1 items-center justify-center gap-1.5 pt-2"
-        role="progressbar"
-        aria-valuenow={index}
-        aria-valuemin={1}
-        aria-valuemax={total}
-        aria-label={`Step ${index} of ${total}`}
-      >
-        {Array.from({ length: total }, (_, i) => (
-          <span
-            key={i}
-            className={cn(
-              "h-1 rounded-full transition-all motion-reduce:transition-none",
-              i + 1 === index ? "w-6 bg-primary" : i + 1 < index ? "w-2 bg-primary/50" : "w-2 bg-white/25"
-            )}
-          />
-        ))}
-      </div>
+      {publishProgress.show ? (
+        <CreateFlowPublishMilestones
+          step={step}
+          flowKind={flowKind}
+          compilationStatus={compilationStatus}
+          className="pointer-events-none min-w-0 flex-1 pt-1"
+          compact
+        />
+      ) : (
+        <div
+          className="pointer-events-none flex flex-1 items-center justify-center gap-1.5 pt-2"
+          role="progressbar"
+          aria-valuenow={index}
+          aria-valuemin={1}
+          aria-valuemax={total}
+          aria-label={`Step ${index} of ${total}`}
+        >
+          {Array.from({ length: total }, (_, i) => (
+            <span
+              key={i}
+              className={cn(
+                "h-1 rounded-full transition-all motion-reduce:transition-none",
+                i + 1 === index ? "w-6 bg-primary" : i + 1 < index ? "w-2 bg-primary/50" : "w-2 bg-white/25"
+              )}
+            />
+          ))}
+        </div>
+      )}
 
       <span className="h-11 w-11 shrink-0" aria-hidden />
     </div>

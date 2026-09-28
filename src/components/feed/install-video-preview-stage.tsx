@@ -9,6 +9,7 @@ import { useVideoSoundLibrary } from "@/hooks/use-video-sound-library";
 import type { CompilationStatus } from "@/hooks/use-install-video-compilation";
 import type { VideoCompilationAudioSelection } from "@/lib/video-compilation/options";
 import { cn } from "@/lib/utils";
+import { InstallVideoPublishMilestones } from "@/components/feed/create-flow/create-flow-publish-milestones";
 
 interface InstallVideoPreviewStageProps {
   status: CompilationStatus;
@@ -80,6 +81,8 @@ export function InstallVideoPreviewStage({
         fitViewport ? "flex min-h-0 flex-1 flex-col gap-2 overflow-hidden" : "space-y-5"
       )}
     >
+      <InstallVideoPublishMilestones status={status} className="mx-auto w-full max-w-xs shrink-0 py-1" />
+
       <div
         className={cn(
           "rounded-xl border border-border bg-card/50 px-3 py-2",
