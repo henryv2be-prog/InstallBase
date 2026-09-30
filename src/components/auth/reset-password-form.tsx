@@ -2,15 +2,19 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { resetPasswordAction } from "@/lib/actions";
 import { toast } from "sonner";
 
-export function ResetPasswordForm({ token }: { token: string }) {
+export function ResetPasswordForm({ token: tokenFromRoute }: { token: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tokenFromQuery = searchParams.get("token")?.trim() ?? "";
+  const token = (tokenFromRoute || tokenFromQuery).trim();
+
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -18,7 +22,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
     e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
-    formData.set("token", token);
+    const submittedToken = (formData.get("token") as string | null)?.trim() || token;
+    formData.set("token", submittedToken);
 
     startTransition(async () => {
       const result = await resetPasswordAction(formData);
@@ -53,6 +58,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <input type="hidden" name="token" value={token} readOnly />
           <div>
             <label htmlFor="password" className="mb-1 block text-sm font-medium">
               New password
@@ -70,9 +76,15 @@ export function ResetPasswordForm({ token }: { token: string }) {
           </div>
 
           {error && (
-            <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
-              {error}
-            </p>
+            <div className="space-y-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
+              <p>{error}</p>
+              <Link
+                href="/forgot-password"
+                className="inline-block font-semibold text-blue-700 underline dark:text-cyan-300"
+              >
+                Request a new reset link
+              </Link>
+            </div>
           )}
 
           <Button type="submit" className="h-12 w-full text-base" disabled={pending}>
