@@ -90,3 +90,40 @@ export function buildReengagementContent(
   const body = `${pickVariation(GENERIC_BODIES, seed)} Open InstallBase →`;
   return { title, body, message: body, url };
 }
+
+const WEEKLY_TITLE_VARIATIONS = [
+  "Your weekly InstallBase roundup",
+  "This week on InstallBase",
+  "What's new in the installer community",
+];
+
+const WEEKLY_IDLE_BODIES = [
+  "Catch up on installs, questions, and Brag points from the past week.",
+  "See what installers shared this week — jobs, tips, and community wins.",
+  "A quick weekly catch-up on new work and conversations in the community.",
+];
+
+/** Weekly email always returns content (even quiet weeks). */
+export function buildWeeklyReengagementContent(
+  activity: CommunityActivity,
+  seed = new Date().getUTCDate()
+): ReengagementContent {
+  const weeklyUrl = "/feed?ref=weekly-reengagement";
+  const fromDaily = buildReengagementContent(activity, seed);
+  if (fromDaily) {
+    return {
+      ...fromDaily,
+      url: fromDaily.url.includes("ref=daily-reengagement")
+        ? fromDaily.url.replace("ref=daily-reengagement", "ref=weekly-reengagement")
+        : `${fromDaily.url}${fromDaily.url.includes("?") ? "&" : "?"}ref=weekly-reengagement`,
+    };
+  }
+
+  const title = pickVariation(WEEKLY_TITLE_VARIATIONS, seed);
+  const statsLine = buildStatsLine(activity);
+  const body = statsLine
+    ? `${statsLine} Open InstallBase for the full feed →`
+    : `${pickVariation(WEEKLY_IDLE_BODIES, seed)} Open InstallBase →`;
+
+  return { title, body, message: body, url: weeklyUrl };
+}

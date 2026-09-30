@@ -6,13 +6,14 @@ export interface SendEmailInput {
   subject: string;
   html: string;
   text: string;
+  listUnsubscribeUrl?: string;
 }
 
 function getFromAddress() {
   return process.env.EMAIL_FROM ?? "InstallBase <noreply@installbase.io>";
 }
 
-export async function sendEmail({ to, subject, html, text }: SendEmailInput) {
+export async function sendEmail({ to, subject, html, text, listUnsubscribeUrl }: SendEmailInput) {
   const apiKey = process.env.RESEND_API_KEY?.trim();
 
   if (!apiKey) {
@@ -36,6 +37,13 @@ export async function sendEmail({ to, subject, html, text }: SendEmailInput) {
       subject,
       html,
       text,
+      ...(listUnsubscribeUrl
+        ? {
+            headers: {
+              "List-Unsubscribe": `<${listUnsubscribeUrl}>`,
+            },
+          }
+        : {}),
     }),
   });
 
