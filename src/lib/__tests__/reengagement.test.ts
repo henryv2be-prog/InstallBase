@@ -74,6 +74,71 @@ describe("reengagement content", () => {
     const b = buildReengagementContent(activity({ posts: 2 }), 2);
     assert.notEqual(a!.title, b!.title);
   });
+
+  it("weekly content always returns a digest with weekly ref", () => {
+    const quiet = buildWeeklyReengagementContent(activity(), 2);
+    assert.ok(quiet);
+    assert.equal(quiet!.url, "/feed?ref=weekly-reengagement");
+
+    const busy = buildWeeklyReengagementContent(activity({ posts: 3, questions: 1 }), 2);
+    assert.ok(busy);
+    assert.match(busy!.url, /weekly-reengagement/);
+  });
+});
+
+describe("reengagement weekly email", () => {
+  it("builds html email payload with stats and cta", () => {
+    const content = buildWeeklyReengagementContent(activity({ posts: 2, installations: 1 }), 1)!;
+    const payload = buildReengagementEmailPayload({
+      content,
+      activity: activity({ posts: 2, installations: 1 }),
+      recipientName: "Alex",
+      absoluteActionUrl: "https://app.test/feed?ref=weekly-reengagement",
+    });
+    assert.match(payload.html, /InstallBase|Install<\/span><span/);
+    assert.match(payload.html, /your reputation/i);
+    assert.match(payload.html, /See what&apos;s new/);
+    assert.match(payload.html, /Browse the feed/);
+    assert.match(payload.text, /Alex/);
+    assert.equal(payload.subject, content.title);
+  });
+
+  it("includes spotlight block when highlight post exists", () => {
+    const act = activity({
+      installations: 1,
+      highlight: {
+        id: "post-99",
+        title: null,
+        content: "CCTV install at retail unit",
+        type: "POST",
+        postIntent: "PROJECT_INSTALLATION",
+      },
+    });
+    const content = buildWeeklyReengagementContent(act, 1)!;
+    const payload = buildReengagementEmailPayload({
+      content,
+      activity: act,
+      recipientName: null,
+      absoluteActionUrl: "https://app.test/feed?ref=weekly-reengagement",
+      featured: {
+        headline: "A new CCTV installation",
+        absoluteUrl: "https://app.test/post/post-99?ref=weekly-reengagement",
+        badge: "Install",
+      },
+    });
+    assert.match(payload.html, /Spotlight/);
+    assert.match(payload.html, /post-99/);
+  });
+
+  it("parses weekly config weekday", () => {
+    const original = process.env.WEEKLY_REENGAGEMENT_DAY;
+    process.env.WEEKLY_REENGAGEMENT_DAY = "monday";
+    const config = getWeeklyReengagementEmailConfig();
+    assert.equal(config.sendWeekday, 1);
+    const monday = new Date("2026-09-28T09:30:00Z");
+    assert.equal(isoWeekdayInTimezone(monday, "Europe/London"), 1);
+    process.env.WEEKLY_REENGAGEMENT_DAY = original;
+  });
 });
 
 describe("reengagement eligibility", () => {

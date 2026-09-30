@@ -4,7 +4,7 @@ import { getAppUrl } from "@/lib/app-url";
 import { sendEmail } from "@/lib/email";
 import { getCommunityActivity } from "./activity";
 import { buildWeeklyReengagementContent } from "./content";
-import { buildReengagementEmailPayload } from "./email-template";
+import { buildReengagementEmailPayload, resolveWeeklyEmailFeatured } from "./email-template";
 import { calendarDateInTimezone } from "./config";
 import { getWeeklyReengagementEmailConfig, isWithinWeeklySendWindow } from "./weekly-config";
 
@@ -63,12 +63,15 @@ export async function sendWeeklyReengagementEmailPreviewToUser(
   const since = new Date(now.getTime() - config.activityWindowHours * 60 * 60 * 1000);
   const activity = await getCommunityActivity(since);
   const content = buildWeeklyReengagementContent(activity, now.getUTCDate());
-  const absoluteActionUrl = `${getAppUrl()}${content.url.startsWith("/") ? content.url : `/${content.url}`}`;
+  const appUrl = getAppUrl();
+  const absoluteActionUrl = `${appUrl}${content.url.startsWith("/") ? content.url : `/${content.url}`}`;
+  const featured = resolveWeeklyEmailFeatured(activity, appUrl);
   const payload = buildReengagementEmailPayload({
     content,
     activity,
     recipientName: user.name,
     absoluteActionUrl,
+    featured,
   });
 
   const sent = await sendEmail({
@@ -127,12 +130,15 @@ export async function runWeeklyReengagementEmail(
   });
 
   let sent = 0;
-  const absoluteActionUrl = `${getAppUrl()}${content.url.startsWith("/") ? content.url : `/${content.url}`}`;
+  const appUrl = getAppUrl();
+  const absoluteActionUrl = `${appUrl}${content.url.startsWith("/") ? content.url : `/${content.url}`}`;
+  const featured = resolveWeeklyEmailFeatured(activity, appUrl);
   const payloadBase = buildReengagementEmailPayload({
     content,
     activity,
     recipientName: null,
     absoluteActionUrl,
+    featured,
   });
 
   for (const user of users) {
@@ -166,6 +172,7 @@ export async function runWeeklyReengagementEmail(
       activity,
       recipientName: user.name,
       absoluteActionUrl,
+      featured,
     });
 
     const delivered = await sendEmail({
