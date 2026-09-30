@@ -12,7 +12,14 @@ export {
   describePostForHighlight,
 } from "./activity";
 export type { CommunityActivity, HighlightPost } from "./activity-shared";
-export { buildReengagementContent, type ReengagementContent } from "./content";
+export { buildReengagementContent, buildWeeklyReengagementContent, type ReengagementContent } from "./content";
+export {
+  runWeeklyReengagementEmail,
+  sendWeeklyReengagementEmailPreviewToUser,
+  type WeeklyReengagementEmailResult,
+  type WeeklyReengagementEmailOptions,
+} from "./send-weekly-email";
+export { getWeeklyReengagementEmailConfig, isWithinWeeklySendWindow } from "./weekly-config";
 export {
   wasActiveToday,
   alreadySentToday,

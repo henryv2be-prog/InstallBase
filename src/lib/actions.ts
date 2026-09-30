@@ -1009,6 +1009,27 @@ export async function adminSendTestReengagement():
   return { success: true, preview: result.preview, content: result.content };
 }
 
+export async function adminRunWeeklyReengagementEmail(dryRun = true) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+
+  const { runWeeklyReengagementEmail } = await import("@/lib/reengagement");
+  return runWeeklyReengagementEmail({ dryRun, force: true });
+}
+
+export async function adminSendTestWeeklyReengagementEmail(): Promise<
+  { success: true; subject: string; to: string } | { error: string }
+> {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  if (!session.user.id) return { error: "Not signed in" };
+
+  const { sendWeeklyReengagementEmailPreviewToUser } = await import("@/lib/reengagement");
+  const result = await sendWeeklyReengagementEmailPreviewToUser(session.user.id);
+  if ("error" in result) return { error: result.error };
+  return { success: true, subject: result.subject, to: result.to };
+}
+
 export async function sendTestPush() {
   const userId = await getCurrentUserId();
 

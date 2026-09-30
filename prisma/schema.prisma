@@ -141,6 +141,7 @@ model User {
   lastSeenAt    DateTime?
   dailyDigestEnabled Boolean @default(true)
   lastDailyReengagementAt DateTime?
+  lastWeeklyReengagementEmailAt DateTime?
 
   accounts      Account[]
   sessions      Session[]

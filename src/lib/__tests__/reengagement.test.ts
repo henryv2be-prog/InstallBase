@@ -1,6 +1,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { buildReengagementContent } from "../reengagement/content";
+import { buildReengagementContent, buildWeeklyReengagementContent } from "../reengagement/content";
+import { buildReengagementEmailPayload } from "../reengagement/email-template";
+import { getWeeklyReengagementEmailConfig, isoWeekdayInTimezone } from "../reengagement/weekly-config";
 import { hasMeaningfulActivity, totalActivityCount, type CommunityActivity } from "../reengagement/activity-shared";
 import {
   alreadySentToday,
