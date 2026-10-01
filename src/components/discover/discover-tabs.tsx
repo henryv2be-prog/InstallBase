@@ -23,7 +23,11 @@ export function DiscoverTabs() {
         {tabs.map((item) => (
           <Link
             key={item.id}
-            href={item.id === "trending" ? "/discover" : `/discover?tab=${item.id}`}
+            href={
+              item.id === "trending"
+                ? "/discover/watch"
+                : `/discover?tab=${item.id}`
+            }
             className={cn(
               "whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
               tab === item.id

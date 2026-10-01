@@ -146,7 +146,7 @@ export async function registerUser(formData: FormData) {
 
 export async function createPost(formData: FormData) {
   const userId = await getCurrentUserId();
-  const mediaUrls = formData.getAll("mediaUrls") as string[];
+  let mediaUrls = formData.getAll("mediaUrls").map((item) => String(item).trim()).filter(Boolean);
   const type = normalizeComposerType(formData.get("type") as string | null, mediaUrls);
   const content = ((formData.get("content") as string) || "").trim();
   const title = formData.get("title") as string | null;
@@ -169,7 +169,39 @@ export async function createPost(formData: FormData) {
     equipmentNotes: (formData.get("workEquipmentNotes") as string | null)?.trim() || undefined,
   });
 
-  const hasMedia = mediaUrls.filter(Boolean).length > 0;
+  const hasMedia = mediaUrls.length > 0;
+
+  const videoAudioRaw = (formData.get("videoAudio") as string | null)?.trim();
+  const hasUploadedVideo = mediaUrls.some((url) => /\.(mp4|webm|mov)(\?|$)/i.test(url));
+  const { listVideoSoundTracks } = await import("@/lib/video-compilation/sound-library.server");
+  const { parseVideoCompilationOptions, DEFAULT_VIDEO_COMPILATION_OPTIONS } = await import(
+    "@/lib/video-compilation/options"
+  );
+  const libraryIds = (await listVideoSoundTracks()).map((t) => t.id);
+  let videoCompilationOptions: ReturnType<typeof parseVideoCompilationOptions> | undefined;
+
+  if (videoAudioRaw) {
+    const parsed = parseVideoCompilationOptions({ audio: videoAudioRaw }, libraryIds);
+    if (parsed.audio !== "none") {
+      videoCompilationOptions = {
+        style: DEFAULT_VIDEO_COMPILATION_OPTIONS.style,
+        audio: parsed.audio,
+      };
+    }
+  }
+
+  if (hasUploadedVideo && videoAudioRaw && videoAudioRaw !== "none") {
+    const { bakeAudioIntoMediaUrls } = await import("@/lib/video-compilation/bake-audio");
+    const audio = videoCompilationOptions?.audio ?? "none";
+    if (audio !== "none") {
+      try {
+        mediaUrls = await bakeAudioIntoMediaUrls(mediaUrls, audio);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Could not add music to video";
+        return { error: message };
+      }
+    }
+  }
 
   const categoryIds = new Set<string>();
   for (const id of formData.getAll("categoryIds").map((item) => String(item).trim()).filter(Boolean)) {
@@ -202,6 +234,7 @@ export async function createPost(formData: FormData) {
       showExactLocation,
       inPortfolio,
       bragScore: 0,
+      videoCompilationOptions: videoCompilationOptions ?? undefined,
       media: {
         create: mediaUrls.filter(Boolean).map((url, i) => ({
           url,
@@ -241,6 +274,8 @@ export async function createPost(formData: FormData) {
   });
 
   revalidatePath("/feed");
+  revalidatePath("/feed/watch");
+  revalidatePath("/discover/watch");
   revalidatePath("/brags");
   revalidatePath("/questions");
   revalidatePath(`/post/${post.id}`);
@@ -631,7 +666,9 @@ export async function toggleFollow(userId: string) {
   }
 
   revalidatePath("/feed");
+  revalidatePath("/feed/watch");
   revalidatePath("/discover");
+  revalidatePath("/discover/watch");
   revalidatePath("/notifications");
   if (target.profile?.username) {
     revalidatePath(`/profile/${target.profile.username}`);
@@ -972,6 +1009,27 @@ export async function adminSendTestReengagement():
   return { success: true, preview: result.preview, content: result.content };
 }
 
+export async function adminRunWeeklyReengagementEmail(dryRun = true) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+
+  const { runWeeklyReengagementEmail } = await import("@/lib/reengagement");
+  return runWeeklyReengagementEmail({ dryRun, force: true });
+}
+
+export async function adminSendTestWeeklyReengagementEmail(): Promise<
+  { success: true; subject: string; to: string } | { error: string }
+> {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  if (!session.user.id) return { error: "Not signed in" };
+
+  const { sendWeeklyReengagementEmailPreviewToUser } = await import("@/lib/reengagement");
+  const result = await sendWeeklyReengagementEmailPreviewToUser(session.user.id);
+  if ("error" in result) return { error: result.error };
+  return { success: true, subject: result.subject, to: result.to };
+}
+
 export async function sendTestPush() {
   const userId = await getCurrentUserId();
 
@@ -1149,6 +1207,8 @@ export async function publishInstallVideoPost(formData: FormData) {
       id: true,
       authorId: true,
       videoCompilationStatus: true,
+      generatedVideoUrl: true,
+      videoCompilationOptions: true,
       type: true,
       media: { select: { id: true, mediaRole: true } },
     },
@@ -1160,6 +1220,45 @@ export async function publishInstallVideoPost(formData: FormData) {
 
   if (post.videoCompilationStatus !== "READY") {
     return { error: "Your install video is still being prepared" };
+  }
+
+  const audioRaw = (formData.get("videoAudio") as string | null)?.trim() || "none";
+  const silentUrl = post.generatedVideoUrl;
+  if (!silentUrl) {
+    return { error: "Video file missing — try regenerating" };
+  }
+
+  const { bakeAudioIntoInstallVideo } = await import("@/lib/video-compilation/bake-audio");
+  const { listVideoSoundTracks } = await import("@/lib/video-compilation/sound-library.server");
+  const { parseVideoCompilationOptions } = await import("@/lib/video-compilation/options");
+
+  const libraryIds = (await listVideoSoundTracks()).map((t) => t.id);
+  const parsedOptions = parseVideoCompilationOptions(post.videoCompilationOptions, libraryIds);
+  parsedOptions.audio = audioRaw === "none" ? "none" : audioRaw;
+
+  let finalVideoUrl = silentUrl;
+  try {
+    const baked = await bakeAudioIntoInstallVideo(silentUrl, parsedOptions.audio);
+    finalVideoUrl = baked.videoUrl;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not add music to video";
+    return { error: message };
+  }
+
+  if (finalVideoUrl !== silentUrl) {
+    await prisma.$transaction(async (tx) => {
+      await tx.postMedia.updateMany({
+        where: { postId, mediaRole: "COMPILED" },
+        data: { url: finalVideoUrl },
+      });
+      await tx.post.update({
+        where: { id: postId },
+        data: {
+          generatedVideoUrl: finalVideoUrl,
+          videoCompilationOptions: parsedOptions,
+        },
+      });
+    });
   }
 
   const content = ((formData.get("content") as string) || "").trim();
@@ -1200,6 +1299,8 @@ export async function publishInstallVideoPost(formData: FormData) {
   }
 
   revalidatePath("/feed");
+  revalidatePath("/feed/watch");
+  revalidatePath("/discover/watch");
   revalidatePath("/brags");
   revalidatePath(`/post/${postId}`);
   revalidateTag("posts", "max");
@@ -1252,6 +1353,8 @@ export async function publishInstallVideoAsCarousel(formData: FormData) {
   }
 
   revalidatePath("/feed");
+  revalidatePath("/feed/watch");
+  revalidatePath("/discover/watch");
   revalidatePath(`/post/${postId}`);
   revalidateTag("posts", "max");
   return { success: true, postId };

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { iconUrl } from "@/lib/icon-version";
+import { AppBrandIcon } from "@/components/ui/app-brand-icon";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";
@@ -17,14 +17,7 @@ export function Logo({ size = "md", showText = true, className }: LogoProps) {
   const s = sizes[size];
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
-      {/* Same asset as PWA manifest — keeps home screen and in-app logo identical */}
-      <img
-        src={iconUrl("icon-192.png")}
-        alt=""
-        width={s.icon}
-        height={s.icon}
-        className="shrink-0 rounded-xl"
-      />
+      <AppBrandIcon size={s.icon} />
       {showText && (
         <span className={cn("hidden font-bold tracking-tight min-[380px]:inline", s.text)}>
           Install<span className="text-gradient">Base</span>

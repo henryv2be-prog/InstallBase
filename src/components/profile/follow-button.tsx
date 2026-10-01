@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { toggleFollow } from "@/lib/actions";
 import { toast } from "sonner";
@@ -27,6 +27,10 @@ export function FollowButton({
   const [following, setFollowing] = useState(initialFollowing);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+
+  useEffect(() => {
+    setFollowing(initialFollowing);
+  }, [initialFollowing, userId]);
 
   if (currentUserId === userId) return null;
 

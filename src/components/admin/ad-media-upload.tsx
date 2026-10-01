@@ -50,12 +50,22 @@ export function AdMediaUpload({ mediaUrl, mediaType, onChange, error }: AdMediaU
       <input type="hidden" name="mediaType" value={mediaType} />
 
       {mediaUrl ? (
-        <div className="relative overflow-hidden rounded-xl border border-border bg-muted/30">
+        <div className="relative flex min-h-40 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/30 p-2">
           {mediaType === "video" || /\.(mp4|webm|mov)(\?|$)/i.test(mediaUrl) ? (
-            <video src={mediaUrl} className="max-h-40 w-full object-cover" controls muted playsInline />
+            <video
+              src={mediaUrl}
+              className="max-h-48 max-w-full object-contain object-center"
+              controls
+              muted
+              playsInline
+            />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={mediaUrl} alt="Ad media preview" className="max-h-40 w-full object-cover" />
+            <img
+              src={mediaUrl}
+              alt="Ad media preview"
+              className="max-h-48 max-w-full object-contain object-center"
+            />
           )}
           <Button
             type="button"

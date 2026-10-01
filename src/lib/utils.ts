@@ -61,10 +61,10 @@ export function getFeedReasonLabel(
     tags: { tag: { name: string } }[];
   },
   context: "following" | "popular",
-  followingIds?: Set<string>
+  followingIds?: readonly string[]
 ) {
   if (context === "following") return "From someone you follow";
-  if (followingIds?.has(post.authorId)) return "From someone you follow";
+  if (followingIds?.includes(post.authorId)) return "From someone you follow";
   const specialty = post.author.profile?.specialties?.[0];
   if (specialty) return `Popular in ${specialty}`;
   const tag = post.tags[0]?.tag.name;

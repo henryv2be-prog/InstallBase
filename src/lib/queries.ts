@@ -14,9 +14,20 @@ import {
   type FeedPageResult,
   encodeFeedCursor,
   feedCursorWhere,
+  trendingFeedCursorWhere,
   toFeedCursor,
 } from "@/lib/feed-pagination";
-import { publishedFeedWhere } from "@/lib/feed-published";
+import { immersiveFeedWhere, publishedFeedWhere } from "@/lib/feed-published";
+import { ONLINE_WINDOW_MS } from "@/lib/presence";
+
+export type FeedQueryOptions = {
+  /** New look reel: skip text-only posts without media. */
+  immersiveOnly?: boolean;
+};
+
+function feedScopeWhere(options?: FeedQueryOptions) {
+  return options?.immersiveOnly ? immersiveFeedWhere : publishedFeedWhere;
+}
 
 /** Card/list payload: counts instead of every comment, bookmark, and brag row. */
 export const postCardInclude = {
@@ -166,8 +177,10 @@ export async function getFeedPosts(userId?: string, limit = FEED_PAGE_SIZE) {
 export async function getFollowingFeedPage(
   userId: string,
   limit = FEED_PAGE_SIZE,
-  cursor?: FeedCursor | null
+  cursor?: FeedCursor | null,
+  options?: FeedQueryOptions
 ): Promise<FeedPageResult<PostCardData>> {
+  const scope = feedScopeWhere(options);
   const followingIds = await getFollowingIds(userId);
   if (followingIds.length === 0) {
     return { posts: [], nextCursor: null, hasMore: false };
@@ -175,7 +188,7 @@ export async function getFollowingFeedPage(
 
   const rows = await prisma.post.findMany({
     where: {
-      ...publishedFeedWhere,
+      ...scope,
       authorId: { in: followingIds },
       ...(cursor ? feedCursorWhere(cursor) : {}),
     },
@@ -199,10 +212,12 @@ export async function getFollowingFeedPage(
 export async function getPopularFeedPage(
   userId?: string,
   limit = FEED_PAGE_SIZE,
-  cursor?: FeedCursor | null
+  cursor?: FeedCursor | null,
+  options?: FeedQueryOptions
 ): Promise<FeedPageResult<PostCardData>> {
+  const scope = feedScopeWhere(options);
   if (!cursor) {
-    const posts = await scorePopularFeedPosts(userId, limit);
+    const posts = await scorePopularFeedPosts(userId, limit, options?.immersiveOnly);
     if (posts.length === 0) {
       return { posts: [], nextCursor: null, hasMore: false };
     }
@@ -213,7 +228,7 @@ export async function getPopularFeedPage(
     const excludeIds = posts.map((post) => post.id);
     const remaining = await prisma.post.count({
       where: {
-        ...publishedFeedWhere,
+        ...scope,
         id: { notIn: excludeIds },
         ...feedCursorWhere(toFeedCursor(oldest)),
       },
@@ -229,7 +244,7 @@ export async function getPopularFeedPage(
   const excludeIds = cursor.excludeIds ?? [];
   const rows = await prisma.post.findMany({
     where: {
-      ...publishedFeedWhere,
+      ...scope,
       id: { notIn: excludeIds },
       ...feedCursorWhere(cursor),
     },
@@ -254,7 +269,7 @@ export async function getPopularFeedPage(
   };
 }
 
-async function scorePopularFeedPosts(userId?: string, limit = FEED_PAGE_SIZE) {
+async function scorePopularFeedPosts(userId?: string, limit = FEED_PAGE_SIZE, immersiveOnly?: boolean) {
   const take = Math.min(limit + 8, 28);
   const [followingIds, posts] = await Promise.all([
     userId ? getFollowingIds(userId) : Promise.resolve([] as string[]),
@@ -262,9 +277,10 @@ async function scorePopularFeedPosts(userId?: string, limit = FEED_PAGE_SIZE) {
       {
         take,
         orderBy: { createdAt: "desc" },
+        ...(immersiveOnly ? { where: { media: { some: {} } } } : {}),
       },
       userId,
-      ["feed-recent", String(take)]
+      ["feed-recent", immersiveOnly ? "immersive" : "all", String(take)]
     ),
   ]);
 
@@ -282,6 +298,52 @@ async function scorePopularFeedPosts(userId?: string, limit = FEED_PAGE_SIZE) {
 
   scored.sort((a, b) => b.score - a.score);
   return scored.slice(0, limit).map((s) => s.post);
+}
+
+export async function getTrendingFeedPage(
+  userId?: string,
+  limit = FEED_PAGE_SIZE,
+  cursor?: FeedCursor | null,
+  options?: FeedQueryOptions
+): Promise<FeedPageResult<PostCardData>> {
+  const baseWhere = {
+    ...feedScopeWhere(options),
+    ...braggablePostWhere,
+    bragScore: { gt: 0 },
+  };
+  const orderBy = [
+    { bragScore: "desc" as const },
+    { createdAt: "desc" as const },
+    { id: "desc" as const },
+  ];
+
+  const rows = await prisma.post.findMany({
+    where: {
+      ...baseWhere,
+      ...(cursor ? trendingFeedCursorWhere(cursor) : {}),
+    },
+    include: postCardInclude,
+    orderBy,
+    take: limit + 1,
+  });
+
+  const hasMore = rows.length > limit;
+  const page = hasMore ? rows.slice(0, limit) : rows;
+  const posts = await withViewerState(page, userId);
+  const last = page[page.length - 1];
+
+  return {
+    posts,
+    hasMore,
+    nextCursor:
+      hasMore && last
+        ? encodeFeedCursor({
+            id: last.id,
+            createdAt: new Date(last.createdAt).toISOString(),
+            bragScore: last.bragScore,
+          })
+        : null,
+  };
 }
 
 export async function getPostsByType(type: PostType, limit = 20, userId?: string) {
@@ -777,9 +839,11 @@ export async function getOrCreateConversation(userIdA: string, userIdB: string) 
 
 export async function getAdminStats() {
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
+  const onlineSince = new Date(Date.now() - ONLINE_WINDOW_MS);
   const [
     users,
     activeUsers,
+    usersOnlineNow,
     posts,
     brags,
     questions,
@@ -790,6 +854,7 @@ export async function getAdminStats() {
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { posts: { some: {} } } }),
+    prisma.user.count({ where: { lastSeenAt: { gte: onlineSince } } }),
     prisma.post.count(),
     prisma.post.count({
       where: { ...braggablePostWhere, media: { some: {} } },
@@ -812,6 +877,7 @@ export async function getAdminStats() {
   return {
     users,
     activeUsers,
+    usersOnlineNow,
     posts,
     brags,
     questions,
@@ -847,6 +913,8 @@ export async function getAdminData() {
         role: true,
         suspended: true,
         createdAt: true,
+        lastSeenAt: true,
+        image: true,
         profile: { select: { username: true, memberTier: true } },
       },
       orderBy: { createdAt: "desc" },

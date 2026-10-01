@@ -8,6 +8,11 @@ import {
 } from "@/lib/work-posts";
 import { slugify } from "@/lib/utils";
 import type { PostType } from "@/generated/prisma/client";
+import {
+  DEFAULT_VIDEO_COMPILATION_OPTIONS,
+  parseVideoCompilationOptions,
+  type VideoCompilationOptions,
+} from "@/lib/video-compilation/options";
 
 export type InstallVideoMediaInput = {
   url: string;
@@ -45,8 +50,10 @@ export async function upsertInstallVideoDraft(
   authorId: string,
   media: InstallVideoMediaInput[],
   input: InstallVideoDraftInput,
-  existingPostId?: string
+  existingPostId?: string,
+  compilationOptions: VideoCompilationOptions = DEFAULT_VIDEO_COMPILATION_OPTIONS
 ) {
+  const videoOptions = parseVideoCompilationOptions(compilationOptions);
   const type = input.type ?? "POST";
   const postIntent = resolveComposerIntent(type, input.postIntent);
   const inPortfolio = computeDefaultInPortfolio(type, postIntent);
@@ -96,6 +103,7 @@ export async function upsertInstallVideoDraft(
           generatedVideoUrl: null,
           generatedVideoPosterUrl: null,
           videoCompilationError: null,
+          videoCompilationOptions: videoOptions,
           media: {
             create: ordered.map((item, index) => ({
               url: item.url,
@@ -122,6 +130,7 @@ export async function upsertInstallVideoDraft(
         inPortfolio,
         published: false,
         videoCompilationStatus: "QUEUED",
+        videoCompilationOptions: videoOptions,
         bragScore: 0,
         media: {
           create: ordered.map((item, index) => ({

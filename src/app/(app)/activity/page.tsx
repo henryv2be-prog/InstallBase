@@ -32,7 +32,7 @@ export default async function ActivityPage({ searchParams }: ActivityPageProps) 
 
   if (!userId) {
     return (
-      <div className="mx-auto max-w-lg animate-fade-in">
+      <div className="app-scroll-page mx-auto max-w-lg animate-fade-in">
         <h1 className="mb-4 text-2xl font-bold">Activity</h1>
         <GuestJoinCard
           title="Activity is for members"
@@ -54,7 +54,7 @@ export default async function ActivityPage({ searchParams }: ActivityPageProps) 
   const showMessages = tab === "messages";
 
   return (
-    <div className="mx-auto max-w-2xl animate-fade-in">
+    <div className="app-scroll-page mx-auto max-w-2xl animate-fade-in">
       <h1 className="mb-2 text-2xl font-bold">Activity</h1>
       <p className="mb-4 text-sm text-muted">Notifications and messages in one place</p>
 

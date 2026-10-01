@@ -25,11 +25,12 @@ export function FeedWithAds({
 
   children.forEach((child, index) => {
     items.push(child);
+    const cadence = Math.max(1, minPostsBetweenAds + 1);
     const shouldInsertAd =
       betweenAds.length > 0 &&
       adIndex < betweenAds.length &&
-      index > 0 &&
-      (index + 1) % (minPostsBetweenAds + 1) === 0;
+      index >= minPostsBetweenAds &&
+      (index + 1) % cadence === 0;
 
     if (shouldInsertAd) {
       const ad = betweenAds[adIndex];

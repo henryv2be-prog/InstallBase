@@ -141,6 +141,7 @@ model User {
   lastSeenAt    DateTime?
   dailyDigestEnabled Boolean @default(true)
   lastDailyReengagementAt DateTime?
+  lastWeeklyReengagementEmailAt DateTime?
 
   accounts      Account[]
   sessions      Session[]
@@ -361,6 +362,7 @@ model Post {
   generatedVideoUrl      String?
   generatedVideoPosterUrl String?
   videoCompilationError  String?
+  videoCompilationOptions Json?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 

@@ -6,13 +6,14 @@ export interface SendEmailInput {
   subject: string;
   html: string;
   text: string;
+  listUnsubscribeUrl?: string;
 }
 
 function getFromAddress() {
   return process.env.EMAIL_FROM ?? "InstallBase <noreply@installbase.io>";
 }
 
-export async function sendEmail({ to, subject, html, text }: SendEmailInput) {
+export async function sendEmail({ to, subject, html, text, listUnsubscribeUrl }: SendEmailInput) {
   const apiKey = process.env.RESEND_API_KEY?.trim();
 
   if (!apiKey) {
@@ -36,6 +37,13 @@ export async function sendEmail({ to, subject, html, text }: SendEmailInput) {
       subject,
       html,
       text,
+      ...(listUnsubscribeUrl
+        ? {
+            headers: {
+              "List-Unsubscribe": `<${listUnsubscribeUrl}>`,
+            },
+          }
+        : {}),
     }),
   });
 
@@ -52,7 +60,7 @@ export function passwordResetEmailContent(resetUrl: string) {
   const subject = "Reset your InstallBase password";
   const text = `You requested a password reset for InstallBase.
 
-Reset your password using this link (valid for 1 hour):
+Reset your password using this link (valid for 24 hours):
 ${resetUrl}
 
 If you did not request this, you can ignore this email.`;
@@ -60,7 +68,7 @@ If you did not request this, you can ignore this email.`;
   const html = `
     <p>You requested a password reset for InstallBase.</p>
     <p><a href="${resetUrl}">Reset your password</a></p>
-    <p>This link expires in 1 hour.</p>
+    <p>This link expires in 24 hours.</p>
     <p>If you did not request this, you can ignore this email.</p>
   `.trim();
 
@@ -68,5 +76,5 @@ If you did not request this, you can ignore this email.`;
 }
 
 export function buildPasswordResetUrl(token: string) {
-  return `${getAppUrl()}/reset-password?token=${encodeURIComponent(token)}`;
+  return `${getAppUrl()}/reset-password/${encodeURIComponent(token)}`;
 }
