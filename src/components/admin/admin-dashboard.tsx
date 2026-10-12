@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
 import { ReengagementDebugPanel } from "@/components/admin/reengagement-debug";
+import { PlatformUpdateEmailPanel } from "@/components/admin/platform-update-email-panel";
 import { MemberTierBadge } from "@/components/ui/badge";
 import { getMemberTierLabel } from "@/lib/membership";
 import type { MemberTier } from "@/generated/prisma/client";
@@ -64,6 +65,16 @@ interface AdminDashboardProps {
       createdAt: Date;
       author: { profile: { username: string } | null };
     }>;
+    recentPlatformUpdates: Array<{
+      id: string;
+      subject: string;
+      headline: string;
+      sentCount: number;
+      failedCount: number;
+      dryRun: boolean;
+      createdAt: Date;
+      sentBy: { name: string | null; email: string };
+    }>;
   };
 }
 
@@ -71,7 +82,7 @@ export function AdminDashboard({ data, currentUserId }: AdminDashboardProps & { 
   const [pending, startTransition] = useTransition();
   const [confirmDeleteUserId, setConfirmDeleteUserId] = useState<string | null>(null);
   const router = useRouter();
-  const { stats, pendingReports, recentUsers, recentPosts } = data;
+  const { stats, pendingReports, recentUsers, recentPosts, recentPlatformUpdates } = data;
 
   const headlineStats = [
     { label: "Total users", value: stats.users },
@@ -225,6 +236,13 @@ export function AdminDashboard({ data, currentUserId }: AdminDashboardProps & { 
       </section>
 
       <ReengagementDebugPanel />
+
+      <PlatformUpdateEmailPanel
+        recentBroadcasts={recentPlatformUpdates.map((row) => ({
+          ...row,
+          createdAt: row.createdAt.toISOString(),
+        }))}
+      />
 
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
         <section>
