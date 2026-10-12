@@ -69,7 +69,7 @@ export async function sendPlatformUpdateTestEmail(input: {
   }
 
   const validated = validatePlatformUpdateInput(input);
-  if (!validated.ok) return { error: validated.error };
+  if (validated.ok === false) return { error: validated.error };
 
   const admin = await prisma.user.findUnique({
     where: { id: input.adminUserId },
@@ -87,7 +87,7 @@ export async function sendPlatformUpdateTestEmail(input: {
     text: payload.text,
   });
 
-  if (!sent.ok) return { error: sent.error ?? "Could not send preview email." };
+  if (sent.ok === false) return { error: sent.error };
   return { success: true, to: admin.email };
 }
 
@@ -102,7 +102,7 @@ export async function runPlatformUpdateBroadcast(input: {
 }): Promise<PlatformUpdateBroadcastResult> {
   const dryRun = input.dryRun ?? false;
   const validated = validatePlatformUpdateInput(input);
-  if (!validated.ok) {
+  if (validated.ok === false) {
     return { dryRun, eligibleUsers: 0, sent: 0, failed: 0, skipped: validated.error };
   }
 
@@ -155,7 +155,7 @@ export async function runPlatformUpdateBroadcast(input: {
       subject: payload.subject,
       html: payload.html,
       text: payload.text,
-    }).catch(() => ({ ok: false as const }));
+    }).catch(() => ({ ok: false as const, error: "send_failed" }));
 
     if (result.ok) sent += 1;
     else failed += 1;

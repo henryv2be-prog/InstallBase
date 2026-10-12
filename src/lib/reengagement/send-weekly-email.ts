@@ -82,8 +82,8 @@ export async function sendWeeklyReengagementEmailPreviewToUser(
     listUnsubscribeUrl: `${getAppUrl()}/settings`,
   });
 
-  if (!sent.ok) {
-    return { error: sent.error ?? "Could not send preview email." };
+  if (sent.ok === false) {
+    return { error: sent.error };
   }
 
   return { success: true, preview: true, subject: payload.subject, to: user.email };
