@@ -19,6 +19,7 @@ export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement
     if (!mq.matches) return;
 
     let lastAppliedH = 0;
+    let resizeRaf = 0;
 
     const apply = () => {
       if (!mq.matches) {
@@ -52,7 +53,13 @@ export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement
       window.setTimeout(apply, 150),
     ];
 
-    const ro = new ResizeObserver(() => apply());
+    const ro = new ResizeObserver(() => {
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        resizeRaf = 0;
+        apply();
+      });
+    });
     ro.observe(el);
     for (const selector of [
       ".immersive-feed-column",
@@ -77,6 +84,7 @@ export function useImmersiveScrollerHeight(scrollerRef: RefObject<HTMLDivElement
     mq.addEventListener("change", apply);
 
     return () => {
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
       for (const id of rafIds) cancelAnimationFrame(id);
       for (const id of timeoutIds) window.clearTimeout(id);
       ro.disconnect();

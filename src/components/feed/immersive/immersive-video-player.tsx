@@ -94,7 +94,7 @@ export function ImmersiveVideoPlayer({
         className="h-full w-full object-cover"
         playsInline
         loop
-        preload={active ? "auto" : "metadata"}
+        preload={active ? "auto" : "none"}
         onTimeUpdate={(e) => {
           const v = e.currentTarget;
           if (v.duration) setProgress(v.currentTime / v.duration);
