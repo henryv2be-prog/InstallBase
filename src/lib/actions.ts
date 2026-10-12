@@ -1030,6 +1030,48 @@ export async function adminSendTestWeeklyReengagementEmail(): Promise<
   return { success: true, subject: result.subject, to: result.to };
 }
 
+export type PlatformUpdateEmailInput = {
+  subject: string;
+  headline: string;
+  bodyText: string;
+  ctaLabel?: string;
+  ctaUrl?: string;
+  dryRun?: boolean;
+};
+
+export async function adminSendPlatformUpdateTestEmail(input: PlatformUpdateEmailInput) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  if (!session.user.id) return { error: "Not signed in" };
+
+  const { sendPlatformUpdateTestEmail } = await import("@/lib/platform-update-broadcast");
+  return sendPlatformUpdateTestEmail({
+    adminUserId: session.user.id,
+    subject: input.subject,
+    headline: input.headline,
+    bodyText: input.bodyText,
+    ctaLabel: input.ctaLabel ?? "",
+    ctaUrl: input.ctaUrl ?? "",
+  });
+}
+
+export async function adminRunPlatformUpdateBroadcast(input: PlatformUpdateEmailInput) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  if (!session.user.id) throw new Error("Not signed in");
+
+  const { runPlatformUpdateBroadcast } = await import("@/lib/platform-update-broadcast");
+  return runPlatformUpdateBroadcast({
+    sentByUserId: session.user.id,
+    subject: input.subject,
+    headline: input.headline,
+    bodyText: input.bodyText,
+    ctaLabel: input.ctaLabel ?? "",
+    ctaUrl: input.ctaUrl ?? "",
+    dryRun: input.dryRun,
+  });
+}
+
 export async function sendTestPush() {
   const userId = await getCurrentUserId();
 

@@ -894,7 +894,7 @@ export async function getAdminStats() {
 }
 
 export async function getAdminData() {
-  const [stats, pendingReports, recentUsers, recentPosts] = await Promise.all([
+  const [stats, pendingReports, recentUsers, recentPosts, recentPlatformUpdates] = await Promise.all([
     getAdminStats(),
     prisma.report.findMany({
       where: { status: "PENDING" },

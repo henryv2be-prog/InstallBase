@@ -165,6 +165,25 @@ model User {
   passwordResetTokens PasswordResetToken[]
   platformRoles     UserPlatformRole[]
   policyAcceptances UserPolicyAcceptance[]
+  platformUpdateBroadcasts PlatformUpdateBroadcast[]
+}
+
+model PlatformUpdateBroadcast {
+  id           String   @id @default(cuid())
+  sentByUserId String
+  subject      String
+  headline     String
+  bodyText     String   @db.Text
+  ctaLabel     String?
+  ctaUrl       String?
+  sentCount    Int      @default(0)
+  failedCount  Int      @default(0)
+  dryRun       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  sentBy User @relation(fields: [sentByUserId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
 }
 
 model PolicyVersion {
