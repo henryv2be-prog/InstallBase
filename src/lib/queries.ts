@@ -925,9 +925,23 @@ export async function getAdminData() {
       orderBy: { createdAt: "desc" },
       take: 20,
     }),
+    prisma.platformUpdateBroadcast.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: {
+        id: true,
+        subject: true,
+        headline: true,
+        sentCount: true,
+        failedCount: true,
+        dryRun: true,
+        createdAt: true,
+        sentBy: { select: { name: true, email: true } },
+      },
+    }),
   ]);
 
-  return { stats, pendingReports, recentUsers, recentPosts };
+  return { stats, pendingReports, recentUsers, recentPosts, recentPlatformUpdates };
 }
 
 export async function getProduct(slug: string, userId?: string) {

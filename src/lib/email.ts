@@ -9,11 +9,19 @@ export interface SendEmailInput {
   listUnsubscribeUrl?: string;
 }
 
+export type SendEmailResult = { ok: true; dev?: true } | { ok: false; error: string };
+
 function getFromAddress() {
   return process.env.EMAIL_FROM ?? "InstallBase <noreply@installbase.io>";
 }
 
-export async function sendEmail({ to, subject, html, text, listUnsubscribeUrl }: SendEmailInput) {
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  text,
+  listUnsubscribeUrl,
+}: SendEmailInput): Promise<SendEmailResult> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
 
   if (!apiKey) {
