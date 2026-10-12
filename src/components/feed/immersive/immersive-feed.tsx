@@ -49,6 +49,43 @@ function feedSlideKey(item: ReturnType<typeof interleaveFeedWithAds<PostCardData
   return `ad-${item.ad.id}-${item.adSlot}`;
 }
 
+/** Only mount heavy video/audio slides near the viewport (low-end phones choke on dozens of players). */
+const SLIDE_MOUNT_RADIUS = 2;
+
+function ImmersiveFeedSlidePlaceholder({
+  slideHeightClass,
+  onVisible,
+}: {
+  slideHeightClass: string;
+  onVisible?: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || !onVisible) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
+          onVisible();
+        }
+      },
+      { threshold: [0.55, 0.75] }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [onVisible]);
+
+  return (
+    <div
+      ref={ref}
+      className={`immersive-feed-slide w-full shrink-0 snap-start snap-always ${slideHeightClass}`}
+      aria-hidden
+    />
+  );
+}
+
 export function ImmersiveFeed({
   initialPosts,
   initialCursor,
@@ -198,6 +235,12 @@ export function ImmersiveFeed({
     return map;
   }, [feedItems, onSlideVisible]);
 
+  const activeIndex = useMemo(() => {
+    if (!activeId) return 0;
+    const index = feedItems.findIndex((item) => feedSlideKey(item) === activeId);
+    return index >= 0 ? index : 0;
+  }, [activeId, feedItems]);
+
   if (posts.length === 0) {
     return (
       <div className="flex h-[var(--immersive-slide-h,70dvh)] items-center justify-center p-6 text-center text-muted">
@@ -211,8 +254,20 @@ export function ImmersiveFeed({
       ref={scrollerRef}
       className="immersive-feed-scroll w-full max-w-full snap-y snap-mandatory overflow-y-auto max-lg:flex-1 max-lg:min-h-0 lg:h-[var(--immersive-slide-h,min(88dvh,900px))] lg:scroll-smooth"
     >
-      {feedItems.map((item) => {
+      {feedItems.map((item, index) => {
         const key = feedSlideKey(item);
+        const nearViewport = Math.abs(index - activeIndex) <= SLIDE_MOUNT_RADIUS;
+
+        if (!nearViewport) {
+          return (
+            <ImmersiveFeedSlidePlaceholder
+              key={key}
+              slideHeightClass={slideHeightClass}
+              onVisible={slideCallbacks.get(key)}
+            />
+          );
+        }
+
         if (item.kind === "ad") {
           return (
             <ImmersiveAdSlide
