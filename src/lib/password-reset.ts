@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { buildPasswordResetUrl, passwordResetEmailContent, sendEmail } from "@/lib/email";
 import { validatePassword } from "@/lib/auth-validation";
 
-const RESET_TTL_MS = 60 * 60 * 1000;
+/** Mobile users often open mail long after requesting a reset. */
+const RESET_TTL_MS = 24 * 60 * 60 * 1000;
 
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -68,7 +69,18 @@ export async function resetPasswordWithToken(token: string, password: string) {
     include: { user: { select: { id: true, suspended: true, passwordHash: true } } },
   });
 
-  if (!record || record.expiresAt < new Date() || record.user.suspended || !record.user.passwordHash) {
+  if (!record) {
+    return {
+      error:
+        "This reset link is no longer valid. If you requested another reset, use the newest email, or request a fresh link.",
+    };
+  }
+  if (record.expiresAt < new Date()) {
+    return {
+      error: "This reset link has expired. Request a new one (links last 24 hours).",
+    };
+  }
+  if (record.user.suspended || !record.user.passwordHash) {
     return { error: "Reset link is invalid or expired" };
   }
 

@@ -9,9 +9,15 @@ export { isAutoRunEnabled, shouldRunScheduledJob, markSchedulerRunComplete } fro
 
 const TICK_MS = 60_000;
 const GLOBAL_KEY = "__installbaseReengagementScheduler";
+const WEEKLY_GLOBAL_KEY = "__installbaseWeeklyReengagementScheduler";
 
 type SchedulerState = {
   started: boolean;
+  lastRunDate: string | null;
+  running: boolean;
+};
+
+type WeeklySchedulerState = {
   lastRunDate: string | null;
   running: boolean;
 };
@@ -22,6 +28,14 @@ function getState(): SchedulerState {
     g[GLOBAL_KEY] = { started: false, lastRunDate: null, running: false };
   }
   return g[GLOBAL_KEY]!;
+}
+
+function getWeeklyState(): WeeklySchedulerState {
+  const g = globalThis as typeof globalThis & { [WEEKLY_GLOBAL_KEY]?: WeeklySchedulerState };
+  if (!g[WEEKLY_GLOBAL_KEY]) {
+    g[WEEKLY_GLOBAL_KEY] = { lastRunDate: null, running: false };
+  }
+  return g[WEEKLY_GLOBAL_KEY]!;
 }
 
 async function tick(state: SchedulerState) {
@@ -62,8 +76,40 @@ export function startReengagementScheduler() {
 
   console.info("[reengagement] Auto-run scheduler enabled");
 
+  async function weeklyTick(weeklyState: WeeklySchedulerState) {
+    if (weeklyState.running) return;
+
+    const now = new Date();
+    const { shouldRunWeeklyScheduledJob, markWeeklySchedulerRunComplete } = await import(
+      "./weekly-scheduler-shared"
+    );
+    const { run, today } = shouldRunWeeklyScheduledJob(now, weeklyState.lastRunDate);
+    if (!run) return;
+
+    weeklyState.running = true;
+    try {
+      const { runWeeklyReengagementEmail } = await import("./send-weekly-email");
+      const result = await runWeeklyReengagementEmail({ now });
+      const completed = markWeeklySchedulerRunComplete(result, today);
+      if (completed) weeklyState.lastRunDate = completed;
+
+      if (result.sent > 0) {
+        console.info(`[weekly-reengagement] Weekly digest emailed to ${result.sent} user(s)`);
+      } else if (result.skipped) {
+        console.info(`[weekly-reengagement] Weekly digest skipped: ${result.skipped}`);
+      }
+    } catch (error) {
+      console.error("[weekly-reengagement] Scheduled run failed:", error);
+    } finally {
+      weeklyState.running = false;
+    }
+  }
+
+  const weeklyState = getWeeklyState();
+
   const runTick = () => {
     void tick(state);
+    void weeklyTick(weeklyState);
   };
 
   runTick();
