@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { getPublicMapLocation } from "@/lib/kasifind/location-display";
-import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
+import { buildWazeDirectionsUrl, pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
 
 describe("getPublicMapLocation", () => {
   it("returns exact coordinates when exact pin is enabled", () => {
@@ -28,9 +28,16 @@ describe("pickDirectionsUrl", () => {
     assert.ok(url.includes("daddr=-26.2%2C28.05"));
   });
 
-  it("uses geo intent on Android", () => {
-    const url = pickDirectionsUrl(-26.2, 28.05, undefined, "Mozilla/5.0 (Linux; Android 14)");
-    assert.ok(url.startsWith("geo:"));
+  it("uses geo intent on Android with coordinates on the geo scheme", () => {
+    const url = pickDirectionsUrl(-26.2041, 28.0473, undefined, "Mozilla/5.0 (Linux; Android 14)");
+    assert.equal(url, "geo:-26.2041,28.0473?q=-26.2041,28.0473");
+  });
+
+  it("builds Waze deep link with ll and navigate", () => {
+    const url = buildWazeDirectionsUrl(-26.2041, 28.0473);
+    assert.ok(url.includes("waze.com/ul"));
+    assert.ok(url.includes("ll=-26.2041%2C28.0473"));
+    assert.ok(url.includes("navigate=yes"));
   });
 
   it("uses Google Maps on desktop", () => {

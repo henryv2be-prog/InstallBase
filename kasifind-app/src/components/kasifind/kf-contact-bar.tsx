@@ -22,8 +22,6 @@ export function KfContactBar({ waUrl, phone, directionsUrl }: Props) {
       </a>
       <a
         href={directionsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
         className="kf-btn kf-btn-secondary px-2 text-xs sm:px-4 sm:text-sm"
       >
         <Navigation className="h-4 w-4 shrink-0" aria-hidden />
