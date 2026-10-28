@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MessageCircle, Phone, Star } from "lucide-react";
+import { ChevronRight, MessageCircle, Phone, Star } from "lucide-react";
 import type { KfSearchResult } from "@/components/kasifind/types";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
@@ -24,23 +24,29 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
       className="kf-card kf-card-interactive overflow-hidden kf-animate-in"
       style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
     >
-      <Link href={`/providers/${p.id}`} className="block">
-        {thumb ? (
-          <KfListingImage
-            src={thumb}
-            alt=""
-            className="kf-provider-thumb"
-            priority={index < 6}
-          />
-        ) : (
-          <div className="kf-provider-thumb-placeholder">Work photo coming soon</div>
-        )}
+      <Link href={`/providers/${p.id}`} className="block group">
+        <div className="kf-provider-media">
+          {thumb ? (
+            <KfListingImage
+              src={thumb}
+              alt=""
+              className="kf-provider-thumb transition-transform duration-300 group-hover:scale-[1.02]"
+              priority={index < 6}
+            />
+          ) : (
+            <div className="kf-provider-thumb-placeholder">Work photo coming soon</div>
+          )}
+          <span className="kf-provider-view-hint">
+            View profile
+            <ChevronRight className="h-3 w-3" aria-hidden />
+          </span>
+        </div>
         <div className="p-4">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-base font-bold leading-tight text-[var(--kf-charcoal)]">
+            <h3 className="text-base font-bold leading-tight text-[var(--kf-charcoal)] group-hover:text-[var(--kf-green)]">
               {p.displayName}
             </h3>
-            <span className="shrink-0 text-sm font-semibold text-[var(--kf-green)]">
+            <span className="shrink-0 rounded-full bg-[var(--kf-green-soft)] px-2 py-0.5 text-xs font-bold text-[var(--kf-green)]">
               {formatDistanceKmClient(p.distanceKm)}
             </span>
           </div>
@@ -49,15 +55,17 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
             <p className="mt-2 line-clamp-1 text-sm text-[var(--kf-text)]">{servicesPreview}</p>
           ) : null}
           {p.reviewCount > 0 && p.averageRating !== null ? (
-            <p className="mt-2 flex items-center gap-1 text-xs text-[var(--kf-muted)]">
-              <Star className="h-3.5 w-3.5 fill-[var(--kf-ochre)] text-[var(--kf-ochre)]" aria-hidden />
-              <span>
-                {p.averageRating.toFixed(1)} · {p.reviewCount} unverified review
-                {p.reviewCount === 1 ? "" : "s"}
+            <p className="mt-2 flex items-center gap-1.5 text-xs">
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-[var(--kf-ochre-soft)] px-1.5 py-0.5 font-semibold text-[var(--kf-charcoal)]">
+                <Star className="h-3.5 w-3.5 fill-[var(--kf-ochre)] text-[var(--kf-ochre)]" aria-hidden />
+                {p.averageRating.toFixed(1)}
+              </span>
+              <span className="text-[var(--kf-muted)]">
+                {p.reviewCount} community review{p.reviewCount === 1 ? "" : "s"}
               </span>
             </p>
           ) : (
-            <p className="mt-2 text-xs text-[var(--kf-muted-soft)]">No reviews yet</p>
+            <p className="mt-2 text-xs text-[var(--kf-muted-soft)]">New on KasiFind — be first to review</p>
           )}
         </div>
       </Link>

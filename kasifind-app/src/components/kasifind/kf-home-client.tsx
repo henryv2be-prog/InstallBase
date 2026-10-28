@@ -7,11 +7,13 @@ import {
   Navigation,
   Search,
   SlidersHorizontal,
+  Store,
   X,
 } from "lucide-react";
 import type { KfCategory, KfSearchResult } from "@/components/kasifind/types";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
 import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
+import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
@@ -186,7 +188,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
       </section>
 
       <form
-        className="kf-animate-in space-y-4"
+        className="kf-hero-search-card kf-animate-in space-y-4"
         style={{ animationDelay: "60ms" }}
         onSubmit={(e) => {
           e.preventDefault();
@@ -195,6 +197,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
         role="search"
         aria-label="Find local services"
       >
+        <p className="text-sm font-semibold text-[var(--kf-charcoal)]">Search your area</p>
         <div className="kf-search-shell">
           <Search className="h-5 w-5 shrink-0 text-[var(--kf-forest)]" aria-hidden />
           <input
@@ -375,19 +378,25 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           {loading && results.length === 0 ? (
             <ResultSkeletons />
           ) : results.length === 0 ? (
-            <div className="kf-card px-6 py-10 text-center">
-              <p className="font-semibold text-[var(--kf-charcoal)]">No providers in this area yet</p>
-              <p className="mt-2 text-sm text-[var(--kf-muted)]">
-                Try another search term, pick a different category, or widen the radius.
-              </p>
-              <button
-                type="button"
-                className="kf-btn kf-btn-outline mt-6"
-                onClick={() => void runSearch({ autoExpand: true })}
-              >
-                Search wider area
-              </button>
-            </div>
+            <KfEmptyState
+              icon={<Store className="h-6 w-6" aria-hidden />}
+              title="No providers in this area yet"
+              description="Try another search term, pick a different category, or widen the radius. Know someone who trades locally? They can list for free."
+              action={
+                <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+                  <button
+                    type="button"
+                    className="kf-btn kf-btn-primary"
+                    onClick={() => void runSearch({ autoExpand: true })}
+                  >
+                    Search wider area
+                  </button>
+                  <a href="/register" className="kf-btn kf-btn-outline">
+                    List your business
+                  </a>
+                </div>
+              }
+            />
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2">
               {results.map((p, i) => (
