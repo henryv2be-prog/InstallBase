@@ -5,7 +5,9 @@ import { ArrowLeft, MapPin, Star } from "lucide-react";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { getPublicListing } from "@/lib/kasifind/listing-public";
 import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
+import { publicAssetUrl, siteOriginFromHeaders } from "@/lib/kasifind/public-asset-url";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
+import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { KfReviewForm } from "@/components/kasifind/kf-review-form";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
 import { KfContactBar } from "@/components/kasifind/kf-contact-bar";
@@ -31,7 +33,9 @@ export default async function KasiFindProviderPage({ params }: Props) {
   const serviceHint = listing.services[0]?.name;
   const waPhone = listing.whatsapp || listing.phone;
   const waUrl = buildWhatsAppUrl(waPhone, defaultEnquiryMessage(listing.displayName, serviceHint));
-  const userAgent = (await headers()).get("user-agent");
+  const headerStore = await headers();
+  const userAgent = headerStore.get("user-agent");
+  const siteOrigin = siteOriginFromHeaders(headerStore);
   const directionsUrl = pickDirectionsUrl(
     listing.map.latitude,
     listing.map.longitude,
@@ -52,11 +56,11 @@ export default async function KasiFindProviderPage({ params }: Props) {
       <header className="kf-card mt-4 overflow-hidden kf-animate-in">
         <div className="relative bg-[var(--kf-stone)] p-6 sm:flex sm:gap-6">
           {listing.profileImageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={listing.profileImageUrl}
+            <KfListingImage
+              src={publicAssetUrl(listing.profileImageUrl, siteOrigin)}
               alt=""
               className="mx-auto h-28 w-28 rounded-xl object-cover ring-2 ring-white sm:mx-0"
+              priority
             />
           ) : (
             <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-xl bg-white text-sm text-[var(--kf-muted-soft)] sm:mx-0">
@@ -145,14 +149,12 @@ export default async function KasiFindProviderPage({ params }: Props) {
           <p className="kf-section-sub mt-1">Photos from this provider&apos;s listing.</p>
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {listing.photos.map((url) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <KfListingImage
                 key={url}
-                src={url}
+                src={publicAssetUrl(url, siteOrigin)}
                 alt="Work sample from provider listing"
                 className="aspect-square rounded-lg object-cover ring-1 ring-[var(--kf-border)]"
-                loading="lazy"
-                decoding="async"
+                priority
               />
             ))}
           </div>

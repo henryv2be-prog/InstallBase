@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { getPublicMapLocation } from "@/lib/kasifind/location-display";
 import { buildWazeDirectionsUrl, pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
+import { publicAssetUrl } from "@/lib/kasifind/public-asset-url";
 
 describe("getPublicMapLocation", () => {
   it("returns exact coordinates when exact pin is enabled", () => {
@@ -18,6 +19,19 @@ describe("getPublicMapLocation", () => {
     assert.equal(result.latitude, -26.2);
     assert.equal(result.longitude, 28.05);
     assert.equal(result.radiusMeters, 1000);
+  });
+});
+
+describe("publicAssetUrl", () => {
+  it("prefixes site origin for upload paths", () => {
+    assert.equal(
+      publicAssetUrl("/uploads/a.jpg", "https://kasifind.example"),
+      "https://kasifind.example/uploads/a.jpg"
+    );
+  });
+
+  it("leaves external urls unchanged", () => {
+    assert.equal(publicAssetUrl("https://cdn.example/x.jpg", "https://kasifind.example"), "https://cdn.example/x.jpg");
   });
 });
 
