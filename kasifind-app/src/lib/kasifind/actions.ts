@@ -1,7 +1,10 @@
 "use server";
 
+import fs from "fs/promises";
+import path from "path";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { getUploadDir } from "@/lib/shared/uploads";
 import { getKasiFindPrisma, isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import {
   clearKasiFindSession,
@@ -211,5 +214,34 @@ export async function kfAddListingPhoto(formData: FormData) {
 
   revalidatePath("/account/listing");
   revalidatePath(`/providers/${listing.id}`);
+  return { success: true };
+}
+
+export async function kfRemoveListingPhoto(formData: FormData) {
+  const guard = dbGuard();
+  if (guard) return guard;
+  const auth = await requireKasiFindProvider();
+  if ("error" in auth) return auth;
+
+  const photoId = (formData.get("photoId") as string | null)?.trim();
+  if (!photoId) return { error: "Photo not found." };
+
+  const kf = getKasiFindPrisma();
+  const photo = await kf.kfProviderPhoto.findFirst({
+    where: { id: photoId, listing: { userId: auth.user.id } },
+    select: { id: true, url: true, listingId: true },
+  });
+  if (!photo) return { error: "Photo not found." };
+
+  await kf.kfProviderPhoto.delete({ where: { id: photo.id } });
+
+  if (photo.url.startsWith("/uploads/")) {
+    const filename = photo.url.slice("/uploads/".length);
+    const filePath = path.join(getUploadDir(), filename);
+    await fs.unlink(filePath).catch(() => undefined);
+  }
+
+  revalidatePath("/account/listing");
+  revalidatePath(`/providers/${photo.listingId}`);
   return { success: true };
 }

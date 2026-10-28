@@ -41,7 +41,7 @@ export default async function KfListingEditorPage() {
         moderationStatus: listing.moderationStatus,
         categoryIds: listing.categories.map((c) => c.categoryId),
         services: listing.services.map((s) => s.name),
-        photos: listing.photos.map((p) => ({ url: p.url })),
+        photos: listing.photos.map((p) => ({ id: p.id, url: p.url })),
       }
     : null;
 
