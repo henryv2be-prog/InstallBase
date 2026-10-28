@@ -209,7 +209,7 @@ export function KfListingForm({
           href={`/providers/${listing.listingId}`}
           className="kf-link inline-flex text-sm underline"
         >
-          Preview public listing
+          Preview your listing
         </Link>
       ) : null}
 
@@ -234,6 +234,7 @@ export function KfListingForm({
               listingId={listing?.listingId ?? null}
               profileImageUrl={listing?.profileImageUrl ?? null}
               disabled={formBusy}
+              wizardFormRef={formRef}
             />
             <label className="kf-label">
               Trading / display name
