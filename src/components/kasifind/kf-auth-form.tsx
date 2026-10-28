@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { Loader2 } from "lucide-react";
 import { kfRegisterProvider, kfSignInProvider } from "@/lib/kasifind/actions";
 
 export function KfAuthForm({ mode }: { mode: "login" | "register" }) {
@@ -11,7 +12,7 @@ export function KfAuthForm({ mode }: { mode: "login" | "register" }) {
 
   return (
     <form
-      className="kf-card space-y-3 rounded-2xl p-5"
+      className="kf-card space-y-4 p-6 kf-animate-in"
       action={(formData) => {
         startTransition(async () => {
           const result =
@@ -26,39 +27,53 @@ export function KfAuthForm({ mode }: { mode: "login" | "register" }) {
       }}
     >
       {mode === "register" && (
-        <label className="block text-sm font-medium">
-          Your name
-          <input name="name" className="mt-1 w-full rounded-lg border px-3 py-2" autoComplete="name" />
-        </label>
+        <div>
+          <label className="kf-label" htmlFor="kf-name">
+            Your name
+          </label>
+          <input id="kf-name" name="name" className="kf-input" autoComplete="name" />
+        </div>
       )}
-      <label className="block text-sm font-medium">
-        Email
+      <div>
+        <label className="kf-label" htmlFor="kf-email">
+          Email
+        </label>
         <input
+          id="kf-email"
           name="email"
           type="email"
           required
-          className="mt-1 w-full rounded-lg border px-3 py-2"
+          className="kf-input"
           autoComplete="email"
         />
-      </label>
-      <label className="block text-sm font-medium">
-        Password
+      </div>
+      <div>
+        <label className="kf-label" htmlFor="kf-password">
+          Password
+        </label>
         <input
+          id="kf-password"
           name="password"
           type="password"
           required
           minLength={8}
-          className="mt-1 w-full rounded-lg border px-3 py-2"
+          className="kf-input"
           autoComplete={mode === "register" ? "new-password" : "current-password"}
         />
-      </label>
-      {error && <p className="text-sm text-red-700">{error}</p>}
-      <button
-        type="submit"
-        disabled={pending}
-        className="kf-btn-primary w-full rounded-xl py-3 disabled:opacity-60"
-      >
-        {pending ? "Please wait…" : mode === "register" ? "Create account" : "Sign in"}
+        <p className="kf-help">At least 8 characters.</p>
+      </div>
+      {error ? <div className="kf-alert-error">{error}</div> : null}
+      <button type="submit" disabled={pending} className="kf-btn kf-btn-primary w-full">
+        {pending ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            Please wait…
+          </>
+        ) : mode === "register" ? (
+          "Create account"
+        ) : (
+          "Sign in"
+        )}
       </button>
     </form>
   );

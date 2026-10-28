@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { Inter } from "next/font/google";
+import { KfHeader } from "@/components/kasifind/kf-header";
 import "./kasifind.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -8,43 +16,29 @@ export const metadata: Metadata = {
     template: "%s | KasiFind",
   },
   description:
-    "Discover nearby informal traders, artisans and local service providers across South Africa.",
+    "Discover trusted local services, skilled artisans and businesses across South Africa.",
   applicationName: "KasiFind",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#007749",
+  themeColor: "#0d3b2e",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function KasiFindLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="kf-root">
-      <header className="kf-header sticky top-0 z-40 px-4 py-3">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
-          <Link href="/kasifind" className="min-w-0">
-            <div className="kf-wordmark text-xl sm:text-2xl">KasiFind</div>
-            <p className="kf-tagline truncate">Find local. Support local.</p>
-          </Link>
-          <nav className="flex shrink-0 items-center gap-2 text-sm font-medium">
-            <Link
-              href="/kasifind/account/listing"
-              className="rounded-lg px-3 py-2 text-[var(--kf-green-dark)] hover:bg-black/5"
-            >
-              List your business
-            </Link>
-          </nav>
-        </div>
-      </header>
-      <main className="mx-auto max-w-3xl px-4 pb-16 pt-6">{children}</main>
-      <footer className="border-t border-black/10 bg-white px-4 py-6 text-center text-xs text-[var(--kf-muted)]">
-        <p>KasiFind — proudly South African local discovery.</p>
-        <p className="mt-1">
-          <Link href="/" className="underline">
+    <div className={`kf-root ${inter.variable}`}>
+      <KfHeader />
+      <main className="mx-auto max-w-5xl px-4 pb-8 pt-2">{children}</main>
+      <footer className="kf-footer">
+        <p className="font-medium text-[var(--kf-charcoal)]">KasiFind — proudly South African.</p>
+        <p className="mt-2 max-w-md mx-auto leading-relaxed">
+          Built for communities and local entrepreneurs. Hosted alongside{" "}
+          <Link href="/" className="text-[var(--kf-green)] underline-offset-2 hover:underline">
             InstallBase
-          </Link>{" "}
-          hosts this app; KasiFind uses a separate database.
+          </Link>
+          ; data lives in a separate database.
         </p>
       </footer>
     </div>

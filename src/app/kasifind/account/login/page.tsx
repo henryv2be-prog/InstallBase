@@ -3,9 +3,9 @@ import { KfAuthForm } from "@/components/kasifind/kf-auth-form";
 
 export default function KfLoginPage() {
   return (
-    <div className="mx-auto max-w-md space-y-4">
-      <h1 className="text-2xl font-bold text-[var(--kf-green-dark)]">Provider sign in</h1>
-      <p className="text-sm text-[var(--kf-muted)]">
+    <div className="mx-auto max-w-md space-y-4 kf-animate-in">
+      <h1 className="kf-hero-title text-2xl">Provider sign in</h1>
+      <p className="kf-section-sub">
         Manage your KasiFind listing. Browsing the marketplace does not require an account.
       </p>
       <KfAuthForm mode="login" />

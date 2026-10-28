@@ -31,7 +31,7 @@ KasiFind lives at `/kasifind` and uses **`KASIFIND_DATABASE_URL`** only. Install
 1. Register at `/kasifind/account/register`.
 2. Complete listing at `/kasifind/account/listing` (include services such as “steel gates”).
 3. Publish — listing enters **PENDING** moderation.
-4. Approve as admin (`role = ADMIN` on `KfUser` in the KasiFind DB) at `/kasifind/admin`.
+4. Sign in as admin at `/kasifind/account/login` (user from `KASIFIND_ADMIN_*` env, created on seed/deploy), then moderate at `/kasifind/admin`.
 
 ## Public journey
 

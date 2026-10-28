@@ -47,7 +47,7 @@ export default async function KfListingEditorPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-[var(--kf-green-dark)]">Your listing</h1>
+      <h1 className="kf-hero-title text-2xl">Your listing</h1>
       {!listingData && (
         <p className="text-sm text-[var(--kf-muted)]">
           Tell neighbours what you do — add services like &quot;steel gates&quot; so people can find

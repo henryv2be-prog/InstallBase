@@ -3,9 +3,9 @@ import { KfAuthForm } from "@/components/kasifind/kf-auth-form";
 
 export default function KfRegisterPage() {
   return (
-    <div className="mx-auto max-w-md space-y-4">
-      <h1 className="text-2xl font-bold text-[var(--kf-green-dark)]">Register your business</h1>
-      <p className="text-sm text-[var(--kf-muted)]">
+    <div className="mx-auto max-w-md space-y-4 kf-animate-in">
+      <h1 className="kf-hero-title text-2xl">Register your business</h1>
+      <p className="kf-section-sub">
         No company registration required — just your trading name and contact details.
       </p>
       <KfAuthForm mode="register" />

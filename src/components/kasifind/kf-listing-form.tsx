@@ -60,9 +60,7 @@ export function KfListingForm({
       </div>
 
       {listing?.listingId && listing.moderationStatus === "PENDING" && listing.status === "PUBLISHED" && (
-        <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Your listing is awaiting moderation before it appears in public search.
-        </p>
+        <div className="kf-alert-info">Your listing is awaiting moderation before it appears in search.</div>
       )}
 
       {listing?.listingId && (
@@ -89,16 +87,16 @@ export function KfListingForm({
           });
         }}
       >
-        <label className="block text-sm font-medium">
+        <label className="kf-label">
           Trading / display name
           <input
             name="displayName"
             required
             defaultValue={listing?.displayName ?? ""}
-            className="mt-1 w-full rounded-lg border px-3 py-2"
+            className="kf-input mt-1"
           />
         </label>
-        <label className="block text-sm font-medium">
+        <label className="kf-label">
           About your business
           <textarea
             name="description"
@@ -106,57 +104,57 @@ export function KfListingForm({
             minLength={20}
             rows={4}
             defaultValue={listing?.description ?? ""}
-            className="mt-1 w-full rounded-lg border px-3 py-2"
+            className="kf-input mt-1"
           />
         </label>
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block text-sm font-medium">
+          <label className="kf-label">
             Phone
             <input
               name="phone"
               required
               defaultValue={listing?.phone ?? ""}
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="kf-input mt-1"
             />
           </label>
-          <label className="block text-sm font-medium">
+          <label className="kf-label">
             WhatsApp (optional)
             <input
               name="whatsapp"
               defaultValue={listing?.whatsapp ?? ""}
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="kf-input mt-1"
             />
           </label>
         </div>
-        <label className="block text-sm font-medium">
+        <label className="kf-label">
           Neighbourhood / landmark (shown publicly)
           <input
             name="locationLabel"
             required
             defaultValue={listing?.locationLabel ?? ""}
             placeholder="e.g. Near Maponya Mall, Soweto"
-            className="mt-1 w-full rounded-lg border px-3 py-2"
+            className="kf-input mt-1"
           />
         </label>
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block text-sm font-medium">
+          <label className="kf-label">
             Latitude
             <input
               name="latitude"
               required
               inputMode="decimal"
               defaultValue={listing?.latitude ?? -26.2041}
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="kf-input mt-1"
             />
           </label>
-          <label className="block text-sm font-medium">
+          <label className="kf-label">
             Longitude
             <input
               name="longitude"
               required
               inputMode="decimal"
               defaultValue={listing?.longitude ?? 28.0473}
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="kf-input mt-1"
             />
           </label>
         </div>
@@ -165,7 +163,7 @@ export function KfListingForm({
           default.
         </p>
         <fieldset>
-          <legend className="text-sm font-medium">Categories</legend>
+          <legend className="kf-label">Categories</legend>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {categories.map((c) => (
               <label key={c.id} className="flex items-center gap-2 text-sm">
@@ -180,42 +178,44 @@ export function KfListingForm({
             ))}
           </div>
         </fieldset>
-        <label className="block text-sm font-medium">
+        <label className="kf-label">
           Services (one per line — used for search)
           <textarea
             name="services"
             rows={4}
             defaultValue={defaultServices}
-            className="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm"
+            className="kf-input mt-1 font-mono text-sm"
           />
         </label>
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block text-sm font-medium">
+          <label className="kf-label">
             Price hint (optional)
             <input
               name="priceHint"
               defaultValue={listing?.priceHint ?? ""}
               placeholder="From R800 / gate"
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="kf-input mt-1"
             />
           </label>
-          <label className="block text-sm font-medium">
+          <label className="kf-label">
             Hours (optional)
             <input
               name="hoursNote"
               defaultValue={listing?.hoursNote ?? ""}
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="kf-input mt-1"
             />
           </label>
         </div>
-        {message && <p className="text-sm">{message}</p>}
+        {message ? (
+          <p className="text-sm font-medium text-[var(--kf-green)]">{message}</p>
+        ) : null}
         <div className="flex flex-col gap-2 sm:flex-row">
           <button
             type="submit"
             name="publish"
             value="false"
             disabled={pending}
-            className="kf-btn-outline flex-1 rounded-xl py-3 disabled:opacity-60"
+            className="kf-btn kf-btn-outline flex-1"
           >
             Save draft
           </button>
@@ -224,7 +224,7 @@ export function KfListingForm({
             name="publish"
             value="true"
             disabled={pending}
-            className="kf-btn-primary flex-1 rounded-xl py-3 disabled:opacity-60"
+            className="kf-btn kf-btn-primary flex-1"
           >
             Publish for review
           </button>

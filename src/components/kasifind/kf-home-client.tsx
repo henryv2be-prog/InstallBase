@@ -1,19 +1,41 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { MapPin, Search, Loader2, Navigation } from "lucide-react";
+import {
+  Loader2,
+  MapPin,
+  Navigation,
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 import type { KfCategory, KfSearchResult } from "@/components/kasifind/types";
-import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
-import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
+import { categoryIconForSlug } from "@/components/kasifind/category-icons";
+import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
 
-const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 }; // Johannesburg fallback for manual mode
+const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
 
 type LocationState =
   | { mode: "pending" }
   | { mode: "gps"; lat: number; lng: number; label: string }
   | { mode: "manual"; lat: number; lng: number; label: string };
+
+function ResultSkeletons() {
+  return (
+    <ul className="grid gap-4 sm:grid-cols-2" aria-hidden>
+      {[1, 2].map((i) => (
+        <li key={i} className="kf-card overflow-hidden p-0">
+          <div className="kf-skeleton aspect-[4/3] w-full rounded-none" />
+          <div className="space-y-2 p-4">
+            <div className="kf-skeleton h-4 w-2/3" />
+            <div className="kf-skeleton h-3 w-1/2" />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   const [location, setLocation] = useState<LocationState>({ mode: "pending" });
@@ -27,6 +49,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [manualOpen, setManualOpen] = useState(false);
   const [manualLat, setManualLat] = useState(String(DEFAULT_CENTER.lat));
   const [manualLng, setManualLng] = useState(String(DEFAULT_CENTER.lng));
   const [manualLabel, setManualLabel] = useState("Johannesburg area");
@@ -58,7 +81,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           mode: "gps",
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
-          label: "Using your location",
+          label: "Near you",
         });
       },
       () => {
@@ -116,74 +139,89 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   useEffect(() => {
     if (location.mode === "pending" || !dbConfigured) return;
     void runSearch();
-  }, [location.mode, dbConfigured]); // initial nearby browse
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- initial load when location resolves
+  }, [location.mode, dbConfigured]);
 
-  const locationBanner = useMemo(() => {
+  const locationPill = useMemo(() => {
     if (location.mode === "pending") {
       return (
-        <p className="flex items-center gap-2 text-sm text-[var(--kf-muted)]">
+        <span className="kf-location-pill">
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-          Detecting your location…
-        </p>
+          Finding your area…
+        </span>
       );
     }
     return (
-      <p className="flex items-center gap-2 text-sm text-[var(--kf-green-dark)]">
+      <span className="kf-location-pill">
         <MapPin className="h-4 w-4 shrink-0" aria-hidden />
-        <span>{location.label}</span>
-      </p>
+        {location.label}
+      </span>
     );
   }, [location]);
 
   if (!dbConfigured) {
     return (
-      <div className="kf-card rounded-2xl p-6">
-        <h1 className="text-2xl font-bold text-[var(--kf-green-dark)]">KasiFind</h1>
-        <p className="mt-2 text-[var(--kf-muted)]">
-          This environment has not been wired to a KasiFind database yet. Set{" "}
-          <code className="text-sm">KASIFIND_DATABASE_URL</code>, run migrations, and seed
-          categories to enable search.
+      <div className="kf-card p-6 kf-animate-in">
+        <h1 className="kf-section-title">KasiFind</h1>
+        <p className="mt-2 text-sm text-[var(--kf-muted)]">
+          Set <code className="text-xs">KASIFIND_DATABASE_URL</code> on the server, run migrations,
+          and redeploy to enable search.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <section>
-        <h1 className="text-2xl font-bold tracking-tight text-[var(--kf-ink)] sm:text-3xl">
-          Find trusted locals near you
-        </h1>
-        <p className="mt-2 text-[var(--kf-muted)]">
-          Search for welders, mechanics, plumbers, hairdressers and more — sorted by distance.
+    <div className="space-y-8 pb-4">
+      <section className="kf-hero kf-animate-in">
+        <div className="kf-hero-bg" aria-hidden />
+        <p className="text-xs font-semibold uppercase tracking-widest text-[var(--kf-green)]">
+          Find local. Support local.
         </p>
-        {locationBanner}
+        <h1 className="kf-hero-title mt-2">Your next great local find is closer than you think.</h1>
+        <p className="kf-hero-lead">
+          Discover trusted local services, skilled artisans and businesses around you.
+        </p>
+        {locationPill}
       </section>
 
       <form
-        className="kf-card space-y-3 rounded-2xl p-4"
+        className="kf-animate-in space-y-4"
+        style={{ animationDelay: "60ms" }}
         onSubmit={(e) => {
           e.preventDefault();
           void runSearch({ autoExpand: false });
         }}
+        role="search"
+        aria-label="Find local services"
       >
-        <label className="block">
-          <span className="sr-only">Search for a service</span>
-          <div className="flex items-center gap-2 rounded-xl border-2 border-[var(--kf-green)] bg-white px-3 py-2">
-            <Search className="h-5 w-5 text-[var(--kf-green)]" aria-hidden />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g. steel gates, plumber, car mechanic"
-              className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-gray-400"
-              autoComplete="off"
-            />
-          </div>
-        </label>
+        <div className="kf-search-shell">
+          <Search className="h-5 w-5 shrink-0 text-[var(--kf-forest)]" aria-hidden />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Steel gates, plumber, mechanic…"
+            className="kf-search-input"
+            autoComplete="off"
+            enterKeyHint="search"
+            aria-label="Search for a service"
+          />
+          {query ? (
+            <button
+              type="button"
+              className="kf-btn kf-btn-ghost min-h-[2.25rem] px-2"
+              aria-label="Clear search"
+              onClick={() => setQuery("")}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          ) : null}
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-[var(--kf-muted)]">
+          <span className="flex items-center gap-1 text-xs font-semibold text-[var(--kf-muted)]">
+            <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
             Radius
           </span>
           {RADIUS_OPTIONS.map((r) => (
@@ -191,47 +229,50 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
               key={r}
               type="button"
               onClick={() => setRadiusKm(r)}
-              className={`rounded-full px-3 py-1 text-sm font-medium ${
-                radiusKm === r ? "kf-btn-primary" : "border border-black/15 bg-white"
-              }`}
+              className={`kf-chip ${radiusKm === r ? "kf-chip-active" : ""}`}
             >
               {r} km
             </button>
           ))}
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="kf-btn-primary flex w-full items-center justify-center gap-2 rounded-xl py-3 text-base"
-        >
-          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
-          Search nearby
+        <button type="submit" disabled={loading} className="kf-btn kf-btn-primary w-full text-base">
+          {loading ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+              Searching…
+            </>
+          ) : (
+            <>
+              <Search className="h-5 w-5" aria-hidden />
+              Search nearby
+            </>
+          )}
         </button>
       </form>
 
-      {location.mode === "manual" && (
-        <details className="kf-card rounded-2xl p-4">
-          <summary className="cursor-pointer font-semibold text-[var(--kf-green-dark)]">
-            Enter location manually
-          </summary>
-          <div className="mt-3 space-y-2">
+      {(location.mode === "manual" || manualOpen) && (
+        <div className="kf-card p-4 kf-animate-in">
+          <h2 className="text-sm font-bold text-[var(--kf-charcoal)]">Enter location manually</h2>
+          <p className="kf-help">Your live GPS is never shown to providers.</p>
+          <div className="mt-3 space-y-3">
             <input
-              className="w-full rounded-lg border px-3 py-2"
+              className="kf-input"
               value={manualLabel}
               onChange={(e) => setManualLabel(e.target.value)}
               placeholder="Neighbourhood or town"
+              aria-label="Area name"
             />
             <div className="grid grid-cols-2 gap-2">
               <input
-                className="rounded-lg border px-3 py-2"
+                className="kf-input"
                 value={manualLat}
                 onChange={(e) => setManualLat(e.target.value)}
                 inputMode="decimal"
                 aria-label="Latitude"
               />
               <input
-                className="rounded-lg border px-3 py-2"
+                className="kf-input"
                 value={manualLng}
                 onChange={(e) => setManualLng(e.target.value)}
                 inputMode="decimal"
@@ -240,7 +281,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
             </div>
             <button
               type="button"
-              className="kf-btn-outline w-full rounded-xl py-2"
+              className="kf-btn kf-btn-outline w-full"
               onClick={() => {
                 const lat = Number.parseFloat(manualLat);
                 const lng = Number.parseFloat(manualLng);
@@ -250,162 +291,116 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
                 }
                 setLocation({ mode: "manual", lat, lng, label: manualLabel || "Your area" });
                 setError(null);
+                void runSearch();
               }}
             >
               Use this location
             </button>
-            <p className="text-xs text-[var(--kf-muted)]">
-              Tip: drop a pin in Google Maps, copy coordinates, and paste them here. Your live GPS
-              is never shown to providers.
-            </p>
           </div>
-        </details>
+        </div>
       )}
 
-      {location.mode === "gps" && (
+      {location.mode === "gps" && !manualOpen && (
         <button
           type="button"
-          className="flex items-center gap-2 text-sm font-medium text-[var(--kf-green-dark)] underline"
-          onClick={() =>
-            setLocation({
-              mode: "manual",
-              lat: DEFAULT_CENTER.lat,
-              lng: DEFAULT_CENTER.lng,
-              label: "Manual location",
-            })
-          }
+          className="flex items-center gap-2 text-sm font-medium text-[var(--kf-green)] underline-offset-2 hover:underline"
+          onClick={() => setManualOpen(true)}
         >
           <Navigation className="h-4 w-4" aria-hidden />
-          Enter location manually instead
+          Enter location manually
         </button>
       )}
 
       {categories.length > 0 && (
-        <section>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-[var(--kf-muted)]">
-            Browse categories
-          </h2>
-          <div className="flex flex-wrap gap-2">
+        <section className="kf-animate-in" style={{ animationDelay: "120ms" }}>
+          <h2 className="kf-section-title">Browse by category</h2>
+          <p className="kf-section-sub mt-1">Tap a trade to filter nearby results.</p>
+          <div className="kf-category-scroll mt-4" role="list">
             <button
               type="button"
+              role="listitem"
               onClick={() => {
                 setCategorySlug(null);
                 void runSearch();
               }}
-              className={`kf-chip rounded-full px-3 py-1.5 ${!categorySlug ? "ring-2 ring-[var(--kf-green)]" : ""}`}
+              className={`kf-category-tile ${!categorySlug ? "kf-category-tile-active" : ""}`}
             >
-              All
+              <span className="kf-category-icon">
+                <Search className="h-5 w-5" />
+              </span>
+              <span className="kf-category-label">All</span>
             </button>
-            {categories.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  setCategorySlug(c.slug);
-                  void runSearch();
-                }}
-                className={`kf-chip rounded-full px-3 py-1.5 ${categorySlug === c.slug ? "ring-2 ring-[var(--kf-green)]" : ""}`}
-              >
-                {c.name}
-              </button>
-            ))}
+            {categories.map((c) => {
+              const Icon = categoryIconForSlug(c.slug);
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  role="listitem"
+                  onClick={() => {
+                    setCategorySlug(c.slug);
+                    void runSearch();
+                  }}
+                  className={`kf-category-tile ${categorySlug === c.slug ? "kf-category-tile-active" : ""}`}
+                >
+                  <span className="kf-category-icon">
+                    <Icon className="h-5 w-5" strokeWidth={2} />
+                  </span>
+                  <span className="kf-category-label">{c.name}</span>
+                </button>
+              );
+            })}
           </div>
         </section>
       )}
 
-      {error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-          {error}
-        </p>
-      )}
+      {error ? <div className="kf-alert-error">{error}</div> : null}
 
-      <section className="space-y-3">
-        <div className="flex items-baseline justify-between gap-2">
-          <h2 className="text-lg font-bold">Nearby providers</h2>
-          {searchMeta?.expanded && (
-            <span className="text-xs text-[var(--kf-muted)]">
+      <section aria-live="polite" className="kf-animate-in" style={{ animationDelay: "160ms" }}>
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 className="kf-section-title">Nearby providers</h2>
+            <p className="kf-section-sub mt-0.5">
+              {location.mode !== "pending" ? `Within ${radiusKm} km · sorted by distance` : "…"}
+            </p>
+          </div>
+          {searchMeta?.expanded ? (
+            <span className="text-xs font-medium text-[var(--kf-ochre)]">
               Expanded to {searchMeta.radiusKm} km
             </span>
-          )}
+          ) : null}
         </div>
 
-        {loading && results.length === 0 ? (
-          <p className="text-[var(--kf-muted)]">Searching…</p>
-        ) : results.length === 0 ? (
-          <div className="kf-card rounded-2xl p-5 text-center">
-            <p className="font-medium">No providers found in this area yet.</p>
-            <p className="mt-1 text-sm text-[var(--kf-muted)]">
-              Try a different search, pick another category, or widen the radius.
-            </p>
-            <button
-              type="button"
-              className="kf-btn-outline mt-4 rounded-xl px-4 py-2"
-              onClick={() => void runSearch({ autoExpand: true })}
-            >
-              Search wider area
-            </button>
-          </div>
-        ) : (
-          <ul className="space-y-3">
-            {results.map((p) => {
-              const waPhone = p.whatsapp || p.phone;
-              const serviceHint = p.services[0]?.name ?? query;
-              const waUrl = buildWhatsAppUrl(waPhone, defaultEnquiryMessage(p.displayName, serviceHint));
-              const thumb = p.photoUrls[0] ?? p.profileImageUrl;
-              return (
-                <li key={p.id} className="kf-card overflow-hidden rounded-2xl">
-                  <Link href={`/kasifind/provider/${p.id}`} className="block p-4">
-                    <div className="flex gap-3">
-                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[var(--kf-sand)]">
-                        {thumb ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={thumb} alt="" className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-xs text-[var(--kf-muted)]">
-                            Photo
-                          </div>
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-bold text-[var(--kf-green-dark)]">
-                          {p.displayName}
-                        </h3>
-                        <p className="text-sm font-medium text-[var(--kf-gold)]">
-                          {formatDistanceKmClient(p.distanceKm)}
-                        </p>
-                        <p className="text-xs text-[var(--kf-muted)]">{p.locationLabel}</p>
-                        {p.reviewCount > 0 && p.averageRating !== null ? (
-                          <p className="mt-1 text-xs">
-                            ★ {p.averageRating.toFixed(1)} ({p.reviewCount} unverified reviews)
-                          </p>
-                        ) : null}
-                        <p className="mt-1 line-clamp-2 text-sm text-[var(--kf-muted)]">
-                          {p.description}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                  <div className="flex border-t border-black/5">
-                    <a
-                      href={waUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="kf-btn-primary flex-1 py-3 text-center text-sm"
-                    >
-                      WhatsApp
-                    </a>
-                    <a
-                      href={`tel:${p.phone.replace(/\s/g, "")}`}
-                      className="flex-1 py-3 text-center text-sm font-semibold text-[var(--kf-green-dark)]"
-                    >
-                      Call
-                    </a>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+        <div className="mt-4">
+          {loading && results.length === 0 ? (
+            <ResultSkeletons />
+          ) : results.length === 0 ? (
+            <div className="kf-card px-6 py-10 text-center">
+              <p className="font-semibold text-[var(--kf-charcoal)]">No providers in this area yet</p>
+              <p className="mt-2 text-sm text-[var(--kf-muted)]">
+                Try another search term, pick a different category, or widen the radius.
+              </p>
+              <button
+                type="button"
+                className="kf-btn kf-btn-outline mt-6"
+                onClick={() => void runSearch({ autoExpand: true })}
+              >
+                Search wider area
+              </button>
+            </div>
+          ) : (
+            <ul className="grid gap-4 sm:grid-cols-2">
+              {results.map((p, i) => (
+                <KfProviderCard
+                  key={p.id}
+                  provider={p}
+                  serviceHint={p.services[0]?.name ?? query}
+                  index={i}
+                />
+              ))}
+            </ul>
+          )}
+        </div>
       </section>
     </div>
   );
