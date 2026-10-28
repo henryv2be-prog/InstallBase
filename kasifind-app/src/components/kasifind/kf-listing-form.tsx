@@ -152,7 +152,7 @@ export function KfListingForm({
             setLocatingPublish(true);
             const position = await requestCurrentPositionForPublish();
             setLocatingPublish(false);
-            if (!position.ok) {
+            if (position.ok === false) {
               showStatus("error", publishLocationErrorMessage(position.reason));
               return;
             }
