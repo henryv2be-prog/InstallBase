@@ -10,6 +10,10 @@ import {
   kfSignOutProvider,
   kfUpsertListing,
 } from "@/lib/kasifind/actions";
+import {
+  publishLocationErrorMessage,
+  requestCurrentPositionForPublish,
+} from "@/lib/kasifind/request-current-position";
 import type { KfCategory } from "@/components/kasifind/types";
 
 type ListingData = {
@@ -51,6 +55,7 @@ export function KfListingForm({
     null
   );
   const [uploading, setUploading] = useState(false);
+  const [locatingPublish, setLocatingPublish] = useState(false);
   const [removingPhotoId, setRemovingPhotoId] = useState<string | null>(null);
   const statusRef = useRef<HTMLDivElement>(null);
 
@@ -63,6 +68,24 @@ export function KfListingForm({
   const showStatus = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
   };
+
+  const submitListing = (formData: FormData) => {
+    startTransition(async () => {
+      const publish = formData.get("publish") === "true";
+      const result = await kfUpsertListing(formData);
+      if ("error" in result && result.error) {
+        showStatus("error", result.error);
+        return;
+      }
+      showStatus(
+        "success",
+        publish ? "Submitted for review — location updated from this device." : "Draft saved."
+      );
+      router.refresh();
+    });
+  };
+
+  const formBusy = pending || locatingPublish;
 
   return (
     <div className="space-y-4">
@@ -113,17 +136,35 @@ export function KfListingForm({
 
       <form
         className="kf-card space-y-4 rounded-2xl p-5"
-        action={(formData) => {
-          startTransition(async () => {
-            const publish = formData.get("publish") === "true";
-            const result = await kfUpsertListing(formData);
-            if ("error" in result && result.error) {
-              showStatus("error", result.error);
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const form = e.currentTarget;
+          const submitter = (e.nativeEvent as SubmitEvent).submitter;
+          const publish =
+            submitter instanceof HTMLButtonElement &&
+            submitter.name === "publish" &&
+            submitter.value === "true";
+
+          const formData = new FormData(form);
+          formData.set("publish", publish ? "true" : "false");
+
+          if (publish) {
+            setLocatingPublish(true);
+            const position = await requestCurrentPositionForPublish();
+            setLocatingPublish(false);
+            if (!position.ok) {
+              showStatus("error", publishLocationErrorMessage(position.reason));
               return;
             }
-            showStatus("success", publish ? "Submitted for review." : "Draft saved.");
-            router.refresh();
-          });
+            const latInput = form.elements.namedItem("latitude") as HTMLInputElement | null;
+            const lngInput = form.elements.namedItem("longitude") as HTMLInputElement | null;
+            if (latInput) latInput.value = String(position.latitude);
+            if (lngInput) lngInput.value = String(position.longitude);
+            formData.set("latitude", String(position.latitude));
+            formData.set("longitude", String(position.longitude));
+          }
+
+          submitListing(formData);
         }}
       >
         <label className="kf-label">
@@ -198,8 +239,10 @@ export function KfListingForm({
           </label>
         </div>
         <p className="text-xs text-[var(--kf-muted)]">
-          Exact coordinates are used for distance search only — your street address is not shown by
-          default.
+          <strong className="font-semibold text-[var(--kf-charcoal)]">Publish for review</strong>{" "}
+          automatically sets coordinates from your current location so nearby search stays accurate.
+          Draft saves use the coordinates above. Your street address is never shown publicly — only
+          your neighbourhood or landmark.
         </p>
         <fieldset>
           <legend className="kf-label">Categories</legend>
@@ -250,7 +293,7 @@ export function KfListingForm({
             type="submit"
             name="publish"
             value="false"
-            disabled={pending}
+            disabled={formBusy}
             className="kf-btn kf-btn-outline flex-1"
           >
             Save draft
@@ -259,10 +302,22 @@ export function KfListingForm({
             type="submit"
             name="publish"
             value="true"
-            disabled={pending}
+            disabled={formBusy}
             className="kf-btn kf-btn-primary flex-1"
           >
-            Publish for review
+            {locatingPublish ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                Getting location…
+              </>
+            ) : pending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                Submitting…
+              </>
+            ) : (
+              "Publish for review"
+            )}
           </button>
         </div>
       </form>
