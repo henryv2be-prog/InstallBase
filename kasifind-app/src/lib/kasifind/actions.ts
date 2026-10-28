@@ -100,7 +100,7 @@ export async function kfUpsertListing(formData: FormData) {
   if (lat === null || lng === null || !isValidSaCoordinate(lat, lng)) {
     return { error: "Set valid coordinates in South Africa (publish uses your device location)." };
   }
-  if (categoryIds.length === 0) return { error: "Select at least one category." };
+  if (categoryIds.length === 0 && publish) return { error: "Select at least one category." };
 
   const serviceLines = servicesRaw
     .split("\n")
@@ -110,6 +110,10 @@ export async function kfUpsertListing(formData: FormData) {
 
   const kf = getKasiFindPrisma();
   const existing = await kf.kfProviderListing.findUnique({ where: { userId: auth.user.id } });
+
+  const profileImageUrlRaw = (formData.get("profileImageUrl") as string | null)?.trim() || null;
+  const profileImageUrl =
+    profileImageUrlRaw && profileImageUrlRaw.startsWith("/uploads/") ? profileImageUrlRaw : null;
 
   const data = {
     displayName,
@@ -124,7 +128,16 @@ export async function kfUpsertListing(formData: FormData) {
     hoursNote,
     status: publish ? ("PUBLISHED" as const) : ("DRAFT" as const),
     moderationStatus: publish ? ("PENDING" as const) : ("PENDING" as const),
+    ...(profileImageUrl ? { profileImageUrl } : {}),
   };
+
+  if (
+    existing?.profileImageUrl &&
+    profileImageUrl &&
+    existing.profileImageUrl !== profileImageUrl
+  ) {
+    await deleteLocalUpload(existing.profileImageUrl);
+  }
 
   const listing = existing
     ? await kf.kfProviderListing.update({
@@ -224,6 +237,91 @@ async function deleteLocalUpload(url: string | null | undefined) {
   const filename = url.slice("/uploads/".length);
   const filePath = path.join(getUploadDir(), filename);
   await fs.unlink(filePath).catch(() => undefined);
+}
+
+const DEFAULT_JHB_LAT = -26.2041;
+const DEFAULT_JHB_LNG = 28.0473;
+
+/** Save business photo from wizard step 1 — creates a draft if needed (no full wizard save). */
+export async function kfSaveListingProfileFromWizard(formData: FormData) {
+  const guard = dbGuard();
+  if (guard) return guard;
+
+  const auth = await requireKasiFindProvider();
+  if ("error" in auth) return auth;
+
+  const url = (formData.get("url") as string | null)?.trim();
+  if (!url || !url.startsWith("/uploads/")) return { error: "Invalid photo." };
+
+  const displayName = (formData.get("displayName") as string | null)?.trim();
+  const description = (formData.get("description") as string | null)?.trim();
+  const phone = (formData.get("phone") as string | null)?.trim();
+  const whatsapp = (formData.get("whatsapp") as string | null)?.trim() || null;
+
+  if (!displayName || displayName.length < 2) {
+    return { error: "Enter your business name above, then add your photo." };
+  }
+  if (!description || description.length < 20) {
+    return { error: "Add a short description (at least 20 characters), then add your photo." };
+  }
+  if (!phone || phone.length < 9) {
+    return { error: "Enter your phone number above, then add your photo." };
+  }
+
+  const locationLabel =
+    (formData.get("locationLabel") as string | null)?.trim() ||
+    "General area — you can refine this on the location step";
+  const lat = parseCoordinate(formData.get("latitude") as string) ?? DEFAULT_JHB_LAT;
+  const lng = parseCoordinate(formData.get("longitude") as string) ?? DEFAULT_JHB_LNG;
+  const hideExactLocation = formData.get("hideExactLocation") !== "false";
+
+  if (!isValidSaCoordinate(lat, lng)) {
+    return { error: "Invalid map coordinates." };
+  }
+
+  const kf = getKasiFindPrisma();
+  const existing = await kf.kfProviderListing.findUnique({ where: { userId: auth.user.id } });
+
+  if (existing?.profileImageUrl && existing.profileImageUrl !== url) {
+    await deleteLocalUpload(existing.profileImageUrl);
+  }
+
+  const listing = existing
+    ? await kf.kfProviderListing.update({
+        where: { id: existing.id },
+        data: {
+          displayName,
+          description,
+          phone,
+          whatsapp,
+          locationLabel: existing.locationLabel || locationLabel,
+          latitude: existing.latitude || lat,
+          longitude: existing.longitude || lng,
+          hideExactLocation,
+          profileImageUrl: url,
+        },
+      })
+    : await kf.kfProviderListing.create({
+        data: {
+          userId: auth.user.id,
+          displayName,
+          description,
+          phone,
+          whatsapp,
+          locationLabel,
+          latitude: lat,
+          longitude: lng,
+          hideExactLocation,
+          profileImageUrl: url,
+          status: "DRAFT",
+          moderationStatus: "PENDING",
+        },
+      });
+
+  revalidatePath("/account/listing");
+  revalidatePath(`/providers/${listing.id}`);
+  revalidatePath("/");
+  return { success: true, listingId: listing.id };
 }
 
 export async function kfSetListingProfileImage(formData: FormData) {

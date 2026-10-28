@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Building2, MapPin, MessageSquare, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
-import { getPublicListing } from "@/lib/kasifind/listing-public";
+import { resolveProviderListingPage } from "@/lib/kasifind/listing-public";
+import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
 import { publicAssetUrl, siteOriginFromHeaders } from "@/lib/kasifind/public-asset-url";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
@@ -28,8 +29,10 @@ export default async function KasiFindProviderPage({ params }: Props) {
   }
 
   const { id } = await params;
-  const listing = await getPublicListing(id);
-  if (!listing) notFound();
+  const sessionUser = await getKasiFindSessionUser();
+  const resolved = await resolveProviderListingPage(id, sessionUser?.id ?? null);
+  if (!resolved) notFound();
+  const { listing, ownerPreview } = resolved;
 
   const serviceHint = listing.services[0]?.name;
   const waPhone = listing.whatsapp || listing.phone;
@@ -47,12 +50,19 @@ export default async function KasiFindProviderPage({ params }: Props) {
   return (
     <article className="pb-24 sm:pb-8">
       <Link
-        href="/"
+        href={ownerPreview ? "/account/listing" : "/"}
         className="kf-link inline-flex items-center gap-1 text-sm kf-animate-in"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden />
-        Back to search
+        {ownerPreview ? "Back to your listing" : "Back to search"}
       </Link>
+
+      {ownerPreview ? (
+        <div className="kf-alert-info mt-4 kf-animate-in" role="status">
+          <strong>Owner preview</strong> — only you can see this page until moderation approves your
+          listing. It is not visible in search yet.
+        </div>
+      ) : null}
 
       <header className="kf-card mt-4 overflow-hidden kf-animate-in">
         <div className="kf-trust-strip">
@@ -210,7 +220,13 @@ export default async function KasiFindProviderPage({ params }: Props) {
             ))
           )}
         </ul>
-        <KfReviewForm listingId={listing.id} />
+        {ownerPreview ? (
+          <p className="mt-4 text-sm text-[var(--kf-muted)]">
+            Reviews open once your listing is live for everyone.
+          </p>
+        ) : (
+          <KfReviewForm listingId={listing.id} />
+        )}
       </section>
 
       <div className="mt-6">
