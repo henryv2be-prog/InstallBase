@@ -6,6 +6,10 @@ import {
   type GeoPoint,
   parseRadiusKm,
 } from "@/lib/kasifind/geo";
+import {
+  filterReachableUploadUrls,
+  resolvePublicUploadUrl,
+} from "@/lib/kasifind/upload-asset";
 
 export type ProviderSearchHit = {
   id: string;
@@ -68,7 +72,7 @@ export async function searchProviders(input: {
     take: 200,
   });
 
-  const scored = listings
+  const scoredRaw = listings
     .map((listing) => {
       const distanceKm = haversineDistanceKm(input.center, {
         latitude: listing.latitude,
@@ -124,8 +128,15 @@ export async function searchProviders(input: {
       if (a.score !== b.score) return b.score - a.score;
       return a.distanceKm - b.distanceKm;
     })
-    .slice(0, limit)
-    .map(({ score: _score, ...rest }) => rest);
+    .slice(0, limit);
+
+  const scored = await Promise.all(
+    scoredRaw.map(async ({ score: _score, ...rest }) => ({
+      ...rest,
+      photoUrls: await filterReachableUploadUrls(rest.photoUrls),
+      profileImageUrl: await resolvePublicUploadUrl(rest.profileImageUrl),
+    }))
+  );
 
   return { results: scored, radiusKm, expanded: false };
 }
