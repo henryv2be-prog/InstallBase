@@ -97,7 +97,7 @@ export async function kfUpsertListing(formData: FormData) {
   if (!phone || phone.length < 9) return { error: "A valid phone number is required." };
   if (!locationLabel) return { error: "Neighbourhood or landmark is required." };
   if (lat === null || lng === null || !isValidSaCoordinate(lat, lng)) {
-    return { error: "Set a valid location in South Africa on the map." };
+    return { error: "Set valid coordinates in South Africa (publish uses your device location)." };
   }
   if (categoryIds.length === 0) return { error: "Select at least one category." };
 
