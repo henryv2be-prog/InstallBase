@@ -1,5 +1,6 @@
 import "server-only";
 import { getKasiFindPrisma } from "@/lib/kasifind/prisma";
+import { getPublicMapLocation } from "@/lib/kasifind/location-display";
 
 export async function getPublicListing(id: string) {
   const kf = getKasiFindPrisma();
@@ -27,6 +28,12 @@ export async function getPublicListing(id: string) {
   const averageRating =
     reviewCount > 0 ? ratings.reduce((a, b) => a + b, 0) / reviewCount : null;
 
+  const map = getPublicMapLocation(
+    listing.latitude,
+    listing.longitude,
+    listing.hideExactLocation
+  );
+
   return {
     id: listing.id,
     displayName: listing.displayName,
@@ -35,6 +42,7 @@ export async function getPublicListing(id: string) {
     whatsapp: listing.whatsapp,
     locationLabel: listing.locationLabel,
     hideExactLocation: listing.hideExactLocation,
+    map,
     priceHint: listing.priceHint,
     hoursNote: listing.hoursNote,
     profileImageUrl: listing.profileImageUrl,

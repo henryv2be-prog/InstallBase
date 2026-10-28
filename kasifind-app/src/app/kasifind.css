@@ -579,6 +579,42 @@
   color: var(--kf-muted);
 }
 
+.kf-location-map {
+  overflow: hidden;
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  box-shadow: var(--kf-shadow-sm);
+}
+
+.kf-location-map-canvas {
+  height: 14rem;
+  width: 100%;
+  z-index: 0;
+}
+
+@media (min-width: 640px) {
+  .kf-location-map-canvas {
+    height: 16rem;
+  }
+}
+
+.kf-map-pin-wrap {
+  background: transparent;
+  border: none;
+}
+
+.kf-map-pin-marker {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0 auto;
+  background: var(--kf-green);
+  border: 2.5px solid #fff;
+  border-radius: var(--kf-radius-full);
+  box-shadow: 0 2px 6px rgba(28, 31, 30, 0.35);
+  transform: translateY(-4px);
+}
+
 .kf-review-compose {
   margin-top: var(--kf-space-5);
   padding: var(--kf-space-4);
