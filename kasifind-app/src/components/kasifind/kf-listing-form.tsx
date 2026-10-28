@@ -2,8 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { kfAddListingPhoto, kfSignOutProvider, kfUpsertListing } from "@/lib/kasifind/actions";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { Loader2, X } from "lucide-react";
+import {
+  kfAddListingPhoto,
+  kfRemoveListingPhoto,
+  kfSignOutProvider,
+  kfUpsertListing,
+} from "@/lib/kasifind/actions";
 import type { KfCategory } from "@/components/kasifind/types";
 
 type ListingData = {
@@ -20,9 +26,15 @@ type ListingData = {
   moderationStatus: string;
   categoryIds: string[];
   services: string[];
-  photos: { url: string }[];
+  photos: { id: string; url: string }[];
   listingId: string | null;
 };
+
+function scrollToStatus(el: HTMLElement | null) {
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
 export function KfListingForm({
   categories,
@@ -35,10 +47,22 @@ export function KfListingForm({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
+    null
+  );
   const [uploading, setUploading] = useState(false);
+  const [removingPhotoId, setRemovingPhotoId] = useState<string | null>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
 
   const defaultServices = listing?.services.join("\n") ?? "Steel gates\nWelding\nSecurity gates";
+
+  useEffect(() => {
+    if (message) scrollToStatus(statusRef.current);
+  }, [message]);
+
+  const showStatus = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+  };
 
   return (
     <div className="space-y-4">
@@ -59,9 +83,24 @@ export function KfListingForm({
         </button>
       </div>
 
-      {listing?.listingId && listing.moderationStatus === "PENDING" && listing.status === "PUBLISHED" && (
-        <div className="kf-alert-info">Your listing is awaiting moderation before it appears in search.</div>
-      )}
+      <div ref={statusRef} tabIndex={-1} className="scroll-mt-24 space-y-3 outline-none">
+        {message ? (
+          <div
+            role="status"
+            className={message.type === "success" ? "kf-alert-success" : "kf-alert-error"}
+          >
+            {message.text}
+          </div>
+        ) : null}
+
+        {listing?.listingId &&
+          listing.moderationStatus === "PENDING" &&
+          listing.status === "PUBLISHED" && (
+            <div className="kf-alert-info">
+              Your listing is awaiting moderation before it appears in search.
+            </div>
+          )}
+      </div>
 
       {listing?.listingId && (
         <Link
@@ -79,10 +118,10 @@ export function KfListingForm({
             const publish = formData.get("publish") === "true";
             const result = await kfUpsertListing(formData);
             if ("error" in result && result.error) {
-              setMessage(result.error);
+              showStatus("error", result.error);
               return;
             }
-            setMessage(publish ? "Submitted for review." : "Draft saved.");
+            showStatus("success", publish ? "Submitted for review." : "Draft saved.");
             router.refresh();
           });
         }}
@@ -206,9 +245,6 @@ export function KfListingForm({
             />
           </label>
         </div>
-        {message ? (
-          <p className="text-sm font-medium text-[var(--kf-green)]">{message}</p>
-        ) : null}
         <div className="flex flex-col gap-2 sm:flex-row">
           <button
             type="submit"
@@ -233,12 +269,51 @@ export function KfListingForm({
 
       <section className="kf-card rounded-2xl p-5">
         <h2 className="font-bold">Work photos</h2>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          {listing?.photos.map((p) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={p.url} src={p.url} alt="" className="aspect-square rounded-lg object-cover" />
-          ))}
-        </div>
+        <p className="mt-1 text-xs text-[var(--kf-muted)]">
+          Upload examples of your work. Tap remove if you added one by mistake.
+        </p>
+        {listing?.photos.length ? (
+          <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {listing.photos.map((p) => (
+              <div key={p.id} className="kf-photo-thumb">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.url} alt="" />
+                <button
+                  type="button"
+                  className="kf-photo-remove"
+                  aria-label="Remove photo"
+                  disabled={removingPhotoId === p.id || pending || uploading}
+                  onClick={() => {
+                    setRemovingPhotoId(p.id);
+                    startTransition(async () => {
+                      try {
+                        const fd = new FormData();
+                        fd.set("photoId", p.id);
+                        const result = await kfRemoveListingPhoto(fd);
+                        if ("error" in result && result.error) {
+                          showStatus("error", result.error);
+                        } else {
+                          showStatus("success", "Photo removed.");
+                          router.refresh();
+                        }
+                      } finally {
+                        setRemovingPhotoId(null);
+                      }
+                    });
+                  }}
+                >
+                  {removingPhotoId === p.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  ) : (
+                    <X className="h-4 w-4" aria-hidden />
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-[var(--kf-muted-soft)]">No photos yet.</p>
+        )}
         <label className="mt-4 block">
           <span className="text-sm font-medium">Upload photo</span>
           <input
@@ -256,14 +331,17 @@ export function KfListingForm({
                 const res = await fetch("/api/upload", { method: "POST", body });
                 const data = await res.json();
                 if (!res.ok) {
-                  setMessage(data.error ?? "Upload failed");
+                  showStatus("error", data.error ?? "Upload failed");
                   return;
                 }
                 const fd = new FormData();
                 fd.set("url", data.url);
                 const add = await kfAddListingPhoto(fd);
-                if ("error" in add && add.error) setMessage(add.error);
-                else router.refresh();
+                if ("error" in add && add.error) showStatus("error", add.error);
+                else {
+                  showStatus("success", "Photo added.");
+                  router.refresh();
+                }
               } finally {
                 setUploading(false);
                 e.target.value = "";
@@ -271,6 +349,12 @@ export function KfListingForm({
             }}
           />
         </label>
+        {uploading ? (
+          <p className="mt-2 flex items-center gap-2 text-sm text-[var(--kf-muted)]">
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            Uploading…
+          </p>
+        ) : null}
       </section>
     </div>
   );
