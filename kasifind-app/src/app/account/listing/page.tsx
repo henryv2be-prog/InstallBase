@@ -5,6 +5,10 @@ import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { getListingForUser } from "@/lib/kasifind/provider-listing";
 import { KfListingForm } from "@/components/kasifind/kf-listing-form";
+import {
+  KfListingStatusChip,
+  listingStatusSummary,
+} from "@/components/kasifind/kf-listing-status";
 
 export const dynamic = "force-dynamic";
 
@@ -46,15 +50,34 @@ export default async function KfListingEditorPage() {
       }
     : null;
 
+  const statusCopy = listingData
+    ? listingStatusSummary(listingData)
+    : {
+        label: "Get started",
+        detail: "Create your free listing — no company registration required.",
+      };
+
   return (
-    <div className="space-y-4">
-      <h1 className="kf-hero-title text-2xl">Your listing</h1>
-      {!listingData && (
-        <p className="text-sm text-[var(--kf-muted)]">
-          Tell neighbours what you do — add services like &quot;steel gates&quot; so people can find
-          you.
-        </p>
-      )}
+    <div className="space-y-5">
+      <div className="kf-dashboard-hero kf-animate-in">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/80">
+              Provider dashboard
+            </p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight">
+              {listingData?.displayName ?? "Your listing"}
+            </h1>
+          </div>
+          {listingData ? <KfListingStatusChip listing={listingData} /> : null}
+        </div>
+        <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/90">{statusCopy.detail}</p>
+        {!listingData && (
+          <p className="mt-2 text-sm text-white/75">
+            Add services like &quot;steel gates&quot; so people can find you in search.
+          </p>
+        )}
+      </div>
       {user.role === "ADMIN" && (
         <Link href="/admin" className="text-sm font-semibold text-[var(--kf-green-dark)] underline">
           Open admin moderation

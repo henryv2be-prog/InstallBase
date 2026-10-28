@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, Star } from "lucide-react";
+import { ArrowLeft, MapPin, MessageSquare, ShieldCheck, Star } from "lucide-react";
+import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { getPublicListing } from "@/lib/kasifind/listing-public";
 import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
@@ -54,6 +55,13 @@ export default async function KasiFindProviderPage({ params }: Props) {
       </Link>
 
       <header className="kf-card mt-4 overflow-hidden kf-animate-in">
+        <div className="kf-trust-strip">
+          <span className="kf-trust-pill">
+            <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+            Local listing
+          </span>
+          <span>Contact via WhatsApp or call — no booking fees</span>
+        </div>
         <div className="relative bg-[var(--kf-stone)] p-6 sm:flex sm:gap-6">
           {listing.profileImageUrl ? (
             <KfListingImage
@@ -143,10 +151,10 @@ export default async function KasiFindProviderPage({ params }: Props) {
 
       <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
 
-      {listing.photos.length > 0 && (
-        <section className="mt-8 kf-animate-in">
-          <h2 className="kf-section-title">Work gallery</h2>
-          <p className="kf-section-sub mt-1">Photos from this provider&apos;s listing.</p>
+      <section className="mt-8 kf-animate-in">
+        <h2 className="kf-section-title">Work gallery</h2>
+        <p className="kf-section-sub mt-1">Photos from this provider&apos;s listing.</p>
+        {listing.photos.length > 0 ? (
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {listing.photos.map((url) => (
               <KfListingImage
@@ -158,8 +166,15 @@ export default async function KasiFindProviderPage({ params }: Props) {
               />
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="mt-4">
+            <KfEmptyState
+              title="No work photos yet"
+              description="This provider has not uploaded gallery photos. You can still message them to ask for examples of past jobs."
+            />
+          </div>
+        )}
+      </section>
 
       <section className="kf-card mt-8 p-6 kf-animate-in">
         <h2 className="kf-section-title">Community reviews</h2>
@@ -168,7 +183,13 @@ export default async function KasiFindProviderPage({ params }: Props) {
         </p>
         <ul className="mt-4 space-y-4">
           {listing.reviews.length === 0 ? (
-            <li className="text-sm text-[var(--kf-muted-soft)]">Be the first to leave a review.</li>
+            <li>
+              <KfEmptyState
+                icon={<MessageSquare className="h-6 w-6" aria-hidden />}
+                title="No reviews yet"
+                description="Be the first to share your experience — reviews help neighbours choose with confidence."
+              />
+            </li>
           ) : (
             listing.reviews.map((r) => (
               <li key={r.id} className="border-t border-[var(--kf-border)] pt-4 first:border-0 first:pt-0">

@@ -12,7 +12,7 @@ export function KfAuthForm({ mode }: { mode: "login" | "register" }) {
 
   return (
     <form
-      className="kf-card space-y-4 p-6 kf-animate-in"
+      className="kf-card space-y-4 p-6 shadow-[var(--kf-shadow-md)] kf-animate-in"
       action={(formData) => {
         startTransition(async () => {
           const result =
