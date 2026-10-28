@@ -35,3 +35,11 @@ export async function resolvePublicUploadUrl(url: string | null | undefined): Pr
   if (await localUploadExists(url)) return url;
   return null;
 }
+
+export async function countMissingLocalUploads(urls: string[]): Promise<number> {
+  let missing = 0;
+  for (const url of urls) {
+    if (!(await localUploadExists(url))) missing += 1;
+  }
+  return missing;
+}

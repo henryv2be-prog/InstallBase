@@ -9,6 +9,7 @@ import {
   KfListingStatusChip,
   listingStatusSummary,
 } from "@/components/kasifind/kf-listing-status";
+import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,10 @@ export default async function KfListingEditorPage() {
       }
     : null;
 
+  const missingPhotoCount = listing
+    ? await countMissingLocalUploads(listing.photos.map((p) => p.url))
+    : 0;
+
   const statusCopy = listingData
     ? listingStatusSummary(listingData)
     : {
@@ -78,6 +83,13 @@ export default async function KfListingEditorPage() {
           </p>
         )}
       </div>
+      {missingPhotoCount > 0 ? (
+        <div className="kf-alert-info" role="status">
+          <strong>{missingPhotoCount} work photo{missingPhotoCount === 1 ? "" : "s"}</strong> need to
+          be added again — the files are missing on the server (common after a deploy without a
+          storage volume). Scroll to <strong>Work photos</strong> and upload fresh copies.
+        </div>
+      ) : null}
       {user.role === "ADMIN" && (
         <Link href="/admin" className="text-sm font-semibold text-[var(--kf-green-dark)] underline">
           Open admin moderation

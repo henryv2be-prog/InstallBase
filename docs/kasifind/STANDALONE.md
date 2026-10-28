@@ -58,6 +58,17 @@ Documented in `kasifind-app/.env.example`. Summary:
 - **`UPLOAD_DIR`** — local or volume path for listing photos.
 - **`KASIFIND_ADMIN_*`** — optional bootstrap admin on `db:seed` / production start seed.
 
+### Listing photos on Railway (required for production)
+
+Uploads are **not** stored in Postgres. Without persistent disk, every redeploy can delete photo files while the database still references old `/uploads/...` paths — customers then see missing photos until the provider uploads again.
+
+1. In the KasiFind Railway service, add a **Volume** (e.g. mount path `/data`).
+2. Set **`UPLOAD_DIR=/data/uploads`** (must match the mount path + `/uploads`).
+3. Redeploy. `npm run start` creates the folder on boot.
+4. Ask providers to **re-upload work photos** once if they were lost before the volume existed.
+
+Check **`GET /api/health`**: `uploads.persistentVolumeConfigured` should be `true` and `uploads.writable` should be `true`.
+
 ## Build and start
 
 From `kasifind-app/`:
@@ -69,7 +80,7 @@ npm run start    # migrate deploy + seed + next start (see scripts/start.mjs)
 npm test
 ```
 
-Health: **`GET /api/health`**.
+Health: **`GET /api/health`** (includes database + upload directory status).
 
 ## Reuse from InstallBase
 

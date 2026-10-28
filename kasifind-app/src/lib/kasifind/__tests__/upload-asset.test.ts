@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { after, before, describe, it } from "node:test";
 import {
+  countMissingLocalUploads,
   filterReachableUploadUrls,
   localUploadExists,
   resolvePublicUploadUrl,
@@ -47,5 +48,9 @@ describe("localUploadExists", () => {
     assert.deepEqual(list, ["/uploads/ok.webp"]);
     assert.equal(await resolvePublicUploadUrl("/uploads/missing.webp"), null);
     assert.equal(await resolvePublicUploadUrl("/uploads/ok.webp"), "/uploads/ok.webp");
+    assert.equal(
+      await countMissingLocalUploads(["/uploads/ok.webp", "/uploads/missing.webp"]),
+      1
+    );
   });
 });
