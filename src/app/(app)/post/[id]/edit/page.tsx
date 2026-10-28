@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getPost } from "@/lib/queries";
 import { CreatePostCard } from "@/components/feed/create-post";
-import { BackLink } from "@/components/ui/back-link";
+import { CreateFlowViewport } from "@/components/layout/create-flow-viewport";
 
 export const metadata = { title: "Edit Post" };
 
@@ -20,10 +20,9 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   if (post.authorId !== session.user.id) redirect(`/post/${id}`);
 
   return (
-    <div className="mx-auto max-w-2xl animate-fade-in">
-      <BackLink href={`/post/${id}`} label="Back to post" />
-      <h1 className="mb-6 mt-4 text-2xl font-bold">Edit Post</h1>
+    <CreateFlowViewport title="Edit Post" className="mx-auto max-w-2xl animate-fade-in">
       <CreatePostCard
+        fitViewport
         userName={session.user.name}
         editPost={{
           id: post.id,
@@ -39,6 +38,6 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
           media: post.media.map((item) => ({ url: item.url, type: item.type })),
         }}
       />
-    </div>
+    </CreateFlowViewport>
   );
 }

@@ -37,7 +37,7 @@ export function BannerAd({ ad, placementKey, className }: BannerAdProps) {
             alt={ad.title}
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain object-center"
           />
         </div>
       ) : (

@@ -385,10 +385,10 @@ export function AdminAdsDashboard({ overview, list }: AdminAdsDashboardProps) {
                     {ad.mediaUrl ? (
                       <div className="h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-muted">
                         {ad.mediaType === "video" || /\.(mp4|webm|mov)(\?|$)/i.test(ad.mediaUrl) ? (
-                          <video src={ad.mediaUrl} className="h-full w-full object-cover" muted playsInline />
+                          <video src={ad.mediaUrl} className="h-full w-full object-contain object-center" muted playsInline />
                         ) : (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={ad.mediaUrl} alt="" className="h-full w-full object-cover" />
+                          <img src={ad.mediaUrl} alt="" className="h-full w-full object-contain object-center" />
                         )}
                       </div>
                     ) : null}

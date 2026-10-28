@@ -1,6 +1,7 @@
 import type { PostCardData } from "@/lib/queries";
 import { mediaForFeedDisplay } from "@/lib/video-compilation/feed-media";
 import { isVideoMedia } from "@/lib/media";
+import { parseVideoCompilationOptions } from "@/lib/video-compilation/options";
 
 /** Media shown in the immersive viewer (compiled video or source install photos). */
 export function mediaForImmersiveDisplay(post: PostCardData) {
@@ -18,6 +19,28 @@ export function mediaForImmersiveDisplay(post: PostCardData) {
 
 export function postHasImmersiveMedia(post: PostCardData) {
   return mediaForImmersiveDisplay(post).length > 0;
+}
+
+/** Original install photos/videos used to build a compiled post (excludes COMPILED output). */
+export function sourceInstallMediaForPost(post: PostCardData) {
+  return post.media
+    .filter((item) => item.mediaRole !== "COMPILED")
+    .sort((a, b) => a.order - b.order);
+}
+
+export function sourceInstallPhotoUrlsForPost(post: PostCardData) {
+  return sourceInstallMediaForPost(post)
+    .filter((item) => !isVideoMedia(item.type, item.url))
+    .map((item) => item.url);
+}
+
+export function isReadyCompiledInstallVideo(post: PostCardData) {
+  return post.videoCompilationStatus === "READY" && Boolean(post.generatedVideoUrl);
+}
+
+export function postHasImmersiveSoundtrack(post: PostCardData) {
+  const options = parseVideoCompilationOptions(post.videoCompilationOptions);
+  return options.audio !== "none";
 }
 
 export function primaryImmersiveMediaKind(post: PostCardData) {
