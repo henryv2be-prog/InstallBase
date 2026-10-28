@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Star } from "lucide-react";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { getPublicListing } from "@/lib/kasifind/listing-public";
+import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { KfReviewForm } from "@/components/kasifind/kf-review-form";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
@@ -29,6 +31,13 @@ export default async function KasiFindProviderPage({ params }: Props) {
   const serviceHint = listing.services[0]?.name;
   const waPhone = listing.whatsapp || listing.phone;
   const waUrl = buildWhatsAppUrl(waPhone, defaultEnquiryMessage(listing.displayName, serviceHint));
+  const userAgent = (await headers()).get("user-agent");
+  const directionsUrl = pickDirectionsUrl(
+    listing.map.latitude,
+    listing.map.longitude,
+    listing.locationLabel,
+    userAgent
+  );
 
   return (
     <article className="pb-24 sm:pb-8">
@@ -119,7 +128,11 @@ export default async function KasiFindProviderPage({ params }: Props) {
           )}
 
           <div className="hidden sm:block">
-            <KfContactBar waUrl={waUrl} phone={listing.phone} />
+            <KfContactBar
+              waUrl={waUrl}
+              phone={listing.phone}
+              directionsUrl={directionsUrl}
+            />
           </div>
         </div>
       </header>
@@ -174,7 +187,11 @@ export default async function KasiFindProviderPage({ params }: Props) {
       </div>
 
       <div className="sm:hidden">
-        <KfContactBar waUrl={waUrl} phone={listing.phone} />
+        <KfContactBar
+          waUrl={waUrl}
+          phone={listing.phone}
+          directionsUrl={directionsUrl}
+        />
       </div>
     </article>
   );
