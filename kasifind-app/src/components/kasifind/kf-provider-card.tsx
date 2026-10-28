@@ -20,10 +20,7 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
   const servicesPreview = p.services.slice(0, 3).map((s) => s.name).join(" · ");
 
   return (
-    <li
-      className="kf-card kf-card-interactive overflow-hidden kf-animate-in"
-      style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
-    >
+    <li className="kf-card kf-card-interactive overflow-hidden">
       <Link href={`/providers/${p.id}`} className="block group">
         <div className="kf-provider-media">
           {thumb ? (
@@ -31,7 +28,7 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
               src={thumb}
               alt=""
               className="kf-provider-thumb transition-transform duration-300 group-hover:scale-[1.02]"
-              priority={index < 6}
+              priority
             />
           ) : (
             <div className="kf-provider-thumb-placeholder">Work photo coming soon</div>
@@ -41,7 +38,7 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
             <ChevronRight className="h-3 w-3" aria-hidden />
           </span>
         </div>
-        <div className="p-4">
+        <div className="kf-animate-in p-4" style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}>
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-base font-bold leading-tight text-[var(--kf-charcoal)] group-hover:text-[var(--kf-green)]">
               {p.displayName}

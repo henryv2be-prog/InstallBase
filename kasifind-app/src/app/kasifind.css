@@ -89,11 +89,27 @@
   }
 }
 
-/* WebKit/Android: lazy images inside animated cards sometimes never load */
+/* WebKit/Android: images inside overflow/animated cards sometimes fail to paint */
 @supports (font: -apple-system-body) and (-webkit-appearance: none) {
-  .kf-provider-thumb[loading="lazy"] {
+  .kf-provider-media img {
     clip-path: inset(0.6px);
   }
+}
+
+.kf-listing-image-wrap {
+  display: contents;
+}
+
+.kf-listing-image-placeholder {
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--kf-stone) 25%,
+    #e8e2d8 50%,
+    var(--kf-stone) 75%
+  );
+  background-size: 200% 100%;
+  animation: kf-shimmer 1.2s ease-in-out infinite;
 }
 
 .kf-header {

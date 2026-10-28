@@ -1,6 +1,10 @@
 import "server-only";
 import { getKasiFindPrisma } from "@/lib/kasifind/prisma";
 import { getPublicMapLocation } from "@/lib/kasifind/location-display";
+import {
+  filterReachableUploadUrls,
+  resolvePublicUploadUrl,
+} from "@/lib/kasifind/upload-asset";
 
 export async function getPublicListing(id: string) {
   const kf = getKasiFindPrisma();
@@ -45,13 +49,13 @@ export async function getPublicListing(id: string) {
     map,
     priceHint: listing.priceHint,
     hoursNote: listing.hoursNote,
-    profileImageUrl: listing.profileImageUrl,
+    profileImageUrl: await resolvePublicUploadUrl(listing.profileImageUrl),
     categories: listing.categories.map((c) => ({
       slug: c.category.slug,
       name: c.category.name,
     })),
     services: listing.services.map((s) => ({ name: s.name })),
-    photos: listing.photos.map((p) => p.url),
+    photos: await filterReachableUploadUrls(listing.photos.map((p) => p.url)),
     reviews: listing.reviews.map((r) => ({
       id: r.id,
       rating: r.rating,
