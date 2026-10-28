@@ -598,7 +598,11 @@
   }
 }
 
-.kf-map-pin-wrap {
+.kf-map-pin-wrap.leaflet-div-icon {
+  width: 28px !important;
+  height: 28px !important;
+  margin-left: -14px !important;
+  margin-top: -28px !important;
   background: transparent;
   border: none;
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import type { Circle, LeafletMouseEvent, Map as LeafletMap, Marker } from "leaflet";
+import { useEffect, useRef, useState } from "react";
+import type { Circle, LeafletMouseEvent, Map as LeafletMap, Marker, TileLayer } from "leaflet";
 
 export type KfLocationMapProps = {
   latitude: number;
@@ -31,7 +31,9 @@ export function KfLocationMap({
   const mapRef = useRef<LeafletMap | null>(null);
   const markerRef = useRef<Marker | null>(null);
   const circleRef = useRef<Circle | null>(null);
+  const tilesRef = useRef<TileLayer | null>(null);
   const onChangeRef = useRef(onLocationChange);
+  const [mapReady, setMapReady] = useState(false);
   onChangeRef.current = onLocationChange;
 
   useEffect(() => {
@@ -41,47 +43,46 @@ export function KfLocationMap({
       const leaflet = await import("leaflet");
       await import("leaflet/dist/leaflet.css");
       const L = leaflet.default;
-      if (cancelled || !containerRef.current) return;
+      if (cancelled || !containerRef.current || mapRef.current) return;
 
       const map = L.map(containerRef.current, {
         scrollWheelZoom: interactive,
         dragging: true,
         touchZoom: true,
-      }).setView([latitude, longitude], zoomForMode(approximate));
+      });
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      tilesRef.current = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
       }).addTo(map);
 
-      if (interactive) {
-        map.on("click", (e: LeafletMouseEvent) => {
-          onChangeRef.current?.(e.latlng.lat, e.latlng.lng);
-        });
-      }
-
       mapRef.current = map;
+      if (!cancelled) setMapReady(true);
+
       requestAnimationFrame(() => map.invalidateSize());
+      window.setTimeout(() => map.invalidateSize(), 200);
     })();
 
     return () => {
       cancelled = true;
+      setMapReady(false);
       mapRef.current?.remove();
       mapRef.current = null;
+      tilesRef.current = null;
       markerRef.current = null;
       circleRef.current = null;
     };
-    // Mount map once per container.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interactive]);
 
   useEffect(() => {
+    if (!mapReady) return;
+    const map = mapRef.current;
+    if (!map) return;
+
     void (async () => {
       const leaflet = await import("leaflet");
       const L = leaflet.default;
-      const map = mapRef.current;
-      if (!map) return;
 
       circleRef.current?.remove();
       markerRef.current?.remove();
@@ -96,6 +97,7 @@ export function KfLocationMap({
       });
 
       const showCircle = approximate && radiusMeters != null && radiusMeters > 0;
+      const showPin = !approximate || interactive;
 
       if (showCircle) {
         circleRef.current = L.circle([latitude, longitude], {
@@ -107,15 +109,15 @@ export function KfLocationMap({
         }).addTo(map);
       }
 
-      if (!approximate || interactive) {
+      if (showPin) {
         const marker = L.marker([latitude, longitude], {
           icon: pinIcon,
           draggable: interactive,
+          zIndexOffset: 1000,
         }).addTo(map);
         markerRef.current = marker;
 
         if (interactive) {
-          marker.off("dragend");
           marker.on("dragend", () => {
             const pos = marker.getLatLng();
             onChangeRef.current?.(pos.lat, pos.lng);
@@ -124,8 +126,24 @@ export function KfLocationMap({
       }
 
       map.setView([latitude, longitude], zoomForMode(approximate));
+      map.invalidateSize();
     })();
-  }, [latitude, longitude, approximate, radiusMeters, interactive]);
+  }, [mapReady, latitude, longitude, approximate, radiusMeters, interactive]);
+
+  useEffect(() => {
+    if (!mapReady) return;
+    const map = mapRef.current;
+    if (!map || !interactive) return;
+
+    const onClick = (e: LeafletMouseEvent) => {
+      onChangeRef.current?.(e.latlng.lat, e.latlng.lng);
+    };
+
+    map.on("click", onClick);
+    return () => {
+      map.off("click", onClick);
+    };
+  }, [mapReady, interactive]);
 
   return (
     <div
