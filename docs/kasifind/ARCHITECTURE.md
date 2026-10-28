@@ -1,42 +1,42 @@
-# KasiFind architecture (Stage A)
+# KasiFind architecture
 
 ## Product boundary
 
-KasiFind is a **separate product** hosted in the same repository as InstallBase. InstallBase routes, Prisma schema, and `DATABASE_URL` data are **not modified** by KasiFind features.
+KasiFind is a **standalone Next.js application** in `kasifind-app/`. It shares the Git repository with InstallBase but has its own entry point, build, deploy target, and database. InstallBase production is unchanged and does not serve KasiFind routes.
 
-| Concern | InstallBase | KasiFind |
-|--------|-------------|----------|
-| URL prefix | `/`, `/feed`, `/admin`, … | `/kasifind/*` |
-| Database | `DATABASE_URL` → `prisma/schema.prisma` | `KASIFIND_DATABASE_URL` → `prisma/kasifind/schema.prisma` |
-| Prisma client | `@/lib/prisma` | `@/lib/kasifind/prisma` |
-| Auth session cookie | NextAuth | `kf_session` (HMAC, provider accounts only) |
+| Concern | InstallBase (repo root) | KasiFind (`kasifind-app/`) |
+|--------|-------------------------|----------------------------|
+| URL | `/`, `/feed`, … | `/`, `/providers/[id]`, `/login`, … |
+| Database | `DATABASE_URL` → `prisma/schema.prisma` | `DATABASE_URL` or `KASIFIND_DATABASE_URL` → `kasifind-app/prisma/schema.prisma` |
+| Prisma client | `@/lib/prisma` | `@/lib/kasifind/prisma` → `src/generated/prisma` |
+| Auth | NextAuth | `kf_session` (HMAC cookie, path `/`) |
 | Public browse | N/A | No login required |
 
 ## Deployment
 
-- **Git branch:** `kasifind` — point a **separate Railway service** at this branch (InstallBase stays on `cursor/installbase-platform-d4af`).
-- **InstallBase production** — do not merge KasiFind into the InstallBase deploy branch; do not set `KASIFIND_DATABASE_URL` on InstallBase-only services.
-- **KasiFind Railway** — provision a **separate PostgreSQL database** (second Postgres plugin). Set `KASIFIND_DATABASE_URL` on the KasiFind web service.
-- Build generates **both** Prisma clients; InstallBase build does not query KasiFind tables unless `KASIFIND_DATABASE_URL` is set at runtime.
+- **Git branch:** `KasiFind` / `kasifind`
+- **Railway:** new service, **Root Directory** `kasifind-app`, dedicated Postgres
+- **InstallBase production** — separate service on `cursor/installbase-platform-d4af`; no KasiFind env vars or `/kasifind` routes
+
+See [STANDALONE.md](./STANDALONE.md) and [RAILWAY.md](./RAILWAY.md).
 
 ## MVP user journey
 
-1. Open `/kasifind` → optional browser geolocation.
+1. Open `/` → optional browser geolocation.
 2. Search service (e.g. “steel gates”) → API returns providers within radius, sorted by haversine distance.
-3. Open provider → photos, services, distance, **WhatsApp / call** (no in-app messaging).
+3. Open `/providers/[id]` → photos, services, distance, **WhatsApp / call**.
 
 ## Search & location
 
 - Initial radius **5 km**; user can expand (10, 25, 50 km).
-- Haversine distance in SQL with bounding-box prefilter for efficiency.
-- Providers store **public** coordinates (approximate); `locationLabel` for human-readable area.
-- User location is used only for the search request (query params / POST body), never stored in a public profile.
+- Haversine distance in SQL with bounding-box prefilter.
+- Providers store **public** coordinates; `locationLabel` for human-readable area.
+- User location is used only for the search request, not stored in a public profile.
 
-## Reused from InstallBase
+## Reused patterns (not InstallBase runtime)
 
-- Next.js App Router, Tailwind, shared UI primitives (`Button`, `Input`, `Card`).
-- Password hashing patterns (`bcrypt`), validation style, upload directory conventions.
-- Admin role pattern (server-side `ADMIN` check on KasiFind `User.role`).
+- Password validation and upload helpers in `kasifind-app/src/lib/shared/`
+- KasiFind-specific UI in `kasifind-app/src/components/kasifind/`
 
 ## Not in MVP
 
@@ -44,13 +44,4 @@ KasiFind is a **separate product** hosted in the same repository as InstallBase.
 
 ## Commands
 
-```bash
-# KasiFind database (separate URL)
-export KASIFIND_DATABASE_URL="postgresql://..."
-
-npm run db:kasifind:generate
-npm run db:kasifind:deploy
-npm run db:kasifind:seed
-```
-
-See [RUN.md](./RUN.md) for the full local workflow.
+From `kasifind-app/` — see [RUN.md](./RUN.md).
