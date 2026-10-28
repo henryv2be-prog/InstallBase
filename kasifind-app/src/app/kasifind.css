@@ -82,11 +82,16 @@
 @keyframes kf-fade-up {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+  }
+}
+
+/* WebKit/Android: lazy images inside animated cards sometimes never load */
+@supports (font: -apple-system-body) and (-webkit-appearance: none) {
+  .kf-provider-thumb[loading="lazy"] {
+    clip-path: inset(0.6px);
   }
 }
 

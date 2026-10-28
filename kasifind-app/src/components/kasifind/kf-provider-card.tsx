@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { MessageCircle, Phone, Star } from "lucide-react";
 import type { KfSearchResult } from "@/components/kasifind/types";
+import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 
@@ -25,13 +26,11 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
     >
       <Link href={`/providers/${p.id}`} className="block">
         {thumb ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <KfListingImage
             src={thumb}
             alt=""
             className="kf-provider-thumb"
-            loading="lazy"
-            decoding="async"
+            priority={index < 6}
           />
         ) : (
           <div className="kf-provider-thumb-placeholder">Work photo coming soon</div>
