@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum KfUserRole {
+  PROVIDER
+  ADMIN
+}
+
+enum KfListingStatus {
+  DRAFT
+  PUBLISHED
+  DISABLED
+}
+
+enum KfModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model KfUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  name         String?
+  role         KfUserRole @default(PROVIDER)
+  suspended    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  listing  KfProviderListing?
+  reviews  KfReview[]
+  reports  KfReport[] @relation("Reporter")
+}
+
+model KfCategory {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  parentId  String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  parent   KfCategory?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children KfCategory[] @relation("CategoryTree")
+  listings KfListingCategory[]
+}
+
+model KfProviderListing {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  displayName      String
+  description      String   @db.Text
+  phone            String
+  whatsapp         String?
+  latitude         Float
+  longitude        Float
+  locationLabel    String
+  hideExactLocation Boolean @default(true)
+  priceHint        String?
+  hoursNote        String?
+  status           KfListingStatus @default(DRAFT)
+  moderationStatus KfModerationStatus @default(PENDING)
+  profileImageUrl  String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user       KfUser              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categories KfListingCategory[]
+  services   KfProviderService[]
+  photos     KfProviderPhoto[]
+  reviews    KfReview[]
+  reports    KfReport[]
+}
+
+model KfListingCategory {
+  listingId  String
+  categoryId String
+
+  listing  KfProviderListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  category KfCategory        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([listingId, categoryId])
+}
+
+model KfProviderService {
+  id        String   @id @default(cuid())
+  listingId String
+  name      String
+  keywords  String   @default("")
+  createdAt DateTime @default(now())
+
+  listing KfProviderListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+model KfProviderPhoto {
+  id        String   @id @default(cuid())
+  listingId String
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  listing KfProviderListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+model KfReview {
+  id        String   @id @default(cuid())
+  listingId String
+  userId    String?
+  authorName String?
+  rating    Int
+  body      String   @db.Text
+  verified  Boolean  @default(false)
+  hidden    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  listing KfProviderListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user    KfUser?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([listingId])
+}
+
+model KfReport {
+  id         String   @id @default(cuid())
+  listingId  String?
+  reviewId   String?
+  reporterId String?
+  reason     String
+  details    String?  @db.Text
+  resolved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  listing  KfProviderListing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  reporter KfUser?            @relation("Reporter", fields: [reporterId], references: [id], onDelete: SetNull)
+}
+
+model KfAdminAudit {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String
+  targetId  String?
+  detail    String?  @db.Text
+  createdAt DateTime @default(now())
+}

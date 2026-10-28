@@ -1,51 +1,54 @@
-# KasiFind on Railway — troubleshooting
+# KasiFind on Railway (standalone service)
 
-## “Application failed to respond” / “This page couldn’t load” (ERROR 1308169018)
+KasiFind deploys as its **own Railway service** with **Root Directory** `kasifind-app`. It does **not** run on the InstallBase production web service or under `/kasifind`.
 
-The **build can succeed** while the **web process never stays up**. Railway then shows a generic server error on **any** URL (new domain or old).
+See [STANDALONE.md](./STANDALONE.md) for architecture and local dev.
 
-### 1. Read **Deploy logs** (runtime)
+## Create the service (manual — requires your approval)
 
-Web service → **Deployments** → latest → **View logs** (scroll to the **end**).
+1. Railway project → **New service** → connect this repo.
+2. **Settings → Source → Root Directory:** `kasifind-app`
+3. **Branch:** `KasiFind` or `kasifind`
+4. Add a **Postgres** plugin attached to this service only (do not share InstallBase production DB unless you intentionally migrate data).
+5. Set variables on the **KasiFind web** service (see below).
+6. Deploy. Public URL is `https://<kasifind-service>.up.railway.app/` (homepage at `/`).
 
-Look for a line starting with **`❌`**. Common cases:
+Do **not** change InstallBase production service variables, domain, or root directory.
+
+## Environment variables
+
+| Variable | Required | Notes |
+|----------|----------|--------|
+| `DATABASE_URL` | Yes | Reference from this service’s Postgres (`postgresql://…`) |
+| `KASIFIND_DATABASE_URL` | No | Optional alias; if set, used instead of `DATABASE_URL` |
+| `AUTH_SECRET` | Yes | 32+ random bytes (e.g. `openssl rand -base64 32`) |
+| `AUTH_URL` | Yes | Public URL, e.g. `https://your-kasifind.up.railway.app` |
+| `UPLOAD_DIR` | Recommended | e.g. `/data/uploads` with a Railway volume mounted |
+| `KASIFIND_ADMIN_EMAIL` | For admin | Bootstrap admin on deploy seed |
+| `KASIFIND_ADMIN_PASSWORD` | For admin | Rotate via env + redeploy |
+| `KASIFIND_ADMIN_NAME` | No | Display name for bootstrap admin |
+
+## Health and smoke checks
+
+| URL | Expected |
+|-----|----------|
+| `/api/health` | `{"ok":true,...}` |
+| `/` | KasiFind homepage |
+| `/login` | Provider login |
+| `/admin` | Moderation (admin session) |
+
+## Deploy logs
+
+If the container exits before `next start`, check deploy logs for:
 
 | Message | Fix |
 |---------|-----|
-| `DATABASE_URL is not set` / `invalid` | On the **web** service, variable **`DATABASE_URL`** = reference Postgres → `DATABASE_URL` (must start with `postgresql://`) |
-| `DATABASE_URL points to localhost` | Delete manual localhost values; use Postgres **reference** |
-| `Missing AUTH_SECRET` | Add **`AUTH_SECRET`** (random 32+ chars) on web service |
-| `Database migration failed` | Postgres in same project; web service linked; redeploy after fixing URL |
-| `KasiFind database migration failed` | Set **`KASIFIND_DATABASE_URL`** (reference second Postgres or same DB for testing) |
+| `DATABASE_URL` missing / invalid | Use Postgres **reference** on the KasiFind service |
+| `Missing AUTH_SECRET` | Set `AUTH_SECRET` |
+| Migration failed | Postgres linked; URL reachable; run `npm run db:deploy` locally against same URL to debug |
 
-If you **never** see `→ Starting Next.js on 0.0.0.0:...`, the app exited before the server started.
+## Moderation login
 
-### 2. Variables on the **web** service (not only Postgres)
-
-| Variable | Value |
-|----------|--------|
-| `DATABASE_URL` | Reference from Postgres plugin |
-| `KASIFIND_DATABASE_URL` | Reference from Postgres (KasiFind DB) |
-| `AUTH_SECRET` | Strong secret |
-| `AUTH_TRUST_HOST` | `true` |
-| `AUTH_URL` | `https://<your-railway-domain>` |
-| `NEXTAUTH_URL` | Same as `AUTH_URL` |
-| `KASIFIND_ADMIN_EMAIL` | Admin login email (bootstrap on each deploy seed) |
-| `KASIFIND_ADMIN_PASSWORD` | Admin password (set/rotate via env + redeploy) |
-
-Branch: **`kasifind`**.
-
-### Moderation login
-
-1. Set `KASIFIND_ADMIN_EMAIL` + `KASIFIND_ADMIN_PASSWORD` on the web service → **Redeploy**.
-2. Sign in at `/kasifind/account/login`.
-3. Open `/kasifind/admin` to approve listings.
-
-### 3. When it works
-
-- `https://<domain>/api/health` → `{"ok":true,...}`
-- `https://<domain>/kasifind` → KasiFind home
-
-### 4. Postgres ↔ web link
-
-In the project canvas, use **Connect** from Postgres to the web service (or shared variable references). Generating a new public URL does **not** fix a crashed container.
+1. Set `KASIFIND_ADMIN_EMAIL` + `KASIFIND_ADMIN_PASSWORD` → redeploy.
+2. Sign in at `/login`.
+3. Open `/admin` to approve listings.
