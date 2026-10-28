@@ -62,7 +62,9 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
               </span>
             </p>
           ) : (
-            <p className="mt-2 text-xs text-[var(--kf-muted-soft)]">New on KasiFind — be first to review</p>
+            <p className="mt-2 text-xs text-[var(--kf-muted-soft)]">
+              Local provider on KasiFind — message them to ask about past work
+            </p>
           )}
         </div>
       </Link>

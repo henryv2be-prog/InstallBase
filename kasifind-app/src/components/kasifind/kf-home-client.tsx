@@ -378,8 +378,8 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           ) : results.length === 0 ? (
             <KfEmptyState
               icon={<Store className="h-6 w-6" aria-hidden />}
-              title="No providers in this area yet"
-              description="Try another search term, pick a different category, or widen the radius. Know someone who trades locally? They can list for free."
+              title="Nobody listed here yet"
+              description="KasiFind is still growing in this area. Widen your search, try another category, or help a local trader get listed — it is free."
               action={
                 <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
                   <button

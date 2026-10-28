@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
-import { Camera, Loader2, X } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import { ArrowLeft, ArrowRight, Camera, Loader2, X } from "lucide-react";
 import {
   kfAddListingPhoto,
   kfRemoveListingPhoto,
@@ -22,6 +22,8 @@ import {
   KfFormStepper,
   LISTING_FORM_STEPS,
 } from "@/components/kasifind/kf-form-stepper";
+import { KfListingWizardSummary } from "@/components/kasifind/kf-listing-wizard-summary";
+import { KfPublishSuccessScreen } from "@/components/kasifind/kf-publish-success-screen";
 import { useKfToast } from "@/components/kasifind/kf-toast";
 import type { KfCategory } from "@/components/kasifind/types";
 
@@ -45,8 +47,35 @@ type ListingData = {
   listingId: string | null;
 };
 
-function scrollToPublishBanner(el: HTMLElement | null) {
-  el?.scrollIntoView({ behavior: "smooth", block: "start" });
+const LAST_STEP = LISTING_FORM_STEPS.length - 1;
+
+function scrollWizardTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function validateWizardStep(form: HTMLFormElement, step: number, toastError: (msg: string) => void): boolean {
+  const panel = form.querySelector(`[data-wizard-step="${step}"]`);
+  if (!panel) return true;
+
+  const fields = panel.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+    "input:not([type=hidden]):not([type=file]), textarea, select"
+  );
+  for (const field of fields) {
+    if (!field.checkValidity()) {
+      field.reportValidity();
+      return false;
+    }
+  }
+
+  if (step === 2) {
+    const checked = form.querySelectorAll('input[name="categoryId"]:checked').length;
+    if (checked === 0) {
+      toastError("Select at least one category.");
+      return false;
+    }
+  }
+
+  return true;
 }
 
 export function KfListingForm({
@@ -60,25 +89,35 @@ export function KfListingForm({
 }) {
   const router = useRouter();
   const toast = useKfToast();
+  const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();
-  const [publishBanner, setPublishBanner] = useState(false);
+  const [publishComplete, setPublishComplete] = useState(false);
+  const [publishedListingId, setPublishedListingId] = useState<string | null>(
+    listing?.listingId ?? null
+  );
   const [uploading, setUploading] = useState(false);
   const [locatingPublish, setLocatingPublish] = useState(false);
   const [removingPhotoId, setRemovingPhotoId] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState(0);
-  const statusRef = useRef<HTMLDivElement>(null);
 
   const defaultServices = listing?.services.join("\n") ?? "Steel gates\nWelding\nSecurity gates";
   const formBusy = pending || locatingPublish;
-  useEffect(() => {
-    if (publishBanner) scrollToPublishBanner(statusRef.current);
-  }, [publishBanner]);
+  const photoCount = listing?.photos.length ?? 0;
 
   const goToStep = (index: number) => {
+    if (index < 0 || index > LAST_STEP) return;
     setActiveStep(index);
-    const id = LISTING_FORM_STEPS[index]?.id;
-    if (id) document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollWizardTop();
   };
+
+  const goNext = () => {
+    const form = formRef.current;
+    if (!form) return;
+    if (!validateWizardStep(form, activeStep, toast.error)) return;
+    goToStep(Math.min(activeStep + 1, LAST_STEP));
+  };
+
+  const goBack = () => goToStep(Math.max(activeStep - 1, 0));
 
   const submitListing = (formData: FormData) => {
     startTransition(async () => {
@@ -88,11 +127,16 @@ export function KfListingForm({
         toast.error(result.error);
         return;
       }
+      const id =
+        "listingId" in result && typeof result.listingId === "string"
+          ? result.listingId
+          : listing?.listingId ?? null;
       if (publish) {
-        setPublishBanner(true);
-        setActiveStep(LISTING_FORM_STEPS.length - 1);
+        setPublishedListingId(id);
+        setPublishComplete(true);
+        scrollWizardTop();
       } else {
-        toast.success("Draft saved — you can come back anytime to finish.");
+        toast.success("Draft saved — pick up where you left off anytime.");
       }
       router.refresh();
     });
@@ -106,6 +150,15 @@ export function KfListingForm({
       submitter instanceof HTMLButtonElement &&
       submitter.name === "publish" &&
       submitter.value === "true";
+
+    if (publish) {
+      for (let step = 0; step <= 2; step += 1) {
+        if (!validateWizardStep(form, step, toast.error)) {
+          goToStep(step);
+          return;
+        }
+      }
+    }
 
     const formData = new FormData(form);
     formData.set("publish", publish ? "true" : "false");
@@ -129,51 +182,49 @@ export function KfListingForm({
     submitListing(formData);
   };
 
+  if (publishComplete) {
+    return <KfPublishSuccessScreen listingId={publishedListingId} />;
+  }
+
   return (
-    <div className="space-y-5 pb-28">
+    <div className="space-y-4 pb-32">
       <KfFormStepper
         steps={LISTING_FORM_STEPS}
         activeIndex={activeStep}
-        onStepClick={goToStep}
+        onStepClick={(index) => {
+          if (index <= activeStep) goToStep(index);
+        }}
       />
 
-      <div ref={statusRef} tabIndex={-1} className="scroll-mt-24 space-y-3 outline-none">
-        {publishBanner ? (
-          <div className="kf-success-panel" role="status">
-            <p className="kf-success-panel-title">Listing submitted for review</p>
-            <ul className="kf-success-panel-list">
-              <li>Our team usually reviews within 1–2 business days.</li>
-              <li>You will appear in nearby search once approved.</li>
-              <li>Location was refreshed from this device when you published.</li>
-            </ul>
+      {listing?.listingId &&
+        listing.moderationStatus === "PENDING" &&
+        listing.status === "PUBLISHED" && (
+          <div className="kf-alert-info" role="status">
+            Your listing is awaiting moderation before it appears in search.
           </div>
-        ) : null}
+        )}
 
-        {listing?.listingId &&
-          listing.moderationStatus === "PENDING" &&
-          listing.status === "PUBLISHED" &&
-          !publishBanner && (
-            <div className="kf-alert-info">
-              Your listing is awaiting moderation before it appears in search.
-            </div>
-          )}
-      </div>
-
-      {listing?.listingId && (
+      {listing?.listingId && activeStep === LAST_STEP ? (
         <Link
           href={`/providers/${listing.listingId}`}
           className="kf-link inline-flex text-sm underline"
         >
           Preview public listing
         </Link>
-      )}
+      ) : null}
 
       <form
+        ref={formRef}
         id="kf-listing-form"
-        className="kf-card space-y-8 rounded-2xl p-5 sm:p-6"
+        className="kf-card kf-wizard-card rounded-2xl p-5 sm:p-6"
         onSubmit={(e) => void handleFormSubmit(e)}
       >
-        <section id="kf-step-business" className="kf-form-section">
+        <section
+          id="kf-step-business"
+          data-wizard-step="0"
+          className="kf-form-section"
+          hidden={activeStep !== 0}
+        >
           <div className="kf-form-section-head">
             <h2 className="kf-form-section-title">Basic info</h2>
             <p className="kf-form-section-sub">How neighbours will recognise your business.</p>
@@ -230,7 +281,12 @@ export function KfListingForm({
           </div>
         </section>
 
-        <section id="kf-step-location" className="kf-form-section">
+        <section
+          id="kf-step-location"
+          data-wizard-step="1"
+          className="kf-form-section"
+          hidden={activeStep !== 1}
+        >
           <div className="kf-form-section-head">
             <h2 className="kf-form-section-title">Location</h2>
             <p className="kf-form-section-sub">
@@ -257,7 +313,12 @@ export function KfListingForm({
           </div>
         </section>
 
-        <section id="kf-step-services" className="kf-form-section">
+        <section
+          id="kf-step-services"
+          data-wizard-step="2"
+          className="kf-form-section"
+          hidden={activeStep !== 2}
+        >
           <div className="kf-form-section-head">
             <h2 className="kf-form-section-title">Services & categories</h2>
             <p className="kf-form-section-sub">Helps customers find you when they search.</p>
@@ -311,169 +372,219 @@ export function KfListingForm({
           </div>
         </section>
 
-      </form>
-
-      <section id="kf-step-photos" className="kf-form-section kf-card rounded-2xl p-5 sm:p-6">
-        <div className="kf-form-section-head">
-          <h2 className="kf-form-section-title">Work photos</h2>
-          <p className="kf-form-section-sub">Show real examples — listings with photos get more enquiries.</p>
-        </div>
-        {listing?.photos.length ? (
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {listing.photos.map((p) => (
-              <div key={p.id} className="kf-photo-thumb">
-                <KfListingImage src={p.url} alt="" className="aspect-square w-full object-cover" priority />
-                <button
-                  type="button"
-                  className="kf-photo-remove"
-                  aria-label="Remove photo"
-                  disabled={removingPhotoId === p.id || pending || uploading}
-                  onClick={() => {
-                    setRemovingPhotoId(p.id);
-                    startTransition(async () => {
+        <section
+          id="kf-step-photos"
+          data-wizard-step="3"
+          className="kf-form-section"
+          hidden={activeStep !== 3}
+        >
+          <div className="kf-form-section-head">
+            <h2 className="kf-form-section-title">Work photos</h2>
+            <p className="kf-form-section-sub">
+              Real examples build trust — even one clear photo makes a difference.
+            </p>
+          </div>
+          {listing?.listingId ? (
+            <>
+              {photoCount > 0 ? (
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {listing.photos.map((p) => (
+                    <div key={p.id} className="kf-photo-thumb">
+                      <KfListingImage
+                        src={p.url}
+                        alt=""
+                        className="aspect-square w-full object-cover"
+                        priority
+                      />
+                      <button
+                        type="button"
+                        className="kf-photo-remove"
+                        aria-label="Remove photo"
+                        disabled={removingPhotoId === p.id || pending || uploading}
+                        onClick={() => {
+                          setRemovingPhotoId(p.id);
+                          startTransition(async () => {
+                            try {
+                              const fd = new FormData();
+                              fd.set("photoId", p.id);
+                              const result = await kfRemoveListingPhoto(fd);
+                              if ("error" in result && result.error) toast.error(result.error);
+                              else {
+                                toast.success("Photo removed.");
+                                router.refresh();
+                              }
+                            } finally {
+                              setRemovingPhotoId(null);
+                            }
+                          });
+                        }}
+                      >
+                        {removingPhotoId === p.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                        ) : (
+                          <X className="h-4 w-4" aria-hidden />
+                        )}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <KfEmptyState
+                  icon={<Camera className="h-6 w-6" aria-hidden />}
+                  title="No work photos yet"
+                  description="Add at least one clear photo of your work. Customers often message before they visit — photos help them choose you with confidence."
+                />
+              )}
+              <label className="relative mt-4 block">
+                <span className="kf-file-input">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploading || pending}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploading(true);
                       try {
+                        const body = new FormData();
+                        body.append("file", file);
+                        const res = await fetch("/api/upload", { method: "POST", body });
+                        const data = await res.json();
+                        if (!res.ok) {
+                          toast.error(data.error ?? "Upload failed");
+                          return;
+                        }
                         const fd = new FormData();
-                        fd.set("photoId", p.id);
-                        const result = await kfRemoveListingPhoto(fd);
-                        if ("error" in result && result.error) {
-                          toast.error(result.error);
-                        } else {
-                          toast.success("Photo removed.");
+                        fd.set("url", data.url);
+                        const add = await kfAddListingPhoto(fd);
+                        if ("error" in add && add.error) toast.error(add.error);
+                        else {
+                          toast.success("Photo added.");
                           router.refresh();
                         }
                       } finally {
-                        setRemovingPhotoId(null);
+                        setUploading(false);
+                        e.target.value = "";
                       }
-                    });
-                  }}
-                >
-                  {removingPhotoId === p.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                  ) : (
-                    <X className="h-4 w-4" aria-hidden />
-                  )}
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <KfEmptyState
-            icon={<Camera className="h-6 w-6" aria-hidden />}
-            title="No photos yet"
-            description="Add at least one clear photo of your work so customers trust what you offer."
-          />
-        )}
-        <label className="relative mt-4 block">
-          <span className="kf-file-input">
-            <input
-              type="file"
-              accept="image/*"
-              disabled={uploading || pending}
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setUploading(true);
-                try {
-                  const body = new FormData();
-                  body.append("file", file);
-                  const res = await fetch("/api/upload", { method: "POST", body });
-                  const data = await res.json();
-                  if (!res.ok) {
-                    toast.error(data.error ?? "Upload failed");
-                    return;
-                  }
-                  const fd = new FormData();
-                  fd.set("url", data.url);
-                  const add = await kfAddListingPhoto(fd);
-                  if ("error" in add && add.error) toast.error(add.error);
-                  else {
-                    toast.success("Photo added.");
-                    router.refresh();
-                  }
-                } finally {
-                  setUploading(false);
-                  e.target.value = "";
+                    }}
+                  />
+                  {uploading ? "Uploading…" : "Tap to add a photo"}
+                </span>
+              </label>
+            </>
+          ) : (
+            <div className="space-y-3">
+              <KfEmptyState
+                icon={<Camera className="h-6 w-6" aria-hidden />}
+                title="Save a draft to add photos"
+                description="We need a quick draft of your business details before uploads unlock. It only takes a moment — you will stay on this step."
+                action={
+                  <button
+                    type="submit"
+                    name="publish"
+                    value="false"
+                    disabled={formBusy}
+                    className="kf-btn kf-btn-primary"
+                  >
+                    Save draft & unlock uploads
+                  </button>
                 }
-              }}
-            />
-            {uploading ? "Uploading…" : "Tap to add a photo"}
-          </span>
-        </label>
-      </section>
+              />
+            </div>
+          )}
+        </section>
 
-      <section id="kf-step-publish" className="kf-form-section kf-card hidden rounded-2xl p-5 sm:block sm:p-6">
-        <div className="kf-form-section-head">
-          <h2 className="kf-form-section-title">Publish</h2>
-          <p className="kf-form-section-sub">Save a draft anytime, or submit when you are ready.</p>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <button
-            type="submit"
-            form="kf-listing-form"
-            name="publish"
-            value="false"
-            disabled={formBusy}
-            className="kf-btn kf-btn-outline flex-1"
-          >
-            Save draft
-          </button>
-          <button
-            type="submit"
-            form="kf-listing-form"
-            name="publish"
-            value="true"
-            disabled={formBusy}
-            className="kf-btn kf-btn-primary flex-1"
-          >
-            {locatingPublish ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                Getting location…
-              </>
-            ) : pending ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                Submitting…
-              </>
-            ) : (
-              "Publish for review"
-            )}
-          </button>
-        </div>
-      </section>
+        <section
+          id="kf-step-publish"
+          data-wizard-step="4"
+          className="kf-form-section"
+          hidden={activeStep !== LAST_STEP}
+        >
+          <div className="kf-form-section-head">
+            <h2 className="kf-form-section-title">Ready to publish?</h2>
+            <p className="kf-form-section-sub">
+              Check your details, save a draft, or submit for review.
+            </p>
+          </div>
+          <KfListingWizardSummary
+            formRef={formRef}
+            photoCount={photoCount}
+            hasProfilePhoto={Boolean(listing?.profileImageUrl)}
+          />
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+            <button
+              type="submit"
+              name="publish"
+              value="false"
+              disabled={formBusy}
+              className="kf-btn kf-btn-outline min-h-[3rem] flex-1 text-base"
+            >
+              Save draft
+            </button>
+            <button
+              type="submit"
+              name="publish"
+              value="true"
+              disabled={formBusy}
+              className="kf-btn kf-btn-primary min-h-[3rem] flex-1 text-base"
+            >
+              {locatingPublish ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Getting location…
+                </>
+              ) : pending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Submitting…
+                </>
+              ) : (
+                "Publish for review"
+              )}
+            </button>
+          </div>
+        </section>
+      </form>
 
-      <div className="kf-publish-bar sm:hidden">
-        <p className="mb-2 text-center text-xs text-[var(--kf-muted)]">
-          Signed in as {userEmail} ·{" "}
-          <button type="button" className="underline" onClick={() => goToStep(0)}>
-            Jump to top
-          </button>
-        </p>
-        <div className="grid grid-cols-2 gap-2">
+      <nav className="kf-wizard-nav" aria-label="Listing steps">
+        {activeStep > 0 && activeStep < LAST_STEP ? (
           <button
-            type="submit"
-            form="kf-listing-form"
-            name="publish"
-            value="false"
+            type="button"
+            className="kf-btn kf-btn-outline min-h-[3rem] flex-1"
+            onClick={goBack}
             disabled={formBusy}
-            className="kf-btn kf-btn-outline"
           >
-            Save draft
+            <ArrowLeft className="h-4 w-4" aria-hidden />
+            Back
           </button>
-          <button
-            type="submit"
-            form="kf-listing-form"
-            name="publish"
-            value="true"
-            disabled={formBusy}
-            className="kf-btn kf-btn-primary"
-          >
-            Publish
-          </button>
-        </div>
-      </div>
+        ) : (
+          <span className="hidden flex-1 sm:block" aria-hidden />
+        )}
 
-      <p className="text-center text-sm text-[var(--kf-muted)]">
+        {activeStep < LAST_STEP ? (
+          <button
+            type="button"
+            className="kf-btn kf-btn-primary min-h-[3rem] flex-1"
+            onClick={goNext}
+            disabled={formBusy}
+          >
+            Next
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="kf-btn kf-btn-ghost min-h-[3rem] flex-1 text-sm"
+            onClick={() => goToStep(0)}
+            disabled={formBusy}
+          >
+            Edit earlier steps
+          </button>
+        )}
+      </nav>
+
+      <p className="text-center text-xs text-[var(--kf-muted)]">
+        Signed in as {userEmail} ·{" "}
         <button
           type="button"
           className="underline"

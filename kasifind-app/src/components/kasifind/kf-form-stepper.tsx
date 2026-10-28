@@ -33,9 +33,11 @@ export function KfFormStepper({ steps, activeIndex, onStepClick }: Props) {
             <li key={step.id} className="kf-stepper-item">
               <button
                 type="button"
-                className={`kf-stepper-btn${active ? " kf-stepper-btn--active" : ""}${done ? " kf-stepper-btn--done" : ""}`}
+                className={`kf-stepper-btn${active ? " kf-stepper-btn--active" : ""}${done ? " kf-stepper-btn--done" : ""}${index > activeIndex ? " kf-stepper-btn--locked" : ""}`}
                 onClick={() => onStepClick(index)}
                 aria-current={active ? "step" : undefined}
+                aria-disabled={index > activeIndex ? true : undefined}
+                disabled={index > activeIndex}
               >
                 <span className="kf-stepper-dot" aria-hidden>
                   {done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : index + 1}

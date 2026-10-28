@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, MessageSquare, ShieldCheck, Star } from "lucide-react";
+import { ArrowLeft, Building2, MapPin, MessageSquare, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { getPublicListing } from "@/lib/kasifind/listing-public";
@@ -71,8 +71,11 @@ export default async function KasiFindProviderPage({ params }: Props) {
               priority
             />
           ) : (
-            <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-xl bg-white text-sm text-[var(--kf-muted-soft)] sm:mx-0">
-              Business photo
+            <div className="kf-business-avatar-placeholder mx-auto sm:mx-0" aria-hidden>
+              <Building2 className="h-8 w-8 opacity-80" />
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-[var(--kf-muted)]">
+                Local business
+              </span>
             </div>
           )}
           <div className="mt-4 min-w-0 flex-1 text-center sm:mt-0 sm:text-left">
@@ -92,7 +95,12 @@ export default async function KasiFindProviderPage({ params }: Props) {
                 </span>
               </p>
             ) : (
-              <p className="mt-3 text-sm text-[var(--kf-muted-soft)]">No reviews yet</p>
+              <div className="mt-3 flex justify-center sm:justify-start">
+                <p className="kf-early-badge">
+                  <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                  New on KasiFind — reviews will grow as neighbours share experiences
+                </p>
+              </div>
             )}
             {(listing.priceHint || listing.hoursNote) && (
               <dl className="mt-4 space-y-1 text-sm">
@@ -179,15 +187,15 @@ export default async function KasiFindProviderPage({ params }: Props) {
       <section className="kf-card mt-8 p-6 kf-animate-in">
         <h2 className="kf-section-title">Community reviews</h2>
         <p className="mt-1 text-xs text-[var(--kf-muted)]">
-          Not verified purchases — share your honest experience.
+          KasiFind is growing — honest reviews from real customers help build trust over time.
         </p>
         <ul className="mt-4 space-y-4">
           {listing.reviews.length === 0 ? (
             <li>
               <KfEmptyState
                 icon={<MessageSquare className="h-6 w-6" aria-hidden />}
-                title="No reviews yet"
-                description="Be the first to share your experience — reviews help neighbours choose with confidence."
+                title="Be the first to review"
+                description="Used this provider? Your experience helps others in the community. There is no pressure — only share if you have genuinely worked with them."
               />
             </li>
           ) : (
