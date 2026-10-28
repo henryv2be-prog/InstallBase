@@ -1,14 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { kfRegisterProvider, kfSignInProvider } from "@/lib/kasifind/actions";
+import { useKfToast } from "@/components/kasifind/kf-toast";
 
 export function KfAuthForm({ mode }: { mode: "login" | "register" }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const toast = useKfToast();
 
   return (
     <form
@@ -18,7 +19,7 @@ export function KfAuthForm({ mode }: { mode: "login" | "register" }) {
           const result =
             mode === "register" ? await kfRegisterProvider(formData) : await kfSignInProvider(formData);
           if ("error" in result && result.error) {
-            setError(result.error);
+            toast.error(result.error);
             return;
           }
           router.push("/account/listing");
@@ -62,7 +63,6 @@ export function KfAuthForm({ mode }: { mode: "login" | "register" }) {
         />
         <p className="kf-help">At least 8 characters.</p>
       </div>
-      {error ? <div className="kf-alert-error">{error}</div> : null}
       <button type="submit" disabled={pending} className="kf-btn kf-btn-primary w-full">
         {pending ? (
           <>

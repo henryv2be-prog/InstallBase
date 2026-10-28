@@ -1157,3 +1157,105 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
 }
+
+/* —— Toasts —— */
+.kf-toast-host {
+  position: fixed;
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  width: min(22rem, calc(100vw - 2rem));
+  flex-direction: column-reverse;
+  gap: var(--kf-space-2);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .kf-toast-host {
+    bottom: auto;
+    top: calc(var(--kf-header-h) + 0.75rem);
+    left: auto;
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    transform: none;
+    width: min(20rem, calc(100vw - 2rem));
+  }
+}
+
+.kf-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--kf-space-2);
+  padding: var(--kf-space-3);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-surface);
+  border: 1px solid var(--kf-border-strong);
+  box-shadow: var(--kf-shadow-lg);
+  pointer-events: auto;
+  animation: kf-toast-in var(--kf-duration-slow) var(--kf-ease) both;
+}
+
+@keyframes kf-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kf-toast-icon {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.kf-toast-message {
+  flex: 1;
+  margin: 0;
+  font-size: var(--kf-text-sm);
+  line-height: 1.45;
+  color: var(--kf-charcoal);
+}
+
+.kf-toast-dismiss {
+  flex-shrink: 0;
+  display: flex;
+  padding: 0.125rem;
+  border: none;
+  border-radius: var(--kf-radius-sm);
+  background: transparent;
+  color: var(--kf-muted);
+  cursor: pointer;
+}
+
+.kf-toast-dismiss:focus-visible {
+  outline: 2px solid var(--kf-orange);
+  outline-offset: 2px;
+}
+
+.kf-toast--success {
+  border-color: rgba(15, 77, 58, 0.25);
+}
+
+.kf-toast--success .kf-toast-icon {
+  color: var(--kf-forest);
+}
+
+.kf-toast--error {
+  border-color: rgba(180, 35, 24, 0.25);
+}
+
+.kf-toast--error .kf-toast-icon {
+  color: var(--kf-error);
+}
+
+.kf-toast--info {
+  border-color: rgba(255, 138, 0, 0.35);
+}
+
+.kf-toast--info .kf-toast-icon {
+  color: var(--kf-orange);
+}

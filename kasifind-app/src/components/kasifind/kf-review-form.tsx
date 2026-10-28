@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { kfSubmitReview } from "@/lib/kasifind/actions";
 import { KfStarRatingInput } from "@/components/kasifind/kf-star-rating-input";
+import { useKfToast } from "@/components/kasifind/kf-toast";
 
 export function KfReviewForm({ listingId }: { listingId: string }) {
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
-    null
-  );
+  const toast = useKfToast();
   const [formKey, setFormKey] = useState(0);
 
   return (
@@ -25,13 +24,12 @@ export function KfReviewForm({ listingId }: { listingId: string }) {
         key={formKey}
         className="mt-4 space-y-4"
         action={(formData) => {
-          setMessage(null);
           startTransition(async () => {
             const result = await kfSubmitReview(formData);
             if ("error" in result && result.error) {
-              setMessage({ type: "error", text: result.error });
+              toast.error(result.error);
             } else {
-              setMessage({ type: "success", text: "Thanks — your review was posted." });
+              toast.success("Thanks — your review was posted.");
               setFormKey((k) => k + 1);
             }
           });
@@ -86,17 +84,6 @@ export function KfReviewForm({ listingId }: { listingId: string }) {
           )}
         </button>
 
-        {message ? (
-          <p
-            role="status"
-            className={`kf-review-feedback kf-review-feedback--${message.type}`}
-          >
-            {message.type === "success" ? (
-              <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden />
-            ) : null}
-            {message.text}
-          </p>
-        ) : null}
       </form>
     </div>
   );

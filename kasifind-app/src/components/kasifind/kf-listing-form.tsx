@@ -21,6 +21,7 @@ import {
   KfFormStepper,
   LISTING_FORM_STEPS,
 } from "@/components/kasifind/kf-form-stepper";
+import { useKfToast } from "@/components/kasifind/kf-toast";
 import type { KfCategory } from "@/components/kasifind/types";
 
 type ListingData = {
@@ -42,10 +43,8 @@ type ListingData = {
   listingId: string | null;
 };
 
-function scrollToStatus(el: HTMLElement | null) {
-  if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "start" });
-  window.scrollTo({ top: 0, behavior: "smooth" });
+function scrollToPublishBanner(el: HTMLElement | null) {
+  el?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 export function KfListingForm({
@@ -58,10 +57,9 @@ export function KfListingForm({
   userEmail: string;
 }) {
   const router = useRouter();
+  const toast = useKfToast();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
-    null
-  );
+  const [publishBanner, setPublishBanner] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [locatingPublish, setLocatingPublish] = useState(false);
   const [removingPhotoId, setRemovingPhotoId] = useState<string | null>(null);
@@ -70,16 +68,9 @@ export function KfListingForm({
 
   const defaultServices = listing?.services.join("\n") ?? "Steel gates\nWelding\nSecurity gates";
   const formBusy = pending || locatingPublish;
-  const publishedJustNow =
-    message?.type === "success" && message.text.toLowerCase().includes("submitted");
-
   useEffect(() => {
-    if (message) scrollToStatus(statusRef.current);
-  }, [message]);
-
-  const showStatus = (type: "success" | "error", text: string) => {
-    setMessage({ type, text });
-  };
+    if (publishBanner) scrollToPublishBanner(statusRef.current);
+  }, [publishBanner]);
 
   const goToStep = (index: number) => {
     setActiveStep(index);
@@ -92,16 +83,15 @@ export function KfListingForm({
       const publish = formData.get("publish") === "true";
       const result = await kfUpsertListing(formData);
       if ("error" in result && result.error) {
-        showStatus("error", result.error);
+        toast.error(result.error);
         return;
       }
-      showStatus(
-        "success",
-        publish
-          ? "Submitted for review — we will notify you when you are live in search."
-          : "Draft saved — you can come back anytime to finish."
-      );
-      if (publish) setActiveStep(LISTING_FORM_STEPS.length - 1);
+      if (publish) {
+        setPublishBanner(true);
+        setActiveStep(LISTING_FORM_STEPS.length - 1);
+      } else {
+        toast.success("Draft saved — you can come back anytime to finish.");
+      }
       router.refresh();
     });
   };
@@ -123,7 +113,7 @@ export function KfListingForm({
       const position = await requestCurrentPositionForPublish();
       setLocatingPublish(false);
       if (position.ok === false) {
-        showStatus("error", publishLocationErrorMessage(position.reason));
+        toast.error(publishLocationErrorMessage(position.reason));
         return;
       }
       const latInput = form.elements.namedItem("latitude") as HTMLInputElement | null;
@@ -146,7 +136,7 @@ export function KfListingForm({
       />
 
       <div ref={statusRef} tabIndex={-1} className="scroll-mt-24 space-y-3 outline-none">
-        {publishedJustNow ? (
+        {publishBanner ? (
           <div className="kf-success-panel" role="status">
             <p className="kf-success-panel-title">Listing submitted for review</p>
             <ul className="kf-success-panel-list">
@@ -155,19 +145,12 @@ export function KfListingForm({
               <li>Location was refreshed from this device when you published.</li>
             </ul>
           </div>
-        ) : message ? (
-          <div
-            role="status"
-            className={message.type === "success" ? "kf-alert-success" : "kf-alert-error"}
-          >
-            {message.text}
-          </div>
         ) : null}
 
         {listing?.listingId &&
           listing.moderationStatus === "PENDING" &&
           listing.status === "PUBLISHED" &&
-          !publishedJustNow && (
+          !publishBanner && (
             <div className="kf-alert-info">
               Your listing is awaiting moderation before it appears in search.
             </div>
@@ -346,9 +329,9 @@ export function KfListingForm({
                         fd.set("photoId", p.id);
                         const result = await kfRemoveListingPhoto(fd);
                         if ("error" in result && result.error) {
-                          showStatus("error", result.error);
+                          toast.error(result.error);
                         } else {
-                          showStatus("success", "Photo removed.");
+                          toast.success("Photo removed.");
                           router.refresh();
                         }
                       } finally {
@@ -389,15 +372,15 @@ export function KfListingForm({
                   const res = await fetch("/api/upload", { method: "POST", body });
                   const data = await res.json();
                   if (!res.ok) {
-                    showStatus("error", data.error ?? "Upload failed");
+                    toast.error(data.error ?? "Upload failed");
                     return;
                   }
                   const fd = new FormData();
                   fd.set("url", data.url);
                   const add = await kfAddListingPhoto(fd);
-                  if ("error" in add && add.error) showStatus("error", add.error);
+                  if ("error" in add && add.error) toast.error(add.error);
                   else {
-                    showStatus("success", "Photo added.");
+                    toast.success("Photo added.");
                     router.refresh();
                   }
                 } finally {

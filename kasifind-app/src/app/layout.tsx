@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { KfAppShell } from "@/components/kasifind/kf-app-shell";
 import { KfHeader } from "@/components/kasifind/kf-header";
 import "./globals.css";
 import "./kasifind.css";
@@ -31,14 +32,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-ZA">
       <body className={`kf-root ${inter.variable}`}>
-        <KfHeader />
-        <main className="mx-auto max-w-5xl px-4 pb-8 pt-2">{children}</main>
-        <footer className="kf-footer">
-          <p className="font-semibold text-[var(--kf-forest)]">KasiFind — Find local. Support local.</p>
-          <p className="mt-2 max-w-md mx-auto leading-relaxed">
-            Proudly South African local discovery for communities and entrepreneurs.
-          </p>
-        </footer>
+        <KfAppShell>
+          <KfHeader />
+          <main className="mx-auto max-w-5xl px-4 pb-8 pt-2">{children}</main>
+          <footer className="kf-footer">
+            <p className="font-semibold text-[var(--kf-forest)]">KasiFind — Find local. Support local.</p>
+            <p className="mt-2 max-w-md mx-auto leading-relaxed">
+              Proudly South African local discovery for communities and entrepreneurs.
+            </p>
+          </footer>
+        </KfAppShell>
       </body>
     </html>
   );

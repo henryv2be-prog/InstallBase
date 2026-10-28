@@ -2,11 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { kfReportListing } from "@/lib/kasifind/admin-actions";
+import { useKfToast } from "@/components/kasifind/kf-toast";
 
 export function KfReportForm({ listingId }: { listingId: string }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<string | null>(null);
+  const toast = useKfToast();
 
   if (!open) {
     return (
@@ -26,7 +27,8 @@ export function KfReportForm({ listingId }: { listingId: string }) {
       action={(formData) => {
         startTransition(async () => {
           const result = await kfReportListing(formData);
-          setMessage("error" in result ? result.error : "Report submitted. Thank you.");
+          if ("error" in result) toast.error(result.error);
+          else toast.success("Report submitted. Thank you.");
         });
       }}
     >
@@ -53,7 +55,6 @@ export function KfReportForm({ listingId }: { listingId: string }) {
       >
         Submit report
       </button>
-      {message && <p className="mt-2 text-sm">{message}</p>}
     </form>
   );
 }
