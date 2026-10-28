@@ -109,8 +109,8 @@ export default async function KasiFindAdminPage() {
       </section>
 
       <p className="text-xs text-[var(--kf-muted)]">
-        Grant admin by setting <code>role = ADMIN</code> on a KasiFind user in the KasiFind database
-        (separate from InstallBase admins).
+        Bootstrap admins via <code>KASIFIND_ADMIN_EMAIL</code> and <code>KASIFIND_ADMIN_PASSWORD</code> on
+        deploy (update password in Railway + redeploy). Separate from InstallBase admins.
       </p>
     </div>
   );

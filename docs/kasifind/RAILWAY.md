@@ -30,8 +30,16 @@ If you **never** see `→ Starting Next.js on 0.0.0.0:...`, the app exited befor
 | `AUTH_TRUST_HOST` | `true` |
 | `AUTH_URL` | `https://<your-railway-domain>` |
 | `NEXTAUTH_URL` | Same as `AUTH_URL` |
+| `KASIFIND_ADMIN_EMAIL` | Admin login email (bootstrap on each deploy seed) |
+| `KASIFIND_ADMIN_PASSWORD` | Admin password (set/rotate via env + redeploy) |
 
 Branch: **`kasifind`**.
+
+### Moderation login
+
+1. Set `KASIFIND_ADMIN_EMAIL` + `KASIFIND_ADMIN_PASSWORD` on the web service → **Redeploy**.
+2. Sign in at `/kasifind/account/login`.
+3. Open `/kasifind/admin` to approve listings.
 
 ### 3. When it works
 

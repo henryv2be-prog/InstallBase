@@ -1,6 +1,7 @@
 import { PrismaClient } from "../../src/generated/kasifind-prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+import { bootstrapKasiFindAdmin } from "../../src/lib/kasifind/bootstrap-admin";
 
 const categories = [
   { slug: "metalwork-welding", name: "Metalwork and welding", sortOrder: 1 },
@@ -36,6 +37,9 @@ async function main() {
   }
 
   console.info(`KasiFind: seeded ${categories.length} categories.`);
+
+  await bootstrapKasiFindAdmin(prisma);
+
   await pool.end();
 }
 

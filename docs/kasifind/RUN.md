@@ -12,6 +12,8 @@ KasiFind lives at `/kasifind` and uses **`KASIFIND_DATABASE_URL`** only. Install
    ```bash
    KASIFIND_DATABASE_URL="postgresql://..."
    AUTH_SECRET="..."   # or KASIFIND_SESSION_SECRET
+   KASIFIND_ADMIN_EMAIL="you@example.com"
+   KASIFIND_ADMIN_PASSWORD="your-strong-password"
    ```
 
 3. Generate client, migrate, seed categories:
