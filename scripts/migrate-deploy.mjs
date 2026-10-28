@@ -52,6 +52,17 @@ if (kasifindUrl) {
     process.exit(kfResult.status ?? 1);
   }
   console.log("KasiFind migrations complete.");
+
+  console.log("Ensuring KasiFind categories...");
+  const kfSeed = spawnSync("npx", ["tsx", "prisma/kasifind/seed.ts"], {
+    stdio: "inherit",
+    shell: true,
+    env: process.env,
+  });
+  if (kfSeed.status !== 0) {
+    console.error("\n❌ KasiFind category seed failed.\n");
+    process.exit(kfSeed.status ?? 1);
+  }
 } else {
   console.log("KASIFIND_DATABASE_URL not set — skipping KasiFind migrations.");
 }
