@@ -518,3 +518,121 @@
   font-size: var(--kf-text-xs);
   color: var(--kf-muted);
 }
+
+.kf-review-compose {
+  margin-top: var(--kf-space-5);
+  padding: var(--kf-space-4);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-ivory);
+  border: 1px solid var(--kf-border);
+}
+
+.kf-review-compose fieldset {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  border: none;
+}
+
+.kf-review-compose fieldset:disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.kf-star-rating-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.kf-star-rating-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border: none;
+  border-radius: var(--kf-radius-md);
+  background: transparent;
+  color: var(--kf-muted-soft);
+  cursor: pointer;
+  transition:
+    color var(--kf-duration) var(--kf-ease),
+    transform var(--kf-duration) var(--kf-ease),
+    background var(--kf-duration) var(--kf-ease);
+}
+
+@media (hover: hover) {
+  .kf-star-rating-star:hover:not(:disabled) {
+    color: var(--kf-ochre);
+    background: var(--kf-ochre-soft);
+    transform: scale(1.06);
+  }
+}
+
+.kf-star-rating-star:focus-visible {
+  outline: 2px solid var(--kf-green-bright);
+  outline-offset: 2px;
+}
+
+.kf-star-rating-star:disabled {
+  cursor: not-allowed;
+}
+
+.kf-star-rating-star--filled {
+  color: var(--kf-ochre);
+}
+
+.kf-star-rating-icon {
+  width: 2rem;
+  height: 2rem;
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  transition:
+    fill var(--kf-duration) var(--kf-ease),
+    transform var(--kf-duration) var(--kf-ease);
+}
+
+@media (min-width: 640px) {
+  .kf-star-rating-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+.kf-star-rating-star--filled .kf-star-rating-icon {
+  fill: currentColor;
+  stroke-width: 0;
+}
+
+.kf-star-rating-hint {
+  margin-top: var(--kf-space-2);
+  min-height: 1.25rem;
+  font-size: var(--kf-text-sm);
+  font-weight: 600;
+  color: var(--kf-charcoal);
+}
+
+.kf-review-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--kf-space-2);
+  margin-top: var(--kf-space-2);
+  padding: var(--kf-space-2) var(--kf-space-3);
+  font-size: var(--kf-text-sm);
+  line-height: 1.45;
+  border-radius: var(--kf-radius-md);
+}
+
+.kf-review-feedback--success {
+  color: var(--kf-success);
+  background: rgba(6, 118, 71, 0.08);
+  border: 1px solid rgba(6, 118, 71, 0.2);
+}
+
+.kf-review-feedback--error {
+  color: var(--kf-error);
+  background: var(--kf-error-bg);
+  border: 1px solid rgba(180, 35, 24, 0.15);
+}

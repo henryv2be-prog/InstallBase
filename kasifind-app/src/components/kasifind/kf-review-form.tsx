@@ -1,72 +1,103 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { kfSubmitReview } from "@/lib/kasifind/actions";
+import { KfStarRatingInput } from "@/components/kasifind/kf-star-rating-input";
 
 export function KfReviewForm({ listingId }: { listingId: string }) {
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
+    null
+  );
+  const [formKey, setFormKey] = useState(0);
 
   return (
-    <form
-      className="mt-6 border-t border-[var(--kf-border)] pt-6"
-      action={(formData) => {
-        startTransition(async () => {
-          const result = await kfSubmitReview(formData);
-          setMessage(
-            "error" in result && result.error ? result.error : "Thanks — your review was posted."
-          );
-        });
-      }}
-    >
-      <input type="hidden" name="listingId" value={listingId} />
-      <h3 className="text-sm font-bold text-[var(--kf-charcoal)]">Leave a review</h3>
-      <div className="mt-3 space-y-3">
+    <div className="kf-review-compose mt-6">
+      <h3 className="text-base font-bold tracking-tight text-[var(--kf-charcoal)]">
+        Leave a review
+      </h3>
+      <p className="mt-1 text-xs text-[var(--kf-muted)]">
+        Help others choose with an honest rating and a few words about your experience.
+      </p>
+
+      <form
+        key={formKey}
+        className="mt-4 space-y-4"
+        action={(formData) => {
+          setMessage(null);
+          startTransition(async () => {
+            const result = await kfSubmitReview(formData);
+            if ("error" in result && result.error) {
+              setMessage({ type: "error", text: result.error });
+            } else {
+              setMessage({ type: "success", text: "Thanks — your review was posted." });
+              setFormKey((k) => k + 1);
+            }
+          });
+        }}
+      >
+        <input type="hidden" name="listingId" value={listingId} />
+
+        <fieldset className="space-y-2" disabled={pending}>
+          <legend className="kf-label">Your rating</legend>
+          <KfStarRatingInput name="rating" disabled={pending} />
+        </fieldset>
+
         <div>
           <label className="kf-label" htmlFor="kf-review-name">
-            Your name (optional)
+            Your name <span className="font-normal text-[var(--kf-muted-soft)]">(optional)</span>
           </label>
-          <input id="kf-review-name" name="authorName" className="kf-input" />
+          <input
+            id="kf-review-name"
+            name="authorName"
+            className="kf-input"
+            placeholder="How should we show your name?"
+            disabled={pending}
+            autoComplete="name"
+          />
         </div>
-        <div>
-          <label className="kf-label" htmlFor="kf-rating">
-            Rating
-          </label>
-          <select id="kf-rating" name="rating" required className="kf-input">
-            {[5, 4, 3, 2, 1].map((n) => (
-              <option key={n} value={n}>
-                {n} stars
-              </option>
-            ))}
-          </select>
-        </div>
+
         <div>
           <label className="kf-label" htmlFor="kf-review-body">
-            Review
+            Your review
           </label>
           <textarea
             id="kf-review-body"
             name="body"
             required
             minLength={8}
-            rows={3}
-            className="kf-input min-h-[5rem] resize-y"
-            placeholder="Share your experience (minimum 8 characters)"
+            rows={4}
+            className="kf-input min-h-[6rem] resize-y"
+            placeholder="What went well? Would you recommend this provider?"
+            disabled={pending}
           />
+          <p className="kf-help">At least 8 characters.</p>
         </div>
-      </div>
-      <button type="submit" disabled={pending} className="kf-btn kf-btn-primary mt-4">
-        {pending ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            Posting…
-          </>
-        ) : (
-          "Post review"
-        )}
-      </button>
-      {message ? <p className="kf-help mt-2">{message}</p> : null}
-    </form>
+
+        <button type="submit" disabled={pending} className="kf-btn kf-btn-primary w-full sm:w-auto">
+          {pending ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              Posting…
+            </>
+          ) : (
+            "Post review"
+          )}
+        </button>
+
+        {message ? (
+          <p
+            role="status"
+            className={`kf-review-feedback kf-review-feedback--${message.type}`}
+          >
+            {message.type === "success" ? (
+              <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden />
+            ) : null}
+            {message.text}
+          </p>
+        ) : null}
+      </form>
+    </div>
   );
 }
