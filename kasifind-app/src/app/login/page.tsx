@@ -19,7 +19,7 @@ export default function KfLoginPage() {
       </div>
       <p className="text-center text-sm">
         New here?{" "}
-        <Link href="/register" className="font-semibold text-[var(--kf-green-dark)] underline">
+        <Link href="/register" className="kf-link underline">
           Register
         </Link>
       </p>

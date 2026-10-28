@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d3b2e",
+  themeColor: "#0F4D3A",
   width: "device-width",
   initialScale: 1,
 };
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <KfHeader />
         <main className="mx-auto max-w-5xl px-4 pb-8 pt-2">{children}</main>
         <footer className="kf-footer">
-          <p className="font-medium text-[var(--kf-charcoal)]">KasiFind — Find local. Support local.</p>
+          <p className="font-semibold text-[var(--kf-forest)]">KasiFind — Find local. Support local.</p>
           <p className="mt-2 max-w-md mx-auto leading-relaxed">
             Proudly South African local discovery for communities and entrepreneurs.
           </p>

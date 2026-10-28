@@ -91,7 +91,7 @@ export default async function KfListingEditorPage() {
         </div>
       ) : null}
       {user.role === "ADMIN" && (
-        <Link href="/admin" className="text-sm font-semibold text-[var(--kf-green-dark)] underline">
+        <Link href="/admin" className="kf-link text-sm underline">
           Open admin moderation
         </Link>
       )}

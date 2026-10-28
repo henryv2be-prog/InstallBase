@@ -40,10 +40,10 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
         </div>
         <div className="kf-animate-in p-4" style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}>
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-base font-bold leading-tight text-[var(--kf-charcoal)] group-hover:text-[var(--kf-green)]">
+            <h3 className="text-base font-bold leading-tight text-[var(--kf-charcoal)] group-hover:text-[var(--kf-forest)]">
               {p.displayName}
             </h3>
-            <span className="shrink-0 rounded-full bg-[var(--kf-green-soft)] px-2 py-0.5 text-xs font-bold text-[var(--kf-green)]">
+            <span className="shrink-0 rounded-full bg-[var(--kf-yellow-soft)] px-2 py-0.5 text-xs font-bold text-[var(--kf-forest)]">
               {formatDistanceKmClient(p.distanceKm)}
             </span>
           </div>

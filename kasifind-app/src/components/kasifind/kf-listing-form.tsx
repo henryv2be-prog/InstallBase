@@ -177,7 +177,7 @@ export function KfListingForm({
       {listing?.listingId && (
         <Link
           href={`/providers/${listing.listingId}`}
-          className="inline-flex text-sm font-semibold text-[var(--kf-green-dark)] underline"
+          className="kf-link inline-flex text-sm underline"
         >
           Preview public listing
         </Link>

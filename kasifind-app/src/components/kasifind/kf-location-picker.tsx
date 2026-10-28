@@ -78,7 +78,7 @@ export function KfLocationPicker({
         <label
           className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${
             hideExactLocation
-              ? "border-[var(--kf-green)] bg-[var(--kf-green-soft)]"
+              ? "border-[var(--kf-orange)] bg-[var(--kf-orange-soft)]"
               : "border-[var(--kf-border)]"
           }`}
         >
@@ -101,7 +101,7 @@ export function KfLocationPicker({
         <label
           className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${
             !hideExactLocation
-              ? "border-[var(--kf-green)] bg-[var(--kf-green-soft)]"
+              ? "border-[var(--kf-orange)] bg-[var(--kf-orange-soft)]"
               : "border-[var(--kf-border)]"
           }`}
         >

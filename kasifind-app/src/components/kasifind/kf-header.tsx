@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { MapPinned, Menu, PlusCircle, X } from "lucide-react";
+import { Menu, PlusCircle, X } from "lucide-react";
+import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
 
 function BrandMark() {
   return (
     <span className="kf-brand-mark" aria-hidden>
-      <MapPinned className="h-5 w-5" strokeWidth={2.25} />
+      <KfBrandLogo />
     </span>
   );
 }

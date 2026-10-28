@@ -177,9 +177,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
     <div className="space-y-8 pb-4">
       <section className="kf-hero kf-animate-in">
         <div className="kf-hero-bg" aria-hidden />
-        <p className="text-xs font-semibold uppercase tracking-widest text-[var(--kf-green)]">
-          Find local. Support local.
-        </p>
+        <p className="kf-hero-kicker">Find local. Support local.</p>
         <h1 className="kf-hero-title mt-2">Your next great local find is closer than you think.</h1>
         <p className="kf-hero-lead">
           Discover trusted local services, skilled artisans and businesses around you.
@@ -306,7 +304,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
       {location.mode === "gps" && !manualOpen && (
         <button
           type="button"
-          className="flex items-center gap-2 text-sm font-medium text-[var(--kf-green)] underline-offset-2 hover:underline"
+          className="kf-link flex items-center gap-2 text-sm underline-offset-2 hover:underline"
           onClick={() => setManualOpen(true)}
         >
           <Navigation className="h-4 w-4" aria-hidden />
@@ -368,7 +366,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
             </p>
           </div>
           {searchMeta?.expanded ? (
-            <span className="text-xs font-medium text-[var(--kf-ochre)]">
+            <span className="text-xs font-medium text-[var(--kf-terracotta)]">
               Expanded to {searchMeta.radiusKm} km
             </span>
           ) : null}

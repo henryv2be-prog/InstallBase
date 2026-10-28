@@ -24,7 +24,7 @@ export default function KfRegisterPage() {
       </div>
       <p className="text-center text-sm">
         Already registered?{" "}
-        <Link href="/login" className="font-semibold text-[var(--kf-green-dark)] underline">
+        <Link href="/login" className="kf-link underline">
           Sign in
         </Link>
       </p>

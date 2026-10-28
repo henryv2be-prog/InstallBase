@@ -48,7 +48,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
     <article className="pb-24 sm:pb-8">
       <Link
         href="/"
-        className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--kf-green)] kf-animate-in"
+        className="kf-link inline-flex items-center gap-1 text-sm kf-animate-in"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden />
         Back to search
