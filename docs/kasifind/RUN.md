@@ -1,5 +1,7 @@
 # Running KasiFind locally
 
+**Deploy branch:** `kasifind` (dedicated Railway service — do not deploy KasiFind from `cursor/installbase-platform-d4af`).
+
 KasiFind lives at `/kasifind` and uses **`KASIFIND_DATABASE_URL`** only. InstallBase continues to use **`DATABASE_URL`**.
 
 ## Setup

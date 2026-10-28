@@ -14,8 +14,9 @@ KasiFind is a **separate product** hosted in the same repository as InstallBase.
 
 ## Deployment
 
-- **InstallBase production** — unchanged; do not set `KASIFIND_DATABASE_URL` unless KasiFind is intentionally enabled.
-- **KasiFind** — provision a **separate PostgreSQL database** (or separate Railway Postgres plugin). Run KasiFind migrations only against that URL.
+- **Git branch:** `kasifind` — point a **separate Railway service** at this branch (InstallBase stays on `cursor/installbase-platform-d4af`).
+- **InstallBase production** — do not merge KasiFind into the InstallBase deploy branch; do not set `KASIFIND_DATABASE_URL` on InstallBase-only services.
+- **KasiFind Railway** — provision a **separate PostgreSQL database** (second Postgres plugin). Set `KASIFIND_DATABASE_URL` on the KasiFind web service.
 - Build generates **both** Prisma clients; InstallBase build does not query KasiFind tables unless `KASIFIND_DATABASE_URL` is set at runtime.
 
 ## MVP user journey
