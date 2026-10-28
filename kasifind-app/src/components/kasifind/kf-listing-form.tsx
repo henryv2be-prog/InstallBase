@@ -17,6 +17,7 @@ import {
 import { KfLocationPicker } from "@/components/kasifind/kf-location-picker";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
+import { KfProfilePhotoField } from "@/components/kasifind/kf-profile-photo-field";
 import {
   KfFormStepper,
   LISTING_FORM_STEPS,
@@ -40,6 +41,7 @@ type ListingData = {
   categoryIds: string[];
   services: string[];
   photos: { id: string; url: string }[];
+  profileImageUrl: string | null;
   listingId: string | null;
 };
 
@@ -177,6 +179,11 @@ export function KfListingForm({
             <p className="kf-form-section-sub">How neighbours will recognise your business.</p>
           </div>
           <div className="space-y-4">
+            <KfProfilePhotoField
+              listingId={listing?.listingId ?? null}
+              profileImageUrl={listing?.profileImageUrl ?? null}
+              disabled={formBusy}
+            />
             <label className="kf-label">
               Trading / display name
               <input

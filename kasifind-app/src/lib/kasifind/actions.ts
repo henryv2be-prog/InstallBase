@@ -219,6 +219,63 @@ export async function kfAddListingPhoto(formData: FormData) {
   return { success: true };
 }
 
+async function deleteLocalUpload(url: string | null | undefined) {
+  if (!url?.startsWith("/uploads/")) return;
+  const filename = url.slice("/uploads/".length);
+  const filePath = path.join(getUploadDir(), filename);
+  await fs.unlink(filePath).catch(() => undefined);
+}
+
+export async function kfSetListingProfileImage(formData: FormData) {
+  const guard = dbGuard();
+  if (guard) return guard;
+  const auth = await requireKasiFindProvider();
+  if ("error" in auth) return auth;
+
+  const url = (formData.get("url") as string | null)?.trim();
+  if (!url || !url.startsWith("/uploads/")) return { error: "Invalid photo." };
+
+  const kf = getKasiFindPrisma();
+  const listing = await kf.kfProviderListing.findUnique({ where: { userId: auth.user.id } });
+  if (!listing) return { error: "Save a draft of your listing first, then add your business photo." };
+
+  if (listing.profileImageUrl && listing.profileImageUrl !== url) {
+    await deleteLocalUpload(listing.profileImageUrl);
+  }
+
+  await kf.kfProviderListing.update({
+    where: { id: listing.id },
+    data: { profileImageUrl: url },
+  });
+
+  revalidatePath("/account/listing");
+  revalidatePath(`/providers/${listing.id}`);
+  revalidatePath("/");
+  return { success: true };
+}
+
+export async function kfClearListingProfileImage() {
+  const guard = dbGuard();
+  if (guard) return guard;
+  const auth = await requireKasiFindProvider();
+  if ("error" in auth) return auth;
+
+  const kf = getKasiFindPrisma();
+  const listing = await kf.kfProviderListing.findUnique({ where: { userId: auth.user.id } });
+  if (!listing) return { error: "Listing not found." };
+
+  await kf.kfProviderListing.update({
+    where: { id: listing.id },
+    data: { profileImageUrl: null },
+  });
+  await deleteLocalUpload(listing.profileImageUrl);
+
+  revalidatePath("/account/listing");
+  revalidatePath(`/providers/${listing.id}`);
+  revalidatePath("/");
+  return { success: true };
+}
+
 export async function kfRemoveListingPhoto(formData: FormData) {
   const guard = dbGuard();
   if (guard) return guard;

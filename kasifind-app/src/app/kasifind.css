@@ -1158,6 +1158,55 @@
   clip: rect(0, 0, 0, 0);
 }
 
+.kf-profile-photo-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kf-space-4);
+  padding: var(--kf-space-4);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-ivory);
+}
+
+.kf-profile-photo-field--locked {
+  align-items: center;
+}
+
+.kf-profile-photo-preview {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.kf-profile-photo-placeholder {
+  display: flex;
+  height: 7rem;
+  width: 7rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--kf-space-1);
+  border-radius: var(--kf-radius-lg);
+  border: 2px dashed var(--kf-sage);
+  background: var(--kf-surface);
+}
+
+.kf-profile-photo-remove {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--kf-radius-full);
+  background: rgba(31, 41, 55, 0.72);
+  color: #fff;
+  cursor: pointer;
+}
+
 /* —— Toasts —— */
 .kf-toast-host {
   position: fixed;

@@ -62,12 +62,17 @@ Documented in `kasifind-app/.env.example`. Summary:
 
 Uploads are **not** stored in Postgres. Without persistent disk, every redeploy can delete photo files while the database still references old `/uploads/...` paths — customers then see missing photos until the provider uploads again.
 
-1. In the KasiFind Railway service, add a **Volume** (e.g. mount path `/data`).
-2. Set **`UPLOAD_DIR=/data/uploads`** (must match the mount path + `/uploads`).
-3. Redeploy. `npm run start` creates the folder on boot.
-4. Ask providers to **re-upload work photos** once if they were lost before the volume existed.
+**Do not** attach the Postgres volume (`postgres-volume` at `/var/lib/postgresql/data`) to the **web** service. That path is only for the database plugin’s data files. The web app saves photos under **`UPLOAD_DIR`** (default: `public/uploads` inside the container), which is wiped on deploy unless you add a **separate** volume for uploads.
 
-Check **`GET /api/health`**: `uploads.persistentVolumeConfigured` should be `true` and `uploads.writable` should be `true`.
+Correct setup on the **KasiFind web service**:
+
+1. **Remove** any volume mounted at `/var/lib/postgresql/data` from the web service (keep Postgres storage on the Postgres service only).
+2. Add a **new volume** on the web service, mount path **`/data`** (any empty path is fine; `/data` is conventional).
+3. Set variable **`UPLOAD_DIR=/data/uploads`** on the web service (must live inside the mount).
+4. Redeploy. `npm run start` creates `/data/uploads` on boot.
+5. Providers **re-upload** business and work photos once if files were lost before this was fixed.
+
+Check **`GET /api/health`**: `uploads.persistentVolumeConfigured` should be `true`, `uploads.writable` should be `true`, and `uploads.warnings` should be empty.
 
 ## Build and start
 

@@ -17,6 +17,7 @@ export async function GET() {
       writable: uploads.writable,
       /** True when UPLOAD_DIR is set (typically a Railway volume mount). */
       persistentVolumeConfigured: uploads.configured,
+      warnings: uploads.warnings,
     },
   });
 }

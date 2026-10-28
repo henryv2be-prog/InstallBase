@@ -48,11 +48,15 @@ export default async function KfListingEditorPage() {
         categoryIds: listing.categories.map((c) => c.categoryId),
         services: listing.services.map((s) => s.name),
         photos: listing.photos.map((p) => ({ id: p.id, url: p.url })),
+        profileImageUrl: listing.profileImageUrl,
       }
     : null;
 
   const missingPhotoCount = listing
-    ? await countMissingLocalUploads(listing.photos.map((p) => p.url))
+    ? await countMissingLocalUploads([
+        ...listing.photos.map((p) => p.url),
+        ...(listing.profileImageUrl ? [listing.profileImageUrl] : []),
+      ])
     : 0;
 
   const statusCopy = listingData
@@ -86,8 +90,8 @@ export default async function KfListingEditorPage() {
       {missingPhotoCount > 0 ? (
         <div className="kf-alert-info" role="status">
           <strong>{missingPhotoCount} work photo{missingPhotoCount === 1 ? "" : "s"}</strong> need to
-          be added again — the files are missing on the server (common after a deploy without a
-          storage volume). Scroll to <strong>Work photos</strong> and upload fresh copies.
+          be added again — the files are missing on the server (common after a deploy without an
+          uploads volume). Re-add your <strong>business photo</strong> and <strong>work photos</strong>.
         </div>
       ) : null}
       {user.role === "ADMIN" && (
