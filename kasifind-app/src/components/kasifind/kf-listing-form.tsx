@@ -14,6 +14,7 @@ import {
   publishLocationErrorMessage,
   requestCurrentPositionForPublish,
 } from "@/lib/kasifind/request-current-position";
+import { KfLocationPicker } from "@/components/kasifind/kf-location-picker";
 import type { KfCategory } from "@/components/kasifind/types";
 
 type ListingData = {
@@ -24,6 +25,7 @@ type ListingData = {
   locationLabel: string;
   latitude: number;
   longitude: number;
+  hideExactLocation: boolean;
   priceHint: string | null;
   hoursNote: string | null;
   status: string;
@@ -216,34 +218,20 @@ export function KfListingForm({
             className="kf-input mt-1"
           />
         </label>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="kf-label">
-            Latitude
-            <input
-              name="latitude"
-              required
-              inputMode="decimal"
-              defaultValue={listing?.latitude ?? -26.2041}
-              className="kf-input mt-1"
-            />
-          </label>
-          <label className="kf-label">
-            Longitude
-            <input
-              name="longitude"
-              required
-              inputMode="decimal"
-              defaultValue={listing?.longitude ?? 28.0473}
-              className="kf-input mt-1"
-            />
-          </label>
+        <div>
+          <p className="kf-label">Pin on map</p>
+          <p className="mb-2 text-xs text-[var(--kf-muted)]">
+            Drag the pin or tap the map to adjust.{" "}
+            <strong className="font-semibold text-[var(--kf-charcoal)]">Publish for review</strong>{" "}
+            refreshes the pin from your device GPS before submit.
+          </p>
+          <KfLocationPicker
+            key={`${listing?.latitude ?? -26.2041}-${listing?.longitude ?? 28.0473}-${listing?.hideExactLocation ?? true}`}
+            initialLatitude={listing?.latitude ?? -26.2041}
+            initialLongitude={listing?.longitude ?? 28.0473}
+            initialHideExactLocation={listing?.hideExactLocation ?? true}
+          />
         </div>
-        <p className="text-xs text-[var(--kf-muted)]">
-          <strong className="font-semibold text-[var(--kf-charcoal)]">Publish for review</strong>{" "}
-          automatically sets coordinates from your current location so nearby search stays accurate.
-          Draft saves use the coordinates above. Your street address is never shown publicly — only
-          your neighbourhood or landmark.
-        </p>
         <fieldset>
           <legend className="kf-label">Categories</legend>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">

@@ -35,6 +35,7 @@ export default async function KfListingEditorPage() {
         locationLabel: listing.locationLabel,
         latitude: listing.latitude,
         longitude: listing.longitude,
+        hideExactLocation: listing.hideExactLocation,
         priceHint: listing.priceHint,
         hoursNote: listing.hoursNote,
         status: listing.status,

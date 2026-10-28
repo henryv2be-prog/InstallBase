@@ -91,6 +91,7 @@ export async function kfUpsertListing(formData: FormData) {
 
   const lat = parseCoordinate(formData.get("latitude") as string);
   const lng = parseCoordinate(formData.get("longitude") as string);
+  const hideExactLocation = formData.get("hideExactLocation") !== "false";
 
   if (!displayName || displayName.length < 2) return { error: "Business name is required." };
   if (!description || description.length < 20) return { error: "Description must be at least 20 characters." };
@@ -118,6 +119,7 @@ export async function kfUpsertListing(formData: FormData) {
     locationLabel,
     latitude: lat,
     longitude: lng,
+    hideExactLocation,
     priceHint,
     hoursNote,
     status: publish ? ("PUBLISHED" as const) : ("DRAFT" as const),

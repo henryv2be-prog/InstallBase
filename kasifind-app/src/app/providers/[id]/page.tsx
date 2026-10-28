@@ -7,6 +7,7 @@ import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp
 import { KfReviewForm } from "@/components/kasifind/kf-review-form";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
 import { KfContactBar } from "@/components/kasifind/kf-contact-bar";
+import { KfProviderLocationMap } from "@/components/kasifind/kf-provider-location-map";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +123,8 @@ export default async function KasiFindProviderPage({ params }: Props) {
           </div>
         </div>
       </header>
+
+      <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
 
       {listing.photos.length > 0 && (
         <section className="mt-8 kf-animate-in">
