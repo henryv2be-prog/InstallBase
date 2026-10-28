@@ -47,8 +47,9 @@ KasiFind is a **separate product** hosted in the same repository as InstallBase.
 # KasiFind database (separate URL)
 export KASIFIND_DATABASE_URL="postgresql://..."
 
-npx prisma generate --schema prisma/kasifind/schema.prisma
-npx prisma migrate deploy --schema prisma/kasifind/schema.prisma --config prisma/kasifind.config.ts
-
+npm run db:kasifind:generate
+npm run db:kasifind:deploy
 npm run db:kasifind:seed
 ```
+
+See [RUN.md](./RUN.md) for the full local workflow.
