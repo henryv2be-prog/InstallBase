@@ -1215,12 +1215,12 @@
 /* —— Toasts —— */
 .kf-toast-host {
   position: fixed;
-  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  top: calc(var(--kf-header-h) + max(0.5rem, env(safe-area-inset-top, 0px)));
   left: 50%;
   z-index: 60;
   display: flex;
   width: min(22rem, calc(100vw - 2rem));
-  flex-direction: column-reverse;
+  flex-direction: column;
   gap: var(--kf-space-2);
   transform: translateX(-50%);
   pointer-events: none;
@@ -1228,8 +1228,6 @@
 
 @media (min-width: 640px) {
   .kf-toast-host {
-    bottom: auto;
-    top: calc(var(--kf-header-h) + 0.75rem);
     left: auto;
     right: max(1rem, env(safe-area-inset-right, 0px));
     transform: none;
@@ -2240,4 +2238,118 @@ body.kf-listing-flow-active main.admin-main {
   .kf-location-map--flow .kf-location-map-canvas {
     min-height: 10rem;
   }
+}
+
+.kf-listing-page-status {
+  position: absolute;
+  top: 0.25rem;
+  left: var(--kf-space-4);
+  z-index: 4;
+  max-width: calc(100% - 5rem);
+}
+
+.kf-listing-page-status:has(+ .kf-listing-page-alert) {
+  top: 3.25rem;
+}
+
+.kf-listing-flow-body--scroll {
+  justify-content: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.kf-listing-flow-textarea {
+  min-height: 4.5rem;
+  resize: none;
+  line-height: 1.4;
+}
+
+.kf-listing-flow-banner {
+  margin: 0.35rem 0 0;
+  padding: 0.35rem 0.5rem;
+  font-size: var(--kf-text-xs);
+  line-height: 1.35;
+  color: var(--kf-charcoal);
+  background: var(--kf-warning-bg);
+  border-radius: var(--kf-radius-md);
+}
+
+.kf-listing-flow-preview {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: var(--kf-text-xs);
+  font-weight: 600;
+  color: var(--kf-forest);
+  text-decoration: underline;
+}
+
+.kf-listing-flow-visibility {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.kf-listing-flow-visibility-btn {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--kf-muted);
+  background: var(--kf-surface);
+  border: 2px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  cursor: pointer;
+}
+
+.kf-listing-flow-visibility-btn--on {
+  border-color: var(--kf-orange);
+  background: var(--kf-orange-soft);
+  color: var(--kf-charcoal);
+}
+
+.kf-listing-flow-inline-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.kf-listing-flow-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.kf-listing-flow-photo-grid .kf-photo-thumb {
+  position: relative;
+}
+
+.kf-profile-photo-field--flow .kf-profile-photo-field {
+  margin: 0;
+  padding: var(--kf-space-3);
+  gap: var(--kf-space-3);
+}
+
+.kf-profile-photo-field--flow .kf-profile-photo-placeholder,
+.kf-profile-photo-field--flow .kf-profile-photo-preview img,
+.kf-profile-photo-field--flow .kf-profile-photo-preview .kf-listing-image-wrap {
+  height: 4.5rem;
+  width: 4.5rem;
+}
+
+.kf-profile-photo-field--flow .kf-label {
+  font-size: var(--kf-text-xs);
+}
+
+.kf-profile-photo-field--flow p.text-xs {
+  display: none;
+}
+
+.kf-profile-photo-field--flow .kf-file-input {
+  min-height: 2.5rem;
+  font-size: var(--kf-text-xs);
 }
