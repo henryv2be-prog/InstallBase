@@ -2,18 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Camera,
-  ChevronRight,
-  Loader2,
-  MapPin,
-  Navigation,
-  Phone,
-  X,
-} from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { ArrowLeft, ArrowRight, Camera, Loader2, X } from "lucide-react";
 import {
   kfAddListingPhoto,
   kfRemoveListingPhoto,
@@ -24,36 +14,18 @@ import {
   publishLocationErrorMessage,
   requestCurrentPositionForPublish,
 } from "@/lib/kasifind/request-current-position";
-import { APPROXIMATE_MAP_RADIUS_M } from "@/lib/kasifind/location-display";
-import { KfLocationMap } from "@/components/kasifind/kf-location-map";
+import { KfLocationPicker } from "@/components/kasifind/kf-location-picker";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
+import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { KfProfilePhotoField } from "@/components/kasifind/kf-profile-photo-field";
+import {
+  KfFormStepper,
+  LISTING_FORM_STEPS,
+} from "@/components/kasifind/kf-form-stepper";
+import { KfListingWizardSummary } from "@/components/kasifind/kf-listing-wizard-summary";
 import { KfPublishSuccessScreen } from "@/components/kasifind/kf-publish-success-screen";
 import { useKfToast } from "@/components/kasifind/kf-toast";
-import { categoryIconForSlug } from "@/components/kasifind/category-icons";
 import type { KfCategory } from "@/components/kasifind/types";
-
-const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
-const TOTAL_STEPS = 6;
-const LAST_STEP = TOTAL_STEPS - 1;
-
-const STEP_PROMPT = [
-  "Business name & about",
-  "Contact & business photo",
-  "Your area on the map",
-  "Services & pricing",
-  "Work photos",
-  "Ready to publish",
-] as const;
-
-const STEP_HINT = [
-  "How neighbours will recognise you.",
-  "Phone, WhatsApp, and a photo for your public listing.",
-  "Tap the map or GPS. Add a landmark customers know.",
-  "Categories help search — price and hours are optional.",
-  "Add examples of your work. You can remove photos anytime.",
-  "Save a draft or publish for review.",
-] as const;
 
 type ListingData = {
   displayName: string;
@@ -75,44 +47,35 @@ type ListingData = {
   listingId: string | null;
 };
 
-type Draft = {
-  displayName: string;
-  description: string;
-  phone: string;
-  whatsapp: string;
-  locationLabel: string;
-  latitude: number;
-  longitude: number;
-  hideExactLocation: boolean;
-  categoryIds: string[];
-  servicesLine: string;
-  priceHint: string;
-  hoursNote: string;
-};
+const LAST_STEP = LISTING_FORM_STEPS.length - 1;
 
-function buildFormData(draft: Draft, publish: boolean): FormData {
-  const fd = new FormData();
-  fd.set("displayName", draft.displayName.trim());
-  fd.set("phone", draft.phone.trim());
-  fd.set("whatsapp", (draft.whatsapp.trim() || draft.phone.trim()) || "");
-  fd.set("locationLabel", draft.locationLabel.trim());
-  fd.set("latitude", String(draft.latitude));
-  fd.set("longitude", String(draft.longitude));
-  fd.set("hideExactLocation", draft.hideExactLocation ? "true" : "false");
-  fd.set("description", draft.description.trim());
-  fd.set(
-    "services",
-    draft.servicesLine
-      .split(/[,\n]+/)
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .join("\n")
+function scrollWizardTop() {
+  /* Full-viewport wizard scrolls inside the step panel, not the page. */
+}
+
+function validateWizardStep(form: HTMLFormElement, step: number, toastError: (msg: string) => void): boolean {
+  const panel = form.querySelector(`[data-wizard-step="${step}"]`);
+  if (!panel) return true;
+
+  const fields = panel.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+    "input:not([type=hidden]):not([type=file]), textarea, select"
   );
-  fd.set("priceHint", draft.priceHint.trim());
-  fd.set("hoursNote", draft.hoursNote.trim());
-  draft.categoryIds.forEach((id) => fd.append("categoryId", id));
-  fd.set("publish", publish ? "true" : "false");
-  return fd;
+  for (const field of fields) {
+    if (!field.checkValidity()) {
+      field.reportValidity();
+      return false;
+    }
+  }
+
+  if (step === 2) {
+    const checked = form.querySelectorAll('input[name="categoryId"]:checked').length;
+    if (checked === 0) {
+      toastError("Select at least one category.");
+      return false;
+    }
+  }
+
+  return true;
 }
 
 export function KfListingForm({
@@ -126,40 +89,20 @@ export function KfListingForm({
 }) {
   const router = useRouter();
   const toast = useKfToast();
-  const wizardFormRef = useRef<HTMLFormElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();
   const [publishComplete, setPublishComplete] = useState(false);
   const [publishedListingId, setPublishedListingId] = useState<string | null>(
     listing?.listingId ?? null
   );
-  const [activeStep, setActiveStep] = useState(0);
-  const [locating, setLocating] = useState(false);
-  const [locatingPublish, setLocatingPublish] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [draftSaving, setDraftSaving] = useState(false);
+  const [locatingPublish, setLocatingPublish] = useState(false);
   const [removingPhotoId, setRemovingPhotoId] = useState<string | null>(null);
-  const [showWhatsappField, setShowWhatsappField] = useState(Boolean(listing?.whatsapp));
+  const [activeStep, setActiveStep] = useState(0);
 
-  const [draft, setDraft] = useState<Draft>(() => ({
-    displayName: listing?.displayName ?? "",
-    description: listing?.description ?? "",
-    phone: listing?.phone ?? "",
-    whatsapp: listing?.whatsapp ?? "",
-    locationLabel: listing?.locationLabel ?? "",
-    latitude: listing?.latitude ?? DEFAULT_CENTER.lat,
-    longitude: listing?.longitude ?? DEFAULT_CENTER.lng,
-    hideExactLocation: listing?.hideExactLocation ?? true,
-    categoryIds: listing?.categoryIds ?? [],
-    servicesLine: listing?.services.join(", ") ?? "",
-    priceHint: listing?.priceHint ?? "",
-    hoursNote: listing?.hoursNote ?? "",
-  }));
-
-  const listingId = publishedListingId ?? listing?.listingId ?? null;
-  const photos = listing?.photos ?? [];
-  const formBusy = pending || locatingPublish || draftSaving || locating;
-
-  const patchDraft = (partial: Partial<Draft>) => setDraft((d) => ({ ...d, ...partial }));
+  const defaultServices = listing?.services.join("\n") ?? "Steel gates\nWelding\nSecurity gates";
+  const formBusy = pending || locatingPublish;
+  const photoCount = listing?.photos.length ?? 0;
 
   useEffect(() => {
     document.body.classList.add("kf-listing-flow-active");
@@ -167,110 +110,30 @@ export function KfListingForm({
   }, []);
 
   useEffect(() => {
-    if (activeStep !== 2) return;
-    const t = window.setTimeout(() => {
-      window.dispatchEvent(new Event("resize"));
-    }, 100);
+    if (activeStep !== 1) return;
+    const t = window.setTimeout(() => window.dispatchEvent(new Event("resize")), 120);
     return () => window.clearTimeout(t);
   }, [activeStep]);
-
-  const toggleCategory = (id: string) => {
-    setDraft((d) => ({
-      ...d,
-      categoryIds: d.categoryIds.includes(id)
-        ? d.categoryIds.filter((c) => c !== id)
-        : [...d.categoryIds, id],
-    }));
-  };
-
-  const saveDraft = useCallback(async (): Promise<string | null> => {
-    setDraftSaving(true);
-    try {
-      const fd = buildFormData(draft, false);
-      const result = await kfUpsertListing(fd);
-      if ("error" in result && result.error) {
-        toast.error(result.error);
-        return null;
-      }
-      const id =
-        "listingId" in result && typeof result.listingId === "string" ? result.listingId : listingId;
-      if (id) setPublishedListingId(id);
-      router.refresh();
-      return id ?? null;
-    } finally {
-      setDraftSaving(false);
-    }
-  }, [draft, listingId, router, toast]);
-
-  const validateStep = (step: number): boolean => {
-    if (step === 0 && draft.displayName.trim().length < 2) {
-      toast.error("Please enter your business name.");
-      return false;
-    }
-    if (step === 1 && draft.phone.trim().length < 9) {
-      toast.error("Please enter your phone number.");
-      return false;
-    }
-    if (step === 2 && !draft.locationLabel.trim()) {
-      toast.error("Add a landmark or area name.");
-      return false;
-    }
-    return true;
-  };
 
   const goToStep = (index: number) => {
     if (index < 0 || index > LAST_STEP) return;
     setActiveStep(index);
+    scrollWizardTop();
   };
 
-  const goNext = async () => {
-    if (!validateStep(activeStep)) return;
-    if ((activeStep === 1 || activeStep === 2) && !listingId) {
-      const id = await saveDraft();
-      if (!id) return;
-    }
-    goToStep(activeStep + 1);
+  const goNext = () => {
+    const form = formRef.current;
+    if (!form) return;
+    if (!validateWizardStep(form, activeStep, toast.error)) return;
+    goToStep(Math.min(activeStep + 1, LAST_STEP));
   };
 
-  const saveDraftOnly = async () => {
-    const id = await saveDraft();
-    if (id) toast.success("Draft saved — pick up where you left off anytime.");
-  };
+  const goBack = () => goToStep(Math.max(activeStep - 1, 0));
 
-  const goBack = () => goToStep(activeStep - 1);
-
-  const useMyLocation = async () => {
-    setLocating(true);
-    const position = await requestCurrentPositionForPublish();
-    setLocating(false);
-    if (position.ok === true) {
-      patchDraft({ latitude: position.latitude, longitude: position.longitude });
-      toast.success("Pin moved to you.");
-    } else {
-      toast.error(publishLocationErrorMessage(position.reason));
-    }
-  };
-
-  const publish = () => {
+  const submitListing = (formData: FormData) => {
     startTransition(async () => {
-      if (!validateStep(0) || !validateStep(1) || !validateStep(2)) {
-        goToStep(0);
-        return;
-      }
-      setLocatingPublish(true);
-      const position = await requestCurrentPositionForPublish();
-      setLocatingPublish(false);
-      if (position.ok === false) {
-        toast.error(publishLocationErrorMessage(position.reason));
-        return;
-      }
-      const publishDraft = {
-        ...draft,
-        latitude: position.latitude,
-        longitude: position.longitude,
-      };
-      const fd = buildFormData(publishDraft, true);
-      const result = await kfUpsertListing(fd);
+      const publish = formData.get("publish") === "true";
+      const result = await kfUpsertListing(formData);
       if ("error" in result && result.error) {
         toast.error(result.error);
         return;
@@ -278,389 +141,456 @@ export function KfListingForm({
       const id =
         "listingId" in result && typeof result.listingId === "string"
           ? result.listingId
-          : listingId;
-      setPublishedListingId(id);
-      setPublishComplete(true);
+          : listing?.listingId ?? null;
+      if (publish) {
+        setPublishedListingId(id);
+        setPublishComplete(true);
+        scrollWizardTop();
+      } else {
+        toast.success("Draft saved — pick up where you left off anytime.");
+      }
       router.refresh();
     });
   };
 
-  useEffect(() => {
-    if (activeStep !== 4 || listingId || draftSaving) return;
-    void saveDraft();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeStep, listingId]);
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const submitter = (e.nativeEvent as SubmitEvent).submitter;
+    const publish =
+      submitter instanceof HTMLButtonElement &&
+      submitter.name === "publish" &&
+      submitter.value === "true";
 
-  const bodyScrollClass =
-    activeStep === 0 || activeStep === 1 || activeStep === 3 || activeStep === 4
-      ? " kf-listing-flow-body--scroll"
-      : "";
+    if (publish) {
+      for (let step = 0; step <= 2; step += 1) {
+        if (!validateWizardStep(form, step, toast.error)) {
+          goToStep(step);
+          return;
+        }
+      }
+    }
+
+    const formData = new FormData(form);
+    formData.set("publish", publish ? "true" : "false");
+
+    if (publish) {
+      setLocatingPublish(true);
+      const position = await requestCurrentPositionForPublish();
+      setLocatingPublish(false);
+      if (position.ok === false) {
+        toast.error(publishLocationErrorMessage(position.reason));
+        return;
+      }
+      const latInput = form.elements.namedItem("latitude") as HTMLInputElement | null;
+      const lngInput = form.elements.namedItem("longitude") as HTMLInputElement | null;
+      if (latInput) latInput.value = String(position.latitude);
+      if (lngInput) lngInput.value = String(position.longitude);
+      formData.set("latitude", String(position.latitude));
+      formData.set("longitude", String(position.longitude));
+    }
+
+    submitListing(formData);
+  };
 
   if (publishComplete) {
     return <KfPublishSuccessScreen listingId={publishedListingId} />;
   }
 
-  const skipOptional =
-    activeStep === 3 || activeStep === 4 ? (
-      <button
-        type="button"
-        className="kf-listing-flow-skip"
-        disabled={formBusy}
-        onClick={() => void goNext()}
-      >
-        Skip for now
-        <ChevronRight className="h-4 w-4" aria-hidden />
-      </button>
-    ) : activeStep === LAST_STEP ? (
-      <button
-        type="button"
-        className="kf-listing-flow-skip"
-        disabled={formBusy}
-        onClick={() => void saveDraftOnly()}
-      >
-        Save draft
-      </button>
-    ) : null;
-
-  const showModerationNotice =
-    listing?.listingId &&
-    listing.moderationStatus === "PENDING" &&
-    listing.status === "PUBLISHED";
-
   return (
-    <div className="kf-listing-flow">
-      <form ref={wizardFormRef} className="kf-sr-only" aria-hidden tabIndex={-1}>
-        <input name="displayName" value={draft.displayName} readOnly />
-        <textarea name="description" value={draft.description} readOnly />
-        <input name="phone" value={draft.phone} readOnly />
-        <input name="whatsapp" value={draft.whatsapp} readOnly />
-      </form>
-
-      <header className="kf-listing-flow-head">
-        <div className="kf-listing-flow-progress" aria-label={`Step ${activeStep + 1} of ${TOTAL_STEPS}`}>
-          <span className="kf-listing-flow-step-label">
-            Step {activeStep + 1}/{TOTAL_STEPS}
-          </span>
-          <div className="kf-easy-dots" aria-hidden>
-            {Array.from({ length: TOTAL_STEPS }, (_, i) => (
-              <span key={i} className={`kf-easy-dot${i <= activeStep ? " kf-easy-dot--on" : ""}`} />
-            ))}
-          </div>
-        </div>
-        <h1 className="kf-listing-flow-title">{STEP_PROMPT[activeStep]}</h1>
-        <p className="kf-listing-flow-hint">{STEP_HINT[activeStep]}</p>
-        {showModerationNotice ? (
-          <p className="kf-listing-flow-banner" role="status">
-            Your listing is awaiting moderation before it appears in search.
-          </p>
-        ) : null}
-        {listingId && activeStep === LAST_STEP ? (
-          <Link href={`/providers/${listingId}`} className="kf-listing-flow-preview">
+    <div className="kf-listing-flow kf-classic-wizard">
+      <header className="kf-listing-flow-head kf-classic-wizard-head">
+        <KfFormStepper
+          steps={LISTING_FORM_STEPS}
+          activeIndex={activeStep}
+          onStepClick={(index) => {
+            if (index <= activeStep) goToStep(index);
+          }}
+        />
+        {listing?.listingId &&
+          listing.moderationStatus === "PENDING" &&
+          listing.status === "PUBLISHED" && (
+            <p className="kf-listing-flow-banner" role="status">
+              Your listing is awaiting moderation before it appears in search.
+            </p>
+          )}
+        {listing?.listingId && activeStep === LAST_STEP ? (
+          <Link href={`/providers/${listing.listingId}`} className="kf-listing-flow-preview">
             Preview your listing
           </Link>
         ) : null}
       </header>
 
-      <div className={`kf-listing-flow-body${bodyScrollClass}`}>
-        {activeStep === 0 ? (
-          <div className="kf-listing-flow-stack">
-            <input
-              className="kf-listing-flow-input"
-              value={draft.displayName}
-              onChange={(e) => patchDraft({ displayName: e.target.value })}
-              placeholder="e.g. Sipho Steel Works"
-              autoComplete="organization"
-              enterKeyHint="next"
-            />
-            <textarea
-              className="kf-listing-flow-input kf-listing-flow-textarea"
-              value={draft.description}
-              onChange={(e) => patchDraft({ description: e.target.value })}
-              rows={3}
-              placeholder="What you do, areas you cover… (optional — we can fill this in later)"
-            />
+      <div className="kf-listing-flow-body kf-listing-flow-body--scroll kf-classic-wizard-body">
+        <form
+          ref={formRef}
+          id="kf-listing-form"
+          className="kf-card kf-wizard-card rounded-2xl p-4 sm:p-5"
+          onSubmit={(e) => void handleFormSubmit(e)}
+        >
+        <section
+          id="kf-step-business"
+          data-wizard-step="0"
+          className="kf-form-section"
+          hidden={activeStep !== 0}
+        >
+          <div className="kf-form-section-head">
+            <h2 className="kf-form-section-title">Basic info</h2>
+            <p className="kf-form-section-sub">How neighbours will recognise your business.</p>
           </div>
-        ) : null}
-
-        {activeStep === 1 ? (
-          <div className="kf-listing-flow-stack">
-            <input
-              className="kf-listing-flow-input"
-              value={draft.phone}
-              onChange={(e) => patchDraft({ phone: e.target.value })}
-              inputMode="tel"
-              autoComplete="tel"
-              placeholder="082 123 4567"
+          <div className="space-y-4">
+            <KfProfilePhotoField
+              listingId={listing?.listingId ?? null}
+              profileImageUrl={listing?.profileImageUrl ?? null}
+              disabled={formBusy}
+              wizardFormRef={formRef}
             />
-            {!showWhatsappField ? (
-              <button
-                type="button"
-                className="kf-listing-flow-link"
-                onClick={() => setShowWhatsappField(true)}
-              >
-                Different WhatsApp number?
-              </button>
-            ) : (
+            <label className="kf-label">
+              Trading / display name
               <input
-                className="kf-listing-flow-input kf-listing-flow-input--secondary"
-                value={draft.whatsapp}
-                onChange={(e) => patchDraft({ whatsapp: e.target.value })}
-                inputMode="tel"
-                placeholder="WhatsApp number"
+                name="displayName"
+                required
+                defaultValue={listing?.displayName ?? ""}
+                className="kf-input mt-1"
+                placeholder="e.g. Sipho Steel Works"
               />
-            )}
-            <div className="kf-profile-photo-field--flow">
-              <KfProfilePhotoField
-                listingId={listingId}
-                profileImageUrl={listing?.profileImageUrl ?? null}
-                disabled={formBusy}
-                wizardFormRef={wizardFormRef}
+            </label>
+            <label className="kf-label">
+              About your business
+              <textarea
+                name="description"
+                required
+                minLength={20}
+                rows={4}
+                defaultValue={listing?.description ?? ""}
+                className="kf-input mt-1"
+                placeholder="What you do, areas you cover, what makes you reliable…"
               />
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="kf-label">
+                Phone
+                <input
+                  name="phone"
+                  required
+                  defaultValue={listing?.phone ?? ""}
+                  className="kf-input mt-1"
+                  inputMode="tel"
+                />
+              </label>
+              <label className="kf-label">
+                WhatsApp (optional)
+                <input
+                  name="whatsapp"
+                  defaultValue={listing?.whatsapp ?? ""}
+                  className="kf-input mt-1"
+                  inputMode="tel"
+                />
+              </label>
             </div>
           </div>
-        ) : null}
+        </section>
 
-        {activeStep === 2 ? (
-          <div className="kf-listing-flow-stack kf-listing-flow-stack--map">
-            <KfLocationMap
-              latitude={draft.latitude}
-              longitude={draft.longitude}
-              approximate={draft.hideExactLocation}
-              radiusMeters={draft.hideExactLocation ? APPROXIMATE_MAP_RADIUS_M : null}
-              interactive
-              className="kf-location-map--flow"
-              onLocationChange={(lat, lng) => patchDraft({ latitude: lat, longitude: lng })}
-            />
-            <div className="kf-listing-flow-map-actions">
-              <button
-                type="button"
-                className="kf-btn kf-btn-ghost kf-listing-flow-gps"
-                disabled={locating}
-                onClick={() => void useMyLocation()}
-              >
-                {locating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                ) : (
-                  <Navigation className="h-4 w-4" aria-hidden />
-                )}
-                GPS
-              </button>
+        <section
+          id="kf-step-location"
+          data-wizard-step="1"
+          className="kf-form-section"
+          hidden={activeStep !== 1}
+        >
+          <div className="kf-form-section-head">
+            <h2 className="kf-form-section-title">Location</h2>
+            <p className="kf-form-section-sub">
+              Shown as a landmark publicly; map pin uses GPS when you publish.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <label className="kf-label">
+              Neighbourhood / landmark (shown publicly)
               <input
-                className="kf-listing-flow-input kf-listing-flow-input--inline"
-                value={draft.locationLabel}
-                onChange={(e) => patchDraft({ locationLabel: e.target.value })}
-                placeholder="Landmark e.g. Maponya Mall"
+                name="locationLabel"
+                required
+                defaultValue={listing?.locationLabel ?? ""}
+                placeholder="e.g. Near Maponya Mall, Soweto"
+                className="kf-input mt-1"
               />
-            </div>
-            <div className="kf-listing-flow-visibility" role="group" aria-label="Map visibility">
-              <button
-                type="button"
-                className={`kf-listing-flow-visibility-btn${draft.hideExactLocation ? " kf-listing-flow-visibility-btn--on" : ""}`}
-                onClick={() => patchDraft({ hideExactLocation: true })}
-              >
-                Approx. area
-              </button>
-              <button
-                type="button"
-                className={`kf-listing-flow-visibility-btn${!draft.hideExactLocation ? " kf-listing-flow-visibility-btn--on" : ""}`}
-                onClick={() => patchDraft({ hideExactLocation: false })}
-              >
-                Exact pin
-              </button>
-            </div>
+            </label>
+            <KfLocationPicker
+              key={`${listing?.latitude ?? -26.2041}-${listing?.longitude ?? 28.0473}-${listing?.hideExactLocation ?? true}`}
+              initialLatitude={listing?.latitude ?? -26.2041}
+              initialLongitude={listing?.longitude ?? 28.0473}
+              initialHideExactLocation={listing?.hideExactLocation ?? true}
+            />
           </div>
-        ) : null}
+        </section>
 
-        {activeStep === 3 ? (
-          <div className="kf-listing-flow-stack">
-            <div className="kf-listing-flow-categories" role="list">
-              {categories.map((c) => {
-                const Icon = categoryIconForSlug(c.slug);
-                const on = draft.categoryIds.includes(c.id);
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    role="listitem"
-                    className={`kf-listing-flow-chip${on ? " kf-listing-flow-chip--on" : ""}`}
-                    onClick={() => toggleCategory(c.id)}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" aria-hidden />
+        <section
+          id="kf-step-services"
+          data-wizard-step="2"
+          className="kf-form-section"
+          hidden={activeStep !== 2}
+        >
+          <div className="kf-form-section-head">
+            <h2 className="kf-form-section-title">Services & categories</h2>
+            <p className="kf-form-section-sub">Helps customers find you when they search.</p>
+          </div>
+          <div className="space-y-4">
+            <fieldset>
+              <legend className="kf-label">Categories</legend>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {categories.map((c) => (
+                  <label key={c.id} className="kf-category-check">
+                    <input
+                      type="checkbox"
+                      name="categoryId"
+                      value={c.id}
+                      defaultChecked={listing?.categoryIds.includes(c.id)}
+                    />
                     {c.name}
-                  </button>
-                );
-              })}
-            </div>
-            <input
-              className="kf-listing-flow-input kf-listing-flow-input--secondary"
-              value={draft.servicesLine}
-              onChange={(e) => patchDraft({ servicesLine: e.target.value })}
-              placeholder="Services e.g. welding, gates (comma separated)"
-            />
-            <div className="kf-listing-flow-inline-fields">
-              <input
-                className="kf-listing-flow-input kf-listing-flow-input--secondary"
-                value={draft.priceHint}
-                onChange={(e) => patchDraft({ priceHint: e.target.value })}
-                placeholder="Price hint (optional)"
-              />
-              <input
-                className="kf-listing-flow-input kf-listing-flow-input--secondary"
-                value={draft.hoursNote}
-                onChange={(e) => patchDraft({ hoursNote: e.target.value })}
-                placeholder="Hours (optional)"
-              />
-            </div>
-          </div>
-        ) : null}
-
-        {activeStep === 4 ? (
-          <div className="kf-listing-flow-photo-step">
-            {listingId && photos.length > 0 ? (
-              <div className="kf-listing-flow-photo-grid">
-                {photos.map((p) => (
-                  <div key={p.id} className="kf-photo-thumb">
-                    <KfListingImage src={p.url} alt="" className="aspect-square w-full object-cover" />
-                    <button
-                      type="button"
-                      className="kf-photo-remove"
-                      aria-label="Remove photo"
-                      disabled={removingPhotoId === p.id || formBusy}
-                      onClick={() => {
-                        setRemovingPhotoId(p.id);
-                        startTransition(async () => {
-                          try {
-                            const fd = new FormData();
-                            fd.set("photoId", p.id);
-                            const result = await kfRemoveListingPhoto(fd);
-                            if ("error" in result && result.error) toast.error(result.error);
-                            else {
-                              toast.success("Photo removed.");
-                              router.refresh();
-                            }
-                          } finally {
-                            setRemovingPhotoId(null);
-                          }
-                        });
-                      }}
-                    >
-                      {removingPhotoId === p.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                      ) : (
-                        <X className="h-4 w-4" aria-hidden />
-                      )}
-                    </button>
-                  </div>
+                  </label>
                 ))}
               </div>
-            ) : (
-              <div className="kf-listing-flow-photo-empty" aria-hidden>
-                <Camera className="h-8 w-8" />
-              </div>
-            )}
-            {listingId ? (
-              <label className="kf-btn kf-btn-secondary kf-listing-flow-photo-btn">
+            </fieldset>
+            <label className="kf-label">
+              Services (one per line)
+              <textarea
+                name="services"
+                rows={4}
+                defaultValue={defaultServices}
+                className="kf-input mt-1 text-sm"
+              />
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="kf-label">
+                Price hint (optional)
                 <input
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  disabled={uploading || formBusy}
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    setUploading(true);
-                    try {
-                      const body = new FormData();
-                      body.append("file", file);
-                      const res = await fetch("/api/upload", { method: "POST", body });
-                      const data = await res.json();
-                      if (!res.ok) {
-                        toast.error(data.error ?? "Upload failed");
-                        return;
-                      }
-                      const fd = new FormData();
-                      fd.set("url", data.url);
-                      const add = await kfAddListingPhoto(fd);
-                      if ("error" in add && add.error) toast.error(add.error);
-                      else {
-                        toast.success("Photo added.");
-                        router.refresh();
-                      }
-                    } finally {
-                      setUploading(false);
-                      e.target.value = "";
-                    }
-                  }}
+                  name="priceHint"
+                  defaultValue={listing?.priceHint ?? ""}
+                  placeholder="From R800 / gate"
+                  className="kf-input mt-1"
                 />
-                {uploading ? "Uploading…" : "Add a work photo"}
               </label>
-            ) : (
-              <p className="text-center text-sm text-[var(--kf-muted)]">Saving your details…</p>
-            )}
+              <label className="kf-label">
+                Hours (optional)
+                <input
+                  name="hoursNote"
+                  defaultValue={listing?.hoursNote ?? ""}
+                  className="kf-input mt-1"
+                  placeholder="Mon–Sat 8am–5pm"
+                />
+              </label>
+            </div>
           </div>
-        ) : null}
+        </section>
 
-        {activeStep === 5 ? (
-          <ul className="kf-listing-flow-review">
-            <li>
-              <strong>{draft.displayName}</strong>
-            </li>
-            <li>
-              {draft.description.trim()
-                ? draft.description.trim()
-                : "Description will be added automatically when you publish."}
-            </li>
-            <li>
-              <Phone className="inline h-3.5 w-3.5" aria-hidden /> {draft.phone}
-            </li>
-            <li>
-              <MapPin className="inline h-3.5 w-3.5" aria-hidden /> {draft.locationLabel}
-              {draft.hideExactLocation ? " (approximate map)" : " (exact pin)"}
-            </li>
-            <li>
-              {draft.categoryIds.length
-                ? categories
-                    .filter((c) => draft.categoryIds.includes(c.id))
-                    .map((c) => c.name)
-                    .join(", ")
-                : "General — add categories later"}
-            </li>
-            {draft.priceHint.trim() ? <li>Price: {draft.priceHint.trim()}</li> : null}
-            {draft.hoursNote.trim() ? <li>Hours: {draft.hoursNote.trim()}</li> : null}
-            <li>
-              {listing?.profileImageUrl ? "Business photo added" : "No business photo yet"}
-              {photos.length ? ` · ${photos.length} work photo${photos.length === 1 ? "" : "s"}` : ""}
-            </li>
-          </ul>
-        ) : null}
+        <section
+          id="kf-step-photos"
+          data-wizard-step="3"
+          className="kf-form-section"
+          hidden={activeStep !== 3}
+        >
+          <div className="kf-form-section-head">
+            <h2 className="kf-form-section-title">Work photos</h2>
+            <p className="kf-form-section-sub">
+              Real examples build trust — even one clear photo makes a difference.
+            </p>
+          </div>
+          {listing?.listingId ? (
+            <>
+              {photoCount > 0 ? (
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {listing.photos.map((p) => (
+                    <div key={p.id} className="kf-photo-thumb">
+                      <KfListingImage
+                        src={p.url}
+                        alt=""
+                        className="aspect-square w-full object-cover"
+                        priority
+                      />
+                      <button
+                        type="button"
+                        className="kf-photo-remove"
+                        aria-label="Remove photo"
+                        disabled={removingPhotoId === p.id || pending || uploading}
+                        onClick={() => {
+                          setRemovingPhotoId(p.id);
+                          startTransition(async () => {
+                            try {
+                              const fd = new FormData();
+                              fd.set("photoId", p.id);
+                              const result = await kfRemoveListingPhoto(fd);
+                              if ("error" in result && result.error) toast.error(result.error);
+                              else {
+                                toast.success("Photo removed.");
+                                router.refresh();
+                              }
+                            } finally {
+                              setRemovingPhotoId(null);
+                            }
+                          });
+                        }}
+                      >
+                        {removingPhotoId === p.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                        ) : (
+                          <X className="h-4 w-4" aria-hidden />
+                        )}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <KfEmptyState
+                  icon={<Camera className="h-6 w-6" aria-hidden />}
+                  title="No work photos yet"
+                  description="Add at least one clear photo of your work. Customers often message before they visit — photos help them choose you with confidence."
+                />
+              )}
+              <label className="relative mt-4 block">
+                <span className="kf-file-input">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploading || pending}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploading(true);
+                      try {
+                        const body = new FormData();
+                        body.append("file", file);
+                        const res = await fetch("/api/upload", { method: "POST", body });
+                        const data = await res.json();
+                        if (!res.ok) {
+                          toast.error(data.error ?? "Upload failed");
+                          return;
+                        }
+                        const fd = new FormData();
+                        fd.set("url", data.url);
+                        const add = await kfAddListingPhoto(fd);
+                        if ("error" in add && add.error) toast.error(add.error);
+                        else {
+                          toast.success("Photo added.");
+                          router.refresh();
+                        }
+                      } finally {
+                        setUploading(false);
+                        e.target.value = "";
+                      }
+                    }}
+                  />
+                  {uploading ? "Uploading…" : "Tap to add a photo"}
+                </span>
+              </label>
+            </>
+          ) : (
+            <div className="space-y-3">
+              <KfEmptyState
+                icon={<Camera className="h-6 w-6" aria-hidden />}
+                title="Save a draft to add photos"
+                description="We need a quick draft of your business details before uploads unlock. It only takes a moment — you will stay on this step."
+                action={
+                  <button
+                    type="submit"
+                    name="publish"
+                    value="false"
+                    disabled={formBusy}
+                    className="kf-btn kf-btn-primary"
+                  >
+                    Save draft & unlock uploads
+                  </button>
+                }
+              />
+            </div>
+          )}
+        </section>
+
+        <section
+          id="kf-step-publish"
+          data-wizard-step="4"
+          className="kf-form-section"
+          hidden={activeStep !== LAST_STEP}
+        >
+          <div className="kf-form-section-head">
+            <h2 className="kf-form-section-title">Ready to publish?</h2>
+            <p className="kf-form-section-sub">
+              Check your details, save a draft, or submit for review.
+            </p>
+          </div>
+          <KfListingWizardSummary
+            formRef={formRef}
+            photoCount={photoCount}
+            hasProfilePhoto={Boolean(listing?.profileImageUrl)}
+          />
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+            <button
+              type="submit"
+              name="publish"
+              value="false"
+              disabled={formBusy}
+              className="kf-btn kf-btn-outline min-h-[3rem] flex-1 text-base"
+            >
+              Save draft
+            </button>
+            <button
+              type="submit"
+              name="publish"
+              value="true"
+              disabled={formBusy}
+              className="kf-btn kf-btn-primary min-h-[3rem] flex-1 text-base"
+            >
+              {locatingPublish ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Getting location…
+                </>
+              ) : pending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Submitting…
+                </>
+              ) : (
+                "Publish for review"
+              )}
+            </button>
+          </div>
+        </section>
+        </form>
       </div>
 
-      <footer className="kf-listing-flow-foot">
-        {skipOptional}
-        <nav className="kf-listing-flow-nav" aria-label="Listing steps">
-          {activeStep > 0 ? (
-            <button type="button" className="kf-btn kf-btn-outline" onClick={goBack} disabled={formBusy}>
+      <footer className="kf-listing-flow-foot kf-classic-wizard-foot">
+        <nav className="kf-wizard-nav kf-listing-flow-nav" aria-label="Listing steps">
+          {activeStep > 0 && activeStep < LAST_STEP ? (
+            <button
+              type="button"
+              className="kf-btn kf-btn-outline min-h-[2.75rem] flex-1"
+              onClick={goBack}
+              disabled={formBusy}
+            >
               <ArrowLeft className="h-4 w-4" aria-hidden />
               Back
             </button>
           ) : (
             <span aria-hidden />
           )}
+
           {activeStep < LAST_STEP ? (
-            <button type="button" className="kf-btn kf-btn-primary" onClick={() => void goNext()} disabled={formBusy}>
+            <button
+              type="button"
+              className="kf-btn kf-btn-primary min-h-[2.75rem] flex-1"
+              onClick={goNext}
+              disabled={formBusy}
+            >
               Next
               <ArrowRight className="h-4 w-4" aria-hidden />
             </button>
           ) : (
-            <button type="button" className="kf-btn kf-btn-primary" onClick={publish} disabled={formBusy}>
-              {locatingPublish || pending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                  Publishing…
-                </>
-              ) : (
-                "Publish for review"
-              )}
+            <button
+              type="button"
+              className="kf-btn kf-btn-ghost min-h-[2.75rem] flex-1 text-sm"
+              onClick={() => goToStep(0)}
+              disabled={formBusy}
+            >
+              Edit earlier steps
             </button>
           )}
         </nav>
