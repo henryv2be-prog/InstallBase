@@ -227,6 +227,7 @@ export type KfCategoryWhereInput = {
   parent?: Prisma.XOR<Prisma.KfCategoryNullableScalarRelationFilter, Prisma.KfCategoryWhereInput> | null
   children?: Prisma.KfCategoryListRelationFilter
   listings?: Prisma.KfListingCategoryListRelationFilter
+  analyticsEvents?: Prisma.KfAnalyticsEventListRelationFilter
 }
 
 export type KfCategoryOrderByWithRelationInput = {
@@ -239,6 +240,7 @@ export type KfCategoryOrderByWithRelationInput = {
   parent?: Prisma.KfCategoryOrderByWithRelationInput
   children?: Prisma.KfCategoryOrderByRelationAggregateInput
   listings?: Prisma.KfListingCategoryOrderByRelationAggregateInput
+  analyticsEvents?: Prisma.KfAnalyticsEventOrderByRelationAggregateInput
 }
 
 export type KfCategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -254,6 +256,7 @@ export type KfCategoryWhereUniqueInput = Prisma.AtLeast<{
   parent?: Prisma.XOR<Prisma.KfCategoryNullableScalarRelationFilter, Prisma.KfCategoryWhereInput> | null
   children?: Prisma.KfCategoryListRelationFilter
   listings?: Prisma.KfListingCategoryListRelationFilter
+  analyticsEvents?: Prisma.KfAnalyticsEventListRelationFilter
 }, "id" | "slug">
 
 export type KfCategoryOrderByWithAggregationInput = {
@@ -291,6 +294,7 @@ export type KfCategoryCreateInput = {
   parent?: Prisma.KfCategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.KfCategoryCreateNestedManyWithoutParentInput
   listings?: Prisma.KfListingCategoryCreateNestedManyWithoutCategoryInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutCategoryInput
 }
 
 export type KfCategoryUncheckedCreateInput = {
@@ -302,6 +306,7 @@ export type KfCategoryUncheckedCreateInput = {
   createdAt?: Date | string
   children?: Prisma.KfCategoryUncheckedCreateNestedManyWithoutParentInput
   listings?: Prisma.KfListingCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type KfCategoryUpdateInput = {
@@ -313,6 +318,7 @@ export type KfCategoryUpdateInput = {
   parent?: Prisma.KfCategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.KfCategoryUpdateManyWithoutParentNestedInput
   listings?: Prisma.KfListingCategoryUpdateManyWithoutCategoryNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutCategoryNestedInput
 }
 
 export type KfCategoryUncheckedUpdateInput = {
@@ -324,6 +330,7 @@ export type KfCategoryUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.KfCategoryUncheckedUpdateManyWithoutParentNestedInput
   listings?: Prisma.KfListingCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type KfCategoryCreateManyInput = {
@@ -487,6 +494,22 @@ export type KfCategoryUpdateOneRequiredWithoutListingsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.KfCategoryUpdateToOneWithWhereWithoutListingsInput, Prisma.KfCategoryUpdateWithoutListingsInput>, Prisma.KfCategoryUncheckedUpdateWithoutListingsInput>
 }
 
+export type KfCategoryCreateNestedOneWithoutAnalyticsEventsInput = {
+  create?: Prisma.XOR<Prisma.KfCategoryCreateWithoutAnalyticsEventsInput, Prisma.KfCategoryUncheckedCreateWithoutAnalyticsEventsInput>
+  connectOrCreate?: Prisma.KfCategoryCreateOrConnectWithoutAnalyticsEventsInput
+  connect?: Prisma.KfCategoryWhereUniqueInput
+}
+
+export type KfCategoryUpdateOneWithoutAnalyticsEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.KfCategoryCreateWithoutAnalyticsEventsInput, Prisma.KfCategoryUncheckedCreateWithoutAnalyticsEventsInput>
+  connectOrCreate?: Prisma.KfCategoryCreateOrConnectWithoutAnalyticsEventsInput
+  upsert?: Prisma.KfCategoryUpsertWithoutAnalyticsEventsInput
+  disconnect?: Prisma.KfCategoryWhereInput | boolean
+  delete?: Prisma.KfCategoryWhereInput | boolean
+  connect?: Prisma.KfCategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.KfCategoryUpdateToOneWithWhereWithoutAnalyticsEventsInput, Prisma.KfCategoryUpdateWithoutAnalyticsEventsInput>, Prisma.KfCategoryUncheckedUpdateWithoutAnalyticsEventsInput>
+}
+
 export type KfCategoryCreateWithoutChildrenInput = {
   id?: string
   slug: string
@@ -495,6 +518,7 @@ export type KfCategoryCreateWithoutChildrenInput = {
   createdAt?: Date | string
   parent?: Prisma.KfCategoryCreateNestedOneWithoutChildrenInput
   listings?: Prisma.KfListingCategoryCreateNestedManyWithoutCategoryInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutCategoryInput
 }
 
 export type KfCategoryUncheckedCreateWithoutChildrenInput = {
@@ -505,6 +529,7 @@ export type KfCategoryUncheckedCreateWithoutChildrenInput = {
   sortOrder?: number
   createdAt?: Date | string
   listings?: Prisma.KfListingCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type KfCategoryCreateOrConnectWithoutChildrenInput = {
@@ -520,6 +545,7 @@ export type KfCategoryCreateWithoutParentInput = {
   createdAt?: Date | string
   children?: Prisma.KfCategoryCreateNestedManyWithoutParentInput
   listings?: Prisma.KfListingCategoryCreateNestedManyWithoutCategoryInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutCategoryInput
 }
 
 export type KfCategoryUncheckedCreateWithoutParentInput = {
@@ -530,6 +556,7 @@ export type KfCategoryUncheckedCreateWithoutParentInput = {
   createdAt?: Date | string
   children?: Prisma.KfCategoryUncheckedCreateNestedManyWithoutParentInput
   listings?: Prisma.KfListingCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type KfCategoryCreateOrConnectWithoutParentInput = {
@@ -561,6 +588,7 @@ export type KfCategoryUpdateWithoutChildrenInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parent?: Prisma.KfCategoryUpdateOneWithoutChildrenNestedInput
   listings?: Prisma.KfListingCategoryUpdateManyWithoutCategoryNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutCategoryNestedInput
 }
 
 export type KfCategoryUncheckedUpdateWithoutChildrenInput = {
@@ -571,6 +599,7 @@ export type KfCategoryUncheckedUpdateWithoutChildrenInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   listings?: Prisma.KfListingCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type KfCategoryUpsertWithWhereUniqueWithoutParentInput = {
@@ -609,6 +638,7 @@ export type KfCategoryCreateWithoutListingsInput = {
   createdAt?: Date | string
   parent?: Prisma.KfCategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.KfCategoryCreateNestedManyWithoutParentInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutCategoryInput
 }
 
 export type KfCategoryUncheckedCreateWithoutListingsInput = {
@@ -619,6 +649,7 @@ export type KfCategoryUncheckedCreateWithoutListingsInput = {
   sortOrder?: number
   createdAt?: Date | string
   children?: Prisma.KfCategoryUncheckedCreateNestedManyWithoutParentInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type KfCategoryCreateOrConnectWithoutListingsInput = {
@@ -645,6 +676,7 @@ export type KfCategoryUpdateWithoutListingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parent?: Prisma.KfCategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.KfCategoryUpdateManyWithoutParentNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutCategoryNestedInput
 }
 
 export type KfCategoryUncheckedUpdateWithoutListingsInput = {
@@ -655,6 +687,67 @@ export type KfCategoryUncheckedUpdateWithoutListingsInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.KfCategoryUncheckedUpdateManyWithoutParentNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
+export type KfCategoryCreateWithoutAnalyticsEventsInput = {
+  id?: string
+  slug: string
+  name: string
+  sortOrder?: number
+  createdAt?: Date | string
+  parent?: Prisma.KfCategoryCreateNestedOneWithoutChildrenInput
+  children?: Prisma.KfCategoryCreateNestedManyWithoutParentInput
+  listings?: Prisma.KfListingCategoryCreateNestedManyWithoutCategoryInput
+}
+
+export type KfCategoryUncheckedCreateWithoutAnalyticsEventsInput = {
+  id?: string
+  slug: string
+  name: string
+  parentId?: string | null
+  sortOrder?: number
+  createdAt?: Date | string
+  children?: Prisma.KfCategoryUncheckedCreateNestedManyWithoutParentInput
+  listings?: Prisma.KfListingCategoryUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type KfCategoryCreateOrConnectWithoutAnalyticsEventsInput = {
+  where: Prisma.KfCategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.KfCategoryCreateWithoutAnalyticsEventsInput, Prisma.KfCategoryUncheckedCreateWithoutAnalyticsEventsInput>
+}
+
+export type KfCategoryUpsertWithoutAnalyticsEventsInput = {
+  update: Prisma.XOR<Prisma.KfCategoryUpdateWithoutAnalyticsEventsInput, Prisma.KfCategoryUncheckedUpdateWithoutAnalyticsEventsInput>
+  create: Prisma.XOR<Prisma.KfCategoryCreateWithoutAnalyticsEventsInput, Prisma.KfCategoryUncheckedCreateWithoutAnalyticsEventsInput>
+  where?: Prisma.KfCategoryWhereInput
+}
+
+export type KfCategoryUpdateToOneWithWhereWithoutAnalyticsEventsInput = {
+  where?: Prisma.KfCategoryWhereInput
+  data: Prisma.XOR<Prisma.KfCategoryUpdateWithoutAnalyticsEventsInput, Prisma.KfCategoryUncheckedUpdateWithoutAnalyticsEventsInput>
+}
+
+export type KfCategoryUpdateWithoutAnalyticsEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parent?: Prisma.KfCategoryUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.KfCategoryUpdateManyWithoutParentNestedInput
+  listings?: Prisma.KfListingCategoryUpdateManyWithoutCategoryNestedInput
+}
+
+export type KfCategoryUncheckedUpdateWithoutAnalyticsEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.KfCategoryUncheckedUpdateManyWithoutParentNestedInput
+  listings?: Prisma.KfListingCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type KfCategoryCreateManyParentInput = {
@@ -673,6 +766,7 @@ export type KfCategoryUpdateWithoutParentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.KfCategoryUpdateManyWithoutParentNestedInput
   listings?: Prisma.KfListingCategoryUpdateManyWithoutCategoryNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutCategoryNestedInput
 }
 
 export type KfCategoryUncheckedUpdateWithoutParentInput = {
@@ -683,6 +777,7 @@ export type KfCategoryUncheckedUpdateWithoutParentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.KfCategoryUncheckedUpdateManyWithoutParentNestedInput
   listings?: Prisma.KfListingCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type KfCategoryUncheckedUpdateManyWithoutParentInput = {
@@ -701,11 +796,13 @@ export type KfCategoryUncheckedUpdateManyWithoutParentInput = {
 export type KfCategoryCountOutputType = {
   children: number
   listings: number
+  analyticsEvents: number
 }
 
 export type KfCategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   children?: boolean | KfCategoryCountOutputTypeCountChildrenArgs
   listings?: boolean | KfCategoryCountOutputTypeCountListingsArgs
+  analyticsEvents?: boolean | KfCategoryCountOutputTypeCountAnalyticsEventsArgs
 }
 
 /**
@@ -732,6 +829,13 @@ export type KfCategoryCountOutputTypeCountListingsArgs<ExtArgs extends runtime.T
   where?: Prisma.KfListingCategoryWhereInput
 }
 
+/**
+ * KfCategoryCountOutputType without action
+ */
+export type KfCategoryCountOutputTypeCountAnalyticsEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.KfAnalyticsEventWhereInput
+}
+
 
 export type KfCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -743,6 +847,7 @@ export type KfCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   parent?: boolean | Prisma.KfCategory$parentArgs<ExtArgs>
   children?: boolean | Prisma.KfCategory$childrenArgs<ExtArgs>
   listings?: boolean | Prisma.KfCategory$listingsArgs<ExtArgs>
+  analyticsEvents?: boolean | Prisma.KfCategory$analyticsEventsArgs<ExtArgs>
   _count?: boolean | Prisma.KfCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["kfCategory"]>
 
@@ -780,6 +885,7 @@ export type KfCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   parent?: boolean | Prisma.KfCategory$parentArgs<ExtArgs>
   children?: boolean | Prisma.KfCategory$childrenArgs<ExtArgs>
   listings?: boolean | Prisma.KfCategory$listingsArgs<ExtArgs>
+  analyticsEvents?: boolean | Prisma.KfCategory$analyticsEventsArgs<ExtArgs>
   _count?: boolean | Prisma.KfCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type KfCategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -795,6 +901,7 @@ export type $KfCategoryPayload<ExtArgs extends runtime.Types.Extensions.Internal
     parent: Prisma.$KfCategoryPayload<ExtArgs> | null
     children: Prisma.$KfCategoryPayload<ExtArgs>[]
     listings: Prisma.$KfListingCategoryPayload<ExtArgs>[]
+    analyticsEvents: Prisma.$KfAnalyticsEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1200,6 +1307,7 @@ export interface Prisma__KfCategoryClient<T, Null = never, ExtArgs extends runti
   parent<T extends Prisma.KfCategory$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfCategory$parentArgs<ExtArgs>>): Prisma.Prisma__KfCategoryClient<runtime.Types.Result.GetResult<Prisma.$KfCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.KfCategory$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfCategory$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   listings<T extends Prisma.KfCategory$listingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfCategory$listingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfListingCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  analyticsEvents<T extends Prisma.KfCategory$analyticsEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfCategory$analyticsEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfAnalyticsEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1700,6 +1808,30 @@ export type KfCategory$listingsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.KfListingCategoryScalarFieldEnum | Prisma.KfListingCategoryScalarFieldEnum[]
+}
+
+/**
+ * KfCategory.analyticsEvents
+ */
+export type KfCategory$analyticsEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KfAnalyticsEvent
+   */
+  select?: Prisma.KfAnalyticsEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KfAnalyticsEvent
+   */
+  omit?: Prisma.KfAnalyticsEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KfAnalyticsEventInclude<ExtArgs> | null
+  where?: Prisma.KfAnalyticsEventWhereInput
+  orderBy?: Prisma.KfAnalyticsEventOrderByWithRelationInput | Prisma.KfAnalyticsEventOrderByWithRelationInput[]
+  cursor?: Prisma.KfAnalyticsEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.KfAnalyticsEventScalarFieldEnum | Prisma.KfAnalyticsEventScalarFieldEnum[]
 }
 
 /**

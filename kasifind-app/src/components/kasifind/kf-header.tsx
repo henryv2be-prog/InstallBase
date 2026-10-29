@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, PlusCircle, X } from "lucide-react";
+import { LayoutDashboard, Menu, PlusCircle, X } from "lucide-react";
 import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
 
 function BrandMark() {
@@ -14,10 +14,16 @@ function BrandMark() {
   );
 }
 
-export function KfHeader() {
+export type KfHeaderUser = {
+  role: "PROVIDER" | "ADMIN";
+  email: string;
+};
+
+export function KfHeader({ user }: { user: KfHeaderUser | null }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const isHome = pathname === "/";
+  const isAdmin = user?.role === "ADMIN";
 
   return (
     <header className="kf-header">
@@ -31,6 +37,12 @@ export function KfHeader() {
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex" aria-label="Main">
+          {isAdmin ? (
+            <Link href="/admin" className="kf-btn kf-btn-outline text-sm">
+              <LayoutDashboard className="h-4 w-4" aria-hidden />
+              Admin portal
+            </Link>
+          ) : null}
           <Link href="/account/listing" className="kf-btn kf-btn-primary text-sm">
             <PlusCircle className="h-4 w-4" aria-hidden />
             List your business
@@ -55,21 +67,33 @@ export function KfHeader() {
           className="border-t border-[var(--kf-border)] bg-white px-4 py-3 sm:hidden kf-animate-in"
           aria-label="Mobile"
         >
+          {isAdmin ? (
+            <Link
+              href="/admin"
+              className="kf-btn kf-btn-outline w-full"
+              onClick={() => setOpen(false)}
+            >
+              <LayoutDashboard className="h-4 w-4" aria-hidden />
+              Admin portal
+            </Link>
+          ) : null}
           <Link
             href="/account/listing"
-            className="kf-btn kf-btn-primary w-full"
+            className={`kf-btn kf-btn-primary w-full${isAdmin ? " mt-2" : ""}`}
             onClick={() => setOpen(false)}
           >
             <PlusCircle className="h-4 w-4" aria-hidden />
             List your business
           </Link>
-          <Link
-            href="/login"
-            className="kf-btn kf-btn-outline mt-2 w-full"
-            onClick={() => setOpen(false)}
-          >
-            Provider sign in
-          </Link>
+          {!user ? (
+            <Link
+              href="/login"
+              className="kf-btn kf-btn-outline mt-2 w-full"
+              onClick={() => setOpen(false)}
+            >
+              Provider sign in
+            </Link>
+          ) : null}
         </nav>
       )}
     </header>

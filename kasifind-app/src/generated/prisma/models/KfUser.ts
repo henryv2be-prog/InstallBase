@@ -31,6 +31,7 @@ export type KfUserMinAggregateOutputType = {
   name: string | null
   role: $Enums.KfUserRole | null
   suspended: boolean | null
+  lastSeenAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +43,7 @@ export type KfUserMaxAggregateOutputType = {
   name: string | null
   role: $Enums.KfUserRole | null
   suspended: boolean | null
+  lastSeenAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,6 +55,7 @@ export type KfUserCountAggregateOutputType = {
   name: number
   role: number
   suspended: number
+  lastSeenAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -66,6 +69,7 @@ export type KfUserMinAggregateInputType = {
   name?: true
   role?: true
   suspended?: true
+  lastSeenAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,6 +81,7 @@ export type KfUserMaxAggregateInputType = {
   name?: true
   role?: true
   suspended?: true
+  lastSeenAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +93,7 @@ export type KfUserCountAggregateInputType = {
   name?: true
   role?: true
   suspended?: true
+  lastSeenAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -172,6 +178,7 @@ export type KfUserGroupByOutputType = {
   name: string | null
   role: $Enums.KfUserRole
   suspended: boolean
+  lastSeenAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: KfUserCountAggregateOutputType | null
@@ -204,11 +211,13 @@ export type KfUserWhereInput = {
   name?: Prisma.StringNullableFilter<"KfUser"> | string | null
   role?: Prisma.EnumKfUserRoleFilter<"KfUser"> | $Enums.KfUserRole
   suspended?: Prisma.BoolFilter<"KfUser"> | boolean
+  lastSeenAt?: Prisma.DateTimeNullableFilter<"KfUser"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"KfUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"KfUser"> | Date | string
   listing?: Prisma.XOR<Prisma.KfProviderListingNullableScalarRelationFilter, Prisma.KfProviderListingWhereInput> | null
   reviews?: Prisma.KfReviewListRelationFilter
   reports?: Prisma.KfReportListRelationFilter
+  analyticsEvents?: Prisma.KfAnalyticsEventListRelationFilter
 }
 
 export type KfUserOrderByWithRelationInput = {
@@ -218,11 +227,13 @@ export type KfUserOrderByWithRelationInput = {
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   suspended?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   listing?: Prisma.KfProviderListingOrderByWithRelationInput
   reviews?: Prisma.KfReviewOrderByRelationAggregateInput
   reports?: Prisma.KfReportOrderByRelationAggregateInput
+  analyticsEvents?: Prisma.KfAnalyticsEventOrderByRelationAggregateInput
 }
 
 export type KfUserWhereUniqueInput = Prisma.AtLeast<{
@@ -235,11 +246,13 @@ export type KfUserWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringNullableFilter<"KfUser"> | string | null
   role?: Prisma.EnumKfUserRoleFilter<"KfUser"> | $Enums.KfUserRole
   suspended?: Prisma.BoolFilter<"KfUser"> | boolean
+  lastSeenAt?: Prisma.DateTimeNullableFilter<"KfUser"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"KfUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"KfUser"> | Date | string
   listing?: Prisma.XOR<Prisma.KfProviderListingNullableScalarRelationFilter, Prisma.KfProviderListingWhereInput> | null
   reviews?: Prisma.KfReviewListRelationFilter
   reports?: Prisma.KfReportListRelationFilter
+  analyticsEvents?: Prisma.KfAnalyticsEventListRelationFilter
 }, "id" | "email">
 
 export type KfUserOrderByWithAggregationInput = {
@@ -249,6 +262,7 @@ export type KfUserOrderByWithAggregationInput = {
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   suspended?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.KfUserCountOrderByAggregateInput
@@ -266,6 +280,7 @@ export type KfUserScalarWhereWithAggregatesInput = {
   name?: Prisma.StringNullableWithAggregatesFilter<"KfUser"> | string | null
   role?: Prisma.EnumKfUserRoleWithAggregatesFilter<"KfUser"> | $Enums.KfUserRole
   suspended?: Prisma.BoolWithAggregatesFilter<"KfUser"> | boolean
+  lastSeenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"KfUser"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"KfUser"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"KfUser"> | Date | string
 }
@@ -277,11 +292,13 @@ export type KfUserCreateInput = {
   name?: string | null
   role?: $Enums.KfUserRole
   suspended?: boolean
+  lastSeenAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   listing?: Prisma.KfProviderListingCreateNestedOneWithoutUserInput
   reviews?: Prisma.KfReviewCreateNestedManyWithoutUserInput
   reports?: Prisma.KfReportCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
 }
 
 export type KfUserUncheckedCreateInput = {
@@ -291,11 +308,13 @@ export type KfUserUncheckedCreateInput = {
   name?: string | null
   role?: $Enums.KfUserRole
   suspended?: boolean
+  lastSeenAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   listing?: Prisma.KfProviderListingUncheckedCreateNestedOneWithoutUserInput
   reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutUserInput
   reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type KfUserUpdateInput = {
@@ -305,11 +324,13 @@ export type KfUserUpdateInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   listing?: Prisma.KfProviderListingUpdateOneWithoutUserNestedInput
   reviews?: Prisma.KfReviewUpdateManyWithoutUserNestedInput
   reports?: Prisma.KfReportUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
 }
 
 export type KfUserUncheckedUpdateInput = {
@@ -319,11 +340,13 @@ export type KfUserUncheckedUpdateInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   listing?: Prisma.KfProviderListingUncheckedUpdateOneWithoutUserNestedInput
   reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutUserNestedInput
   reports?: Prisma.KfReportUncheckedUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type KfUserCreateManyInput = {
@@ -333,6 +356,7 @@ export type KfUserCreateManyInput = {
   name?: string | null
   role?: $Enums.KfUserRole
   suspended?: boolean
+  lastSeenAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -344,6 +368,7 @@ export type KfUserUpdateManyMutationInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -355,6 +380,7 @@ export type KfUserUncheckedUpdateManyInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -366,6 +392,7 @@ export type KfUserCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   suspended?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -377,6 +404,7 @@ export type KfUserMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   suspended?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -388,6 +416,7 @@ export type KfUserMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   suspended?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -416,6 +445,10 @@ export type EnumKfUserRoleFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -468,6 +501,22 @@ export type KfUserUpdateOneWithoutReportsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.KfUserUpdateToOneWithWhereWithoutReportsInput, Prisma.KfUserUpdateWithoutReportsInput>, Prisma.KfUserUncheckedUpdateWithoutReportsInput>
 }
 
+export type KfUserCreateNestedOneWithoutAnalyticsEventsInput = {
+  create?: Prisma.XOR<Prisma.KfUserCreateWithoutAnalyticsEventsInput, Prisma.KfUserUncheckedCreateWithoutAnalyticsEventsInput>
+  connectOrCreate?: Prisma.KfUserCreateOrConnectWithoutAnalyticsEventsInput
+  connect?: Prisma.KfUserWhereUniqueInput
+}
+
+export type KfUserUpdateOneWithoutAnalyticsEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.KfUserCreateWithoutAnalyticsEventsInput, Prisma.KfUserUncheckedCreateWithoutAnalyticsEventsInput>
+  connectOrCreate?: Prisma.KfUserCreateOrConnectWithoutAnalyticsEventsInput
+  upsert?: Prisma.KfUserUpsertWithoutAnalyticsEventsInput
+  disconnect?: Prisma.KfUserWhereInput | boolean
+  delete?: Prisma.KfUserWhereInput | boolean
+  connect?: Prisma.KfUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.KfUserUpdateToOneWithWhereWithoutAnalyticsEventsInput, Prisma.KfUserUpdateWithoutAnalyticsEventsInput>, Prisma.KfUserUncheckedUpdateWithoutAnalyticsEventsInput>
+}
+
 export type KfUserCreateWithoutListingInput = {
   id?: string
   email: string
@@ -475,10 +524,12 @@ export type KfUserCreateWithoutListingInput = {
   name?: string | null
   role?: $Enums.KfUserRole
   suspended?: boolean
+  lastSeenAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   reviews?: Prisma.KfReviewCreateNestedManyWithoutUserInput
   reports?: Prisma.KfReportCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
 }
 
 export type KfUserUncheckedCreateWithoutListingInput = {
@@ -488,10 +539,12 @@ export type KfUserUncheckedCreateWithoutListingInput = {
   name?: string | null
   role?: $Enums.KfUserRole
   suspended?: boolean
+  lastSeenAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutUserInput
   reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type KfUserCreateOrConnectWithoutListingInput = {
@@ -517,10 +570,12 @@ export type KfUserUpdateWithoutListingInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reviews?: Prisma.KfReviewUpdateManyWithoutUserNestedInput
   reports?: Prisma.KfReportUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
 }
 
 export type KfUserUncheckedUpdateWithoutListingInput = {
@@ -530,10 +585,12 @@ export type KfUserUncheckedUpdateWithoutListingInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutUserNestedInput
   reports?: Prisma.KfReportUncheckedUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type KfUserCreateWithoutReviewsInput = {
@@ -543,10 +600,12 @@ export type KfUserCreateWithoutReviewsInput = {
   name?: string | null
   role?: $Enums.KfUserRole
   suspended?: boolean
+  lastSeenAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   listing?: Prisma.KfProviderListingCreateNestedOneWithoutUserInput
   reports?: Prisma.KfReportCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
 }
 
 export type KfUserUncheckedCreateWithoutReviewsInput = {
@@ -556,10 +615,12 @@ export type KfUserUncheckedCreateWithoutReviewsInput = {
   name?: string | null
   role?: $Enums.KfUserRole
   suspended?: boolean
+  lastSeenAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   listing?: Prisma.KfProviderListingUncheckedCreateNestedOneWithoutUserInput
   reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type KfUserCreateOrConnectWithoutReviewsInput = {
@@ -585,10 +646,12 @@ export type KfUserUpdateWithoutReviewsInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   listing?: Prisma.KfProviderListingUpdateOneWithoutUserNestedInput
   reports?: Prisma.KfReportUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
 }
 
 export type KfUserUncheckedUpdateWithoutReviewsInput = {
@@ -598,10 +661,12 @@ export type KfUserUncheckedUpdateWithoutReviewsInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   listing?: Prisma.KfProviderListingUncheckedUpdateOneWithoutUserNestedInput
   reports?: Prisma.KfReportUncheckedUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type KfUserCreateWithoutReportsInput = {
@@ -611,10 +676,12 @@ export type KfUserCreateWithoutReportsInput = {
   name?: string | null
   role?: $Enums.KfUserRole
   suspended?: boolean
+  lastSeenAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   listing?: Prisma.KfProviderListingCreateNestedOneWithoutUserInput
   reviews?: Prisma.KfReviewCreateNestedManyWithoutUserInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
 }
 
 export type KfUserUncheckedCreateWithoutReportsInput = {
@@ -624,10 +691,12 @@ export type KfUserUncheckedCreateWithoutReportsInput = {
   name?: string | null
   role?: $Enums.KfUserRole
   suspended?: boolean
+  lastSeenAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   listing?: Prisma.KfProviderListingUncheckedCreateNestedOneWithoutUserInput
   reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutUserInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type KfUserCreateOrConnectWithoutReportsInput = {
@@ -653,10 +722,12 @@ export type KfUserUpdateWithoutReportsInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   listing?: Prisma.KfProviderListingUpdateOneWithoutUserNestedInput
   reviews?: Prisma.KfReviewUpdateManyWithoutUserNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
 }
 
 export type KfUserUncheckedUpdateWithoutReportsInput = {
@@ -666,10 +737,88 @@ export type KfUserUncheckedUpdateWithoutReportsInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   listing?: Prisma.KfProviderListingUncheckedUpdateOneWithoutUserNestedInput
   reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutUserNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type KfUserCreateWithoutAnalyticsEventsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  role?: $Enums.KfUserRole
+  suspended?: boolean
+  lastSeenAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  listing?: Prisma.KfProviderListingCreateNestedOneWithoutUserInput
+  reviews?: Prisma.KfReviewCreateNestedManyWithoutUserInput
+  reports?: Prisma.KfReportCreateNestedManyWithoutReporterInput
+}
+
+export type KfUserUncheckedCreateWithoutAnalyticsEventsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  role?: $Enums.KfUserRole
+  suspended?: boolean
+  lastSeenAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  listing?: Prisma.KfProviderListingUncheckedCreateNestedOneWithoutUserInput
+  reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutUserInput
+  reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutReporterInput
+}
+
+export type KfUserCreateOrConnectWithoutAnalyticsEventsInput = {
+  where: Prisma.KfUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.KfUserCreateWithoutAnalyticsEventsInput, Prisma.KfUserUncheckedCreateWithoutAnalyticsEventsInput>
+}
+
+export type KfUserUpsertWithoutAnalyticsEventsInput = {
+  update: Prisma.XOR<Prisma.KfUserUpdateWithoutAnalyticsEventsInput, Prisma.KfUserUncheckedUpdateWithoutAnalyticsEventsInput>
+  create: Prisma.XOR<Prisma.KfUserCreateWithoutAnalyticsEventsInput, Prisma.KfUserUncheckedCreateWithoutAnalyticsEventsInput>
+  where?: Prisma.KfUserWhereInput
+}
+
+export type KfUserUpdateToOneWithWhereWithoutAnalyticsEventsInput = {
+  where?: Prisma.KfUserWhereInput
+  data: Prisma.XOR<Prisma.KfUserUpdateWithoutAnalyticsEventsInput, Prisma.KfUserUncheckedUpdateWithoutAnalyticsEventsInput>
+}
+
+export type KfUserUpdateWithoutAnalyticsEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  listing?: Prisma.KfProviderListingUpdateOneWithoutUserNestedInput
+  reviews?: Prisma.KfReviewUpdateManyWithoutUserNestedInput
+  reports?: Prisma.KfReportUpdateManyWithoutReporterNestedInput
+}
+
+export type KfUserUncheckedUpdateWithoutAnalyticsEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  listing?: Prisma.KfProviderListingUncheckedUpdateOneWithoutUserNestedInput
+  reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutUserNestedInput
+  reports?: Prisma.KfReportUncheckedUpdateManyWithoutReporterNestedInput
 }
 
 
@@ -680,11 +829,13 @@ export type KfUserUncheckedUpdateWithoutReportsInput = {
 export type KfUserCountOutputType = {
   reviews: number
   reports: number
+  analyticsEvents: number
 }
 
 export type KfUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   reviews?: boolean | KfUserCountOutputTypeCountReviewsArgs
   reports?: boolean | KfUserCountOutputTypeCountReportsArgs
+  analyticsEvents?: boolean | KfUserCountOutputTypeCountAnalyticsEventsArgs
 }
 
 /**
@@ -711,6 +862,13 @@ export type KfUserCountOutputTypeCountReportsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.KfReportWhereInput
 }
 
+/**
+ * KfUserCountOutputType without action
+ */
+export type KfUserCountOutputTypeCountAnalyticsEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.KfAnalyticsEventWhereInput
+}
+
 
 export type KfUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -719,11 +877,13 @@ export type KfUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name?: boolean
   role?: boolean
   suspended?: boolean
+  lastSeenAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   listing?: boolean | Prisma.KfUser$listingArgs<ExtArgs>
   reviews?: boolean | Prisma.KfUser$reviewsArgs<ExtArgs>
   reports?: boolean | Prisma.KfUser$reportsArgs<ExtArgs>
+  analyticsEvents?: boolean | Prisma.KfUser$analyticsEventsArgs<ExtArgs>
   _count?: boolean | Prisma.KfUserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["kfUser"]>
 
@@ -734,6 +894,7 @@ export type KfUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   name?: boolean
   role?: boolean
   suspended?: boolean
+  lastSeenAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["kfUser"]>
@@ -745,6 +906,7 @@ export type KfUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   name?: boolean
   role?: boolean
   suspended?: boolean
+  lastSeenAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["kfUser"]>
@@ -756,15 +918,17 @@ export type KfUserSelectScalar = {
   name?: boolean
   role?: boolean
   suspended?: boolean
+  lastSeenAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type KfUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "name" | "role" | "suspended" | "createdAt" | "updatedAt", ExtArgs["result"]["kfUser"]>
+export type KfUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "name" | "role" | "suspended" | "lastSeenAt" | "createdAt" | "updatedAt", ExtArgs["result"]["kfUser"]>
 export type KfUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   listing?: boolean | Prisma.KfUser$listingArgs<ExtArgs>
   reviews?: boolean | Prisma.KfUser$reviewsArgs<ExtArgs>
   reports?: boolean | Prisma.KfUser$reportsArgs<ExtArgs>
+  analyticsEvents?: boolean | Prisma.KfUser$analyticsEventsArgs<ExtArgs>
   _count?: boolean | Prisma.KfUserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type KfUserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -776,6 +940,7 @@ export type $KfUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     listing: Prisma.$KfProviderListingPayload<ExtArgs> | null
     reviews: Prisma.$KfReviewPayload<ExtArgs>[]
     reports: Prisma.$KfReportPayload<ExtArgs>[]
+    analyticsEvents: Prisma.$KfAnalyticsEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -784,6 +949,7 @@ export type $KfUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     name: string | null
     role: $Enums.KfUserRole
     suspended: boolean
+    lastSeenAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["kfUser"]>
@@ -1183,6 +1349,7 @@ export interface Prisma__KfUserClient<T, Null = never, ExtArgs extends runtime.T
   listing<T extends Prisma.KfUser$listingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$listingArgs<ExtArgs>>): Prisma.Prisma__KfProviderListingClient<runtime.Types.Result.GetResult<Prisma.$KfProviderListingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   reviews<T extends Prisma.KfUser$reviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reports<T extends Prisma.KfUser$reportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  analyticsEvents<T extends Prisma.KfUser$analyticsEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$analyticsEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfAnalyticsEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1218,6 +1385,7 @@ export interface KfUserFieldRefs {
   readonly name: Prisma.FieldRef<"KfUser", 'String'>
   readonly role: Prisma.FieldRef<"KfUser", 'KfUserRole'>
   readonly suspended: Prisma.FieldRef<"KfUser", 'Boolean'>
+  readonly lastSeenAt: Prisma.FieldRef<"KfUser", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"KfUser", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"KfUser", 'DateTime'>
 }
@@ -1677,6 +1845,30 @@ export type KfUser$reportsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.KfReportScalarFieldEnum | Prisma.KfReportScalarFieldEnum[]
+}
+
+/**
+ * KfUser.analyticsEvents
+ */
+export type KfUser$analyticsEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KfAnalyticsEvent
+   */
+  select?: Prisma.KfAnalyticsEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KfAnalyticsEvent
+   */
+  omit?: Prisma.KfAnalyticsEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KfAnalyticsEventInclude<ExtArgs> | null
+  where?: Prisma.KfAnalyticsEventWhereInput
+  orderBy?: Prisma.KfAnalyticsEventOrderByWithRelationInput | Prisma.KfAnalyticsEventOrderByWithRelationInput[]
+  cursor?: Prisma.KfAnalyticsEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.KfAnalyticsEventScalarFieldEnum | Prisma.KfAnalyticsEventScalarFieldEnum[]
 }
 
 /**

@@ -59,7 +59,8 @@ export const ModelName = {
   KfProviderPhoto: 'KfProviderPhoto',
   KfReview: 'KfReview',
   KfReport: 'KfReport',
-  KfAdminAudit: 'KfAdminAudit'
+  KfAdminAudit: 'KfAdminAudit',
+  KfAnalyticsEvent: 'KfAnalyticsEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -85,6 +86,7 @@ export const KfUserScalarFieldEnum = {
   name: 'name',
   role: 'role',
   suspended: 'suspended',
+  lastSeenAt: 'lastSeenAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -120,6 +122,8 @@ export const KfProviderListingScalarFieldEnum = {
   status: 'status',
   moderationStatus: 'moderationStatus',
   profileImageUrl: 'profileImageUrl',
+  featured: 'featured',
+  featuredAt: 'featuredAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -196,6 +200,21 @@ export const KfAdminAuditScalarFieldEnum = {
 } as const
 
 export type KfAdminAuditScalarFieldEnum = (typeof KfAdminAuditScalarFieldEnum)[keyof typeof KfAdminAuditScalarFieldEnum]
+
+
+export const KfAnalyticsEventScalarFieldEnum = {
+  id: 'id',
+  eventType: 'eventType',
+  listingId: 'listingId',
+  categoryId: 'categoryId',
+  userId: 'userId',
+  visitorId: 'visitorId',
+  query: 'query',
+  regionLabel: 'regionLabel',
+  createdAt: 'createdAt'
+} as const
+
+export type KfAnalyticsEventScalarFieldEnum = (typeof KfAnalyticsEventScalarFieldEnum)[keyof typeof KfAnalyticsEventScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -86,3 +86,8 @@ export type KfReport = Prisma.KfReportModel
  * 
  */
 export type KfAdminAudit = Prisma.KfAdminAuditModel
+/**
+ * Model KfAnalyticsEvent
+ * 
+ */
+export type KfAnalyticsEvent = Prisma.KfAnalyticsEventModel

@@ -24,6 +24,15 @@ enum KfModerationStatus {
   REJECTED
 }
 
+enum KfAnalyticsEventType {
+  LISTING_VIEW
+  LISTING_CLICK_WHATSAPP
+  LISTING_CLICK_CALL
+  LISTING_CLICK_DIRECTIONS
+  SEARCH
+  CATEGORY_BROWSE
+}
+
 model KfUser {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -31,12 +40,14 @@ model KfUser {
   name         String?
   role         KfUserRole @default(PROVIDER)
   suspended    Boolean  @default(false)
+  lastSeenAt   DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  listing  KfProviderListing?
-  reviews  KfReview[]
-  reports  KfReport[] @relation("Reporter")
+  listing         KfProviderListing?
+  reviews         KfReview[]
+  reports         KfReport[] @relation("Reporter")
+  analyticsEvents KfAnalyticsEvent[]
 }
 
 model KfCategory {
@@ -50,6 +61,7 @@ model KfCategory {
   parent   KfCategory?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
   children KfCategory[] @relation("CategoryTree")
   listings KfListingCategory[]
+  analyticsEvents KfAnalyticsEvent[]
 }
 
 model KfProviderListing {
@@ -68,6 +80,8 @@ model KfProviderListing {
   status           KfListingStatus @default(DRAFT)
   moderationStatus KfModerationStatus @default(PENDING)
   profileImageUrl  String?
+  featured         Boolean  @default(false)
+  featuredAt       DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -77,6 +91,7 @@ model KfProviderListing {
   photos     KfProviderPhoto[]
   reviews    KfReview[]
   reports    KfReport[]
+  analyticsEvents KfAnalyticsEvent[]
 }
 
 model KfListingCategory {
@@ -151,4 +166,28 @@ model KfAdminAudit {
   targetId  String?
   detail    String?  @db.Text
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model KfAnalyticsEvent {
+  id         String               @id @default(cuid())
+  eventType  KfAnalyticsEventType
+  listingId  String?
+  categoryId String?
+  userId     String?
+  visitorId  String
+  query      String?
+  regionLabel String?
+  createdAt  DateTime             @default(now())
+
+  listing  KfProviderListing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  category KfCategory?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  user     KfUser?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([eventType, createdAt])
+  @@index([listingId, createdAt])
+  @@index([visitorId])
+  @@index([createdAt])
+  @@index([categoryId])
 }
