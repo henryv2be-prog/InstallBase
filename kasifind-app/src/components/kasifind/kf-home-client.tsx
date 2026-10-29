@@ -20,7 +20,6 @@ const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
 
 type LocationState =
-  | { mode: "pending" }
   | { mode: "gps"; lat: number; lng: number; label: string }
   | { mode: "manual"; lat: number; lng: number; label: string };
 
@@ -41,7 +40,13 @@ function ResultSkeletons() {
 }
 
 export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
-  const [location, setLocation] = useState<LocationState>({ mode: "pending" });
+  const [location, setLocation] = useState<LocationState>({
+    mode: "manual",
+    lat: DEFAULT_CENTER.lat,
+    lng: DEFAULT_CENTER.lng,
+    label: "Johannesburg area",
+  });
+  const [locating, setLocating] = useState(false);
   const [query, setQuery] = useState("");
   const [radiusKm, setRadiusKm] = useState<number>(5);
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
@@ -67,17 +72,14 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
       .catch(() => undefined);
   }, [dbConfigured]);
 
-  useEffect(() => {
-    if (!dbConfigured) return;
-    if (!navigator.geolocation) {
-      setLocation({
-        mode: "manual",
-        lat: DEFAULT_CENTER.lat,
-        lng: DEFAULT_CENTER.lng,
-        label: "Set your area manually",
-      });
+  const requestNearMe = useCallback(() => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setError("Your browser does not support location. Enter your area manually below.");
+      setManualOpen(true);
       return;
     }
+    setLocating(true);
+    setError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocation({
@@ -86,6 +88,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           lng: pos.coords.longitude,
           label: "Near you",
         });
+        setLocating(false);
       },
       () => {
         setLocation({
@@ -94,19 +97,16 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           lng: DEFAULT_CENTER.lng,
           label: "Location off — set your area",
         });
+        setLocating(false);
       },
       { enableHighAccuracy: false, timeout: 12000, maximumAge: 300_000 }
     );
-  }, [dbConfigured]);
+  }, []);
 
   const runSearch = useCallback(
     async (opts?: { autoExpand?: boolean }) => {
       if (!dbConfigured) {
         setError("KasiFind database is not configured on this server.");
-        return;
-      }
-      if (location.mode === "pending") {
-        setError("Waiting for location — or enter your area below.");
         return;
       }
       setLoading(true);
@@ -150,18 +150,40 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   }, [categorySlug, categories, dbConfigured]);
 
   useEffect(() => {
-    if (location.mode === "pending" || !dbConfigured) return;
+    if (!dbConfigured) return;
     void runSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- initial load when location resolves
-  }, [location.mode, dbConfigured]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- initial nearby results for default area
+  }, [dbConfigured]);
+
+  useEffect(() => {
+    if (location.mode !== "gps" || !dbConfigured) return;
+    void runSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when user opts into GPS
+  }, [location.mode, location.lat, location.lng, dbConfigured]);
 
   const locationPill = useMemo(() => {
-    if (location.mode === "pending") {
+    if (locating) {
       return (
         <span className="kf-location-pill">
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
           Finding your area…
         </span>
+      );
+    }
+    if (location.mode === "gps") {
+      return (
+        <span className="kf-location-pill">
+          <MapPin className="h-4 w-4 shrink-0" aria-hidden />
+          {location.label}
+        </span>
+      );
+    }
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      return (
+        <button type="button" className="kf-location-pill" onClick={requestNearMe}>
+          <MapPin className="h-4 w-4 shrink-0" aria-hidden />
+          Near me
+        </button>
       );
     }
     return (
@@ -170,7 +192,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
         {location.label}
       </span>
     );
-  }, [location]);
+  }, [location, locating, requestNearMe]);
 
   if (!dbConfigured) {
     return (
@@ -263,7 +285,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
         </button>
       </form>
 
-      {(location.mode === "manual" || manualOpen) && (
+      {(location.label === "Location off — set your area" || manualOpen) && (
         <div className="kf-card p-4 kf-animate-in">
           <h2 className="text-sm font-bold text-[var(--kf-charcoal)]">Enter location manually</h2>
           <p className="kf-help">Your live GPS is never shown to providers.</p>
@@ -373,7 +395,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           <div>
             <h2 className="kf-section-title">Nearby providers</h2>
             <p className="kf-section-sub mt-0.5">
-              {location.mode !== "pending" ? `Within ${radiusKm} km · sorted by distance` : "…"}
+              {`Within ${radiusKm} km · sorted by distance`}
             </p>
           </div>
           {searchMeta?.expanded ? (
