@@ -1906,3 +1906,338 @@
   font-size: var(--kf-text-xs);
   color: var(--kf-muted);
 }
+
+/* Listing wizard — one screen per step on mobile (no page scroll) */
+body.kf-listing-flow-active.kf-root {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.kf-listing-flow-active .kf-footer {
+  display: none;
+}
+
+body.kf-listing-flow-active .kf-tagline {
+  display: none;
+}
+
+body.kf-listing-flow-active .kf-header-inner {
+  min-height: 3rem;
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+
+body.kf-listing-flow-active main.admin-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.kf-listing-page-flow {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.kf-listing-page-alert {
+  position: absolute;
+  top: 0.25rem;
+  left: var(--kf-space-4);
+  right: var(--kf-space-4);
+  z-index: 5;
+  font-size: var(--kf-text-xs);
+  padding: 0.45rem 0.65rem;
+}
+
+.kf-listing-page-admin {
+  position: absolute;
+  top: 0.35rem;
+  right: var(--kf-space-4);
+  z-index: 6;
+}
+
+.kf-listing-flow {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--kf-space-4);
+}
+
+.kf-listing-flow-head {
+  flex-shrink: 0;
+  padding-top: 0.25rem;
+  padding-bottom: 0.4rem;
+}
+
+.kf-listing-flow-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kf-listing-flow-step-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--kf-muted);
+}
+
+.kf-listing-flow-title {
+  margin: 0.2rem 0 0;
+  font-size: clamp(1.05rem, 4vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--kf-charcoal);
+}
+
+.kf-listing-flow-hint {
+  margin: 0.2rem 0 0;
+  font-size: var(--kf-text-xs);
+  line-height: 1.35;
+  color: var(--kf-muted);
+}
+
+.kf-listing-flow-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.kf-listing-flow-body:has(.kf-listing-flow-stack--map),
+.kf-listing-flow-body:has(.kf-listing-flow-categories) {
+  justify-content: stretch;
+}
+
+.kf-listing-flow-input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 1rem;
+  border: 2px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-surface);
+}
+
+.kf-listing-flow-input:focus {
+  outline: none;
+  border-color: var(--kf-forest);
+  box-shadow: 0 0 0 3px var(--kf-forest-soft);
+}
+
+.kf-listing-flow-input--secondary {
+  min-height: 2.5rem;
+  font-size: var(--kf-text-sm);
+}
+
+.kf-listing-flow-input--inline {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.5rem;
+}
+
+.kf-listing-flow-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+}
+
+.kf-listing-flow-stack--map {
+  flex: 1;
+}
+
+.kf-location-map--flow {
+  flex: 1;
+  min-height: 7.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.kf-location-map--flow .kf-location-map-canvas {
+  flex: 1;
+  min-height: 7.5rem;
+  height: auto !important;
+}
+
+.kf-listing-flow-map-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.kf-listing-flow-gps {
+  flex-shrink: 0;
+  min-height: 2.5rem;
+  padding-inline: 0.75rem;
+  font-size: var(--kf-text-sm);
+  font-weight: 700;
+}
+
+.kf-listing-flow-link {
+  align-self: flex-start;
+  padding: 0;
+  font-size: var(--kf-text-xs);
+  color: var(--kf-forest);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.kf-listing-flow-categories {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-content: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.kf-listing-flow-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.65rem;
+  font-size: var(--kf-text-xs);
+  font-weight: 700;
+  color: var(--kf-charcoal);
+  background: var(--kf-surface);
+  border: 2px solid var(--kf-border);
+  border-radius: var(--kf-radius-full);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kf-listing-flow-chip--on {
+  border-color: var(--kf-forest);
+  background: var(--kf-forest-soft);
+  color: var(--kf-forest);
+}
+
+.kf-listing-flow-photo-step {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.kf-listing-flow-photo-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  color: var(--kf-muted);
+  background: var(--kf-stone);
+  border-radius: var(--kf-radius-xl);
+}
+
+.kf-listing-flow-photo-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.kf-listing-flow-photo-btn {
+  min-height: 2.75rem;
+}
+
+.kf-listing-flow-review {
+  margin: 0;
+  padding: var(--kf-space-3);
+  font-size: var(--kf-text-sm);
+  line-height: 1.45;
+  list-style: none;
+  background: var(--kf-ivory);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+}
+
+.kf-listing-flow-review li + li {
+  margin-top: 0.35rem;
+}
+
+.kf-listing-flow-foot {
+  flex-shrink: 0;
+  padding-top: 0.35rem;
+  padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0));
+}
+
+.kf-listing-flow-skip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  width: 100%;
+  margin-bottom: 0.35rem;
+  padding: 0.25rem;
+  font-size: var(--kf-text-xs);
+  font-weight: 600;
+  color: var(--kf-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.kf-listing-flow-skip:disabled {
+  opacity: 0.5;
+}
+
+.kf-listing-flow-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.kf-listing-flow-nav .kf-btn {
+  min-height: 2.75rem;
+  font-size: var(--kf-text-sm);
+}
+
+.kf-listing-flow-nav:not(:has(.kf-btn-outline)) {
+  grid-template-columns: 1fr;
+}
+
+.kf-listing-flow-nav > span:empty {
+  display: none;
+}
+
+.kf-listing-flow-account {
+  margin: 0.35rem 0 0;
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--kf-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  body.kf-listing-flow-active main.admin-main {
+    max-width: 32rem;
+    margin-inline: auto;
+  }
+
+  .kf-location-map--flow .kf-location-map-canvas {
+    min-height: 10rem;
+  }
+}
