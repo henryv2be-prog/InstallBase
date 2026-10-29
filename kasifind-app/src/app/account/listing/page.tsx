@@ -5,7 +5,10 @@ import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { getListingForUser } from "@/lib/kasifind/provider-listing";
 import { KfListingForm } from "@/components/kasifind/kf-listing-form";
-import { KfListingStatusChip } from "@/components/kasifind/kf-listing-status";
+import {
+  KfListingStatusChip,
+  listingStatusSummary,
+} from "@/components/kasifind/kf-listing-status";
 import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
 
 export const dynamic = "force-dynamic";
@@ -56,24 +59,46 @@ export default async function KfListingEditorPage() {
       ])
     : 0;
 
+  const statusCopy = listingData
+    ? listingStatusSummary(listingData)
+    : {
+        label: "Get started",
+        detail: "Create your free listing — no company registration required.",
+      };
+
   return (
-    <div className="kf-listing-page-flow">
-      {listingData ? (
-        <div className="kf-listing-page-status">
-          <KfListingStatusChip listing={listingData} />
+    <div className="kf-listing-page-flow kf-listing-page-classic">
+      <div className="kf-dashboard-hero kf-animate-in">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/80">
+              Provider dashboard
+            </p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight">
+              {listingData?.displayName ?? "Your listing"}
+            </h1>
+          </div>
+          {listingData ? <KfListingStatusChip listing={listingData} /> : null}
         </div>
-      ) : null}
+        <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/90">{statusCopy.detail}</p>
+        {!listingData && (
+          <p className="mt-2 text-sm text-white/75">
+            Add services like &quot;steel gates&quot; so people can find you in search.
+          </p>
+        )}
+      </div>
       {missingPhotoCount > 0 ? (
-        <div className="kf-alert-info kf-listing-page-alert" role="status">
+        <div className="kf-alert-info" role="status">
           <strong>{missingPhotoCount} work photo{missingPhotoCount === 1 ? "" : "s"}</strong> need to
-          be added again — re-add your <strong>business photo</strong> and <strong>work photos</strong>.
+          be added again — the files are missing on the server (common after a deploy without an
+          uploads volume). Re-add your <strong>business photo</strong> and <strong>work photos</strong>.
         </div>
       ) : null}
-      {user.role === "ADMIN" ? (
-        <Link href="/admin" className="kf-listing-page-admin kf-link text-xs underline">
-          Admin
+      {user.role === "ADMIN" && (
+        <Link href="/admin" className="kf-link text-sm underline">
+          Open admin moderation
         </Link>
-      ) : null}
+      )}
       <KfListingForm
         categories={categories.map((c) => ({
           id: c.id,
