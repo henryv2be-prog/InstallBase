@@ -33,3 +33,15 @@ export const KfModerationStatus = {
 } as const
 
 export type KfModerationStatus = (typeof KfModerationStatus)[keyof typeof KfModerationStatus]
+
+
+export const KfAnalyticsEventType = {
+  LISTING_VIEW: 'LISTING_VIEW',
+  LISTING_CLICK_WHATSAPP: 'LISTING_CLICK_WHATSAPP',
+  LISTING_CLICK_CALL: 'LISTING_CLICK_CALL',
+  LISTING_CLICK_DIRECTIONS: 'LISTING_CLICK_DIRECTIONS',
+  SEARCH: 'SEARCH',
+  CATEGORY_BROWSE: 'CATEGORY_BROWSE'
+} as const
+
+export type KfAnalyticsEventType = (typeof KfAnalyticsEventType)[keyof typeof KfAnalyticsEventType]

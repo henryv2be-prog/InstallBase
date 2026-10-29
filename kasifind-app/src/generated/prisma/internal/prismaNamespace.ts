@@ -405,7 +405,8 @@ export const ModelName = {
   KfProviderPhoto: 'KfProviderPhoto',
   KfReview: 'KfReview',
   KfReport: 'KfReport',
-  KfAdminAudit: 'KfAdminAudit'
+  KfAdminAudit: 'KfAdminAudit',
+  KfAnalyticsEvent: 'KfAnalyticsEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "kfUser" | "kfCategory" | "kfProviderListing" | "kfListingCategory" | "kfProviderService" | "kfProviderPhoto" | "kfReview" | "kfReport" | "kfAdminAudit"
+    modelProps: "kfUser" | "kfCategory" | "kfProviderListing" | "kfListingCategory" | "kfProviderService" | "kfProviderPhoto" | "kfReview" | "kfReport" | "kfAdminAudit" | "kfAnalyticsEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1091,6 +1092,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    KfAnalyticsEvent: {
+      payload: Prisma.$KfAnalyticsEventPayload<ExtArgs>
+      fields: Prisma.KfAnalyticsEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KfAnalyticsEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KfAnalyticsEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload>
+        }
+        findFirst: {
+          args: Prisma.KfAnalyticsEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KfAnalyticsEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload>
+        }
+        findMany: {
+          args: Prisma.KfAnalyticsEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload>[]
+        }
+        create: {
+          args: Prisma.KfAnalyticsEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload>
+        }
+        createMany: {
+          args: Prisma.KfAnalyticsEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KfAnalyticsEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload>[]
+        }
+        delete: {
+          args: Prisma.KfAnalyticsEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload>
+        }
+        update: {
+          args: Prisma.KfAnalyticsEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.KfAnalyticsEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KfAnalyticsEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KfAnalyticsEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.KfAnalyticsEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAnalyticsEventPayload>
+        }
+        aggregate: {
+          args: Prisma.KfAnalyticsEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKfAnalyticsEvent>
+        }
+        groupBy: {
+          args: Prisma.KfAnalyticsEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfAnalyticsEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KfAnalyticsEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfAnalyticsEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1137,6 +1212,7 @@ export const KfUserScalarFieldEnum = {
   name: 'name',
   role: 'role',
   suspended: 'suspended',
+  lastSeenAt: 'lastSeenAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1172,6 +1248,8 @@ export const KfProviderListingScalarFieldEnum = {
   status: 'status',
   moderationStatus: 'moderationStatus',
   profileImageUrl: 'profileImageUrl',
+  featured: 'featured',
+  featuredAt: 'featuredAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1248,6 +1326,21 @@ export const KfAdminAuditScalarFieldEnum = {
 } as const
 
 export type KfAdminAuditScalarFieldEnum = (typeof KfAdminAuditScalarFieldEnum)[keyof typeof KfAdminAuditScalarFieldEnum]
+
+
+export const KfAnalyticsEventScalarFieldEnum = {
+  id: 'id',
+  eventType: 'eventType',
+  listingId: 'listingId',
+  categoryId: 'categoryId',
+  userId: 'userId',
+  visitorId: 'visitorId',
+  query: 'query',
+  regionLabel: 'regionLabel',
+  createdAt: 'createdAt'
+} as const
+
+export type KfAnalyticsEventScalarFieldEnum = (typeof KfAnalyticsEventScalarFieldEnum)[keyof typeof KfAnalyticsEventScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1382,6 +1475,20 @@ export type EnumKfModerationStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
  * Reference to a field of type 'KfModerationStatus[]'
  */
 export type ListEnumKfModerationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfModerationStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'KfAnalyticsEventType'
+ */
+export type EnumKfAnalyticsEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfAnalyticsEventType'>
+    
+
+
+/**
+ * Reference to a field of type 'KfAnalyticsEventType[]'
+ */
+export type ListEnumKfAnalyticsEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfAnalyticsEventType[]'>
     
 
 /**
@@ -1544,6 +1651,7 @@ export type GlobalOmitConfig = {
   kfReview?: Prisma.KfReviewOmit
   kfReport?: Prisma.KfReportOmit
   kfAdminAudit?: Prisma.KfAdminAuditOmit
+  kfAnalyticsEvent?: Prisma.KfAnalyticsEventOmit
 }
 
 /* Types for Logging */

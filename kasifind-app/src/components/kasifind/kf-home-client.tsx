@@ -14,6 +14,7 @@ import type { KfCategory, KfSearchResult } from "@/components/kasifind/types";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
 import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
+import { trackKfEvent } from "@/lib/kasifind/track-client";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
@@ -129,6 +130,10 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
         setResults(data.results ?? []);
         setSearchMeta({ expanded: Boolean(data.expanded), radiusKm: data.radiusKm ?? radiusKm });
         if (data.radiusKm && data.radiusKm !== radiusKm) setRadiusKm(data.radiusKm);
+        trackKfEvent("SEARCH", {
+          query: query.trim() || undefined,
+          regionLabel: location.label,
+        });
       } catch {
         setError("Network error. Check your connection and try again.");
       } finally {
@@ -137,6 +142,12 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
     },
     [categorySlug, dbConfigured, location, query, radiusKm]
   );
+
+  useEffect(() => {
+    if (!categorySlug || !dbConfigured) return;
+    const cat = categories.find((c) => c.slug === categorySlug);
+    if (cat) trackKfEvent("CATEGORY_BROWSE", { categoryId: cat.id });
+  }, [categorySlug, categories, dbConfigured]);
 
   useEffect(() => {
     if (location.mode === "pending" || !dbConfigured) return;

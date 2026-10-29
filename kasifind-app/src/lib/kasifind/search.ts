@@ -121,17 +121,19 @@ export async function searchProviders(input: {
         averageRating,
         reviewCount,
         score,
+        featured: listing.featured,
       };
     })
     .filter((row): row is NonNullable<typeof row> => row !== null)
     .sort((a, b) => {
+      if (a.featured !== b.featured) return a.featured ? -1 : 1;
       if (a.score !== b.score) return b.score - a.score;
       return a.distanceKm - b.distanceKm;
     })
     .slice(0, limit);
 
   const scored = await Promise.all(
-    scoredRaw.map(async ({ score: _score, ...rest }) => ({
+    scoredRaw.map(async ({ score: _score, featured: _featured, ...rest }) => ({
       ...rest,
       photoUrls: await filterReachableUploadUrls(rest.photoUrls),
       profileImageUrl: await resolvePublicUploadUrl(rest.profileImageUrl),

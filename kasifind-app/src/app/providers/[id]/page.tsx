@@ -13,6 +13,7 @@ import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { KfReviewForm } from "@/components/kasifind/kf-review-form";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
 import { KfContactBar } from "@/components/kasifind/kf-contact-bar";
+import { KfTrackListingView } from "@/components/kasifind/kf-track-listing-view";
 import { KfProviderLocationMap } from "@/components/kasifind/kf-provider-location-map";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +50,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
 
   return (
     <article className="pb-24 sm:pb-8">
+      <KfTrackListingView listingId={listing.id} />
       <Link
         href={ownerPreview ? "/account/listing" : "/"}
         className="kf-link inline-flex items-center gap-1 text-sm kf-animate-in"
@@ -162,6 +164,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
               waUrl={waUrl}
               phone={listing.phone}
               directionsUrl={directionsUrl}
+              listingId={listing.id}
             />
           </div>
         </div>
@@ -238,6 +241,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
           waUrl={waUrl}
           phone={listing.phone}
           directionsUrl={directionsUrl}
+          listingId={listing.id}
         />
       </div>
     </article>
