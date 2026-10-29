@@ -1623,3 +1623,84 @@
 .kf-admin-details summary::-webkit-details-marker {
   display: none;
 }
+
+.kf-dialog-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--kf-space-4);
+}
+
+@media (min-width: 640px) {
+  .kf-dialog-root {
+    align-items: center;
+  }
+}
+
+.kf-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(15, 77, 58, 0.45);
+  cursor: pointer;
+}
+
+.kf-dialog-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 24rem;
+  padding: var(--kf-space-5);
+  background: var(--kf-surface);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-xl);
+  box-shadow: var(--kf-shadow-md);
+}
+
+.kf-dialog-close {
+  position: absolute;
+  top: var(--kf-space-3);
+  right: var(--kf-space-3);
+  display: flex;
+  padding: 0.25rem;
+  color: var(--kf-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--kf-radius-md);
+}
+
+.kf-dialog-icon {
+  display: inline-flex;
+  padding: var(--kf-space-2);
+  color: var(--kf-forest);
+  background: var(--kf-forest-soft);
+  border-radius: var(--kf-radius-full);
+}
+
+.kf-dialog-title {
+  margin-top: var(--kf-space-3);
+  font-size: var(--kf-text-lg);
+  font-weight: 700;
+  color: var(--kf-charcoal);
+}
+
+.kf-dialog-body {
+  margin-top: var(--kf-space-2);
+  font-size: var(--kf-text-sm);
+  line-height: 1.55;
+  color: var(--kf-text);
+}
+
+.kf-dialog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kf-space-2);
+  margin-top: var(--kf-space-5);
+}
+
+.kf-location-pill--approx {
+  border-style: dashed;
+}

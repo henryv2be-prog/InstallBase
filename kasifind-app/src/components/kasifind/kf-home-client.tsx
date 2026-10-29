@@ -15,8 +15,10 @@ import { categoryIconForSlug } from "@/components/kasifind/category-icons";
 import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { trackKfEvent } from "@/lib/kasifind/track-client";
+import { KfLocationConsentDialog } from "@/components/kasifind/kf-location-consent-dialog";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
+const LOCATION_PROMPT_KEY = "kf_location_prompt_dismissed";
 const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
 
 type LocationState =
@@ -44,9 +46,10 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
     mode: "manual",
     lat: DEFAULT_CENTER.lat,
     lng: DEFAULT_CENTER.lng,
-    label: "Johannesburg area",
+    label: "Approximate · Johannesburg",
   });
   const [locating, setLocating] = useState(false);
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [radiusKm, setRadiusKm] = useState<number>(5);
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
@@ -72,10 +75,26 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
       .catch(() => undefined);
   }, [dbConfigured]);
 
+  const usesApproximateDistance = location.mode !== "gps";
+
+  const dismissLocationPrompt = useCallback(() => {
+    try {
+      sessionStorage.setItem(LOCATION_PROMPT_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+    setLocationDialogOpen(false);
+  }, []);
+
+  const openLocationPrompt = useCallback(() => {
+    setLocationDialogOpen(true);
+  }, []);
+
   const requestNearMe = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setError("Your browser does not support location. Enter your area manually below.");
       setManualOpen(true);
+      dismissLocationPrompt();
       return;
     }
     setLocating(true);
@@ -89,6 +108,12 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           label: "Near you",
         });
         setLocating(false);
+        setLocationDialogOpen(false);
+        try {
+          sessionStorage.removeItem(LOCATION_PROMPT_KEY);
+        } catch {
+          /* ignore */
+        }
       },
       () => {
         setLocation({
@@ -98,10 +123,15 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           label: "Location off — set your area",
         });
         setLocating(false);
+        dismissLocationPrompt();
       },
       { enableHighAccuracy: false, timeout: 12000, maximumAge: 300_000 }
     );
-  }, []);
+  }, [dismissLocationPrompt]);
+
+  const confirmLocationFromDialog = useCallback(() => {
+    requestNearMe();
+  }, [requestNearMe]);
 
   const runSearch = useCallback(
     async (opts?: { autoExpand?: boolean }) => {
@@ -156,6 +186,17 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   }, [dbConfigured]);
 
   useEffect(() => {
+    if (!dbConfigured || location.mode === "gps") return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    try {
+      if (sessionStorage.getItem(LOCATION_PROMPT_KEY) === "1") return;
+    } catch {
+      return;
+    }
+    setLocationDialogOpen(true);
+  }, [dbConfigured, location.mode]);
+
+  useEffect(() => {
     if (location.mode !== "gps" || !dbConfigured) return;
     void runSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when user opts into GPS
@@ -180,9 +221,13 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
     }
     if (typeof navigator !== "undefined" && navigator.geolocation) {
       return (
-        <button type="button" className="kf-location-pill" onClick={requestNearMe}>
+        <button
+          type="button"
+          className="kf-location-pill kf-location-pill--approx"
+          onClick={openLocationPrompt}
+        >
           <MapPin className="h-4 w-4 shrink-0" aria-hidden />
-          Near me
+          Near me — accurate distances
         </button>
       );
     }
@@ -192,7 +237,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
         {location.label}
       </span>
     );
-  }, [location, locating, requestNearMe]);
+  }, [location, locating, openLocationPrompt]);
 
   if (!dbConfigured) {
     return (
@@ -208,6 +253,12 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
 
   return (
     <div className="space-y-8 pb-4">
+      <KfLocationConsentDialog
+        open={locationDialogOpen}
+        busy={locating}
+        onClose={dismissLocationPrompt}
+        onConfirm={confirmLocationFromDialog}
+      />
       <section className="kf-hero kf-animate-in">
         <div className="kf-hero-bg" aria-hidden />
         <p className="kf-hero-kicker">Find local. Support local.</p>
@@ -217,6 +268,13 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
         </p>
         {locationPill}
       </section>
+
+      {usesApproximateDistance ? (
+        <div className="kf-alert-info kf-animate-in" role="status">
+          <strong>Distances are approximate</strong> until you share your location. Sorting uses a
+          default area — tap <strong>Near me</strong> above for km from where you are.
+        </div>
+      ) : null}
 
       <form
         className="kf-hero-search-card kf-animate-in space-y-4"
@@ -395,7 +453,9 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           <div>
             <h2 className="kf-section-title">Nearby providers</h2>
             <p className="kf-section-sub mt-0.5">
-              {`Within ${radiusKm} km · sorted by distance`}
+              {usesApproximateDistance
+                ? `Within ${radiusKm} km · approximate order until location is on`
+                : `Within ${radiusKm} km · sorted by distance from you`}
             </p>
           </div>
           {searchMeta?.expanded ? (
