@@ -94,13 +94,16 @@ export async function kfUpsertListing(formData: FormData) {
   const hideExactLocation = formData.get("hideExactLocation") !== "false";
 
   if (!displayName || displayName.length < 2) return { error: "Business name is required." };
-  if (!description || description.length < 20) return { error: "Description must be at least 20 characters." };
   if (!phone || phone.length < 9) return { error: "A valid phone number is required." };
   if (!locationLabel) return { error: "Neighbourhood or landmark is required." };
   if (lat === null || lng === null || !isValidSaCoordinate(lat, lng)) {
     return { error: "Set valid coordinates in South Africa (publish uses your device location)." };
   }
-  if (categoryIds.length === 0 && publish) return { error: "Select at least one category." };
+
+  let finalDescription = description ?? "";
+  if (finalDescription.length < 20) {
+    finalDescription = `${displayName} — local services around ${locationLabel}. WhatsApp or call for prices and availability.`;
+  }
 
   const serviceLines = servicesRaw
     .split("\n")
@@ -117,7 +120,7 @@ export async function kfUpsertListing(formData: FormData) {
 
   const data = {
     displayName,
-    description,
+    description: finalDescription,
     phone,
     whatsapp,
     locationLabel,
