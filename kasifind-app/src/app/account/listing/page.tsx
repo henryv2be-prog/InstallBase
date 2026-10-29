@@ -5,6 +5,7 @@ import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { getListingForUser } from "@/lib/kasifind/provider-listing";
 import { KfListingForm } from "@/components/kasifind/kf-listing-form";
+import { KfListingStatusChip } from "@/components/kasifind/kf-listing-status";
 import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
 
 export const dynamic = "force-dynamic";
@@ -57,10 +58,15 @@ export default async function KfListingEditorPage() {
 
   return (
     <div className="kf-listing-page-flow">
+      {listingData ? (
+        <div className="kf-listing-page-status">
+          <KfListingStatusChip listing={listingData} />
+        </div>
+      ) : null}
       {missingPhotoCount > 0 ? (
         <div className="kf-alert-info kf-listing-page-alert" role="status">
-          <strong>{missingPhotoCount} photo{missingPhotoCount === 1 ? "" : "s"}</strong> need to be
-          re-uploaded after a server change.
+          <strong>{missingPhotoCount} work photo{missingPhotoCount === 1 ? "" : "s"}</strong> need to
+          be added again — re-add your <strong>business photo</strong> and <strong>work photos</strong>.
         </div>
       ) : null}
       {user.role === "ADMIN" ? (
