@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, MessageCircle, Phone, Star } from "lucide-react";
+import { ChevronRight, MessageCircle, Phone } from "lucide-react";
+import {
+  KfListingRatingDisplay,
+  KfProviderRatingFloat,
+} from "@/components/kasifind/kf-listing-rating-display";
 import type { KfSearchResult } from "@/components/kasifind/types";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
@@ -28,6 +32,7 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
   const thumb = p.photoUrls[0] ?? p.profileImageUrl;
   const servicesPreview = p.services.slice(0, 3).map((s) => s.name).join(" · ");
   const primaryCategory = p.categories[0]?.name;
+  const hasRating = p.reviewCount > 0 && p.averageRating !== null;
 
   return (
     <li className="kf-card kf-card-interactive kf-glow-border kf-provider-card overflow-hidden">
@@ -48,6 +53,12 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
           {primaryCategory ? (
             <span className="kf-provider-category-badge">{primaryCategory}</span>
           ) : null}
+          {hasRating ? (
+            <KfProviderRatingFloat
+              averageRating={p.averageRating!}
+              reviewCount={p.reviewCount}
+            />
+          ) : null}
           <span className="kf-provider-view-hint">
             View profile
             <ChevronRight className="h-3 w-3" aria-hidden />
@@ -62,25 +73,23 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
               {formatDistanceKmClient(p.distanceKm)}
             </span>
           </div>
-          <p className="mt-1 line-clamp-1 text-xs text-[var(--kf-muted)]">{p.locationLabel}</p>
+          {hasRating ? (
+            <div className="mt-2">
+              <KfListingRatingDisplay
+                averageRating={p.averageRating!}
+                reviewCount={p.reviewCount}
+                variant="card"
+              />
+            </div>
+          ) : (
+            <p className="kf-rating-unrated mt-2">No reviews yet</p>
+          )}
+          <p className="mt-1.5 line-clamp-1 text-xs text-[var(--kf-muted)]">{p.locationLabel}</p>
           {servicesPreview ? (
             <p className="mt-2 line-clamp-2 text-sm leading-snug text-[var(--kf-text)]">
               {servicesPreview}
             </p>
           ) : null}
-          {p.reviewCount > 0 && p.averageRating !== null ? (
-            <p className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
-              <span className="kf-rating-pill">
-                <Star className="h-3.5 w-3.5 fill-[var(--kf-ochre)] text-[var(--kf-ochre)]" aria-hidden />
-                <span className="font-bold">{p.averageRating.toFixed(1)}</span>
-              </span>
-              <span className="text-[var(--kf-muted)]">
-                {p.reviewCount} review{p.reviewCount === 1 ? "" : "s"}
-              </span>
-            </p>
-          ) : (
-            <p className="kf-rating-unrated mt-2">Not yet rated</p>
-          )}
         </div>
       </Link>
       {(canWhatsApp || canCall) && (

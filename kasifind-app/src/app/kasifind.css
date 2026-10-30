@@ -2853,10 +2853,103 @@ body.kf-listing-flow-active .kf-dashboard-hero {
   background: var(--kf-ochre-soft);
 }
 
+.kf-rating-highlight {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  padding: 0.35rem 0.65rem;
+  font-size: var(--kf-text-xs);
+  line-height: 1.2;
+  color: var(--kf-charcoal);
+  background: linear-gradient(
+    135deg,
+    rgba(246, 201, 69, 0.38) 0%,
+    rgba(255, 138, 0, 0.14) 100%
+  );
+  border: 1px solid rgba(255, 138, 0, 0.35);
+  border-radius: var(--kf-radius-md);
+  box-shadow: 0 2px 8px rgba(255, 138, 0, 0.12);
+}
+
+.kf-rating-highlight--hero {
+  padding: 0.45rem 0.85rem;
+  font-size: var(--kf-text-sm);
+}
+
+.kf-rating-highlight-star {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  fill: var(--kf-yellow);
+  color: var(--kf-orange);
+}
+
+.kf-rating-highlight--hero .kf-rating-highlight-star {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.kf-rating-score {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--kf-forest);
+}
+
+.kf-rating-highlight--hero .kf-rating-score {
+  font-size: 1.25rem;
+}
+
+.kf-rating-outof {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--kf-muted);
+}
+
+.kf-rating-highlight--hero .kf-rating-outof {
+  font-size: 0.85rem;
+}
+
+.kf-rating-count {
+  font-weight: 600;
+  color: var(--kf-muted);
+}
+
+.kf-provider-rating-float {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: var(--kf-text-xs);
+  font-weight: 800;
+  color: var(--kf-charcoal);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 138, 0, 0.35);
+  border-radius: var(--kf-radius-full);
+  box-shadow: 0 2px 10px rgba(15, 77, 58, 0.12);
+  pointer-events: none;
+}
+
+.kf-provider-rating-float-score {
+  line-height: 1;
+}
+
 .kf-rating-unrated {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
   font-size: var(--kf-text-xs);
   font-weight: 600;
   color: var(--kf-muted);
+  background: var(--kf-stone);
+  border-radius: var(--kf-radius-full);
 }
 
 .kf-provider-contact-row {
