@@ -16,6 +16,7 @@ import { KfReportForm } from "@/components/kasifind/kf-report-form";
 import { KfContactBar } from "@/components/kasifind/kf-contact-bar";
 import { KfTrackListingView } from "@/components/kasifind/kf-track-listing-view";
 import { KfProviderLocationMap } from "@/components/kasifind/kf-provider-location-map";
+import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-display";
 
 export const dynamic = "force-dynamic";
 
@@ -103,13 +104,14 @@ export default async function KasiFindProviderPage({ params }: Props) {
               {listing.locationLabel}
             </p>
             {listing.reviewCount > 0 && listing.averageRating !== null ? (
-              <p className="mt-3 flex items-center justify-center gap-1.5 text-sm sm:justify-start">
-                <Star className="h-4 w-4 fill-[var(--kf-ochre)] text-[var(--kf-ochre)]" aria-hidden />
-                <span className="font-semibold">{listing.averageRating.toFixed(1)}</span>
-                <span className="text-[var(--kf-muted)]">
-                  · {listing.reviewCount} unverified review{listing.reviewCount === 1 ? "" : "s"}
-                </span>
-              </p>
+              <div className="mt-3 flex justify-center sm:justify-start">
+                <KfListingRatingDisplay
+                  averageRating={listing.averageRating}
+                  reviewCount={listing.reviewCount}
+                  variant="hero"
+                  showUnverifiedNote
+                />
+              </div>
             ) : (
               <div className="mt-3 flex flex-col items-center gap-2 sm:items-start">
                 <p className="kf-rating-unrated">Not yet rated</p>
