@@ -30,7 +30,7 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
   const primaryCategory = p.categories[0]?.name;
 
   return (
-    <li className="kf-card kf-card-interactive kf-provider-card overflow-hidden">
+    <li className="kf-card kf-card-interactive kf-glow-border kf-provider-card overflow-hidden">
       <Link href={`/providers/${p.id}`} className="block group">
         <div className="kf-provider-media">
           {thumb ? (

@@ -43,7 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en-ZA">
-      <body className={`kf-root ${inter.variable}`}>
+      <body className={`kf-root kf-tech-bg ${inter.variable}`}>
         <KfAppShell>
           <KfHeader user={headerUser} publishedListingCount={publishedListingCount} />
           <main className="mx-auto max-w-5xl px-4 pb-8 pt-2 admin-main">{children}</main>
