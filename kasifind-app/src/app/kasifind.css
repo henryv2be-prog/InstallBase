@@ -352,6 +352,20 @@
   filter: drop-shadow(0 0 0.5px var(--kf-forest));
 }
 
+.kf-location-required-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--kf-space-2);
+  margin: 0;
+  padding: var(--kf-space-3);
+  font-size: var(--kf-text-sm);
+  line-height: 1.45;
+  color: var(--kf-charcoal);
+  background: var(--kf-warning-bg);
+  border: 1px solid rgba(196, 160, 53, 0.35);
+  border-radius: var(--kf-radius-md);
+}
+
 .kf-card {
   background: var(--kf-glass);
   backdrop-filter: blur(16px);

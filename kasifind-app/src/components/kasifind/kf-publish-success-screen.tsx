@@ -15,7 +15,9 @@ export function KfPublishSuccessScreen({ listingId }: { listingId: string | null
         <strong>1–2 business days</strong>, then neighbours can find you in search.
       </p>
       <ul className="kf-publish-success-list">
-        <li>We refreshed your map location from this device when you published.</li>
+        <li>
+          Your map location was saved from the pin you set (exact listings also use GPS at publish).
+        </li>
         <li>You can still edit your listing while it is in review.</li>
         <li>WhatsApp and call buttons go live on your profile once approved.</li>
       </ul>

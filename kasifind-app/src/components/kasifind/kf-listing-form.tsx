@@ -33,8 +33,8 @@ type ListingData = {
   phone: string;
   whatsapp: string | null;
   locationLabel: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   hideExactLocation: boolean;
   priceHint: string | null;
   hoursNote: string | null;
@@ -63,6 +63,16 @@ function validateWizardStep(form: HTMLFormElement, step: number, toastError: (ms
   for (const field of fields) {
     if (!field.checkValidity()) {
       field.reportValidity();
+      return false;
+    }
+  }
+
+  if (step === 1) {
+    const confirmed = form.querySelector('input[name="locationConfirmed"]') as HTMLInputElement | null;
+    if (confirmed?.value !== "true") {
+      toastError(
+        "Set your location — tap the map for an approximate area, or use My location."
+      );
       return false;
     }
   }
@@ -169,17 +179,22 @@ export function KfListingForm({
           return;
         }
       }
+    } else if (!validateWizardStep(form, activeStep, toast.error)) {
+      return;
     }
 
     const formData = new FormData(form);
     formData.set("publish", publish ? "true" : "false");
 
-    if (publish) {
+    const hideExactLocation = formData.get("hideExactLocation") !== "false";
+
+    if (publish && !hideExactLocation) {
       setLocatingPublish(true);
       const position = await requestCurrentPositionForPublish();
       setLocatingPublish(false);
       if (position.ok === false) {
         toast.error(publishLocationErrorMessage(position.reason));
+        goToStep(1);
         return;
       }
       const latInput = form.elements.namedItem("latitude") as HTMLInputElement | null;
@@ -188,6 +203,13 @@ export function KfListingForm({
       if (lngInput) lngInput.value = String(position.longitude);
       formData.set("latitude", String(position.latitude));
       formData.set("longitude", String(position.longitude));
+      formData.set("locationConfirmed", "true");
+    }
+
+    if (formData.get("locationConfirmed") !== "true") {
+      toast.error("Set your location on the Location step before saving.");
+      goToStep(1);
+      return;
     }
 
     submitListing(formData);
@@ -300,7 +322,8 @@ export function KfListingForm({
           <div className="kf-form-section-head">
             <h2 className="kf-form-section-title">Location</h2>
             <p className="kf-form-section-sub">
-              Shown as a landmark publicly; map pin uses GPS when you publish.
+              Choose approximate (tap the map) or exact (GPS on publish). We never guess your
+              location.
             </p>
           </div>
           <div className="space-y-4">
@@ -315,9 +338,9 @@ export function KfListingForm({
               />
             </label>
             <KfLocationPicker
-              key={`${listing?.latitude ?? -26.2041}-${listing?.longitude ?? 28.0473}-${listing?.hideExactLocation ?? true}`}
-              initialLatitude={listing?.latitude ?? -26.2041}
-              initialLongitude={listing?.longitude ?? 28.0473}
+              key={`${listing?.latitude ?? "new"}-${listing?.longitude ?? "new"}-${listing?.hideExactLocation ?? true}`}
+              initialLatitude={listing?.latitude ?? null}
+              initialLongitude={listing?.longitude ?? null}
               initialHideExactLocation={listing?.hideExactLocation ?? true}
             />
           </div>

@@ -96,8 +96,17 @@ export async function kfUpsertListing(formData: FormData) {
   if (!displayName || displayName.length < 2) return { error: "Business name is required." };
   if (!phone || phone.length < 9) return { error: "A valid phone number is required." };
   if (!locationLabel) return { error: "Neighbourhood or landmark is required." };
-  if (lat === null || lng === null || !isValidSaCoordinate(lat, lng)) {
-    return { error: "Set valid coordinates in South Africa (publish uses your device location)." };
+  const locationConfirmed = formData.get("locationConfirmed") === "true";
+  if (
+    !locationConfirmed ||
+    lat === null ||
+    lng === null ||
+    !isValidSaCoordinate(lat, lng)
+  ) {
+    return {
+      error:
+        "Set your service area on the Location step — tap the map or use My location. We do not use a default city.",
+    };
   }
 
   let finalDescription = description ?? "";
@@ -242,9 +251,6 @@ async function deleteLocalUpload(url: string | null | undefined) {
   await fs.unlink(filePath).catch(() => undefined);
 }
 
-const DEFAULT_JHB_LAT = -26.2041;
-const DEFAULT_JHB_LNG = 28.0473;
-
 /** Save business photo from wizard step 1 — creates a draft if needed (no full wizard save). */
 export async function kfSaveListingProfileFromWizard(formData: FormData) {
   const guard = dbGuard();
@@ -271,22 +277,27 @@ export async function kfSaveListingProfileFromWizard(formData: FormData) {
     return { error: "Enter your phone number above, then add your photo." };
   }
 
-  const locationLabel =
-    (formData.get("locationLabel") as string | null)?.trim() ||
-    "General area — you can refine this on the location step";
-  const lat = parseCoordinate(formData.get("latitude") as string) ?? DEFAULT_JHB_LAT;
-  const lng = parseCoordinate(formData.get("longitude") as string) ?? DEFAULT_JHB_LNG;
+  const locationLabel = (formData.get("locationLabel") as string | null)?.trim();
+  const lat = parseCoordinate(formData.get("latitude") as string);
+  const lng = parseCoordinate(formData.get("longitude") as string);
+  const locationConfirmed = formData.get("locationConfirmed") === "true";
   const hideExactLocation = formData.get("hideExactLocation") !== "false";
-
-  if (!isValidSaCoordinate(lat, lng)) {
-    return { error: "Invalid map coordinates." };
-  }
 
   const kf = getKasiFindPrisma();
   const existing = await kf.kfProviderListing.findUnique({ where: { userId: auth.user.id } });
 
   if (existing?.profileImageUrl && existing.profileImageUrl !== url) {
     await deleteLocalUpload(existing.profileImageUrl);
+  }
+
+  const hasNewCoords =
+    locationConfirmed && lat !== null && lng !== null && isValidSaCoordinate(lat, lng);
+
+  if (!existing && !hasNewCoords) {
+    return {
+      error:
+        "Go to the Location step and set your area on the map (or use My location) before adding your business photo.",
+    };
   }
 
   const listing = existing
@@ -297,9 +308,10 @@ export async function kfSaveListingProfileFromWizard(formData: FormData) {
           description,
           phone,
           whatsapp,
-          locationLabel: existing.locationLabel || locationLabel,
-          latitude: existing.latitude || lat,
-          longitude: existing.longitude || lng,
+          ...(locationLabel ? { locationLabel: existing.locationLabel || locationLabel } : {}),
+          ...(hasNewCoords
+            ? { latitude: lat!, longitude: lng! }
+            : {}),
           hideExactLocation,
           profileImageUrl: url,
         },
@@ -311,9 +323,9 @@ export async function kfSaveListingProfileFromWizard(formData: FormData) {
           description,
           phone,
           whatsapp,
-          locationLabel,
-          latitude: lat,
-          longitude: lng,
+          locationLabel: locationLabel || "Service area",
+          latitude: lat!,
+          longitude: lng!,
           hideExactLocation,
           profileImageUrl: url,
           status: "DRAFT",
