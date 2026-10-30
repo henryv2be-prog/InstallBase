@@ -3,37 +3,45 @@
 import { useEffect, useState } from "react";
 import {
   CATEGORY_FLASH_FRAME_MS,
-  CATEGORY_FLASH_SLIDES,
+  type CategoryFlashSlide,
   markCategoryFlashIntroPlayed,
   preloadCategoryFlashImages,
 } from "@/lib/kasifind/category-flash-intro";
 
 type Props = {
+  slides: CategoryFlashSlide[];
   onComplete: () => void;
 };
 
 /**
- * First-visit-only rapid category burst (~1.7s). Parent controls mount via session + reduced-motion checks.
+ * First-visit-only rapid burst of real listing work photos (~170ms × n, n ≤ 10).
  */
-export function KfCategoryFlashIntro({ onComplete }: Props) {
+export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
   const [loaded, setLoaded] = useState(false);
   const [frameIndex, setFrameIndex] = useState(0);
   const [exiting, setExiting] = useState(false);
+  const slideCount = slides.length;
 
   useEffect(() => {
     let cancelled = false;
-    void preloadCategoryFlashImages().then(() => {
-      if (!cancelled) setLoaded(true);
+    void preloadCategoryFlashImages(slides).then((ok) => {
+      if (cancelled) return;
+      if (!ok) {
+        markCategoryFlashIntroPlayed();
+        onComplete();
+        return;
+      }
+      setLoaded(true);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [slides, onComplete]);
 
   useEffect(() => {
-    if (!loaded) return;
+    if (!loaded || slideCount === 0) return;
 
-    if (frameIndex >= CATEGORY_FLASH_SLIDES.length) {
+    if (frameIndex >= slideCount) {
       setExiting(true);
       const doneTimer = window.setTimeout(() => {
         markCategoryFlashIntroPlayed();
@@ -47,12 +55,12 @@ export function KfCategoryFlashIntro({ onComplete }: Props) {
     }, CATEGORY_FLASH_FRAME_MS);
 
     return () => window.clearTimeout(timer);
-  }, [loaded, frameIndex, onComplete]);
+  }, [loaded, frameIndex, onComplete, slideCount]);
+
+  if (slideCount === 0) return null;
 
   const slide =
-    frameIndex < CATEGORY_FLASH_SLIDES.length
-      ? CATEGORY_FLASH_SLIDES[frameIndex]
-      : CATEGORY_FLASH_SLIDES[CATEGORY_FLASH_SLIDES.length - 1];
+    frameIndex < slideCount ? slides[frameIndex] : slides[slideCount - 1];
 
   return (
     <div
@@ -74,12 +82,17 @@ export function KfCategoryFlashIntro({ onComplete }: Props) {
               decoding="sync"
               fetchPriority="high"
             />
-            {frameIndex === CATEGORY_FLASH_SLIDES.length - 1 ? (
+            {frameIndex === slideCount - 1 ? (
               <p className="kf-category-flash-tagline">
                 Whatever you need, there&apos;s probably someone nearby who can help.
               </p>
             ) : null}
-            <p className="kf-category-flash-label">{slide.label}</p>
+            <div className="kf-category-flash-caption">
+              <p className="kf-category-flash-label">{slide.label}</p>
+              {slide.providerName ? (
+                <p className="kf-category-flash-provider">Real work · {slide.providerName}</p>
+              ) : null}
+            </div>
           </>
         )}
       </div>

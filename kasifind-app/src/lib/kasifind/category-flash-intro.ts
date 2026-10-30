@@ -1,4 +1,7 @@
-export const CATEGORY_FLASH_SESSION_KEY = "kf-category-flash-v1";
+export const CATEGORY_FLASH_SESSION_KEY = "kf-category-flash-v3";
+
+/** Minimum real listing photos required to run the intro. */
+export const CATEGORY_FLASH_MIN_SLIDES = 3;
 
 /** ~170ms × 10 frames ≈ 1.7s (under 2s cap). */
 export const CATEGORY_FLASH_FRAME_MS = 170;
@@ -7,20 +10,9 @@ export type CategoryFlashSlide = {
   id: string;
   src: string;
   label: string;
+  /** Real provider on KasiFind (work photo from their listing). */
+  providerName?: string;
 };
-
-export const CATEGORY_FLASH_SLIDES: CategoryFlashSlide[] = [
-  { id: "security", src: "/intro/security-gates.svg", label: "Security gates & burglar bars" },
-  { id: "aluminium", src: "/intro/aluminium-windows.svg", label: "Aluminium windows" },
-  { id: "plumbing", src: "/intro/plumbing.svg", label: "Plumbing" },
-  { id: "electrical", src: "/intro/electrical.svg", label: "Electrical services" },
-  { id: "automotive", src: "/intro/car-repairs.svg", label: "Car repairs" },
-  { id: "gas", src: "/intro/gas.svg", label: "Gas suppliers" },
-  { id: "garden", src: "/intro/gardening.svg", label: "Gardening & landscaping" },
-  { id: "hair", src: "/intro/hair-barber.svg", label: "Hairdressers & barbers" },
-  { id: "building", src: "/intro/building.svg", label: "Building & construction" },
-  { id: "food", src: "/intro/food-catering.svg", label: "Food & catering" },
-];
 
 export function shouldPlayCategoryFlashIntro(): boolean {
   if (typeof window === "undefined") return false;
@@ -40,20 +32,32 @@ export function markCategoryFlashIntroPlayed(): void {
   }
 }
 
-export function preloadCategoryFlashImages(
-  slides: CategoryFlashSlide[] = CATEGORY_FLASH_SLIDES
-): Promise<void> {
-  if (typeof window === "undefined") return Promise.resolve();
-  return Promise.all(
-    slides.map(
-      (slide) =>
-        new Promise<void>((resolve) => {
-          const img = new Image();
-          img.decoding = "async";
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-          img.src = slide.src;
-        })
-    )
-  ).then(() => undefined);
+function loadSlideImage(src: string, attempt: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const timeout = window.setTimeout(() => resolve(false), 12_000);
+    img.onload = () => {
+      window.clearTimeout(timeout);
+      void img.decode?.().then(() => resolve(true)).catch(() => resolve(true));
+    };
+    img.onerror = () => {
+      window.clearTimeout(timeout);
+      resolve(false);
+    };
+    const bust = attempt > 0 ? `${src}${src.includes("?") ? "&" : "?"}retry=${attempt}` : src;
+    img.src = bust;
+  });
+}
+
+/** Returns true only when every slide image loaded (no blank frames). */
+export async function preloadCategoryFlashImages(slides: CategoryFlashSlide[]): Promise<boolean> {
+  if (typeof window === "undefined") return true;
+  if (slides.length === 0) return false;
+  const results = await Promise.all(
+    slides.map(async (slide) => {
+      if (await loadSlideImage(slide.src, 0)) return true;
+      return loadSlideImage(slide.src, 1);
+    })
+  );
+  return results.every(Boolean);
 }
