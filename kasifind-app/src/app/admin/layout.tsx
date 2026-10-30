@@ -9,15 +9,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="kf-admin-root">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <header className="kf-admin-hero mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-[var(--kf-forest)] sm:text-2xl">KasiFind Admin Portal</h1>
-          <p className="text-sm text-[var(--kf-muted)]">Monitor growth, listings, and community activity.</p>
+          <p className="kf-admin-hero-kicker">Admin portal</p>
+          <h1 className="kf-admin-hero-title">KasiFind dashboard</h1>
+          <p className="kf-admin-hero-sub">Monitor growth, listings, and community activity.</p>
         </div>
-        <Link href="/" className="kf-btn kf-btn-outline text-sm">
+        <Link href="/" className="kf-btn kf-btn-outline text-sm shrink-0">
           View public site
         </Link>
-      </div>
+      </header>
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <aside className="lg:w-56 lg:shrink-0">
           <KfAdminNav />
