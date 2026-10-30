@@ -276,10 +276,10 @@
   inset: 0;
   z-index: 45;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: max(1rem, env(safe-area-inset-top, 0)) 1rem max(1rem, env(safe-area-inset-bottom, 0));
-  background: var(--kf-ivory);
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  background: #0f4d3a;
   pointer-events: none;
 }
 
@@ -295,11 +295,12 @@
 
 .kf-category-flash-inner {
   position: relative;
-  width: min(100%, 22rem);
-  aspect-ratio: 1;
+  flex: 1;
+  width: 100%;
+  min-height: 100dvh;
   overflow: hidden;
-  border-radius: var(--kf-radius-xl);
-  box-shadow: var(--kf-shadow-lg);
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .kf-category-flash-loader {
@@ -332,27 +333,31 @@
   right: 0;
   bottom: 0;
   margin: 0;
-  padding: 0.65rem 0.85rem;
-  font-size: var(--kf-text-sm);
+  padding: max(1rem, env(safe-area-inset-bottom, 0)) 1rem 1.25rem;
+  font-size: var(--kf-text-base);
   font-weight: 700;
   color: #fff;
   text-align: center;
-  background: linear-gradient(to top, rgba(15, 77, 58, 0.88), transparent);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(to top, rgba(15, 77, 58, 0.92) 0%, rgba(15, 77, 58, 0.55) 55%, transparent);
 }
 
 .kf-category-flash-tagline {
   position: absolute;
-  top: 0.65rem;
-  left: 0.65rem;
-  right: 0.65rem;
+  top: max(0.75rem, env(safe-area-inset-top, 0));
+  left: 1rem;
+  right: 1rem;
   margin: 0;
-  padding: 0.35rem 0.5rem;
-  font-size: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--kf-text-sm);
   font-weight: 600;
-  line-height: 1.35;
-  color: var(--kf-forest);
+  line-height: 1.4;
+  color: #fff;
   text-align: center;
-  background: rgba(249, 250, 247, 0.92);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  background: rgba(15, 77, 58, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-radius: var(--kf-radius-md);
 }
 

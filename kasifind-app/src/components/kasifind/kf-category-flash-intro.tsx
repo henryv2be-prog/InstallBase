@@ -22,13 +22,19 @@ export function KfCategoryFlashIntro({ onComplete }: Props) {
 
   useEffect(() => {
     let cancelled = false;
-    void preloadCategoryFlashImages().then(() => {
-      if (!cancelled) setLoaded(true);
+    void preloadCategoryFlashImages().then((ok) => {
+      if (cancelled) return;
+      if (!ok) {
+        markCategoryFlashIntroPlayed();
+        onComplete();
+        return;
+      }
+      setLoaded(true);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [onComplete]);
 
   useEffect(() => {
     if (!loaded) return;
