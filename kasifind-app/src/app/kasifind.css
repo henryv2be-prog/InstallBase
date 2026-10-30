@@ -288,7 +288,7 @@
 }
 
 .kf-category-flash--reveal {
-  animation: kf-category-flash-reveal 1100ms var(--kf-ease) forwards;
+  animation: kf-category-flash-reveal 2000ms ease-in-out forwards;
 }
 
 @keyframes kf-category-flash-reveal {
