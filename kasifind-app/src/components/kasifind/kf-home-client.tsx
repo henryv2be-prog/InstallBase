@@ -22,6 +22,8 @@ import {
   writeLocationConsent,
 } from "@/lib/kasifind/location-consent-storage";
 import { readDiscoveryState, writeDiscoveryState } from "@/lib/kasifind/discovery-state";
+import { KfCategoryFlashIntro } from "@/components/kasifind/kf-category-flash-intro";
+import { shouldPlayCategoryFlashIntro } from "@/lib/kasifind/category-flash-intro";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
@@ -70,6 +72,13 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   const [manualLng, setManualLng] = useState(String(DEFAULT_CENTER.lng));
   const [manualLabel, setManualLabel] = useState("Johannesburg area");
   const [filtersHydrated, setFiltersHydrated] = useState(false);
+  const [categoryFlashPlaying, setCategoryFlashPlaying] = useState(false);
+
+  useEffect(() => {
+    if (shouldPlayCategoryFlashIntro()) {
+      setCategoryFlashPlaying(true);
+    }
+  }, []);
 
   useEffect(() => {
     const saved = readDiscoveryState();
@@ -344,6 +353,9 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
 
   return (
     <div className="space-y-8 pb-4">
+      {categoryFlashPlaying ? (
+        <KfCategoryFlashIntro onComplete={() => setCategoryFlashPlaying(false)} />
+      ) : null}
       <KfLocationConsentDialog
         open={locationDialogOpen}
         busy={locating}
