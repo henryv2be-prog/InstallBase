@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && npm run icons:generate && next build",
+    "icons:generate": "tsx scripts/generate-kasifind-pwa-icons.ts",
     "start": "node scripts/start.mjs",
     "lint": "eslint src",
     "test": "tsx --test src/lib/kasifind/__tests__/geo.test.ts src/lib/kasifind/__tests__/location-display.test.ts src/lib/kasifind/__tests__/format-datetime.test.ts src/lib/kasifind/__tests__/whatsapp.test.ts src/lib/kasifind/__tests__/upload-asset.test.ts src/lib/kasifind/__tests__/upload-storage-status.test.ts src/lib/kasifind/__tests__/resolve-listing-image-src.test.ts src/lib/kasifind/__tests__/category-flash-intro.test.ts src/lib/kasifind/__tests__/category-flash-selection.test.ts src/lib/__tests__/standalone-boundary.test.ts",
@@ -41,6 +42,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
+    "sharp": "^0.34.5",
     "tsx": "^4.21.0",
     "typescript": "^5"
   }
