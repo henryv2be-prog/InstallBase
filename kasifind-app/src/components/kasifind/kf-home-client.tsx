@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   Loader2,
   MapPin,
@@ -82,17 +82,20 @@ export function KfHomeClient({
   const [manualLng, setManualLng] = useState(String(DEFAULT_CENTER.lng));
   const [manualLabel, setManualLabel] = useState("Johannesburg area");
   const [filtersHydrated, setFiltersHydrated] = useState(false);
-  const [categoryFlashPlaying, setCategoryFlashPlaying] = useState(false);
-  const dismissCategoryFlash = useCallback(() => setCategoryFlashPlaying(false), []);
+  const slidesEligibleForIntro =
+    categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES;
+  const [introGate, setIntroGate] = useState<"pending" | "play" | "off">(() =>
+    slidesEligibleForIntro ? "pending" : "off"
+  );
+  const dismissCategoryFlash = useCallback(() => setIntroGate("off"), []);
 
-  useEffect(() => {
-    if (
-      categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES &&
-      shouldPlayCategoryFlashIntro()
-    ) {
-      setCategoryFlashPlaying(true);
+  useLayoutEffect(() => {
+    if (!slidesEligibleForIntro) {
+      setIntroGate("off");
+      return;
     }
-  }, [categoryFlashSlides.length]);
+    setIntroGate(shouldPlayCategoryFlashIntro() ? "play" : "off");
+  }, [slidesEligibleForIntro]);
 
   useEffect(() => {
     const saved = readDiscoveryState();
@@ -367,7 +370,10 @@ export function KfHomeClient({
 
   return (
     <div className="space-y-8 pb-4">
-      {categoryFlashPlaying ? (
+      {introGate === "pending" && slidesEligibleForIntro ? (
+        <div className="kf-category-flash kf-category-flash--opaque" aria-hidden role="presentation" />
+      ) : null}
+      {introGate === "play" ? (
         <KfCategoryFlashIntro
           slides={categoryFlashSlides}
           onComplete={dismissCategoryFlash}
