@@ -6,11 +6,12 @@ export const CATEGORY_FLASH_THEMES: { id: string; slugs: string[]; label: string
   { id: "electrical", slugs: ["electrical"], label: "Electrical services" },
   { id: "automotive", slugs: ["automotive"], label: "Car repairs" },
   { id: "gas", slugs: ["gas"], label: "Gas suppliers" },
-  { id: "garden", slugs: ["cleaning", "construction"], label: "Gardening & landscaping" },
+  { id: "cleaning", slugs: ["cleaning"], label: "Cleaning & household services" },
   { id: "hair", slugs: ["hair-beauty"], label: "Hairdressers & barbers" },
   { id: "building", slugs: ["construction", "metalwork-welding"], label: "Building & construction" },
   { id: "food", slugs: ["food-shops"], label: "Food & catering" },
+  { id: "other", slugs: ["other"], label: "Local services near you" },
 ];
 
-/** Max distinct listings in one intro (one work photo each). */
-export const CATEGORY_FLASH_MAX_LISTINGS = 10;
+/** Max distinct listings in one intro (one work photo each; hero is separate). */
+export const CATEGORY_FLASH_MAX_LISTINGS = 12;
