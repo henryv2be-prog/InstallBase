@@ -46,7 +46,9 @@ export function KfHeader({
         <Link href="/" className="kf-brand" onClick={() => setOpen(false)}>
           <BrandMark />
           <div className="min-w-0">
-            <div className="kf-wordmark">KasiFind</div>
+            <div className="kf-wordmark">
+              Kasi<span className="kf-text-gradient">Find</span>
+            </div>
             {!isHome && <p className="kf-tagline truncate">Find local. Support local.</p>}
           </div>
         </Link>

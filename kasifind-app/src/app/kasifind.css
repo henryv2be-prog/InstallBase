@@ -24,6 +24,11 @@
   --kf-border: rgba(31, 41, 55, 0.1);
   --kf-border-strong: rgba(31, 41, 55, 0.16);
   --kf-forest-soft: rgba(15, 77, 58, 0.1);
+  --kf-glass: rgba(255, 255, 255, 0.78);
+  --kf-glass-solid: #ffffff;
+  --kf-forest-glow: rgba(15, 77, 58, 0.28);
+  --kf-orange-glow: rgba(255, 138, 0, 0.24);
+  --kf-grid: rgba(15, 77, 58, 0.07);
 
   /* Legacy aliases (used across components) */
   --kf-green: var(--kf-forest);
@@ -83,6 +88,66 @@
   box-sizing: border-box;
 }
 
+/* InstallBase-inspired ambient grid + glow (light theme, KasiFind palette) */
+.kf-root.kf-tech-bg {
+  isolation: isolate;
+  background-color: var(--kf-ivory);
+  background-image:
+    linear-gradient(var(--kf-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--kf-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.kf-root.kf-tech-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, var(--kf-forest-glow), transparent),
+    radial-gradient(ellipse 55% 42% at 100% 0%, var(--kf-orange-glow), transparent),
+    radial-gradient(ellipse 40% 30% at 0% 30%, rgba(246, 201, 69, 0.1), transparent);
+}
+
+.kf-text-gradient {
+  background: linear-gradient(135deg, var(--kf-forest) 0%, #1a7a5c 45%, var(--kf-orange) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.kf-glow-border {
+  position: relative;
+}
+
+.kf-glow-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--kf-forest), var(--kf-orange));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s var(--kf-ease);
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .kf-glow-border:hover::before,
+  .kf-glow-border:focus-within::before {
+    opacity: 0.55;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .kf-root *,
   .kf-root *::before,
@@ -134,9 +199,13 @@
   top: 0;
   z-index: 50;
   height: auto;
-  border-bottom: 2px solid var(--kf-forest);
-  background: rgba(249, 250, 247, 0.94);
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid color-mix(in srgb, var(--kf-forest) 22%, var(--kf-border));
+  background: color-mix(in srgb, var(--kf-glass) 92%, var(--kf-ivory));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 1px 2px rgba(15, 77, 58, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .kf-header-inner {
@@ -175,9 +244,11 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--kf-radius-md);
-  background: var(--kf-forest);
+  background: linear-gradient(145deg, var(--kf-forest) 0%, #157a5c 52%, var(--kf-orange) 130%);
   color: #fff;
-  box-shadow: var(--kf-shadow-sm);
+  box-shadow:
+    0 4px 14px var(--kf-forest-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .kf-brand-mark svg {
@@ -272,20 +343,47 @@
 }
 
 .kf-card {
-  background: var(--kf-surface);
+  background: var(--kf-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);
-  box-shadow: var(--kf-shadow-sm);
+  box-shadow:
+    0 1px 2px rgba(15, 77, 58, 0.05),
+    0 8px 28px rgba(15, 77, 58, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
   transition:
     box-shadow var(--kf-duration) var(--kf-ease),
     border-color var(--kf-duration) var(--kf-ease),
     transform var(--kf-duration) var(--kf-ease);
 }
 
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .kf-card,
+  .kf-header,
+  .kf-hero-search-card,
+  .kf-dialog-panel,
+  .kf-search-shell,
+  .kf-sticky-contact {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .kf-card,
+  .kf-hero-search-card,
+  .kf-dialog-panel,
+  .kf-search-shell {
+    background: var(--kf-glass-solid);
+  }
+}
+
 @media (hover: hover) {
   .kf-card-interactive:hover {
-    box-shadow: var(--kf-shadow-md);
-    border-color: var(--kf-border-strong);
+    box-shadow:
+      0 4px 20px rgba(15, 77, 58, 0.1),
+      0 12px 36px rgba(255, 138, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    border-color: color-mix(in srgb, var(--kf-orange) 35%, var(--kf-border));
   }
 }
 
@@ -322,16 +420,24 @@
   align-items: center;
   gap: var(--kf-space-2);
   padding: var(--kf-space-1) var(--kf-space-3);
-  background: var(--kf-surface);
-  border: 2px solid var(--kf-forest);
+  background: color-mix(in srgb, var(--kf-glass) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--kf-forest) 28%, var(--kf-border));
   border-radius: var(--kf-radius-lg);
-  box-shadow: var(--kf-shadow-md);
-  transition: box-shadow var(--kf-duration) var(--kf-ease);
+  box-shadow:
+    var(--kf-shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition:
+    box-shadow var(--kf-duration) var(--kf-ease),
+    border-color var(--kf-duration) var(--kf-ease);
 }
 
 .kf-search-shell:focus-within {
-  box-shadow: 0 0 0 4px var(--kf-orange-soft);
-  border-color: var(--kf-forest);
+  box-shadow:
+    0 0 0 4px var(--kf-orange-soft),
+    0 8px 24px var(--kf-orange-glow);
+  border-color: color-mix(in srgb, var(--kf-orange) 45%, var(--kf-forest));
 }
 
 .kf-search-input {
@@ -374,14 +480,24 @@
 }
 
 .kf-btn-primary {
-  background: var(--kf-orange);
+  background: linear-gradient(
+    135deg,
+    var(--kf-forest) 0%,
+    #157a5c 38%,
+    var(--kf-orange) 115%
+  );
   color: #fff;
-  box-shadow: 0 1px 0 rgba(31, 41, 55, 0.08);
+  box-shadow:
+    0 4px 16px var(--kf-orange-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 @media (hover: hover) {
   .kf-btn-primary:hover:not(:disabled) {
-    background: var(--kf-orange-hover);
+    box-shadow:
+      0 6px 22px var(--kf-orange-glow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    filter: brightness(1.04);
   }
 }
 
@@ -395,16 +511,22 @@
 }
 
 .kf-btn-outline {
-  background: transparent;
+  background: color-mix(in srgb, var(--kf-glass) 70%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: var(--kf-forest);
-  border: 1.5px solid var(--kf-forest);
+  border: 1px solid color-mix(in srgb, var(--kf-forest) 35%, var(--kf-border));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 @media (hover: hover) {
   .kf-btn-outline:hover:not(:disabled) {
-    border-color: var(--kf-orange);
+    border-color: color-mix(in srgb, var(--kf-orange) 55%, var(--kf-forest));
     color: var(--kf-orange-hover);
-    background: var(--kf-orange-soft);
+    background: color-mix(in srgb, var(--kf-orange-soft) 80%, var(--kf-glass));
+    box-shadow:
+      0 4px 14px rgba(255, 138, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -441,9 +563,10 @@
 }
 
 .kf-chip-active {
-  background: var(--kf-orange);
+  background: linear-gradient(135deg, var(--kf-forest), var(--kf-orange));
   color: #fff;
-  border-color: var(--kf-orange);
+  border-color: transparent;
+  box-shadow: 0 2px 10px var(--kf-orange-glow);
 }
 
 .kf-section-title {
@@ -491,8 +614,11 @@
 }
 
 .kf-category-tile-active {
-  border-color: var(--kf-orange);
-  background: var(--kf-orange-soft);
+  border-color: color-mix(in srgb, var(--kf-orange) 55%, var(--kf-forest));
+  background: color-mix(in srgb, var(--kf-orange-soft) 75%, var(--kf-glass));
+  box-shadow:
+    0 4px 14px var(--kf-orange-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .kf-category-tile-active .kf-category-icon {
@@ -641,9 +767,13 @@
   z-index: 40;
   margin: 0 calc(-1 * var(--kf-space-4));
   padding: var(--kf-space-3) var(--kf-space-4);
-  background: rgba(249, 250, 247, 0.95);
+  background: color-mix(in srgb, var(--kf-glass) 94%, var(--kf-ivory));
   border-top: 1px solid var(--kf-border);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 -8px 28px rgba(15, 77, 58, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .kf-footer {
@@ -653,7 +783,9 @@
   font-size: var(--kf-text-xs);
   color: var(--kf-muted);
   border-top: 1px solid var(--kf-border);
-  background: var(--kf-surface);
+  background: color-mix(in srgb, var(--kf-glass) 88%, var(--kf-ivory));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .kf-form-section {
@@ -1123,10 +1255,14 @@
 
 .kf-hero-search-card {
   padding: var(--kf-space-4);
-  background: var(--kf-surface);
+  background: var(--kf-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-xl);
-  box-shadow: var(--kf-shadow-md);
+  box-shadow:
+    0 8px 32px rgba(15, 77, 58, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .kf-category-check {
@@ -1663,10 +1799,14 @@
   width: 100%;
   max-width: 24rem;
   padding: var(--kf-space-5);
-  background: var(--kf-surface);
-  border: 1px solid var(--kf-border);
+  background: var(--kf-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid color-mix(in srgb, var(--kf-forest) 18%, var(--kf-border));
   border-radius: var(--kf-radius-xl);
-  box-shadow: var(--kf-shadow-md);
+  box-shadow:
+    0 12px 40px rgba(15, 77, 58, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .kf-dialog-close {
@@ -2460,9 +2600,12 @@ body.kf-listing-flow-active .kf-dashboard-hero {
   font-size: var(--kf-text-xs);
   font-weight: 600;
   color: var(--kf-charcoal);
-  background: var(--kf-surface);
+  background: color-mix(in srgb, var(--kf-glass) 85%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--kf-border-strong);
   border-radius: var(--kf-radius-full);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .kf-filter-chip-dismiss {
