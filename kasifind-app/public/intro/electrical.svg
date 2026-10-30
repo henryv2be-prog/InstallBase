@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Electrical">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#157a5c"/>
+      <stop offset="100%" stop-color="#0f4d3a"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <path d="M210 80 L160 220 h50 l-20 100 110-150 h-55z" fill="#f6c945" stroke="#ff8a00" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="200" cy="200" r="120" fill="none" stroke="#ff8a00" stroke-width="3" opacity="0.35"/>
+</svg>

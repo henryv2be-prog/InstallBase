@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Building">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#1f2937"/>
+      <stop offset="100%" stop-color="#0f4d3a"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <rect x="110" y="140" width="180" height="160" fill="#94a3b8"/>
+  <path d="M200 80 L290 140 H110z" fill="#ff8a00"/>
+  <rect x="140" y="180" width="40" height="50" fill="#f6c945"/>
+  <rect x="220" y="180" width="40" height="50" fill="#f6c945"/>
+  <rect x="175" y="250" width="50" height="50" fill="#0f4d3a"/>
+  <rect x="130" y="100" width="25" height="40" fill="#f9faf7" opacity="0.5"/>
+</svg>

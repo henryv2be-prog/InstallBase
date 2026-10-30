@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Food and catering">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#157a5c"/>
+      <stop offset="100%" stop-color="#0f4d3a"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <ellipse cx="200" cy="260" rx="120" ry="35" fill="#f9faf7" opacity="0.2"/>
+  <circle cx="200" cy="200" r="75" fill="#ff8a00"/>
+  <circle cx="200" cy="200" r="55" fill="#f6c945"/>
+  <path d="M145 200h110M200 145v110" stroke="#0f4d3a" stroke-width="6" opacity="0.3"/>
+  <path d="M120 130 Q140 160 120 190" fill="none" stroke="#f9faf7" stroke-width="6"/>
+  <path d="M280 130 Q260 160 280 190" fill="none" stroke="#f9faf7" stroke-width="6"/>
+</svg>
