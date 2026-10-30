@@ -371,7 +371,7 @@ export function KfHomeClient({
   return (
     <div className="space-y-8 pb-4">
       {introGate === "pending" && slidesEligibleForIntro ? (
-        <div className="kf-category-flash kf-category-flash--opaque" aria-hidden role="presentation" />
+        <div className="kf-category-flash kf-category-flash--page-veil" aria-hidden role="presentation" />
       ) : null}
       {introGate === "play" ? (
         <KfCategoryFlashIntro
