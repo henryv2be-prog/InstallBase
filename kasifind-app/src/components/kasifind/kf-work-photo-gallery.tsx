@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, Loader2, X, ZoomIn } from "lucide-react";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 
@@ -28,6 +29,11 @@ export function KfWorkPhotoGallery({
   removeDisabled = false,
 }: Props) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [portalReady, setPortalReady] = useState(false);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   const close = useCallback(() => setOpenIndex(null), []);
 
@@ -112,57 +118,60 @@ export function KfWorkPhotoGallery({
         ))}
       </ul>
 
-      {active && openIndex !== null ? (
-        <div className="kf-photo-lightbox" role="presentation">
-          <button
-            type="button"
-            className="kf-photo-lightbox-backdrop"
-            aria-label="Close enlarged photo"
-            onClick={close}
-          />
-          <div
-            className="kf-photo-lightbox-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Enlarged work photo"
-          >
-            <button type="button" className="kf-photo-lightbox-close" aria-label="Close" onClick={close}>
-              <X className="h-6 w-6" aria-hidden />
-            </button>
-            {photos.length > 1 ? (
-              <>
-                <button
-                  type="button"
-                  className="kf-photo-lightbox-nav kf-photo-lightbox-nav--prev"
-                  aria-label="Previous photo"
-                  onClick={goPrev}
-                >
-                  <ChevronLeft className="h-7 w-7" aria-hidden />
-                </button>
-                <button
-                  type="button"
-                  className="kf-photo-lightbox-nav kf-photo-lightbox-nav--next"
-                  aria-label="Next photo"
-                  onClick={goNext}
-                >
-                  <ChevronRight className="h-7 w-7" aria-hidden />
-                </button>
-                <p className="kf-photo-lightbox-counter">
-                  {openIndex + 1} / {photos.length}
-                </p>
-              </>
-            ) : null}
-            <div className="kf-photo-lightbox-image-wrap">
-              <KfListingImage
-                src={active.src}
-                alt={active.alt ?? "Work photo"}
-                className="kf-photo-lightbox-image"
-                priority
+      {active && openIndex !== null && portalReady
+        ? createPortal(
+            <div className="kf-photo-lightbox" role="presentation">
+              <button
+                type="button"
+                className="kf-photo-lightbox-backdrop"
+                aria-label="Close enlarged photo"
+                onClick={close}
               />
-            </div>
-          </div>
-        </div>
-      ) : null}
+              <div
+                className="kf-photo-lightbox-panel"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Enlarged work photo"
+              >
+                <button type="button" className="kf-photo-lightbox-close" aria-label="Close" onClick={close}>
+                  <X className="h-6 w-6" aria-hidden />
+                </button>
+                {photos.length > 1 ? (
+                  <>
+                    <button
+                      type="button"
+                      className="kf-photo-lightbox-nav kf-photo-lightbox-nav--prev"
+                      aria-label="Previous photo"
+                      onClick={goPrev}
+                    >
+                      <ChevronLeft className="h-7 w-7" aria-hidden />
+                    </button>
+                    <button
+                      type="button"
+                      className="kf-photo-lightbox-nav kf-photo-lightbox-nav--next"
+                      aria-label="Next photo"
+                      onClick={goNext}
+                    >
+                      <ChevronRight className="h-7 w-7" aria-hidden />
+                    </button>
+                    <p className="kf-photo-lightbox-counter">
+                      {openIndex + 1} / {photos.length}
+                    </p>
+                  </>
+                ) : null}
+                <div className="kf-photo-lightbox-image-wrap">
+                  <KfListingImage
+                    src={active.src}
+                    alt={active.alt ?? "Work photo"}
+                    className="kf-photo-lightbox-image"
+                    priority
+                  />
+                </div>
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
     </>
   );
 }

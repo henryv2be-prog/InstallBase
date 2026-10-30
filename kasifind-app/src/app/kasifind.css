@@ -3205,7 +3205,7 @@ body.kf-listing-flow-active .kf-dashboard-hero {
 .kf-photo-lightbox {
   position: fixed;
   inset: 0;
-  z-index: 80;
+  z-index: 110;
   display: flex;
   align-items: center;
   justify-content: center;
