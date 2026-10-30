@@ -2,10 +2,10 @@ export const CATEGORY_FLASH_SESSION_KEY = "kf-category-flash-v5";
 
 export const CATEGORY_FLASH_MIN_SLIDES = 1;
 
-/** ~3s cinematic sequence (montage + hero + landing fade). */
-export const CINEMATIC_TOTAL_MS = 3000;
-export const CINEMATIC_MONTAGE_MS = 1500;
-export const CINEMATIC_HERO_MS = 400;
+/** ~3.5s cinematic sequence (montage + hero + landing fade). */
+export const CINEMATIC_TOTAL_MS = 3550;
+export const CINEMATIC_MONTAGE_MS = 1700;
+export const CINEMATIC_HERO_MS = 750;
 export const CINEMATIC_FADE_MS = 1100;
 
 export function cinematicPhaseDurations(montageFrameCount: number): {
@@ -15,7 +15,7 @@ export function cinematicPhaseDurations(montageFrameCount: number): {
   if (montageFrameCount > 0) {
     return { heroMs: CINEMATIC_HERO_MS, fadeMs: CINEMATIC_FADE_MS };
   }
-  return { heroMs: 1400, fadeMs: 1600 };
+  return { heroMs: 1800, fadeMs: 1600 };
 }
 
 export type CategoryFlashSlide = {
