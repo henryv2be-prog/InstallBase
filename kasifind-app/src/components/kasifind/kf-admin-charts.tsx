@@ -16,22 +16,18 @@ import {
   Cell,
 } from "recharts";
 import type { AdminDashboardStats } from "@/lib/kasifind/admin-stats";
+import { formatKfChartDay } from "@/lib/kasifind/format-datetime";
 
 const CHART_COLORS = ["#0F4D3A", "#FF8A00", "#F6C945", "#2d6a4f", "#40916c", "#95d5b2"];
-
-function formatDay(date: string) {
-  const d = new Date(`${date}T12:00:00Z`);
-  return d.toLocaleDateString("en-ZA", { month: "short", day: "numeric" });
-}
 
 export function KfAdminCharts({ charts }: { charts: AdminDashboardStats["charts"] }) {
   const activityData = charts.dailySeries.map((d) => ({
     ...d,
-    label: formatDay(d.date),
+    label: formatKfChartDay(d.date),
   }));
   const signupData = charts.signupSeries.map((d) => ({
     ...d,
-    label: formatDay(d.date),
+    label: formatKfChartDay(d.date),
   }));
 
   return (

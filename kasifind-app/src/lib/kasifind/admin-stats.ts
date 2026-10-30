@@ -1,4 +1,5 @@
 import "server-only";
+import { kfDateKeyInSast } from "@/lib/kasifind/format-datetime";
 import { getKasiFindPrisma } from "@/lib/kasifind/prisma";
 import { isListingClickEvent } from "@/lib/kasifind/analytics";
 
@@ -81,7 +82,7 @@ export async function getAdminDashboardStats() {
 
   const dailyMap = new Map<string, { views: number; clicks: number }>();
   for (const row of dailyActivity) {
-    const key = row.createdAt.toISOString().slice(0, 10);
+    const key = kfDateKeyInSast(row.createdAt);
     const bucket = dailyMap.get(key) ?? { views: 0, clicks: 0 };
     if (row.eventType === "LISTING_VIEW") bucket.views += 1;
     else if (isListingClickEvent(row.eventType)) bucket.clicks += 1;
@@ -100,7 +101,7 @@ export async function getAdminDashboardStats() {
   });
   const signupMap = new Map<string, number>();
   for (const u of signups) {
-    const key = u.createdAt.toISOString().slice(0, 10);
+    const key = kfDateKeyInSast(u.createdAt);
     signupMap.set(key, (signupMap.get(key) ?? 0) + 1);
   }
   const signupSeries = [...signupMap.entries()].map(([date, count]) => ({ date, count }));

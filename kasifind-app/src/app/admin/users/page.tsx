@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getAdminUsersPage } from "@/lib/kasifind/admin-users";
+import { formatKfDate, formatKfDateTime } from "@/lib/kasifind/format-datetime";
 import { kfAdminDeleteUserAction, kfAdminUpdateUserAction } from "@/lib/kasifind/admin-actions";
 import { KfAdminDeleteButton } from "@/components/kasifind/kf-admin-delete-button";
 
@@ -102,10 +103,10 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                     )}
                   </td>
                   <td className="whitespace-nowrap text-xs">
-                    {new Date(u.createdAt).toLocaleDateString("en-ZA")}
+                    {formatKfDate(u.createdAt)}
                   </td>
                   <td className="whitespace-nowrap text-xs">
-                    {u.lastSeenAt ? new Date(u.lastSeenAt).toLocaleString("en-ZA") : "—"}
+                    {u.lastSeenAt ? formatKfDateTime(u.lastSeenAt) : "—"}
                   </td>
                   <td>
                     <details className="kf-admin-details">

@@ -6,6 +6,7 @@ import {
   kfAdminSetListingFeaturedAction,
 } from "@/lib/kasifind/admin-actions";
 import { getAdminListingDetail } from "@/lib/kasifind/admin-listings";
+import { formatKfDateTime } from "@/lib/kasifind/format-datetime";
 import { KfAdminDeleteButton } from "@/components/kasifind/kf-admin-delete-button";
 
 export const dynamic = "force-dynamic";
@@ -138,7 +139,7 @@ export default async function AdminListingDetailPage({ params }: Props) {
               ) : (
                 recentEvents.map((e) => (
                   <tr key={e.id}>
-                    <td className="text-xs">{new Date(e.createdAt).toLocaleString("en-ZA")}</td>
+                    <td className="text-xs">{formatKfDateTime(e.createdAt)}</td>
                     <td className="text-sm">{e.eventType.replace(/_/g, " ")}</td>
                   </tr>
                 ))
