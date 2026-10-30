@@ -83,6 +83,7 @@ export function KfHomeClient({
   const [manualLabel, setManualLabel] = useState("Johannesburg area");
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const [categoryFlashPlaying, setCategoryFlashPlaying] = useState(false);
+  const dismissCategoryFlash = useCallback(() => setCategoryFlashPlaying(false), []);
 
   useEffect(() => {
     if (
@@ -369,7 +370,7 @@ export function KfHomeClient({
       {categoryFlashPlaying ? (
         <KfCategoryFlashIntro
           slides={categoryFlashSlides}
-          onComplete={() => setCategoryFlashPlaying(false)}
+          onComplete={dismissCategoryFlash}
         />
       ) : null}
       <KfLocationConsentDialog
