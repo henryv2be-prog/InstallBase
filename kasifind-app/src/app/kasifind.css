@@ -148,6 +148,16 @@
   padding: var(--kf-space-2) var(--kf-space-4);
 }
 
+.kf-header-listing-count {
+  margin: 0;
+  padding: 0.2rem var(--kf-space-4) 0.4rem;
+  font-size: var(--kf-text-xs);
+  font-weight: 500;
+  color: var(--kf-muted);
+  text-align: center;
+  border-top: 1px solid var(--kf-border);
+}
+
 .kf-brand {
   display: flex;
   align-items: center;
