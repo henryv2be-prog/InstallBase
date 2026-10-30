@@ -19,11 +19,26 @@ export type KfHeaderUser = {
   email: string;
 };
 
-export function KfHeader({ user }: { user: KfHeaderUser | null }) {
+function formatListingCount(count: number): string {
+  const n = new Intl.NumberFormat("en-ZA").format(count);
+  return count === 1 ? `${n} local listing` : `${n} local listings`;
+}
+
+export function KfHeader({
+  user,
+  publishedListingCount = null,
+}: {
+  user: KfHeaderUser | null;
+  publishedListingCount?: number | null;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const isHome = pathname === "/";
   const isAdmin = user?.role === "ADMIN";
+  const hideListingCount =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/account/listing") ||
+    publishedListingCount === null;
 
   return (
     <header className="kf-header">
@@ -60,6 +75,12 @@ export function KfHeader({ user }: { user: KfHeaderUser | null }) {
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
+
+      {!hideListingCount ? (
+        <p className="kf-header-listing-count mx-auto max-w-5xl" aria-live="polite">
+          {formatListingCount(publishedListingCount)}
+        </p>
+      ) : null}
 
       {open && (
         <nav
