@@ -1,8 +1,11 @@
-import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { buildKasiFindAppIconSvg } from "../src/lib/kasifind/brand-app-icon";
+import {
+  buildKasiFindAppIconSvg,
+  KF_APP_ICON_COLORS,
+} from "../src/lib/kasifind/brand-app-icon";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = join(root, "public");
@@ -13,7 +16,11 @@ async function rasterize(svg: string, size: number) {
   const factor = size <= 64 ? 4 : size <= 256 ? 2 : 1;
   const render = size * factor;
   const scaled = svg.replace(/width="\d+" height="\d+"/, `width="${render}" height="${render}"`);
-  return sharp(Buffer.from(scaled)).resize(size, size).png({ compressionLevel: 9 }).toBuffer();
+  return sharp(Buffer.from(scaled))
+    .flatten({ background: KF_APP_ICON_COLORS.forest })
+    .resize(size, size)
+    .png({ compressionLevel: 9 })
+    .toBuffer();
 }
 
 async function main() {
