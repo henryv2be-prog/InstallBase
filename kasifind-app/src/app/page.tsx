@@ -1,9 +1,14 @@
 import { KfHomeClient } from "@/components/kasifind/kf-home-client";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
+import { getCategoryFlashSlidesFromListings } from "@/lib/kasifind/category-flash-listings";
 
 export const dynamic = "force-dynamic";
 
-export default function KasiFindHomePage() {
+export default async function KasiFindHomePage() {
   const dbConfigured = isKasiFindDbConfigured();
-  return <KfHomeClient dbConfigured={dbConfigured} />;
+  const categoryFlashSlides = dbConfigured ? await getCategoryFlashSlidesFromListings() : [];
+
+  return (
+    <KfHomeClient dbConfigured={dbConfigured} categoryFlashSlides={categoryFlashSlides} />
+  );
 }

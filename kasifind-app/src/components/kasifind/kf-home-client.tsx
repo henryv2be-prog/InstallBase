@@ -23,7 +23,11 @@ import {
 } from "@/lib/kasifind/location-consent-storage";
 import { readDiscoveryState, writeDiscoveryState } from "@/lib/kasifind/discovery-state";
 import { KfCategoryFlashIntro } from "@/components/kasifind/kf-category-flash-intro";
-import { shouldPlayCategoryFlashIntro } from "@/lib/kasifind/category-flash-intro";
+import {
+  CATEGORY_FLASH_MIN_SLIDES,
+  shouldPlayCategoryFlashIntro,
+  type CategoryFlashSlide,
+} from "@/lib/kasifind/category-flash-intro";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
@@ -48,7 +52,13 @@ function ResultSkeletons() {
   );
 }
 
-export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
+export function KfHomeClient({
+  dbConfigured,
+  categoryFlashSlides = [],
+}: {
+  dbConfigured: boolean;
+  categoryFlashSlides?: CategoryFlashSlide[];
+}) {
   const [location, setLocation] = useState<LocationState>({
     mode: "manual",
     lat: DEFAULT_CENTER.lat,
@@ -75,10 +85,13 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   const [categoryFlashPlaying, setCategoryFlashPlaying] = useState(false);
 
   useEffect(() => {
-    if (shouldPlayCategoryFlashIntro()) {
+    if (
+      categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES &&
+      shouldPlayCategoryFlashIntro()
+    ) {
       setCategoryFlashPlaying(true);
     }
-  }, []);
+  }, [categoryFlashSlides.length]);
 
   useEffect(() => {
     const saved = readDiscoveryState();
@@ -354,7 +367,10 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   return (
     <div className="space-y-8 pb-4">
       {categoryFlashPlaying ? (
-        <KfCategoryFlashIntro onComplete={() => setCategoryFlashPlaying(false)} />
+        <KfCategoryFlashIntro
+          slides={categoryFlashSlides}
+          onComplete={() => setCategoryFlashPlaying(false)}
+        />
       ) : null}
       <KfLocationConsentDialog
         open={locationDialogOpen}
