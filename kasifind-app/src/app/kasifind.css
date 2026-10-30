@@ -275,6 +275,16 @@
   padding: var(--kf-space-5) 0 var(--kf-space-4);
 }
 
+.kf-home-search-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kf-space-3);
+}
+
+.kf-home-search-stack .kf-hero {
+  padding-bottom: 0;
+}
+
 .kf-hero-bg {
   pointer-events: none;
   position: absolute;
