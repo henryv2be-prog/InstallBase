@@ -55,3 +55,10 @@ export function parseCoordinate(value: string | number | null | undefined): numb
 export function isValidSaCoordinate(lat: number, lng: number): boolean {
   return lat >= -35.5 && lat <= -22 && lng >= 16 && lng <= 33.5;
 }
+
+/** Map viewport only — not stored as a listing position until the provider sets a pin. */
+export const SA_MAP_DEFAULT_VIEW = {
+  latitude: -26.2041,
+  longitude: 28.0473,
+  zoom: 6,
+} as const;

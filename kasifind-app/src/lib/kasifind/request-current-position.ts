@@ -42,7 +42,7 @@ export function publishLocationErrorMessage(
     case "unsupported":
       return "This browser can't detect location. Save a draft and enter coordinates manually, or try another device.";
     case "denied":
-      return "Allow location access to publish — we use your current position so neighbours can find you nearby.";
+      return "Exact pin needs location permission — allow access, or switch to Approximate area and tap the map instead.";
     case "timeout":
       return "Location took too long. Check GPS signal and try Publish again.";
     case "unavailable":

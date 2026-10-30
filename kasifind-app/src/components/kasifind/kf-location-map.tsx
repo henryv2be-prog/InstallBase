@@ -2,10 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Circle, LeafletMouseEvent, Map as LeafletMap, Marker, TileLayer } from "leaflet";
+import { SA_MAP_DEFAULT_VIEW } from "@/lib/kasifind/geo";
 
 export type KfLocationMapProps = {
   latitude: number;
   longitude: number;
+  /** When false, show country overview until the provider taps the map or uses GPS. */
+  pinPlaced?: boolean;
   approximate: boolean;
   radiusMeters?: number | null;
   /** Allow drag / tap to move the pin (listing editor). */
@@ -21,6 +24,7 @@ function zoomForMode(approximate: boolean) {
 export function KfLocationMap({
   latitude,
   longitude,
+  pinPlaced = true,
   approximate,
   radiusMeters = null,
   interactive = false,
@@ -96,8 +100,9 @@ export function KfLocationMap({
         iconAnchor: [14, 28],
       });
 
-      const showCircle = approximate && radiusMeters != null && radiusMeters > 0;
-      const showPin = !approximate || interactive;
+      const showCircle =
+        pinPlaced && approximate && radiusMeters != null && radiusMeters > 0;
+      const showPin = pinPlaced && (!approximate || interactive);
 
       if (showCircle) {
         circleRef.current = L.circle([latitude, longitude], {
@@ -125,10 +130,17 @@ export function KfLocationMap({
         }
       }
 
-      map.setView([latitude, longitude], zoomForMode(approximate));
+      if (pinPlaced) {
+        map.setView([latitude, longitude], zoomForMode(approximate));
+      } else {
+        map.setView(
+          [SA_MAP_DEFAULT_VIEW.latitude, SA_MAP_DEFAULT_VIEW.longitude],
+          SA_MAP_DEFAULT_VIEW.zoom
+        );
+      }
       map.invalidateSize();
     })();
-  }, [mapReady, latitude, longitude, approximate, radiusMeters, interactive]);
+  }, [mapReady, latitude, longitude, pinPlaced, approximate, radiusMeters, interactive]);
 
   useEffect(() => {
     if (!mapReady) return;
