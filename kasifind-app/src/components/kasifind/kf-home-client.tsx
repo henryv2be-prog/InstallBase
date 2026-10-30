@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Loader2,
   MapPin,
@@ -16,9 +16,13 @@ import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { trackKfEvent } from "@/lib/kasifind/track-client";
 import { KfLocationConsentDialog } from "@/components/kasifind/kf-location-consent-dialog";
+import {
+  clearLocationConsent,
+  readLocationConsent,
+  writeLocationConsent,
+} from "@/lib/kasifind/location-consent-storage";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
-const LOCATION_PROMPT_KEY = "kf_location_prompt_dismissed";
 const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
 
 type LocationState =
@@ -78,29 +82,32 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   const usesApproximateDistance = location.mode !== "gps";
 
   const dismissLocationPrompt = useCallback(() => {
-    try {
-      sessionStorage.setItem(LOCATION_PROMPT_KEY, "1");
-    } catch {
-      /* ignore */
-    }
+    writeLocationConsent("dismissed");
     setLocationDialogOpen(false);
   }, []);
 
   const openLocationPrompt = useCallback(() => {
+    if (readLocationConsent() === "granted") {
+      requestNearMeRef.current();
+      return;
+    }
     setLocationDialogOpen(true);
   }, []);
+
+  const requestNearMeRef = useRef<() => void>(() => undefined);
 
   const requestNearMe = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setError("Your browser does not support location. Enter your area manually below.");
       setManualOpen(true);
-      dismissLocationPrompt();
+      setLocationDialogOpen(false);
       return;
     }
     setLocating(true);
     setError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        writeLocationConsent("granted");
         setLocation({
           mode: "gps",
           lat: pos.coords.latitude,
@@ -109,13 +116,11 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
         });
         setLocating(false);
         setLocationDialogOpen(false);
-        try {
-          sessionStorage.removeItem(LOCATION_PROMPT_KEY);
-        } catch {
-          /* ignore */
-        }
       },
-      () => {
+      (err) => {
+        if (err.code === 1) {
+          writeLocationConsent("denied");
+        }
         setLocation({
           mode: "manual",
           lat: DEFAULT_CENTER.lat,
@@ -123,11 +128,13 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           label: "Location off — set your area",
         });
         setLocating(false);
-        dismissLocationPrompt();
+        setLocationDialogOpen(false);
       },
       { enableHighAccuracy: false, timeout: 12000, maximumAge: 300_000 }
     );
-  }, [dismissLocationPrompt]);
+  }, []);
+
+  requestNearMeRef.current = requestNearMe;
 
   const confirmLocationFromDialog = useCallback(() => {
     requestNearMe();
@@ -186,15 +193,77 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   }, [dbConfigured]);
 
   useEffect(() => {
-    if (!dbConfigured || location.mode === "gps") return;
+    if (!dbConfigured) return;
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
-    try {
-      if (sessionStorage.getItem(LOCATION_PROMPT_KEY) === "1") return;
-    } catch {
+
+    const consent = readLocationConsent();
+
+    if (consent === "granted") {
+      setLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocation({
+            mode: "gps",
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            label: "Near you",
+          });
+          setLocating(false);
+        },
+        (err) => {
+          setLocating(false);
+          if (err.code === 1) {
+            writeLocationConsent("denied");
+          }
+        },
+        { enableHighAccuracy: false, timeout: 12000, maximumAge: 600_000 }
+      );
       return;
     }
+
+    if (consent === "dismissed" || consent === "denied") return;
+
     setLocationDialogOpen(true);
-  }, [dbConfigured, location.mode]);
+  }, [dbConfigured]);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.permissions?.query) return;
+
+    let cancelled = false;
+    let statusRef: PermissionStatus | null = null;
+    let onChange: (() => void) | null = null;
+
+    void navigator.permissions.query({ name: "geolocation" }).then((status) => {
+      if (cancelled) return;
+      statusRef = status;
+      onChange = () => {
+        if (status.state === "granted") {
+          writeLocationConsent("granted");
+          return;
+        }
+        if (status.state === "denied") {
+          writeLocationConsent("denied");
+          setLocation({
+            mode: "manual",
+            lat: DEFAULT_CENTER.lat,
+            lng: DEFAULT_CENTER.lng,
+            label: "Location off — set your area",
+          });
+          return;
+        }
+        if (status.state === "prompt" && readLocationConsent() === "granted") {
+          clearLocationConsent();
+        }
+      };
+      onChange();
+      status.addEventListener("change", onChange);
+    });
+
+    return () => {
+      cancelled = true;
+      if (statusRef && onChange) statusRef.removeEventListener("change", onChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (location.mode !== "gps" || !dbConfigured) return;
