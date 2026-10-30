@@ -328,14 +328,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   const activeCategoryName = categorySlug
     ? categories.find((c) => c.slug === categorySlug)?.name ?? categorySlug
     : null;
-  const hasActiveFilters = Boolean(query.trim() || categorySlug || radiusKm !== 5);
-
-  const clearAllFilters = () => {
-    setQuery("");
-    setCategorySlug(null);
-    setRadiusKm(5);
-    void runSearch({ autoExpand: true });
-  };
+  const hasActiveFilters = Boolean(query.trim() || categorySlug);
 
   if (!dbConfigured) {
     return (
@@ -357,6 +350,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
         onClose={dismissLocationPrompt}
         onConfirm={confirmLocationFromDialog}
       />
+      <div className="kf-home-search-stack">
       <section className="kf-hero kf-animate-in">
         <div className="kf-hero-bg" aria-hidden />
         <p className="kf-hero-kicker">Find local. Support local.</p>
@@ -408,25 +402,6 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
               </button>
             </span>
           ) : null}
-          {radiusKm !== 5 ? (
-            <span className="kf-filter-chip">
-              Within {radiusKm} km
-              <button
-                type="button"
-                className="kf-filter-chip-dismiss"
-                aria-label="Reset radius to 5 km"
-                onClick={() => {
-                  setRadiusKm(5);
-                  void runSearch({ autoExpand: true });
-                }}
-              >
-                <X className="h-3.5 w-3.5" aria-hidden />
-              </button>
-            </span>
-          ) : null}
-          <button type="button" className="kf-filter-clear-all" onClick={clearAllFilters}>
-            Clear all
-          </button>
         </div>
       ) : null}
 
@@ -496,6 +471,7 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
           )}
         </button>
       </form>
+      </div>
 
       {(location.label === "Location off — set your area" || manualOpen) && (
         <div className="kf-card p-4 kf-animate-in">
