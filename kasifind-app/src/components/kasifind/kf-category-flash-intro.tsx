@@ -126,7 +126,7 @@ export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
 
   return (
     <div
-      className={`kf-category-flash kf-category-flash--opaque${
+      className={`kf-category-flash kf-category-flash--page-veil${
         phase === "fade" ? " kf-category-flash--reveal" : ""
       }`}
       style={phase === "fade" ? { animationDuration: `${fadeMs}ms` } : undefined}

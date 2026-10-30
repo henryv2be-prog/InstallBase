@@ -283,8 +283,13 @@
   pointer-events: none;
 }
 
-.kf-category-flash--opaque {
-  background: #0f4d3a;
+/** Matches `.kf-root.kf-tech-bg` so status bars / letterbox feel like the normal page. */
+.kf-category-flash--page-veil {
+  background-color: var(--kf-ivory);
+  background-image:
+    linear-gradient(var(--kf-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--kf-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
 .kf-category-flash--reveal {
@@ -313,7 +318,11 @@
 .kf-category-flash-loader {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, var(--kf-forest-soft), var(--kf-orange-soft));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--kf-stone) 70%, var(--kf-ivory)),
+    var(--kf-ivory)
+  );
 }
 
 .kf-category-flash-img {
