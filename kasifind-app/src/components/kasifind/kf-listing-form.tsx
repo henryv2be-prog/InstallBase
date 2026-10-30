@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { ArrowLeft, ArrowRight, Camera, Loader2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Camera, Loader2 } from "lucide-react";
 import {
   kfAddListingPhoto,
   kfRemoveListingPhoto,
@@ -15,7 +15,7 @@ import {
   requestCurrentPositionForPublish,
 } from "@/lib/kasifind/request-current-position";
 import { KfLocationPicker } from "@/components/kasifind/kf-location-picker";
-import { KfListingImage } from "@/components/kasifind/kf-listing-image";
+import { KfWorkPhotoGallery } from "@/components/kasifind/kf-work-photo-gallery";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { KfProfilePhotoField } from "@/components/kasifind/kf-profile-photo-field";
 import {
@@ -397,47 +397,29 @@ export function KfListingForm({
           {listing?.listingId ? (
             <>
               {photoCount > 0 ? (
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                  {listing.photos.map((p) => (
-                    <div key={p.id} className="kf-photo-thumb">
-                      <KfListingImage
-                        src={p.url}
-                        alt=""
-                        className="aspect-square w-full object-cover"
-                        priority
-                      />
-                      <button
-                        type="button"
-                        className="kf-photo-remove"
-                        aria-label="Remove photo"
-                        disabled={removingPhotoId === p.id || pending || uploading}
-                        onClick={() => {
-                          setRemovingPhotoId(p.id);
-                          startTransition(async () => {
-                            try {
-                              const fd = new FormData();
-                              fd.set("photoId", p.id);
-                              const result = await kfRemoveListingPhoto(fd);
-                              if ("error" in result && result.error) toast.error(result.error);
-                              else {
-                                toast.success("Photo removed.");
-                                router.refresh();
-                              }
-                            } finally {
-                              setRemovingPhotoId(null);
-                            }
-                          });
-                        }}
-                      >
-                        {removingPhotoId === p.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                        ) : (
-                          <X className="h-4 w-4" aria-hidden />
-                        )}
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                <KfWorkPhotoGallery
+                  priorityFirst
+                  photos={listing.photos.map((p) => ({ id: p.id, src: p.url, alt: "Your work photo" }))}
+                  removeDisabled={pending || uploading}
+                  removingPhotoId={removingPhotoId}
+                  onRemovePhoto={(photoId) => {
+                    setRemovingPhotoId(photoId);
+                    startTransition(async () => {
+                      try {
+                        const fd = new FormData();
+                        fd.set("photoId", photoId);
+                        const result = await kfRemoveListingPhoto(fd);
+                        if ("error" in result && result.error) toast.error(result.error);
+                        else {
+                          toast.success("Photo removed.");
+                          router.refresh();
+                        }
+                      } finally {
+                        setRemovingPhotoId(null);
+                      }
+                    });
+                  }}
+                />
               ) : (
                 <KfEmptyState
                   icon={<Camera className="h-6 w-6" aria-hidden />}

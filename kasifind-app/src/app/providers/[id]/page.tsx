@@ -10,6 +10,7 @@ import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
 import { publicAssetUrl, siteOriginFromHeaders } from "@/lib/kasifind/public-asset-url";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
+import { KfWorkPhotoGallery } from "@/components/kasifind/kf-work-photo-gallery";
 import { KfReviewForm } from "@/components/kasifind/kf-review-form";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
 import { KfContactBar } from "@/components/kasifind/kf-contact-bar";
@@ -178,19 +179,18 @@ export default async function KasiFindProviderPage({ params }: Props) {
 
       <section className="mt-8 kf-animate-in">
         <h2 className="kf-section-title">Work gallery</h2>
-        <p className="kf-section-sub mt-1">Photos from this provider&apos;s listing.</p>
+        <p className="kf-section-sub mt-1">
+          Tap a photo to enlarge{listing.photos.length > 1 ? " and swipe between shots" : ""}.
+        </p>
         {listing.photos.length > 0 ? (
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {listing.photos.map((url) => (
-              <KfListingImage
-                key={url}
-                src={publicAssetUrl(url, siteOrigin)}
-                alt="Work sample from provider listing"
-                className="aspect-square rounded-lg object-cover ring-1 ring-[var(--kf-border)]"
-                priority
-              />
-            ))}
-          </div>
+          <KfWorkPhotoGallery
+            className="mt-4"
+            priorityFirst
+            photos={listing.photos.map((url, i) => ({
+              src: publicAssetUrl(url, siteOrigin),
+              alt: `Work sample ${i + 1} from ${listing.displayName}`,
+            }))}
+          />
         ) : (
           <div className="mt-4">
             <KfEmptyState
