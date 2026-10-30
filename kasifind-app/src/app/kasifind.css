@@ -778,6 +778,36 @@
   box-shadow: 0 2px 10px var(--kf-orange-glow);
 }
 
+.kf-radius-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kf-space-2);
+}
+
+.kf-radius-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kf-space-1);
+  font-size: var(--kf-text-xs);
+  font-weight: 600;
+  color: var(--kf-muted);
+}
+
+.kf-radius-chips {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+.kf-radius-chip {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  padding-inline: 0.35rem;
+  white-space: nowrap;
+}
+
 .kf-section-title {
   font-size: var(--kf-text-lg);
   font-weight: 700;

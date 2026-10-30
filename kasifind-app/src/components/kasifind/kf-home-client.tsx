@@ -475,21 +475,23 @@ export function KfHomeClient({
           ) : null}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="flex items-center gap-1 text-xs font-semibold text-[var(--kf-muted)]">
+        <div className="kf-radius-field">
+          <span className="kf-radius-label">
             <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
             Radius
           </span>
-          {RADIUS_OPTIONS.map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => setRadiusKm(r)}
-              className={`kf-chip ${radiusKm === r ? "kf-chip-active" : ""}`}
-            >
-              {r} km
-            </button>
-          ))}
+          <div className="kf-radius-chips" role="group" aria-label="Search radius in kilometres">
+            {RADIUS_OPTIONS.map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRadiusKm(r)}
+                className={`kf-chip kf-radius-chip ${radiusKm === r ? "kf-chip-active" : ""}`}
+              >
+                {r} km
+              </button>
+            ))}
+          </div>
         </div>
 
         <button type="submit" disabled={loading} className="kf-btn kf-btn-primary w-full text-base">
