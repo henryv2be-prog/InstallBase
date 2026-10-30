@@ -36,8 +36,11 @@ export default async function KasiFindProviderPage({ params }: Props) {
   const { listing, ownerPreview } = resolved;
 
   const serviceHint = listing.services[0]?.name;
-  const waPhone = listing.whatsapp || listing.phone;
-  const waUrl = buildWhatsAppUrl(waPhone, defaultEnquiryMessage(listing.displayName, serviceHint));
+  const waPhone = (listing.whatsapp || listing.phone || "").trim();
+  const waUrl =
+    waPhone.replace(/\D/g, "").length >= 9
+      ? buildWhatsAppUrl(waPhone, defaultEnquiryMessage(listing.displayName, serviceHint))
+      : null;
   const headerStore = await headers();
   const userAgent = headerStore.get("user-agent");
   const siteOrigin = siteOriginFromHeaders(headerStore);
@@ -107,10 +110,11 @@ export default async function KasiFindProviderPage({ params }: Props) {
                 </span>
               </p>
             ) : (
-              <div className="mt-3 flex justify-center sm:justify-start">
+              <div className="mt-3 flex flex-col items-center gap-2 sm:items-start">
+                <p className="kf-rating-unrated">Not yet rated</p>
                 <p className="kf-early-badge">
                   <Sparkles className="h-3.5 w-3.5" aria-hidden />
-                  New on KasiFind — reviews will grow as neighbours share experiences
+                  New on KasiFind — be among the first to leave a review
                 </p>
               </div>
             )}
