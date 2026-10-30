@@ -16,15 +16,61 @@ const FLASH_BY_THEME: { id: string; slugs: string[]; label: string }[] = [
   { id: "food", slugs: ["food-shops"], label: "Food & catering" },
 ];
 
-type ListingCandidate = {
+const MAX_FLASH_SLIDES = 10;
+
+type PhotoSource = {
+  key: string;
+  listingId: string;
+  displayName: string;
+  photoSrc: string;
+  categorySlugs: Set<string>;
+  fallbackLabel: string;
+};
+
+async function resolveListingPhotoSources(row: {
   id: string;
   displayName: string;
-  categorySlugs: Set<string>;
-  photoSrc: string | null;
-};
+  profileImageUrl: string | null;
+  photos: { url: string }[];
+  categories: { category: { slug: string; name: string } }[];
+}): Promise<PhotoSource[]> {
+  const categorySlugs = new Set(row.categories.map((c) => c.category.slug));
+  const fallbackLabel = row.categories[0]?.category.name ?? "Local services";
+  const sources: PhotoSource[] = [];
+
+  for (const photo of row.photos) {
+    const resolved = await resolvePublicUploadUrl(photo.url);
+    if (!resolved) continue;
+    sources.push({
+      key: `${row.id}:${resolved}`,
+      listingId: row.id,
+      displayName: row.displayName,
+      photoSrc: resolved,
+      categorySlugs,
+      fallbackLabel,
+    });
+  }
+
+  if (sources.length === 0 && row.profileImageUrl) {
+    const resolved = await resolvePublicUploadUrl(row.profileImageUrl);
+    if (resolved) {
+      sources.push({
+        key: `${row.id}:${resolved}`,
+        listingId: row.id,
+        displayName: row.displayName,
+        photoSrc: resolved,
+        categorySlugs,
+        fallbackLabel,
+      });
+    }
+  }
+
+  return sources;
+}
 
 /**
  * Work photos from published listings only (never stock imagery).
+ * Uses every reachable work photo; fills themed slides first, then any remaining photos.
  */
 export async function getCategoryFlashSlidesFromListings(): Promise<CategoryFlashSlide[]> {
   if (!isKasiFindDbConfigured()) return [];
@@ -37,50 +83,48 @@ export async function getCategoryFlashSlidesFromListings(): Promise<CategoryFlas
       OR: [{ photos: { some: {} } }, { profileImageUrl: { not: null } }],
     },
     include: {
-      photos: { orderBy: { sortOrder: "asc" }, take: 4 },
-      categories: { include: { category: { select: { slug: true } } } },
+      photos: { orderBy: { sortOrder: "asc" }, take: 8 },
+      categories: { include: { category: { select: { slug: true, name: true } } } },
     },
     orderBy: [{ featured: "desc" }, { updatedAt: "desc" }],
     take: 80,
   });
 
-  const candidates: ListingCandidate[] = [];
+  const allSources: PhotoSource[] = [];
   for (const row of rows) {
-    const urls = [...row.photos.map((p) => p.url), row.profileImageUrl].filter(Boolean) as string[];
-    let photoSrc: string | null = null;
-    for (const raw of urls) {
-      const resolved = await resolvePublicUploadUrl(raw);
-      if (resolved) {
-        photoSrc = resolved;
-        break;
-      }
-    }
-    if (!photoSrc) continue;
-    candidates.push({
-      id: row.id,
-      displayName: row.displayName,
-      categorySlugs: new Set(row.categories.map((c) => c.category.slug)),
-      photoSrc,
-    });
+    const sources = await resolveListingPhotoSources(row);
+    allSources.push(...sources);
   }
 
-  const usedListingIds = new Set<string>();
+  const usedKeys = new Set<string>();
   const slides: CategoryFlashSlide[] = [];
 
   for (const theme of FLASH_BY_THEME) {
-    const match = candidates.find(
-      (c) =>
-        !usedListingIds.has(c.id) && theme.slugs.some((slug) => c.categorySlugs.has(slug))
+    if (slides.length >= MAX_FLASH_SLIDES) break;
+    const match = allSources.find(
+      (s) => !usedKeys.has(s.key) && theme.slugs.some((slug) => s.categorySlugs.has(slug))
     );
     if (!match) continue;
-    usedListingIds.add(match.id);
+    usedKeys.add(match.key);
     slides.push({
-      id: `${theme.id}-${match.id}`,
+      id: `${theme.id}-${match.listingId}-${slides.length}`,
       src: match.photoSrc,
       label: theme.label,
       providerName: match.displayName,
     });
   }
 
-  return slides.slice(0, 10);
+  for (const source of allSources) {
+    if (slides.length >= MAX_FLASH_SLIDES) break;
+    if (usedKeys.has(source.key)) continue;
+    usedKeys.add(source.key);
+    slides.push({
+      id: `work-${source.listingId}-${slides.length}`,
+      src: source.photoSrc,
+      label: source.fallbackLabel,
+      providerName: source.displayName,
+    });
+  }
+
+  return slides;
 }
