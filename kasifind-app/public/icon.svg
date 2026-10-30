@@ -1,6 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#0F4D3A"/>
-  <path d="M16 5.5c-4.6 0-8.3 3.5-8.3 7.9 0 5.9 6.3 11.5 8 13.2.4.4.9.4 1.3 0 1.7-1.7 8-7.3 8-13.2 0-4.4-3.7-7.9-8.3-7.9Z" fill="#ffffff"/>
-  <circle cx="16" cy="13.5" r="3.6" fill="#F6C945"/>
-  <circle cx="16" cy="13.5" r="1.35" fill="#0F4D3A"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="kf-grad-svg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F4D3A"/>
+      <stop offset="52%" stop-color="#157a5c"/>
+      <stop offset="100%" stop-color="#FF8A00"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="128" fill="url(#kf-grad-svg)"/>
+  <rect x="0" y="0" width="512" height="512" rx="128" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="4.096"/>
+  <svg x="115.19999999999999" y="115.19999999999999" width="281.6" height="281.6" viewBox="0 0 32 32" fill="none">
+    <path d="M16 3c-5.2 0-9.5 4-9.5 9.1 0 6.8 7.2 13.2 9.1 15.1.4.4 1 .4 1.4 0 1.9-1.9 9.1-8.3 9.1-15.1C26.1 7 21.8 3 16 3Z" fill="#ffffff"/>
+    <circle cx="16" cy="12.2" r="4.2" fill="#F6C945"/>
+    <circle cx="16" cy="12.2" r="1.6" fill="#0F4D3A"/>
+  </svg>
 </svg>
