@@ -5,6 +5,11 @@ import {
   CATEGORY_FLASH_MAX_LISTINGS,
   CATEGORY_FLASH_THEMES,
 } from "@/lib/kasifind/category-flash-config";
+import {
+  categoryFlashListingWeight,
+  shuffleArray,
+  weightedRandomPick,
+} from "@/lib/kasifind/category-flash-selection";
 import { resolvePublicUploadUrl } from "@/lib/kasifind/upload-asset";
 
 type ListingPick = {
@@ -49,10 +54,6 @@ async function pickListingWorkPhoto(row: {
   };
 }
 
-function heroScore(pick: ListingPick): number {
-  return (pick.featured ? 1000 : 0) + pick.workPhotoCount * 10;
-}
-
 function toSlide(pick: ListingPick, idSuffix: string, isHero?: boolean): CategoryFlashSlide {
   return {
     id: `${idSuffix}-${pick.listingId}`,
@@ -65,8 +66,8 @@ function toSlide(pick: ListingPick, idSuffix: string, isHero?: boolean): Categor
 }
 
 /**
- * Up to {@link CATEGORY_FLASH_MAX_LISTINGS} distinct listings — one strong work photo each.
- * Themed diversity first, then backfill; hero frame = strongest visual candidate (featured + work photos).
+ * Up to {@link CATEGORY_FLASH_MAX_LISTINGS} distinct listings — one work photo each.
+ * Random selection with bias toward featured listings; montage order shuffled each load.
  */
 export async function getCategoryFlashSlidesFromListings(): Promise<CategoryFlashSlide[]> {
   if (!isKasiFindDbConfigured()) return [];
@@ -99,43 +100,34 @@ export async function getCategoryFlashSlidesFromListings(): Promise<CategoryFlas
   const usedListingIds = new Set<string>();
   const selected: ListingPick[] = [];
 
-  for (const theme of CATEGORY_FLASH_THEMES) {
+  const themes = shuffleArray(CATEGORY_FLASH_THEMES);
+  for (const theme of themes) {
     if (selected.length >= CATEGORY_FLASH_MAX_LISTINGS) break;
-    const match = allPicks.find(
+    const pool = allPicks.filter(
       (p) =>
         !usedListingIds.has(p.listingId) &&
         theme.slugs.some((slug) => p.categorySlugs.has(slug))
     );
+    const match = weightedRandomPick<ListingPick>(pool, categoryFlashListingWeight);
     if (!match) continue;
     usedListingIds.add(match.listingId);
     selected.push({ ...match, label: theme.label });
   }
 
-  const usedCategorySlugs = new Set<string>();
-  for (const pick of selected) {
-    for (const slug of pick.categorySlugs) usedCategorySlugs.add(slug);
-  }
-
-  const backfillCandidates = allPicks
-    .filter((p) => !usedListingIds.has(p.listingId))
-    .sort((a, b) => {
-      const aNewCat = [...a.categorySlugs].some((s) => !usedCategorySlugs.has(s)) ? 1 : 0;
-      const bNewCat = [...b.categorySlugs].some((s) => !usedCategorySlugs.has(s)) ? 1 : 0;
-      if (bNewCat !== aNewCat) return bNewCat - aNewCat;
-      return heroScore(b) - heroScore(a);
-    });
-
-  for (const pick of backfillCandidates) {
-    if (selected.length >= CATEGORY_FLASH_MAX_LISTINGS) break;
+  while (selected.length < CATEGORY_FLASH_MAX_LISTINGS) {
+    const pool = allPicks.filter((p) => !usedListingIds.has(p.listingId));
+    if (pool.length === 0) break;
+    const pick = weightedRandomPick<ListingPick>(pool, categoryFlashListingWeight);
+    if (!pick) break;
     usedListingIds.add(pick.listingId);
-    for (const slug of pick.categorySlugs) usedCategorySlugs.add(slug);
     selected.push(pick);
   }
 
   if (selected.length === 0) return [];
 
-  const hero = [...selected].sort((a, b) => heroScore(b) - heroScore(a))[0]!;
-  const montage = selected.filter((p) => p.listingId !== hero.listingId);
+  const hero =
+    weightedRandomPick<ListingPick>(selected, categoryFlashListingWeight) ?? selected[0]!;
+  const montage = shuffleArray(selected.filter((p) => p.listingId !== hero.listingId));
 
   return [
     ...montage.map((p, i) => toSlide(p, `montage-${i}`)),

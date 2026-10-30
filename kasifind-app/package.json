@@ -10,7 +10,7 @@
     "build": "prisma generate && next build",
     "start": "node scripts/start.mjs",
     "lint": "eslint src",
-    "test": "tsx --test src/lib/kasifind/__tests__/geo.test.ts src/lib/kasifind/__tests__/location-display.test.ts src/lib/kasifind/__tests__/format-datetime.test.ts src/lib/kasifind/__tests__/whatsapp.test.ts src/lib/kasifind/__tests__/upload-asset.test.ts src/lib/kasifind/__tests__/upload-storage-status.test.ts src/lib/kasifind/__tests__/resolve-listing-image-src.test.ts src/lib/kasifind/__tests__/category-flash-intro.test.ts src/lib/__tests__/standalone-boundary.test.ts",
+    "test": "tsx --test src/lib/kasifind/__tests__/geo.test.ts src/lib/kasifind/__tests__/location-display.test.ts src/lib/kasifind/__tests__/format-datetime.test.ts src/lib/kasifind/__tests__/whatsapp.test.ts src/lib/kasifind/__tests__/upload-asset.test.ts src/lib/kasifind/__tests__/upload-storage-status.test.ts src/lib/kasifind/__tests__/resolve-listing-image-src.test.ts src/lib/kasifind/__tests__/category-flash-intro.test.ts src/lib/kasifind/__tests__/category-flash-selection.test.ts src/lib/__tests__/standalone-boundary.test.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "node scripts/migrate-deploy.mjs",
