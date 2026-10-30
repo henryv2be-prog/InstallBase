@@ -6,6 +6,7 @@ import {
   kfAdminUnpublishListingAction,
 } from "@/lib/kasifind/admin-actions";
 import { getAdminListingsPage } from "@/lib/kasifind/admin-listings";
+import { formatKfDate } from "@/lib/kasifind/format-datetime";
 import { KfAdminDeleteButton } from "@/components/kasifind/kf-admin-delete-button";
 
 export const dynamic = "force-dynamic";
@@ -104,7 +105,7 @@ export default async function AdminListingsPage({ searchParams }: Props) {
                   <td>{row.views}</td>
                   <td>{row.clicks}</td>
                   <td className="whitespace-nowrap text-xs">
-                    {new Date(row.updatedAt).toLocaleDateString("en-ZA")}
+                    {formatKfDate(row.updatedAt)}
                   </td>
                   <td className="min-w-[9rem]">
                     <div className="flex flex-col gap-1">

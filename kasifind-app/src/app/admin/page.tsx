@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Activity, Eye, MousePointerClick, Users } from "lucide-react";
 import { getAdminDashboardStats } from "@/lib/kasifind/admin-stats";
+import { formatKfDateTime } from "@/lib/kasifind/format-datetime";
 import { getUploadStorageStatus } from "@/lib/kasifind/upload-storage-status";
 import { KfAdminCharts } from "@/components/kasifind/kf-admin-charts";
 
@@ -149,7 +150,7 @@ export default async function AdminDashboardPage() {
                 stats.recentActivity.map((e) => (
                   <tr key={e.id}>
                     <td className="whitespace-nowrap text-xs text-[var(--kf-muted)]">
-                      {new Date(e.createdAt).toLocaleString("en-ZA")}
+                      {formatKfDateTime(e.createdAt)}
                     </td>
                     <td className="text-sm">{e.eventType.replace(/_/g, " ")}</td>
                     <td className="text-sm">{e.listingName ?? "—"}</td>
