@@ -1,76 +1,72 @@
 import "server-only";
 import { getKasiFindPrisma, isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import type { CategoryFlashSlide } from "@/lib/kasifind/category-flash-intro";
+import {
+  CATEGORY_FLASH_MAX_LISTINGS,
+  CATEGORY_FLASH_THEMES,
+} from "@/lib/kasifind/category-flash-config";
 import { resolvePublicUploadUrl } from "@/lib/kasifind/upload-asset";
 
-const FLASH_BY_THEME: { id: string; slugs: string[]; label: string }[] = [
-  { id: "security", slugs: ["gates-security", "metalwork-welding"], label: "Security gates & burglar bars" },
-  { id: "aluminium", slugs: ["aluminium-windows"], label: "Aluminium windows" },
-  { id: "plumbing", slugs: ["plumbing"], label: "Plumbing" },
-  { id: "electrical", slugs: ["electrical"], label: "Electrical services" },
-  { id: "automotive", slugs: ["automotive"], label: "Car repairs" },
-  { id: "gas", slugs: ["gas"], label: "Gas suppliers" },
-  { id: "garden", slugs: ["cleaning", "construction"], label: "Gardening & landscaping" },
-  { id: "hair", slugs: ["hair-beauty"], label: "Hairdressers & barbers" },
-  { id: "building", slugs: ["construction", "metalwork-welding"], label: "Building & construction" },
-  { id: "food", slugs: ["food-shops"], label: "Food & catering" },
-];
-
-const MAX_FLASH_SLIDES = 10;
-
-type PhotoSource = {
-  key: string;
+type ListingPick = {
   listingId: string;
   displayName: string;
   photoSrc: string;
   categorySlugs: Set<string>;
-  fallbackLabel: string;
+  label: string;
+  featured: boolean;
+  workPhotoCount: number;
 };
 
-async function resolveListingPhotoSources(row: {
+async function pickListingWorkPhoto(row: {
   id: string;
   displayName: string;
-  profileImageUrl: string | null;
+  featured: boolean;
   photos: { url: string }[];
   categories: { category: { slug: string; name: string } }[];
-}): Promise<PhotoSource[]> {
+}): Promise<ListingPick | null> {
   const categorySlugs = new Set(row.categories.map((c) => c.category.slug));
-  const fallbackLabel = row.categories[0]?.category.name ?? "Local services";
-  const sources: PhotoSource[] = [];
+  const label = row.categories[0]?.category.name ?? "Local services";
+  let photoSrc: string | null = null;
 
   for (const photo of row.photos) {
     const resolved = await resolvePublicUploadUrl(photo.url);
-    if (!resolved) continue;
-    sources.push({
-      key: `${row.id}:${resolved}`,
-      listingId: row.id,
-      displayName: row.displayName,
-      photoSrc: resolved,
-      categorySlugs,
-      fallbackLabel,
-    });
-  }
-
-  if (sources.length === 0 && row.profileImageUrl) {
-    const resolved = await resolvePublicUploadUrl(row.profileImageUrl);
     if (resolved) {
-      sources.push({
-        key: `${row.id}:${resolved}`,
-        listingId: row.id,
-        displayName: row.displayName,
-        photoSrc: resolved,
-        categorySlugs,
-        fallbackLabel,
-      });
+      photoSrc = resolved;
+      break;
     }
   }
 
-  return sources;
+  if (!photoSrc) return null;
+
+  return {
+    listingId: row.id,
+    displayName: row.displayName,
+    photoSrc,
+    categorySlugs,
+    label,
+    featured: row.featured,
+    workPhotoCount: row.photos.length,
+  };
+}
+
+function heroScore(pick: ListingPick): number {
+  return (pick.featured ? 1000 : 0) + pick.workPhotoCount * 10;
+}
+
+function toSlide(pick: ListingPick, idSuffix: string, isHero?: boolean): CategoryFlashSlide {
+  return {
+    id: `${idSuffix}-${pick.listingId}`,
+    src: pick.photoSrc,
+    label: pick.label,
+    listingId: pick.listingId,
+    providerName: pick.displayName,
+    isHero,
+  };
 }
 
 /**
- * Work photos from published listings only (never stock imagery).
- * Uses every reachable work photo; fills themed slides first, then any remaining photos.
+ * Up to {@link CATEGORY_FLASH_MAX_LISTINGS} distinct listings — one strong work photo each.
+ * Themed diversity first, then backfill; hero frame = strongest visual candidate (featured + work photos).
  */
 export async function getCategoryFlashSlidesFromListings(): Promise<CategoryFlashSlide[]> {
   if (!isKasiFindDbConfigured()) return [];
@@ -80,51 +76,69 @@ export async function getCategoryFlashSlidesFromListings(): Promise<CategoryFlas
     where: {
       status: "PUBLISHED",
       moderationStatus: "APPROVED",
-      OR: [{ photos: { some: {} } }, { profileImageUrl: { not: null } }],
+      photos: { some: {} },
     },
     include: {
-      photos: { orderBy: { sortOrder: "asc" }, take: 8 },
+      photos: { orderBy: { sortOrder: "asc" } },
       categories: { include: { category: { select: { slug: true, name: true } } } },
     },
     orderBy: [{ featured: "desc" }, { updatedAt: "desc" }],
-    take: 80,
+    take: 200,
   });
 
-  const allSources: PhotoSource[] = [];
+  const byListingId = new Map<string, ListingPick>();
   for (const row of rows) {
-    const sources = await resolveListingPhotoSources(row);
-    allSources.push(...sources);
+    if (byListingId.has(row.id)) continue;
+    const pick = await pickListingWorkPhoto(row);
+    if (pick) byListingId.set(row.id, pick);
   }
 
-  const usedKeys = new Set<string>();
-  const slides: CategoryFlashSlide[] = [];
+  const allPicks = [...byListingId.values()];
+  if (allPicks.length === 0) return [];
 
-  for (const theme of FLASH_BY_THEME) {
-    if (slides.length >= MAX_FLASH_SLIDES) break;
-    const match = allSources.find(
-      (s) => !usedKeys.has(s.key) && theme.slugs.some((slug) => s.categorySlugs.has(slug))
+  const usedListingIds = new Set<string>();
+  const selected: ListingPick[] = [];
+
+  for (const theme of CATEGORY_FLASH_THEMES) {
+    if (selected.length >= CATEGORY_FLASH_MAX_LISTINGS) break;
+    const match = allPicks.find(
+      (p) =>
+        !usedListingIds.has(p.listingId) &&
+        theme.slugs.some((slug) => p.categorySlugs.has(slug))
     );
     if (!match) continue;
-    usedKeys.add(match.key);
-    slides.push({
-      id: `${theme.id}-${match.listingId}-${slides.length}`,
-      src: match.photoSrc,
-      label: theme.label,
-      providerName: match.displayName,
-    });
+    usedListingIds.add(match.listingId);
+    selected.push({ ...match, label: theme.label });
   }
 
-  for (const source of allSources) {
-    if (slides.length >= MAX_FLASH_SLIDES) break;
-    if (usedKeys.has(source.key)) continue;
-    usedKeys.add(source.key);
-    slides.push({
-      id: `work-${source.listingId}-${slides.length}`,
-      src: source.photoSrc,
-      label: source.fallbackLabel,
-      providerName: source.displayName,
-    });
+  const usedCategorySlugs = new Set<string>();
+  for (const pick of selected) {
+    for (const slug of pick.categorySlugs) usedCategorySlugs.add(slug);
   }
 
-  return slides;
+  const backfillCandidates = allPicks
+    .filter((p) => !usedListingIds.has(p.listingId))
+    .sort((a, b) => {
+      const aNewCat = [...a.categorySlugs].some((s) => !usedCategorySlugs.has(s)) ? 1 : 0;
+      const bNewCat = [...b.categorySlugs].some((s) => !usedCategorySlugs.has(s)) ? 1 : 0;
+      if (bNewCat !== aNewCat) return bNewCat - aNewCat;
+      return heroScore(b) - heroScore(a);
+    });
+
+  for (const pick of backfillCandidates) {
+    if (selected.length >= CATEGORY_FLASH_MAX_LISTINGS) break;
+    usedListingIds.add(pick.listingId);
+    for (const slug of pick.categorySlugs) usedCategorySlugs.add(slug);
+    selected.push(pick);
+  }
+
+  if (selected.length === 0) return [];
+
+  const hero = [...selected].sort((a, b) => heroScore(b) - heroScore(a))[0]!;
+  const montage = selected.filter((p) => p.listingId !== hero.listingId);
+
+  return [
+    ...montage.map((p, i) => toSlide(p, `montage-${i}`)),
+    toSlide(hero, "hero", true),
+  ];
 }

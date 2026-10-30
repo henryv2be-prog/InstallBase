@@ -1,23 +1,57 @@
-export const CATEGORY_FLASH_SESSION_KEY = "kf-category-flash-v4";
+export const CATEGORY_FLASH_SESSION_KEY = "kf-category-flash-v5";
 
-/** Minimum real listing photos required to run the intro (timing stretches to ~4s either way). */
 export const CATEGORY_FLASH_MIN_SLIDES = 1;
 
-/** Target wall-clock time for the full intro (split evenly across slides). */
-export const CATEGORY_FLASH_TOTAL_MS = 4000;
+/** ~3s cinematic sequence (montage + hero + landing fade). */
+export const CINEMATIC_TOTAL_MS = 3000;
+export const CINEMATIC_MONTAGE_MS = 1500;
+export const CINEMATIC_HERO_MS = 400;
+export const CINEMATIC_FADE_MS = 1100;
 
-export function categoryFlashFrameMs(slideCount: number): number {
-  if (slideCount <= 0) return 400;
-  return Math.max(280, Math.floor(CATEGORY_FLASH_TOTAL_MS / slideCount));
+export function cinematicPhaseDurations(montageFrameCount: number): {
+  heroMs: number;
+  fadeMs: number;
+} {
+  if (montageFrameCount > 0) {
+    return { heroMs: CINEMATIC_HERO_MS, fadeMs: CINEMATIC_FADE_MS };
+  }
+  return { heroMs: 1400, fadeMs: 1600 };
 }
 
 export type CategoryFlashSlide = {
   id: string;
   src: string;
   label: string;
-  /** Real provider on KasiFind (work photo from their listing). */
+  listingId: string;
   providerName?: string;
+  /** Final dramatic frame with KasiFind branding. */
+  isHero?: boolean;
 };
+
+export type CinematicFrameStep = {
+  slideIndex: number;
+  durationMs: number;
+};
+
+/**
+ * Montage dwell times that sum to {@link CINEMATIC_MONTAGE_MS} — slower cuts first, faster later.
+ */
+export function buildCinematicMontageSchedule(montageFrameCount: number): CinematicFrameStep[] {
+  if (montageFrameCount <= 0) return [];
+
+  const weights = Array.from({ length: montageFrameCount }, (_, i) => {
+    const t = montageFrameCount === 1 ? 0 : i / (montageFrameCount - 1);
+    return 1.15 - t * 0.82;
+  });
+  const weightSum = weights.reduce((a, b) => a + b, 0);
+  const durations = weights.map((w) =>
+    Math.max(48, Math.round((w / weightSum) * CINEMATIC_MONTAGE_MS))
+  );
+  const drift = CINEMATIC_MONTAGE_MS - durations.reduce((a, b) => a + b, 0);
+  durations[durations.length - 1] = Math.max(48, durations[durations.length - 1]! + drift);
+
+  return durations.map((durationMs, slideIndex) => ({ slideIndex, durationMs }));
+}
 
 export function shouldPlayCategoryFlashIntro(): boolean {
   if (typeof window === "undefined") return false;
@@ -69,4 +103,24 @@ export async function preloadCategoryFlashImages(
     slides.map(async (slide) => ((await slideImageLoads(slide)) ? slide : null))
   );
   return loaded.filter((s): s is CategoryFlashSlide => s !== null);
+}
+
+/** Montage indices exclude hero; hero is always last slide when marked. */
+export function splitMontageAndHero(slides: CategoryFlashSlide[]): {
+  montageSlides: CategoryFlashSlide[];
+  heroSlide: CategoryFlashSlide | null;
+} {
+  if (slides.length === 0) return { montageSlides: [], heroSlide: null };
+  const heroIndex = slides.findIndex((s) => s.isHero);
+  if (heroIndex === -1) {
+    if (slides.length === 1) return { montageSlides: [], heroSlide: slides[0]! };
+    return {
+      montageSlides: slides.slice(0, -1),
+      heroSlide: slides[slides.length - 1]!,
+    };
+  }
+  return {
+    montageSlides: slides.filter((_, i) => i !== heroIndex),
+    heroSlide: slides[heroIndex]!,
+  };
 }

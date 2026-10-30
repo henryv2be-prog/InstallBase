@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
 import {
-  categoryFlashFrameMs,
+  buildCinematicMontageSchedule,
+  cinematicPhaseDurations,
   type CategoryFlashSlide,
   markCategoryFlashIntroPlayed,
   preloadCategoryFlashImages,
+  splitMontageAndHero,
 } from "@/lib/kasifind/category-flash-intro";
 
 type Props = {
@@ -13,98 +16,144 @@ type Props = {
   onComplete: () => void;
 };
 
+type IntroPhase = "preload" | "montage" | "hero" | "fade";
+
 /**
- * First-visit-only burst of real listing work photos (~4s total, n ≤ 10).
+ * Cinematic first-visit intro: accelerating montage (~1.5s), hero + brand (~0.4s), fade (~1.1s).
  */
 export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
   const [playableSlides, setPlayableSlides] = useState<CategoryFlashSlide[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  const [frameIndex, setFrameIndex] = useState(0);
-  const [exiting, setExiting] = useState(false);
-  const slideCount = playableSlides.length;
-  const frameMs = categoryFlashFrameMs(slideCount);
+  const [phase, setPhase] = useState<IntroPhase>("preload");
+  const [montageStep, setMontageStep] = useState(0);
+  const [visibleSlide, setVisibleSlide] = useState<CategoryFlashSlide | null>(null);
+  const [montageFast, setMontageFast] = useState(false);
+
+  const finish = useCallback(() => {
+    markCategoryFlashIntroPlayed();
+    onComplete();
+  }, [onComplete]);
+
+  const { montageSlides, heroSlide } = useMemo(
+    () => splitMontageAndHero(playableSlides),
+    [playableSlides]
+  );
+
+  const montageSchedule = useMemo(
+    () => buildCinematicMontageSchedule(montageSlides.length),
+    [montageSlides.length]
+  );
+
+  const { heroMs, fadeMs } = useMemo(
+    () => cinematicPhaseDurations(montageSlides.length),
+    [montageSlides.length]
+  );
 
   useEffect(() => {
     let cancelled = false;
     void preloadCategoryFlashImages(slides).then((ready) => {
       if (cancelled) return;
       if (ready.length === 0) {
-        markCategoryFlashIntroPlayed();
-        onComplete();
+        finish();
         return;
       }
       setPlayableSlides(ready);
-      setLoaded(true);
+      const { montageSlides: m, heroSlide: h } = splitMontageAndHero(ready);
+      if (m.length === 0 && h) {
+        setVisibleSlide(h);
+        setPhase("hero");
+      } else {
+        setVisibleSlide(m[0] ?? h);
+        setPhase("montage");
+      }
     });
     return () => {
       cancelled = true;
     };
-  }, [slides, onComplete]);
+  }, [slides, finish]);
 
   useEffect(() => {
-    if (!loaded || slideCount === 0) return;
+    if (phase !== "montage" || montageSlides.length === 0) return;
 
-    if (frameIndex >= slideCount) {
-      setExiting(true);
-      const doneTimer = window.setTimeout(() => {
-        markCategoryFlashIntroPlayed();
-        onComplete();
-      }, 120);
-      return () => window.clearTimeout(doneTimer);
+    const step = montageSchedule[montageStep];
+    if (!step) {
+      setVisibleSlide(heroSlide);
+      setPhase("hero");
+      return;
     }
 
+    setVisibleSlide(montageSlides[step.slideIndex] ?? null);
+    setMontageFast(step.slideIndex >= Math.max(1, Math.floor(montageSchedule.length * 0.35)));
+
     const timer = window.setTimeout(() => {
-      setFrameIndex((i) => i + 1);
-    }, frameMs);
+      setMontageStep((s) => s + 1);
+    }, step.durationMs);
 
     return () => window.clearTimeout(timer);
-  }, [loaded, frameIndex, onComplete, slideCount, frameMs]);
+  }, [phase, montageStep, montageSchedule, montageSlides, heroSlide]);
 
-  if (!loaded && slides.length === 0) return null;
+  useEffect(() => {
+    if (phase !== "hero" || !heroSlide) return;
+    setVisibleSlide(heroSlide);
+    const timer = window.setTimeout(() => setPhase("fade"), heroMs);
+    return () => window.clearTimeout(timer);
+  }, [phase, heroSlide, heroMs]);
 
-  const slide =
-    slideCount === 0
-      ? slides[0]
-      : frameIndex < slideCount
-        ? playableSlides[frameIndex]
-        : playableSlides[slideCount - 1];
+  useEffect(() => {
+    if (phase !== "fade") return;
+    const timer = window.setTimeout(() => finish(), fadeMs);
+    return () => window.clearTimeout(timer);
+  }, [phase, finish, fadeMs]);
 
-  if (!slide) return null;
+  if (phase === "preload" && slides.length === 0) return null;
+
+  const showBrand = phase === "hero" || phase === "fade";
+  const isHeroFrame = phase === "hero" || (phase === "fade" && visibleSlide?.isHero);
 
   return (
     <div
-      className={`kf-category-flash${exiting ? " kf-category-flash--exit" : ""}`}
-      style={{ ["--kf-category-flash-frame" as string]: `${frameMs}ms` }}
+      className={`kf-category-flash${
+        phase !== "preload" ? " kf-category-flash--opaque" : ""
+      }${phase === "fade" ? " kf-category-flash--reveal" : ""}`}
+      style={phase === "fade" ? { animationDuration: `${fadeMs}ms` } : undefined}
       role="presentation"
       aria-hidden
     >
       <div className="kf-category-flash-inner">
-        {!loaded ? (
+        {phase === "preload" ? (
           <div className="kf-category-flash-loader" aria-hidden />
-        ) : (
+        ) : visibleSlide ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              key={slide.id}
-              src={slide.src}
+              key={visibleSlide.id}
+              src={visibleSlide.src}
               alt=""
-              className="kf-category-flash-img"
-              decoding="sync"
+              className={`kf-category-flash-img${
+                montageFast && phase === "montage" ? " kf-category-flash-img--fast" : ""
+              }${isHeroFrame ? " kf-category-flash-img--hero" : ""}`}
+              decoding="async"
               fetchPriority="high"
             />
-            {frameIndex === slideCount - 1 ? (
-              <p className="kf-category-flash-tagline">
-                Whatever you need, there&apos;s probably someone nearby who can help.
-              </p>
+            {phase === "montage" ? (
+              <div className="kf-category-flash-caption kf-category-flash-caption--montage">
+                <p className="kf-category-flash-label">{visibleSlide.label}</p>
+              </div>
             ) : null}
-            <div className="kf-category-flash-caption">
-              <p className="kf-category-flash-label">{slide.label}</p>
-              {slide.providerName ? (
-                <p className="kf-category-flash-provider">Real work · {slide.providerName}</p>
-              ) : null}
-            </div>
+            {showBrand ? (
+              <div
+                className={`kf-category-flash-brand${phase === "fade" ? " kf-category-flash-brand--hold" : ""}`}
+              >
+                <KfBrandLogo className="kf-category-flash-logo" />
+                <p className="kf-category-flash-wordmark">KasiFind</p>
+                {visibleSlide.providerName ? (
+                  <p className="kf-category-flash-provider kf-category-flash-provider--hero">
+                    Real work · {visibleSlide.providerName}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );
