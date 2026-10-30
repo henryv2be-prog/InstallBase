@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  CATEGORY_FLASH_FRAME_MS,
+  categoryFlashFrameMs,
   type CategoryFlashSlide,
   markCategoryFlashIntroPlayed,
   preloadCategoryFlashImages,
@@ -14,13 +14,14 @@ type Props = {
 };
 
 /**
- * First-visit-only rapid burst of real listing work photos (~170ms × n, n ≤ 10).
+ * First-visit-only burst of real listing work photos (~4s total, n ≤ 10).
  */
 export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
   const [loaded, setLoaded] = useState(false);
   const [frameIndex, setFrameIndex] = useState(0);
   const [exiting, setExiting] = useState(false);
   const slideCount = slides.length;
+  const frameMs = categoryFlashFrameMs(slideCount);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,10 +53,10 @@ export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
 
     const timer = window.setTimeout(() => {
       setFrameIndex((i) => i + 1);
-    }, CATEGORY_FLASH_FRAME_MS);
+    }, frameMs);
 
     return () => window.clearTimeout(timer);
-  }, [loaded, frameIndex, onComplete, slideCount]);
+  }, [loaded, frameIndex, onComplete, slideCount, frameMs]);
 
   if (slideCount === 0) return null;
 
@@ -65,6 +66,7 @@ export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
   return (
     <div
       className={`kf-category-flash${exiting ? " kf-category-flash--exit" : ""}`}
+      style={{ ["--kf-category-flash-frame" as string]: `${frameMs}ms` }}
       role="presentation"
       aria-hidden
     >

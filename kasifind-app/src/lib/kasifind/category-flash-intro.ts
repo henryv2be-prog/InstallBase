@@ -3,8 +3,13 @@ export const CATEGORY_FLASH_SESSION_KEY = "kf-category-flash-v3";
 /** Minimum real listing photos required to run the intro. */
 export const CATEGORY_FLASH_MIN_SLIDES = 3;
 
-/** ~170ms × 10 frames ≈ 1.7s (under 2s cap). */
-export const CATEGORY_FLASH_FRAME_MS = 170;
+/** Target wall-clock time for the full intro (split evenly across slides). */
+export const CATEGORY_FLASH_TOTAL_MS = 4000;
+
+export function categoryFlashFrameMs(slideCount: number): number {
+  if (slideCount <= 0) return 400;
+  return Math.max(280, Math.floor(CATEGORY_FLASH_TOTAL_MS / slideCount));
+}
 
 export type CategoryFlashSlide = {
   id: string;

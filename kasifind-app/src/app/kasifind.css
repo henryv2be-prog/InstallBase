@@ -313,7 +313,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  animation: kf-category-flash-punch 170ms var(--kf-ease) both;
+  animation: kf-category-flash-punch var(--kf-category-flash-frame, 400ms) var(--kf-ease) both;
 }
 
 @keyframes kf-category-flash-punch {
