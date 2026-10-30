@@ -21,6 +21,7 @@ import {
   readLocationConsent,
   writeLocationConsent,
 } from "@/lib/kasifind/location-consent-storage";
+import { readDiscoveryState, writeDiscoveryState } from "@/lib/kasifind/discovery-state";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
@@ -68,6 +69,22 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   const [manualLat, setManualLat] = useState(String(DEFAULT_CENTER.lat));
   const [manualLng, setManualLng] = useState(String(DEFAULT_CENTER.lng));
   const [manualLabel, setManualLabel] = useState("Johannesburg area");
+  const [filtersHydrated, setFiltersHydrated] = useState(false);
+
+  useEffect(() => {
+    const saved = readDiscoveryState();
+    if (saved) {
+      setQuery(saved.query);
+      setRadiusKm(saved.radiusKm);
+      setCategorySlug(saved.categorySlug);
+    }
+    setFiltersHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!filtersHydrated) return;
+    writeDiscoveryState({ query, radiusKm, categorySlug });
+  }, [query, radiusKm, categorySlug, filtersHydrated]);
 
   useEffect(() => {
     if (!dbConfigured) return;
@@ -187,10 +204,10 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
   }, [categorySlug, categories, dbConfigured]);
 
   useEffect(() => {
-    if (!dbConfigured) return;
+    if (!dbConfigured || !filtersHydrated) return;
     void runSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- initial nearby results for default area
-  }, [dbConfigured]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- initial / restored discovery
+  }, [dbConfigured, filtersHydrated]);
 
   useEffect(() => {
     if (!dbConfigured) return;
@@ -308,6 +325,18 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
     );
   }, [location, locating, openLocationPrompt]);
 
+  const activeCategoryName = categorySlug
+    ? categories.find((c) => c.slug === categorySlug)?.name ?? categorySlug
+    : null;
+  const hasActiveFilters = Boolean(query.trim() || categorySlug || radiusKm !== 5);
+
+  const clearAllFilters = () => {
+    setQuery("");
+    setCategorySlug(null);
+    setRadiusKm(5);
+    void runSearch({ autoExpand: true });
+  };
+
   if (!dbConfigured) {
     return (
       <div className="kf-card p-6 kf-animate-in">
@@ -342,6 +371,62 @@ export function KfHomeClient({ dbConfigured }: { dbConfigured: boolean }) {
         <div className="kf-alert-info kf-animate-in" role="status">
           <strong>Distances are approximate</strong> until you share your location. Sorting uses a
           default area — tap <strong>Near me</strong> above for km from where you are.
+        </div>
+      ) : null}
+
+      {hasActiveFilters ? (
+        <div className="kf-active-filters kf-animate-in" aria-label="Active search filters">
+          {query.trim() ? (
+            <span className="kf-filter-chip">
+              Search: &ldquo;{query.trim()}&rdquo;
+              <button
+                type="button"
+                className="kf-filter-chip-dismiss"
+                aria-label="Clear search text"
+                onClick={() => {
+                  setQuery("");
+                  void runSearch({ autoExpand: true });
+                }}
+              >
+                <X className="h-3.5 w-3.5" aria-hidden />
+              </button>
+            </span>
+          ) : null}
+          {activeCategoryName ? (
+            <span className="kf-filter-chip">
+              {activeCategoryName}
+              <button
+                type="button"
+                className="kf-filter-chip-dismiss"
+                aria-label="Clear category filter"
+                onClick={() => {
+                  setCategorySlug(null);
+                  void runSearch({ autoExpand: true });
+                }}
+              >
+                <X className="h-3.5 w-3.5" aria-hidden />
+              </button>
+            </span>
+          ) : null}
+          {radiusKm !== 5 ? (
+            <span className="kf-filter-chip">
+              Within {radiusKm} km
+              <button
+                type="button"
+                className="kf-filter-chip-dismiss"
+                aria-label="Reset radius to 5 km"
+                onClick={() => {
+                  setRadiusKm(5);
+                  void runSearch({ autoExpand: true });
+                }}
+              >
+                <X className="h-3.5 w-3.5" aria-hidden />
+              </button>
+            </span>
+          ) : null}
+          <button type="button" className="kf-filter-clear-all" onClick={clearAllFilters}>
+            Clear all
+          </button>
         </div>
       ) : null}
 

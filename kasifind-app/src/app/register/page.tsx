@@ -17,6 +17,7 @@ export default function KfRegisterPage() {
       <div className="kf-auth-benefits">
         <p className="font-semibold text-[var(--kf-charcoal)]">What happens next</p>
         <ul>
+          <li>One free listing per account — update it anytime instead of creating duplicates</li>
           <li>Create your listing in a few guided steps</li>
           <li>Add photos of your work to build trust</li>
           <li>Publish for review — usually live within 1–2 days</li>

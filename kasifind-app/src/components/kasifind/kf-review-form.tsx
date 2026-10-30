@@ -23,7 +23,10 @@ export function KfReviewForm({ listingId }: { listingId: string }) {
       <form
         key={formKey}
         className="mt-4 space-y-4"
-        action={(formData) => {
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (pending) return;
+          const formData = new FormData(e.currentTarget);
           startTransition(async () => {
             const result = await kfSubmitReview(formData);
             if ("error" in result && result.error) {
