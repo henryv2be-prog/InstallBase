@@ -17,21 +17,23 @@ type Props = {
  * First-visit-only burst of real listing work photos (~4s total, n ≤ 10).
  */
 export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
+  const [playableSlides, setPlayableSlides] = useState<CategoryFlashSlide[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [frameIndex, setFrameIndex] = useState(0);
   const [exiting, setExiting] = useState(false);
-  const slideCount = slides.length;
+  const slideCount = playableSlides.length;
   const frameMs = categoryFlashFrameMs(slideCount);
 
   useEffect(() => {
     let cancelled = false;
-    void preloadCategoryFlashImages(slides).then((ok) => {
+    void preloadCategoryFlashImages(slides).then((ready) => {
       if (cancelled) return;
-      if (!ok) {
+      if (ready.length === 0) {
         markCategoryFlashIntroPlayed();
         onComplete();
         return;
       }
+      setPlayableSlides(ready);
       setLoaded(true);
     });
     return () => {
@@ -58,10 +60,16 @@ export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
     return () => window.clearTimeout(timer);
   }, [loaded, frameIndex, onComplete, slideCount, frameMs]);
 
-  if (slideCount === 0) return null;
+  if (!loaded && slides.length === 0) return null;
 
   const slide =
-    frameIndex < slideCount ? slides[frameIndex] : slides[slideCount - 1];
+    slideCount === 0
+      ? slides[0]
+      : frameIndex < slideCount
+        ? playableSlides[frameIndex]
+        : playableSlides[slideCount - 1];
+
+  if (!slide) return null;
 
   return (
     <div
