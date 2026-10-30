@@ -19,7 +19,7 @@ type Props = {
 type IntroPhase = "preload" | "montage" | "hero" | "fade";
 
 /**
- * Cinematic first-visit intro: accelerating montage (~1.7s), hero + brand (~0.75s), fade (~1.1s).
+ * Cinematic first-visit intro: accelerating montage (~1.7s), hero + brand (~0.75s), fade (~2s).
  */
 export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
   const onCompleteRef = useRef(onComplete);
