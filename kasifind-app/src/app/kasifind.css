@@ -327,8 +327,10 @@
   animation: kf-category-flash-punch-fast 110ms var(--kf-ease) both;
 }
 
-.kf-category-flash-img--hero {
-  animation: kf-category-flash-hero-in 420ms var(--kf-ease) both;
+.kf-category-flash-img--hold {
+  animation: none;
+  opacity: 1;
+  transform: none;
 }
 
 @keyframes kf-category-flash-punch-montage {
@@ -353,17 +355,6 @@
   }
 }
 
-@keyframes kf-category-flash-hero-in {
-  from {
-    opacity: 0.85;
-    transform: scale(1.03);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 .kf-category-flash-brand {
   position: absolute;
   inset: 0;
@@ -380,22 +371,15 @@
     rgba(15, 77, 58, 0.55) 45%,
     rgba(15, 77, 58, 0.82) 100%
   );
-  animation: kf-category-flash-brand-in 380ms var(--kf-ease) both;
-}
-
-.kf-category-flash-brand--hold {
-  animation: none;
-  opacity: 1;
+  animation: kf-category-flash-brand-in 360ms ease-out both;
 }
 
 @keyframes kf-category-flash-brand-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
