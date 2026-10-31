@@ -103,14 +103,17 @@ export function KfHomeClient({
       setQuery(saved.query);
       setRadiusKm(saved.radiusKm);
       setCategorySlug(saved.categorySlug);
+      if (saved.location) {
+        setLocation(saved.location);
+      }
     }
     setFiltersHydrated(true);
   }, []);
 
   useEffect(() => {
     if (!filtersHydrated) return;
-    writeDiscoveryState({ query, radiusKm, categorySlug });
-  }, [query, radiusKm, categorySlug, filtersHydrated]);
+    writeDiscoveryState({ query, radiusKm, categorySlug, location });
+  }, [query, radiusKm, categorySlug, location, filtersHydrated]);
 
   useEffect(() => {
     if (!dbConfigured) return;
@@ -242,7 +245,9 @@ export function KfHomeClient({
     const consent = readLocationConsent();
 
     if (consent === "granted") {
-      setLocating(true);
+      const restored = readDiscoveryState()?.location;
+      const hasRestoredGps = restored?.mode === "gps";
+      if (!hasRestoredGps) setLocating(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setLocation({
