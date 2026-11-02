@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { LayoutDashboard, Menu, PlusCircle, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { Home, LayoutDashboard, LogOut, Menu, PlusCircle, Store, X } from "lucide-react";
 import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
+import { kfSignOutProvider } from "@/lib/kasifind/actions";
 
 function BrandMark() {
   return (
@@ -32,9 +33,25 @@ export function KfHeader({
   publishedListingCount?: number | null;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [signingOut, startSignOut] = useTransition();
   const isHome = pathname === "/";
   const isAdmin = user?.role === "ADMIN";
+  const signedIn = Boolean(user);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  const handleSignOut = () => {
+    setOpen(false);
+    startSignOut(async () => {
+      await kfSignOutProvider();
+      router.push("/");
+      router.refresh();
+    });
+  };
   const hideListingCount =
     pathname.startsWith("/admin") ||
     pathname.startsWith("/account/listing") ||
@@ -84,41 +101,77 @@ export function KfHeader({
         </p>
       ) : null}
 
-      {open && (
+      {open ? (
         <nav
           id="kf-mobile-nav"
-          className="border-t border-[var(--kf-border)] bg-white px-4 py-3 sm:hidden kf-animate-in"
+          className="kf-mobile-nav border-t border-[var(--kf-border)] bg-white px-4 py-3 sm:hidden kf-animate-in"
           aria-label="Mobile"
         >
-          {isAdmin ? (
+          <div className="flex flex-col gap-2">
             <Link
-              href="/admin"
+              href="/"
               className="kf-btn kf-btn-outline w-full"
               onClick={() => setOpen(false)}
+              aria-current={isHome ? "page" : undefined}
             >
-              <LayoutDashboard className="h-4 w-4" aria-hidden />
-              Admin portal
+              <Home className="h-4 w-4" aria-hidden />
+              Home
             </Link>
-          ) : null}
-          <Link
-            href="/account/listing"
-            className={`kf-btn kf-btn-primary w-full${isAdmin ? " mt-2" : ""}`}
-            onClick={() => setOpen(false)}
-          >
-            <PlusCircle className="h-4 w-4" aria-hidden />
-            List your business
-          </Link>
-          {!user ? (
-            <Link
-              href="/login"
-              className="kf-btn kf-btn-outline mt-2 w-full"
-              onClick={() => setOpen(false)}
-            >
-              Provider sign in
-            </Link>
-          ) : null}
+
+            {signedIn ? (
+              <>
+                <Link
+                  href="/account/listing"
+                  className="kf-btn kf-btn-primary w-full"
+                  onClick={() => setOpen(false)}
+                  aria-current={pathname.startsWith("/account/listing") ? "page" : undefined}
+                >
+                  <Store className="h-4 w-4" aria-hidden />
+                  My listing
+                </Link>
+                {isAdmin ? (
+                  <Link
+                    href="/admin"
+                    className="kf-btn kf-btn-outline w-full"
+                    onClick={() => setOpen(false)}
+                    aria-current={pathname.startsWith("/admin") ? "page" : undefined}
+                  >
+                    <LayoutDashboard className="h-4 w-4" aria-hidden />
+                    Admin portal
+                  </Link>
+                ) : null}
+                <button
+                  type="button"
+                  className="kf-btn kf-btn-ghost w-full text-[var(--kf-charcoal)]"
+                  onClick={handleSignOut}
+                  disabled={signingOut}
+                >
+                  <LogOut className="h-4 w-4" aria-hidden />
+                  {signingOut ? "Signing out…" : "Log out"}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/account/listing"
+                  className="kf-btn kf-btn-primary w-full"
+                  onClick={() => setOpen(false)}
+                >
+                  <PlusCircle className="h-4 w-4" aria-hidden />
+                  List your business
+                </Link>
+                <Link
+                  href="/login"
+                  className="kf-btn kf-btn-outline w-full"
+                  onClick={() => setOpen(false)}
+                >
+                  Provider sign in
+                </Link>
+              </>
+            )}
+          </div>
         </nav>
-      )}
+      ) : null}
     </header>
   );
 }
