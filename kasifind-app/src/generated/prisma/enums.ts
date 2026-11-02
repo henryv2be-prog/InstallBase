@@ -36,6 +36,7 @@ export type KfModerationStatus = (typeof KfModerationStatus)[keyof typeof KfMode
 
 
 export const KfAnalyticsEventType = {
+  LISTING_IMPRESSION: 'LISTING_IMPRESSION',
   LISTING_VIEW: 'LISTING_VIEW',
   LISTING_CLICK_WHATSAPP: 'LISTING_CLICK_WHATSAPP',
   LISTING_CLICK_CALL: 'LISTING_CLICK_CALL',

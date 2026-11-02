@@ -40,11 +40,19 @@ export async function getAdminDashboardStats() {
     kf.kfReport.count({ where: { resolved: false } }),
   ]);
 
-  const viewEvents = await kf.kfAnalyticsEvent.groupBy({
-    by: ["eventType"],
-    _count: { _all: true },
-    where: { eventType: "LISTING_VIEW" },
-  });
+  const [impressionEvents, viewEvents] = await Promise.all([
+    kf.kfAnalyticsEvent.groupBy({
+      by: ["eventType"],
+      _count: { _all: true },
+      where: { eventType: "LISTING_IMPRESSION" },
+    }),
+    kf.kfAnalyticsEvent.groupBy({
+      by: ["eventType"],
+      _count: { _all: true },
+      where: { eventType: "LISTING_VIEW" },
+    }),
+  ]);
+  const totalImpressions = impressionEvents[0]?._count._all ?? 0;
   const totalViews = viewEvents[0]?._count._all ?? 0;
 
   const clicks = await kf.kfAnalyticsEvent.findMany({
@@ -57,6 +65,12 @@ export async function getAdminDashboardStats() {
   });
   const totalClicks = clicks.length;
 
+  const impressionsLast7 = await kf.kfAnalyticsEvent.count({
+    where: { eventType: "LISTING_IMPRESSION", createdAt: { gte: weekAgo } },
+  });
+  const impressionsLast30 = await kf.kfAnalyticsEvent.count({
+    where: { eventType: "LISTING_IMPRESSION", createdAt: { gte: monthAgo } },
+  });
   const viewsLast7 = await kf.kfAnalyticsEvent.count({
     where: { eventType: "LISTING_VIEW", createdAt: { gte: weekAgo } },
   });
@@ -80,16 +94,18 @@ export async function getAdminDashboardStats() {
     orderBy: { createdAt: "asc" },
   });
 
-  const dailyMap = new Map<string, { views: number; clicks: number }>();
+  const dailyMap = new Map<string, { impressions: number; views: number; clicks: number }>();
   for (const row of dailyActivity) {
     const key = kfDateKeyInSast(row.createdAt);
-    const bucket = dailyMap.get(key) ?? { views: 0, clicks: 0 };
-    if (row.eventType === "LISTING_VIEW") bucket.views += 1;
+    const bucket = dailyMap.get(key) ?? { impressions: 0, views: 0, clicks: 0 };
+    if (row.eventType === "LISTING_IMPRESSION") bucket.impressions += 1;
+    else if (row.eventType === "LISTING_VIEW") bucket.views += 1;
     else if (isListingClickEvent(row.eventType)) bucket.clicks += 1;
     dailyMap.set(key, bucket);
   }
   const dailySeries = [...dailyMap.entries()].map(([date, v]) => ({
     date,
+    impressions: v.impressions,
     views: v.views,
     clicks: v.clicks,
   }));
@@ -109,7 +125,7 @@ export async function getAdminDashboardStats() {
   const topListingsRaw = await kf.kfAnalyticsEvent.groupBy({
     by: ["listingId"],
     _count: { _all: true },
-    where: { eventType: "LISTING_VIEW", listingId: { not: null } },
+    where: { eventType: "LISTING_IMPRESSION", listingId: { not: null } },
     orderBy: { _count: { listingId: "desc" } },
     take: 8,
   });
@@ -126,7 +142,7 @@ export async function getAdminDashboardStats() {
   const topListings = topListingsRaw.map((r) => ({
     id: r.listingId!,
     name: nameById.get(r.listingId!) ?? "Unknown",
-    views: r._count._all,
+    impressions: r._count._all,
   }));
 
   const categoryClicks = await kf.kfAnalyticsEvent.groupBy({
@@ -173,7 +189,9 @@ export async function getAdminDashboardStats() {
     },
   });
 
-  const conversionRate =
+  const profileOpenRate =
+    totalImpressions > 0 ? Math.round((totalViews / totalImpressions) * 1000) / 10 : 0;
+  const contactRate =
     totalViews > 0 ? Math.round((totalClicks / totalViews) * 1000) / 10 : 0;
 
   return {
@@ -188,6 +206,9 @@ export async function getAdminDashboardStats() {
       signupsWeek,
       signupsMonth,
       openReports,
+      totalImpressions,
+      impressionsLast7,
+      impressionsLast30,
       totalViews,
       totalClicks,
       viewsLast7,
@@ -198,7 +219,8 @@ export async function getAdminDashboardStats() {
       anonymousViews,
       registeredClicks,
       anonymousClicks,
-      conversionRate,
+      profileOpenRate,
+      contactRate,
     },
     charts: {
       dailySeries,

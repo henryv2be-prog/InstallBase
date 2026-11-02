@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "KfAnalyticsEventType" ADD VALUE 'LISTING_IMPRESSION';

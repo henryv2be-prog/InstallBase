@@ -127,6 +127,19 @@ export function KfHomeClient({
 
   const usesApproximateDistance = location.mode !== "gps";
 
+  const impressionScopeKey = useMemo(() => {
+    if (results.length === 0) return null;
+    const effectiveRadius = searchMeta?.radiusKm ?? radiusKm;
+    return [
+      query.trim(),
+      categorySlug ?? "",
+      String(effectiveRadius),
+      location.lat.toFixed(3),
+      location.lng.toFixed(3),
+      results.map((r) => r.id).join(","),
+    ].join("|");
+  }, [query, categorySlug, searchMeta, radiusKm, location.lat, location.lng, results]);
+
   const dismissLocationPrompt = useCallback(() => {
     writeLocationConsent("dismissed");
     setLocationDialogOpen(false);
@@ -668,6 +681,7 @@ export function KfHomeClient({
                   provider={p}
                   serviceHint={p.services[0]?.name ?? query}
                   index={i}
+                  impressionScopeKey={impressionScopeKey}
                 />
               ))}
             </ul>

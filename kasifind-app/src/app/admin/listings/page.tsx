@@ -71,7 +71,8 @@ export default async function AdminListingsPage({ searchParams }: Props) {
               <th>Listing</th>
               <th>Owner</th>
               <th>Status</th>
-              <th>Views</th>
+              <th title="Times shown in search results">Impressions</th>
+              <th title="Profile page opens">Profile views</th>
               <th>Clicks</th>
               <th>Updated</th>
               <th />
@@ -80,7 +81,7 @@ export default async function AdminListingsPage({ searchParams }: Props) {
           <tbody>
             {data.rows.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-10 text-center text-sm text-[var(--kf-muted)]">
+                <td colSpan={8} className="py-10 text-center text-sm text-[var(--kf-muted)]">
                   No listings match your filters.
                 </td>
               </tr>
@@ -102,6 +103,7 @@ export default async function AdminListingsPage({ searchParams }: Props) {
                     <br />
                     {row.moderationStatus}
                   </td>
+                  <td>{row.impressions}</td>
                   <td>{row.views}</td>
                   <td>{row.clicks}</td>
                   <td className="whitespace-nowrap text-xs">

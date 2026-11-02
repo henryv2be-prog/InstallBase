@@ -75,7 +75,7 @@ export function KfAdminCharts({ charts }: { charts: AdminDashboardStats["charts"
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div className="kf-admin-chart-card">
-        <h3 className="kf-admin-chart-title">Listing views & clicks (14 days)</h3>
+        <h3 className="kf-admin-chart-title">Impressions, profile views & clicks (14 days)</h3>
         {activityData.length === 0 ? (
           <p className="kf-admin-empty-chart">No activity recorded yet.</p>
         ) : (
@@ -87,8 +87,30 @@ export function KfAdminCharts({ charts }: { charts: AdminDashboardStats["charts"
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="views" stroke="#0F4D3A" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="clicks" stroke="#FF8A00" strokeWidth={2} dot={false} />
+                <Line
+                  type="monotone"
+                  dataKey="impressions"
+                  stroke="#95d5b2"
+                  strokeWidth={2}
+                  dot={false}
+                  name="Impressions"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="views"
+                  stroke="#0F4D3A"
+                  strokeWidth={2}
+                  dot={false}
+                  name="Profile views"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="clicks"
+                  stroke="#FF8A00"
+                  strokeWidth={2}
+                  dot={false}
+                  name="Clicks"
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -115,9 +137,9 @@ export function KfAdminCharts({ charts }: { charts: AdminDashboardStats["charts"
       </div>
 
       <div className="kf-admin-chart-card kf-admin-chart-card--wide">
-        <h3 className="kf-admin-chart-title">Top viewed listings</h3>
+        <h3 className="kf-admin-chart-title">Top impressions in search</h3>
         {topListingsChart.length === 0 ? (
-          <p className="kf-admin-empty-chart">Views will appear as people browse listings.</p>
+          <p className="kf-admin-empty-chart">Impressions will appear as people browse search results.</p>
         ) : (
           <div className="kf-admin-chart-plot">
             <ResponsiveContainer width="100%" height={topListingsHeight}>
@@ -138,21 +160,21 @@ export function KfAdminCharts({ charts }: { charts: AdminDashboardStats["charts"
                 <Tooltip
                   content={({ active, payload }) => {
                     if (!active || !payload?.length) return null;
-                    const row = payload[0]?.payload as { fullName?: string; views?: number };
+                    const row = payload[0]?.payload as { fullName?: string; impressions?: number };
                     return (
                       <ChartTooltip
                         active
                         payload={[
                           {
                             payload: { fullName: row.fullName, name: row.fullName },
-                            value: row.views,
+                            value: row.impressions,
                           },
                         ]}
                       />
                     );
                   }}
                 />
-                <Bar dataKey="views" fill="#FF8A00" radius={[0, 4, 4, 0]} name="Views" />
+                <Bar dataKey="impressions" fill="#FF8A00" radius={[0, 4, 4, 0]} name="Impressions" />
               </BarChart>
             </ResponsiveContainer>
           </div>

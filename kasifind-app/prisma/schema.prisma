@@ -25,6 +25,7 @@ enum KfModerationStatus {
 }
 
 enum KfAnalyticsEventType {
+  LISTING_IMPRESSION
   LISTING_VIEW
   LISTING_CLICK_WHATSAPP
   LISTING_CLICK_CALL
