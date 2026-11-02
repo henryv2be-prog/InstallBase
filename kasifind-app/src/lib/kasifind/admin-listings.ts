@@ -43,6 +43,13 @@ export async function getAdminListingsPage(options: {
   ]);
 
   const ids = rows.map((r) => r.id);
+  const impressionCounts = ids.length
+    ? await kf.kfAnalyticsEvent.groupBy({
+        by: ["listingId"],
+        _count: { _all: true },
+        where: { listingId: { in: ids }, eventType: "LISTING_IMPRESSION" },
+      })
+    : [];
   const viewCounts = ids.length
     ? await kf.kfAnalyticsEvent.groupBy({
         by: ["listingId"],
@@ -63,6 +70,7 @@ export async function getAdminListingsPage(options: {
       })
     : [];
 
+  const impressionsById = new Map(impressionCounts.map((v) => [v.listingId, v._count._all]));
   const viewsById = new Map(viewCounts.map((v) => [v.listingId, v._count._all]));
   const clicksById = new Map(clickCounts.map((v) => [v.listingId, v._count._all]));
 
@@ -79,6 +87,7 @@ export async function getAdminListingsPage(options: {
       ownerEmail: r.user.email,
       ownerName: r.user.name,
       categories: r.categories.map((c) => c.category.name).join(", "),
+      impressions: impressionsById.get(r.id) ?? 0,
       views: viewsById.get(r.id) ?? 0,
       clicks: clicksById.get(r.id) ?? 0,
       createdAt: r.createdAt.toISOString(),
@@ -101,7 +110,8 @@ export async function getAdminListingDetail(id: string) {
   });
   if (!listing) return null;
 
-  const [views, clicks, recentEvents] = await Promise.all([
+  const [impressions, views, clicks, recentEvents] = await Promise.all([
+    kf.kfAnalyticsEvent.count({ where: { listingId: id, eventType: "LISTING_IMPRESSION" } }),
     kf.kfAnalyticsEvent.count({ where: { listingId: id, eventType: "LISTING_VIEW" } }),
     kf.kfAnalyticsEvent.count({
       where: {
@@ -120,7 +130,14 @@ export async function getAdminListingDetail(id: string) {
 
   return {
     listing,
-    metrics: { views, clicks, conversion: views > 0 ? Math.round((clicks / views) * 1000) / 10 : 0 },
+    metrics: {
+      impressions,
+      views,
+      clicks,
+      profileOpenRate:
+        impressions > 0 ? Math.round((views / impressions) * 1000) / 10 : 0,
+      contactRate: views > 0 ? Math.round((clicks / views) * 1000) / 10 : 0,
+    },
     recentEvents,
   };
 }

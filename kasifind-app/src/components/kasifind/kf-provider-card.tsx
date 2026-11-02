@@ -10,18 +10,27 @@ import type { KfSearchResult } from "@/components/kasifind/types";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
+import { useKfListingImpression } from "@/components/kasifind/use-kf-listing-impression";
 
 type Props = {
   provider: KfSearchResult;
   serviceHint: string;
   index?: number;
+  /** Changes when search results / filters change; drives impression dedupe. */
+  impressionScopeKey?: string | null;
 };
 
 function phoneDigits(phone: string): string {
   return phone.replace(/\D/g, "");
 }
 
-export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
+export function KfProviderCard({
+  provider: p,
+  serviceHint,
+  index = 0,
+  impressionScopeKey = null,
+}: Props) {
+  const impressionRef = useKfListingImpression(p.id, impressionScopeKey);
   const waPhone = (p.whatsapp || p.phone || "").trim();
   const callPhone = (p.phone || "").trim();
   const canWhatsApp = phoneDigits(waPhone).length >= 9;
@@ -35,7 +44,10 @@ export function KfProviderCard({ provider: p, serviceHint, index = 0 }: Props) {
   const hasRating = p.reviewCount > 0 && p.averageRating !== null;
 
   return (
-    <li className="kf-card kf-card-interactive kf-glow-border kf-provider-card overflow-hidden">
+    <li
+      ref={impressionRef}
+      className="kf-card kf-card-interactive kf-glow-border kf-provider-card overflow-hidden"
+    >
       <Link href={`/providers/${p.id}`} className="block group">
         <div className="kf-provider-media">
           {thumb ? (

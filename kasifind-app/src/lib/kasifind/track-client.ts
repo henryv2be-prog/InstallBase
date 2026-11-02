@@ -1,6 +1,7 @@
 "use client";
 
 export type ClientAnalyticsEvent =
+  | "LISTING_IMPRESSION"
   | "LISTING_VIEW"
   | "LISTING_CLICK_WHATSAPP"
   | "LISTING_CLICK_CALL"

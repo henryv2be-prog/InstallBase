@@ -53,7 +53,12 @@ export default async function AdminDashboardPage() {
         <h2 className="kf-admin-section-title">Engagement</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
-            label="Listing views (all time)"
+            label="Search impressions (all time)"
+            value={cards.totalImpressions}
+            hint={`7d: ${cards.impressionsLast7} · 30d: ${cards.impressionsLast30}`}
+          />
+          <StatCard
+            label="Profile views (all time)"
             value={cards.totalViews}
             hint={`7d: ${cards.viewsLast7} · 30d: ${cards.viewsLast30}`}
           />
@@ -63,9 +68,9 @@ export default async function AdminDashboardPage() {
             hint={`7d: ${cards.clicksLast7} · 30d: ${cards.clicksLast30}`}
           />
           <StatCard
-            label="Views → click rate"
-            value={`${cards.conversionRate}%`}
-            hint="WhatsApp, call, and directions"
+            label="Open & contact rates"
+            value={`${cards.profileOpenRate}% · ${cards.contactRate}%`}
+            hint="Profile opens per impression · contacts per profile view"
           />
           <StatCard
             label="Open reports"
@@ -85,7 +90,7 @@ export default async function AdminDashboardPage() {
           <div className="kf-admin-stat-card flex items-start gap-3">
             <Eye className="mt-1 h-5 w-5 text-[var(--kf-forest)]" aria-hidden />
             <div>
-              <p className="kf-admin-stat-label">Views breakdown</p>
+              <p className="kf-admin-stat-label">Profile views breakdown</p>
               <p className="text-sm text-[var(--kf-text)]">
                 Registered {cards.registeredViews} · Anonymous {cards.anonymousViews}
               </p>

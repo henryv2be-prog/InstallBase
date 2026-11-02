@@ -10,6 +10,7 @@ import {
   listingStatusSummary,
 } from "@/components/kasifind/kf-listing-status";
 import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
+import { getListingEngagementMetrics } from "@/lib/kasifind/listing-metrics";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,10 @@ export default async function KfListingEditorPage() {
     listKfCategories(),
     getListingForUser(user.id),
   ]);
+
+  const engagement = listing
+    ? await getListingEngagementMetrics(listing.id)
+    : null;
 
   const listingData = listing
     ? {
@@ -81,6 +86,31 @@ export default async function KfListingEditorPage() {
           {listingData ? <KfListingStatusChip listing={listingData} /> : null}
         </div>
         <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/90">{statusCopy.detail}</p>
+        {engagement ? (
+          <div
+            className="mt-4 grid gap-2 sm:grid-cols-3"
+            aria-label="How people find your listing"
+          >
+            <div className="rounded-xl bg-white/10 px-3 py-2 backdrop-blur-sm">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-white/75">
+                Seen in search
+              </p>
+              <p className="text-xl font-bold tabular-nums">{engagement.impressions}</p>
+            </div>
+            <div className="rounded-xl bg-white/10 px-3 py-2 backdrop-blur-sm">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-white/75">
+                Profile views
+              </p>
+              <p className="text-xl font-bold tabular-nums">{engagement.profileViews}</p>
+            </div>
+            <div className="rounded-xl bg-white/10 px-3 py-2 backdrop-blur-sm">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-white/75">
+                Contact taps
+              </p>
+              <p className="text-xl font-bold tabular-nums">{engagement.clicks}</p>
+            </div>
+          </div>
+        ) : null}
         {!listingData && (
           <p className="mt-2 text-sm text-white/75">
             Add services like &quot;steel gates&quot; so people can find you in search.

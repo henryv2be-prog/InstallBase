@@ -45,9 +45,14 @@ export default async function AdminListingDetailPage({ params }: Props) {
         </div>
       </header>
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="kf-admin-stat-card">
-          <p className="kf-admin-stat-label">Views</p>
+          <p className="kf-admin-stat-label">Search impressions</p>
+          <p className="kf-admin-stat-value">{metrics.impressions}</p>
+          <p className="text-xs text-[var(--kf-muted)]">Card visible in results</p>
+        </div>
+        <div className="kf-admin-stat-card">
+          <p className="kf-admin-stat-label">Profile views</p>
           <p className="kf-admin-stat-value">{metrics.views}</p>
         </div>
         <div className="kf-admin-stat-card">
@@ -55,8 +60,11 @@ export default async function AdminListingDetailPage({ params }: Props) {
           <p className="kf-admin-stat-value">{metrics.clicks}</p>
         </div>
         <div className="kf-admin-stat-card">
-          <p className="kf-admin-stat-label">Click-through</p>
-          <p className="kf-admin-stat-value">{metrics.conversion}%</p>
+          <p className="kf-admin-stat-label">Open & contact rates</p>
+          <p className="kf-admin-stat-value">
+            {metrics.profileOpenRate}% · {metrics.contactRate}%
+          </p>
+          <p className="text-xs text-[var(--kf-muted)]">Profile opens · contacts per profile view</p>
         </div>
       </section>
 
