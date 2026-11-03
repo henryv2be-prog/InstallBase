@@ -2987,6 +2987,12 @@ body.kf-listing-flow-active .kf-listing-page-flow > .kf-link {
   border: none;
 }
 
+/* Let the step panel scroll — avoid nested scroll traps on category lists */
+.kf-wizard-category-grid {
+  overflow: visible;
+  max-height: none;
+}
+
 .kf-wizard-optional {
   padding: 0.65rem 0.75rem;
   background: var(--kf-stone);

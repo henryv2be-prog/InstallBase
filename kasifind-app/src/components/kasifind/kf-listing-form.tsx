@@ -100,7 +100,6 @@ export function KfListingForm({
   const router = useRouter();
   const toast = useKfToast();
   const formRef = useRef<HTMLFormElement>(null);
-  const stepScrollRef = useRef<HTMLDivElement>(null);
   const [pending, startTransition] = useTransition();
   const [savingDraft, setSavingDraft] = useState(false);
   const [publishComplete, setPublishComplete] = useState(false);
@@ -123,15 +122,26 @@ export function KfListingForm({
   }, []);
 
   useEffect(() => {
+    requestAnimationFrame(scrollActiveStepPanel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- scroll after step DOM updates
+  }, [activeStep]);
+
+  useEffect(() => {
     if (activeStep !== 1) return;
     const t = window.setTimeout(() => window.dispatchEvent(new Event("resize")), 120);
     return () => window.clearTimeout(t);
   }, [activeStep]);
 
+  const scrollActiveStepPanel = () => {
+    const form = formRef.current;
+    if (!form) return;
+    const panel = form.querySelector<HTMLElement>(`[data-wizard-step="${activeStep}"]`);
+    panel?.scrollTo({ top: 0, behavior: "auto" });
+  };
+
   const goToStep = (index: number) => {
     if (index < 0 || index > LAST_STEP) return;
     setActiveStep(index);
-    requestAnimationFrame(() => stepScrollRef.current?.scrollTo({ top: 0, behavior: "auto" }));
   };
 
   const persistDraftIfNeeded = async (form: HTMLFormElement): Promise<boolean> => {
@@ -199,7 +209,7 @@ export function KfListingForm({
       if (publish) {
         setPublishedListingId(id);
         setPublishComplete(true);
-        requestAnimationFrame(() => stepScrollRef.current?.scrollTo({ top: 0, behavior: "auto" }));
+        requestAnimationFrame(scrollActiveStepPanel);
       } else {
         toast.success("Draft saved — pick up where you left off anytime.");
       }
@@ -295,10 +305,7 @@ export function KfListingForm({
         ) : null}
       </header>
 
-      <div
-        ref={stepScrollRef}
-        className="kf-listing-flow-body kf-listing-flow-body--scroll kf-classic-wizard-body"
-      >
+      <div className="kf-listing-flow-body kf-classic-wizard-body">
         <form
           ref={formRef}
           id="kf-listing-form"
@@ -402,7 +409,7 @@ export function KfListingForm({
           <div className="kf-wizard-fields">
             <fieldset className="kf-wizard-fieldset">
               <legend className="kf-label">Categories</legend>
-              <div className="kf-listing-flow-categories mt-2 grid gap-2 sm:grid-cols-2">
+              <div className="kf-wizard-category-grid mt-2 grid gap-2 sm:grid-cols-2">
                 {categories.map((c) => (
                   <label key={c.id} className="kf-category-check">
                     <input
