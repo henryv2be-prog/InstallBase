@@ -1,7 +1,10 @@
 import { NextRequest } from "next/server";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { parseCoordinate, parseRadiusKm, isValidSaCoordinate } from "@/lib/kasifind/geo";
-import { searchProvidersBrowse, searchWithAutoExpand } from "@/lib/kasifind/search";
+import {
+  searchProvidersBrowse,
+  searchWithProgressiveFallback,
+} from "@/lib/kasifind/search";
 
 export const dynamic = "force-dynamic";
 
@@ -43,21 +46,32 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const payload = autoExpand
-      ? await searchWithAutoExpand({
-          query,
-          center: { latitude: lat, longitude: lng },
-          radiusKm,
-          categorySlug,
-        })
-      : await (
-          await import("@/lib/kasifind/search")
-        ).searchProviders({
-          query,
-          center: { latitude: lat, longitude: lng },
-          radiusKm,
-          categorySlug,
-        });
+    if (autoExpand) {
+      const payload = await searchWithProgressiveFallback({
+        query,
+        center: { latitude: lat, longitude: lng },
+        categorySlug,
+      });
+      return Response.json({
+        query,
+        center: { latitude: lat, longitude: lng },
+        radiusKm: payload.radiusKm,
+        expanded: payload.expanded,
+        includesSurroundingAreas: payload.includesSurroundingAreas,
+        localListingCount: payload.localListingCount,
+        coverageExhausted: payload.coverageExhausted,
+        results: payload.results,
+      });
+    }
+
+    const payload = await (
+      await import("@/lib/kasifind/search")
+    ).searchProviders({
+      query,
+      center: { latitude: lat, longitude: lng },
+      radiusKm,
+      categorySlug,
+    });
 
     return Response.json({
       query,
