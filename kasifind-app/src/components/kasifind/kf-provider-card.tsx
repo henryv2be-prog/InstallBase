@@ -118,13 +118,16 @@ export function KfProviderCard({
         </div>
       </Link>
       {showContactRow ? (
-        <KfInlineContactActions
-          listingId={p.id}
-          waUrl={waUrl}
-          callPhone={callPhone}
-          directionsUrl={directionsUrl}
-          className="kf-provider-contact-row"
-        />
+        <div className="kf-provider-card-footer">
+          <p className="kf-provider-card-footer-label">Contact this listing</p>
+          <KfInlineContactActions
+            listingId={p.id}
+            waUrl={waUrl}
+            callPhone={callPhone}
+            directionsUrl={directionsUrl}
+            variant="card"
+          />
+        </div>
       ) : null}
     </li>
   );

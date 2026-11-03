@@ -8,6 +8,8 @@ type Props = {
   waUrl: string | null;
   callPhone: string;
   directionsUrl: string | null;
+  /** Search cards use grouped footer chips; strip is full-bleed legacy layout. */
+  variant?: "card" | "strip";
   className?: string;
 };
 
@@ -20,6 +22,7 @@ export function KfInlineContactActions({
   waUrl,
   callPhone,
   directionsUrl,
+  variant = "card",
   className = "",
 }: Props) {
   const canWhatsApp = Boolean(waUrl);
@@ -28,11 +31,14 @@ export function KfInlineContactActions({
 
   if (!canWhatsApp && !canCall && !canDirections) return null;
 
+  const layoutClass =
+    variant === "card" ? "kf-inline-contact-actions--card" : "kf-inline-contact-actions--strip";
+
   return (
     <div
-      className={`kf-inline-contact-actions${className ? ` ${className}` : ""}`}
+      className={`kf-inline-contact-actions ${layoutClass}${className ? ` ${className}` : ""}`}
       role="group"
-      aria-label="Contact options"
+      aria-label="Contact this listing"
     >
       {canWhatsApp && waUrl ? (
         <a
