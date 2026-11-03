@@ -21,7 +21,11 @@ import {
   readLocationConsent,
   writeLocationConsent,
 } from "@/lib/kasifind/location-consent-storage";
-import { readDiscoveryState, writeDiscoveryState } from "@/lib/kasifind/discovery-state";
+import {
+  readDiscoveryState,
+  writeDiscoveryState,
+  type KfDiscoveryLocation,
+} from "@/lib/kasifind/discovery-state";
 import { KfCategoryFlashIntro } from "@/components/kasifind/kf-category-flash-intro";
 import {
   CATEGORY_FLASH_MIN_SLIDES,
@@ -31,10 +35,20 @@ import {
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
+const BROWSE_LOCATION_LABEL = "All listings · location off";
 
 type LocationState =
+  | { mode: "browse"; label: string }
   | { mode: "gps"; lat: number; lng: number; label: string }
   | { mode: "manual"; lat: number; lng: number; label: string };
+
+function isLegacyDefaultManualCenter(loc: KfDiscoveryLocation): boolean {
+  return (
+    loc.mode === "manual" &&
+    loc.lat === DEFAULT_CENTER.lat &&
+    loc.lng === DEFAULT_CENTER.lng
+  );
+}
 
 function ResultSkeletons() {
   return (
@@ -60,10 +74,8 @@ export function KfHomeClient({
   categoryFlashSlides?: CategoryFlashSlide[];
 }) {
   const [location, setLocation] = useState<LocationState>({
-    mode: "manual",
-    lat: DEFAULT_CENTER.lat,
-    lng: DEFAULT_CENTER.lng,
-    label: "Approximate · Johannesburg",
+    mode: "browse",
+    label: BROWSE_LOCATION_LABEL,
   });
   const [locating, setLocating] = useState(false);
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
@@ -72,9 +84,11 @@ export function KfHomeClient({
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [categories, setCategories] = useState<KfCategory[]>([]);
   const [results, setResults] = useState<KfSearchResult[]>([]);
-  const [searchMeta, setSearchMeta] = useState<{ expanded: boolean; radiusKm: number } | null>(
-    null
-  );
+  const [searchMeta, setSearchMeta] = useState<{
+    expanded: boolean;
+    radiusKm: number;
+    browse?: boolean;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualOpen, setManualOpen] = useState(false);
@@ -104,7 +118,16 @@ export function KfHomeClient({
       setRadiusKm(saved.radiusKm);
       setCategorySlug(saved.categorySlug);
       if (saved.location) {
-        setLocation(saved.location);
+        let restored: LocationState = saved.location;
+        if (isLegacyDefaultManualCenter(saved.location)) {
+          restored = { mode: "browse", label: BROWSE_LOCATION_LABEL };
+        }
+        setLocation(restored);
+      } else {
+        const consent = readLocationConsent();
+        if (consent === "dismissed" || consent === "denied") {
+          setLocation({ mode: "browse", label: BROWSE_LOCATION_LABEL });
+        }
       }
     }
     setFiltersHydrated(true);
@@ -125,25 +148,34 @@ export function KfHomeClient({
       .catch(() => undefined);
   }, [dbConfigured]);
 
-  const usesApproximateDistance = location.mode !== "gps";
+  const usesBrowseMode = location.mode === "browse";
+  const usesApproximateDistance = location.mode === "manual";
 
   const impressionScopeKey = useMemo(() => {
     if (results.length === 0) return null;
-    const effectiveRadius = searchMeta?.radiusKm ?? radiusKm;
+    const effectiveRadius = searchMeta?.browse ? "browse" : String(searchMeta?.radiusKm ?? radiusKm);
+    const geoKey =
+      location.mode === "browse"
+        ? "browse"
+        : `${location.lat.toFixed(3)},${location.lng.toFixed(3)}`;
     return [
       query.trim(),
       categorySlug ?? "",
-      String(effectiveRadius),
-      location.lat.toFixed(3),
-      location.lng.toFixed(3),
+      effectiveRadius,
+      geoKey,
       results.map((r) => r.id).join(","),
     ].join("|");
-  }, [query, categorySlug, searchMeta, radiusKm, location.lat, location.lng, results]);
+  }, [query, categorySlug, searchMeta, radiusKm, location, results]);
+
+  const switchToBrowseMode = useCallback(() => {
+    setLocation({ mode: "browse", label: BROWSE_LOCATION_LABEL });
+  }, []);
 
   const dismissLocationPrompt = useCallback(() => {
     writeLocationConsent("dismissed");
+    switchToBrowseMode();
     setLocationDialogOpen(false);
-  }, []);
+  }, [switchToBrowseMode]);
 
   const openLocationPrompt = useCallback(() => {
     if (readLocationConsent() === "granted") {
@@ -180,18 +212,14 @@ export function KfHomeClient({
         if (err.code === 1) {
           writeLocationConsent("denied");
         }
-        setLocation({
-          mode: "manual",
-          lat: DEFAULT_CENTER.lat,
-          lng: DEFAULT_CENTER.lng,
-          label: "Location off — set your area",
-        });
+        switchToBrowseMode();
+        setManualOpen(true);
         setLocating(false);
         setLocationDialogOpen(false);
       },
       { enableHighAccuracy: false, timeout: 12000, maximumAge: 300_000 }
     );
-  }, []);
+  }, [switchToBrowseMode]);
 
   requestNearMeRef.current = requestNearMe;
 
@@ -208,14 +236,18 @@ export function KfHomeClient({
       setLoading(true);
       setError(null);
       try {
-        const params = new URLSearchParams({
-          q: query.trim(),
-          lat: String(location.lat),
-          lng: String(location.lng),
-          radiusKm: String(radiusKm),
-          autoExpand: opts?.autoExpand === false ? "0" : "1",
-        });
+        const params = new URLSearchParams({ q: query.trim() });
         if (categorySlug) params.set("category", categorySlug);
+
+        if (location.mode === "browse") {
+          params.set("browse", "1");
+        } else {
+          params.set("lat", String(location.lat));
+          params.set("lng", String(location.lng));
+          params.set("radiusKm", String(radiusKm));
+          params.set("autoExpand", opts?.autoExpand === false ? "0" : "1");
+        }
+
         const res = await fetch(`/api/search?${params}`);
         const data = await res.json();
         if (!res.ok) {
@@ -224,11 +256,18 @@ export function KfHomeClient({
           return;
         }
         setResults(data.results ?? []);
-        setSearchMeta({ expanded: Boolean(data.expanded), radiusKm: data.radiusKm ?? radiusKm });
-        if (data.radiusKm && data.radiusKm !== radiusKm) setRadiusKm(data.radiusKm);
+        if (data.browse) {
+          setSearchMeta({ browse: true, expanded: false, radiusKm: 0 });
+        } else {
+          setSearchMeta({
+            expanded: Boolean(data.expanded),
+            radiusKm: data.radiusKm ?? radiusKm,
+          });
+          if (data.radiusKm && data.radiusKm !== radiusKm) setRadiusKm(data.radiusKm);
+        }
         trackKfEvent("SEARCH", {
           query: query.trim() || undefined,
-          regionLabel: location.label,
+          regionLabel: location.mode === "browse" ? "Nationwide (no location)" : location.label,
         });
       } catch {
         setError("Network error. Check your connection and try again.");
@@ -248,8 +287,8 @@ export function KfHomeClient({
   useEffect(() => {
     if (!dbConfigured || !filtersHydrated) return;
     void runSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- initial / restored discovery
-  }, [dbConfigured, filtersHydrated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when location source changes
+  }, [dbConfigured, filtersHydrated, location]);
 
   useEffect(() => {
     if (!dbConfigured) return;
@@ -304,12 +343,7 @@ export function KfHomeClient({
         }
         if (status.state === "denied") {
           writeLocationConsent("denied");
-          setLocation({
-            mode: "manual",
-            lat: DEFAULT_CENTER.lat,
-            lng: DEFAULT_CENTER.lng,
-            label: "Location off — set your area",
-          });
+          setLocation({ mode: "browse", label: BROWSE_LOCATION_LABEL });
           return;
         }
         if (status.state === "prompt" && readLocationConsent() === "granted") {
@@ -326,12 +360,6 @@ export function KfHomeClient({
     };
   }, []);
 
-  useEffect(() => {
-    if (location.mode !== "gps" || !dbConfigured) return;
-    void runSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when user opts into GPS
-  }, [location.mode, location.lat, location.lng, dbConfigured]);
-
   const locationPill = useMemo(() => {
     if (locating) {
       return (
@@ -347,6 +375,18 @@ export function KfHomeClient({
           <MapPin className="h-4 w-4 shrink-0" aria-hidden />
           {location.label}
         </span>
+      );
+    }
+    if (location.mode === "browse") {
+      return (
+        <button
+          type="button"
+          className="kf-location-pill kf-location-pill--approx"
+          onClick={openLocationPrompt}
+        >
+          <MapPin className="h-4 w-4 shrink-0" aria-hidden />
+          Location off — tap for nearby results
+        </button>
       );
     }
     if (typeof navigator !== "undefined" && navigator.geolocation) {
@@ -414,11 +454,28 @@ export function KfHomeClient({
         {locationPill}
       </section>
 
-      {usesApproximateDistance ? (
+      {usesBrowseMode ? (
         <div className="kf-alert-info kf-animate-in" role="status">
-          <strong>Distances are approximate</strong> until you share your location. Sorting uses a
-          default area — tap <strong>Near me</strong> above for km from where you are.
+          <strong>Location is off — limited experience.</strong> You are seeing{" "}
+          <strong>all listings nationwide</strong>, not sorted by distance. Kilometres are hidden
+          until you allow location or enter your area. Tap{" "}
+          <strong>Location off — tap for nearby results</strong> above for the full nearby search.
         </div>
+      ) : usesApproximateDistance ? (
+        <div className="kf-alert-info kf-animate-in" role="status">
+          <strong>Distances use your chosen area</strong>, not live GPS. Tap{" "}
+          <strong>Near me</strong> above for sorting from where you are now.
+        </div>
+      ) : null}
+
+      {usesBrowseMode && !manualOpen ? (
+        <button
+          type="button"
+          className="kf-link text-sm underline underline-offset-2"
+          onClick={() => setManualOpen(true)}
+        >
+          Enter your town or coordinates manually
+        </button>
       ) : null}
 
       {hasActiveFilters ? (
@@ -493,17 +550,29 @@ export function KfHomeClient({
           ) : null}
         </div>
 
-        <div className="kf-radius-field">
+        <div className={`kf-radius-field${usesBrowseMode ? " kf-radius-field--disabled" : ""}`}>
           <span className="kf-radius-label">
             <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
             Radius
           </span>
+          {usesBrowseMode ? (
+            <p className="text-xs text-[var(--kf-muted)]">
+              Turn on location or enter your area to filter by distance.
+            </p>
+          ) : null}
           <div className="kf-radius-chips" role="group" aria-label="Search radius in kilometres">
             {RADIUS_OPTIONS.map((r) => (
               <button
                 key={r}
                 type="button"
-                onClick={() => setRadiusKm(r)}
+                disabled={usesBrowseMode}
+                onClick={() => {
+                  if (usesBrowseMode) {
+                    openLocationPrompt();
+                    return;
+                  }
+                  setRadiusKm(r);
+                }}
                 className={`kf-chip kf-radius-chip ${radiusKm === r ? "kf-chip-active" : ""}`}
               >
                 {r} km
@@ -521,14 +590,14 @@ export function KfHomeClient({
           ) : (
             <>
               <Search className="h-5 w-5" aria-hidden />
-              Search nearby
+              {usesBrowseMode ? "Search all listings" : "Search nearby"}
             </>
           )}
         </button>
       </form>
       </div>
 
-      {(location.label === "Location off — set your area" || manualOpen) && (
+      {manualOpen ? (
         <div className="kf-card p-4 kf-animate-in">
           <h2 className="text-sm font-bold text-[var(--kf-charcoal)]">Enter location manually</h2>
           <p className="kf-help">Your live GPS is never shown to providers.</p>
@@ -575,7 +644,7 @@ export function KfHomeClient({
             </button>
           </div>
         </div>
-      )}
+      ) : null}
 
       {location.mode === "gps" && !manualOpen && (
         <button
@@ -636,11 +705,15 @@ export function KfHomeClient({
       <section aria-live="polite" className="kf-animate-in" style={{ animationDelay: "160ms" }}>
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <h2 className="kf-section-title">Nearby providers</h2>
+            <h2 className="kf-section-title">
+              {usesBrowseMode ? "All providers" : "Nearby providers"}
+            </h2>
             <p className="kf-section-sub mt-0.5">
-              {usesApproximateDistance
-                ? `Within ${radiusKm} km · approximate order until location is on`
-                : `Within ${radiusKm} km · sorted by distance from you`}
+              {usesBrowseMode
+                ? "Nationwide · sorted by relevance until location is on"
+                : usesApproximateDistance
+                  ? `Within ${radiusKm} km · sorted from your chosen area`
+                  : `Within ${radiusKm} km · sorted by distance from you`}
             </p>
           </div>
           {searchMeta?.expanded ? (

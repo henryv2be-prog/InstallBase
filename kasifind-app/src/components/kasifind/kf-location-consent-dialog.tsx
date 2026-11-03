@@ -32,8 +32,8 @@ export function KfLocationConsentDialog({ open, onClose, onConfirm, busy }: Prop
           Accurate distances need your area
         </h2>
         <p id="kf-location-dialog-desc" className="kf-dialog-body">
-          Right now, listings are sorted using a <strong>default map centre</strong>, so kilometres
-          shown may not match where you actually are. Allow location to see providers sorted by real
+          Without location you can still browse <strong>all listings nationwide</strong>, but you
+          miss nearby sorting and distance in km. Allow location to see providers sorted by real
           distance from you. Your exact GPS is <strong>not shown</strong> on provider profiles — it
           is only used for search and sorting on your device.
         </p>
