@@ -19,6 +19,13 @@ import {
   getPublicMapLocation,
   type PublicMapLocation,
 } from "@/lib/kasifind/location-display";
+import { buildPublishedListingWhere } from "@/lib/kasifind/search-query";
+import { tokenizeSearchQuery } from "@/lib/kasifind/search-normalize";
+import {
+  compareSearchRanking,
+  listingMatchesSearchTokens,
+  scoreListingRelevance,
+} from "@/lib/kasifind/search-relevance";
 
 export type ProviderSearchHit = {
   id: string;
@@ -38,107 +45,113 @@ export type ProviderSearchHit = {
   map: PublicMapLocation;
 };
 
-function tokenizeQuery(query: string): string[] {
-  return query
-    .toLowerCase()
-    .split(/[\s,/+]+/)
-    .map((t) => t.trim())
-    .filter((t) => t.length >= 2);
-}
+type ListingRow = Awaited<ReturnType<typeof fetchListingCandidates>>[number];
 
-type ScoredListingRow = ProviderSearchHit & { score: number; featured: boolean };
+type ScoredListingRow = ProviderSearchHit & {
+  relevanceTotal: number;
+  featured: boolean;
+};
 
-async function fetchScoredGeoListings(input: {
+const LISTING_INCLUDE = {
+  categories: { include: { category: true } },
+  services: true,
+  photos: { orderBy: { sortOrder: "asc" as const }, take: 6 },
+  reviews: { where: { hidden: false }, select: { rating: true } },
+};
+
+async function fetchListingCandidates(input: {
   query: string;
-  center: GeoPoint;
-  maxRadiusKm: number;
   categorySlug?: string | null;
-}): Promise<ScoredListingRow[]> {
+  geo?: ReturnType<typeof boundingBox>;
+}) {
   const kf = getKasiFindPrisma();
-  const tokens = tokenizeQuery(input.query);
-  const box = boundingBox(input.center, input.maxRadiusKm);
-
-  const listings = await kf.kfProviderListing.findMany({
-    where: {
-      status: "PUBLISHED",
-      moderationStatus: "APPROVED",
-      latitude: { gte: box.minLat, lte: box.maxLat },
-      longitude: { gte: box.minLng, lte: box.maxLng },
-      ...(input.categorySlug
-        ? {
-            categories: {
-              some: { category: { slug: input.categorySlug } },
-            },
-          }
-        : {}),
-    },
-    include: {
-      categories: { include: { category: true } },
-      services: true,
-      photos: { orderBy: { sortOrder: "asc" }, take: 6 },
-      reviews: { where: { hidden: false }, select: { rating: true } },
-    },
-    take: 200,
+  const where = buildPublishedListingWhere({
+    query: input.query,
+    categorySlug: input.categorySlug,
+    geo: input.geo,
   });
 
-  return listings
-    .map((listing) => {
-      const distanceKm = haversineDistanceKm(input.center, {
-        latitude: listing.latitude,
-        longitude: listing.longitude,
-      });
-      if (distanceKm > input.maxRadiusKm) return null;
+  return kf.kfProviderListing.findMany({
+    where,
+    include: LISTING_INCLUDE,
+  });
+}
 
-      const haystack = [
-        listing.displayName,
-        listing.description,
-        listing.locationLabel,
-        ...listing.services.map((s) => `${s.name} ${s.keywords}`),
-        ...listing.categories.map((c) => c.category.name),
-      ]
-        .join(" ")
-        .toLowerCase();
+function mapListingToHit(
+  listing: ListingRow,
+  input: {
+    center?: GeoPoint;
+    maxRadiusKm?: number;
+    tokens: string[];
+  }
+): ScoredListingRow | null {
+  const distanceKm =
+    input.center !== undefined
+      ? haversineDistanceKm(input.center, {
+          latitude: listing.latitude,
+          longitude: listing.longitude,
+        })
+      : Number.NaN;
 
-      let score = 0;
-      if (tokens.length === 0) score = 1;
-      for (const token of tokens) {
-        if (haystack.includes(token)) score += 2;
-      }
-      if (score === 0 && tokens.length > 0) return null;
+  if (
+    input.center !== undefined &&
+    input.maxRadiusKm !== undefined &&
+    distanceKm > input.maxRadiusKm
+  ) {
+    return null;
+  }
 
-      const ratings = listing.reviews.map((r) => r.rating);
-      const reviewCount = ratings.length;
-      const averageRating =
-        reviewCount > 0 ? ratings.reduce((a, b) => a + b, 0) / reviewCount : null;
+  const fields = {
+    displayName: listing.displayName,
+    description: listing.description,
+    locationLabel: listing.locationLabel,
+    services: listing.services.map((s) => ({ name: s.name, keywords: s.keywords })),
+    categories: listing.categories.map((c) => ({ name: c.category.name })),
+  };
 
-      return {
-        id: listing.id,
-        displayName: listing.displayName,
-        description: listing.description,
-        phone: listing.phone,
-        whatsapp: listing.whatsapp,
-        locationLabel: listing.locationLabel,
-        profileImageUrl: listing.profileImageUrl,
-        priceHint: listing.priceHint,
-        distanceKm,
-        categories: listing.categories.map((c) => ({
-          slug: c.category.slug,
-          name: c.category.name,
-        })),
-        services: listing.services.map((s) => ({ name: s.name })),
-        photoUrls: listing.photos.map((p) => p.url),
-        averageRating,
-        reviewCount,
-        map: getPublicMapLocation(
-          listing.latitude,
-          listing.longitude,
-          listing.hideExactLocation
-        ),
-        score,
-        featured: listing.featured,
-      };
-    })
-    .filter((row): row is NonNullable<typeof row> => row !== null);
+  if (!listingMatchesSearchTokens(fields, input.tokens)) {
+    return null;
+  }
+
+  const relevance = scoreListingRelevance(fields, input.tokens);
+  const ratings = listing.reviews.map((r) => r.rating);
+  const reviewCount = ratings.length;
+  const averageRating =
+    reviewCount > 0 ? ratings.reduce((a, b) => a + b, 0) / reviewCount : null;
+
+  return {
+    id: listing.id,
+    displayName: listing.displayName,
+    description: listing.description,
+    phone: listing.phone,
+    whatsapp: listing.whatsapp,
+    locationLabel: listing.locationLabel,
+    profileImageUrl: listing.profileImageUrl,
+    priceHint: listing.priceHint,
+    distanceKm,
+    categories: listing.categories.map((c) => ({
+      slug: c.category.slug,
+      name: c.category.name,
+    })),
+    services: listing.services.map((s) => ({ name: s.name })),
+    photoUrls: listing.photos.map((p) => p.url),
+    averageRating,
+    reviewCount,
+    map: getPublicMapLocation(
+      listing.latitude,
+      listing.longitude,
+      listing.hideExactLocation
+    ),
+    relevanceTotal: relevance.total,
+    featured: listing.featured,
+  };
+}
+
+function sortSearchHits(
+  rows: ScoredListingRow[],
+  options: { hasQuery: boolean; useDistance: boolean }
+): ScoredListingRow[] {
+  return [...rows].sort((a, b) => compareSearchRanking(a, b, options));
 }
 
 async function finalizeSearchHits(
@@ -147,12 +160,37 @@ async function finalizeSearchHits(
 ): Promise<ProviderSearchHit[]> {
   const sliced = scoredRaw.slice(0, limit);
   return Promise.all(
-    sliced.map(async ({ score: _score, featured: _featured, ...rest }) => ({
+    sliced.map(async ({ relevanceTotal: _r, featured: _f, ...rest }) => ({
       ...rest,
       photoUrls: await filterReachableUploadUrls(rest.photoUrls),
       profileImageUrl: await resolvePublicUploadUrl(rest.profileImageUrl),
     }))
   );
+}
+
+async function fetchScoredGeoListings(input: {
+  query: string;
+  center: GeoPoint;
+  maxRadiusKm: number;
+  categorySlug?: string | null;
+}): Promise<ScoredListingRow[]> {
+  const tokens = tokenizeSearchQuery(input.query);
+  const box = boundingBox(input.center, input.maxRadiusKm);
+  const listings = await fetchListingCandidates({
+    query: input.query,
+    categorySlug: input.categorySlug,
+    geo: box,
+  });
+
+  return listings
+    .map((listing) =>
+      mapListingToHit(listing, {
+        center: input.center,
+        maxRadiusKm: input.maxRadiusKm,
+        tokens,
+      })
+    )
+    .filter((row): row is ScoredListingRow => row !== null);
 }
 
 export async function searchProviders(input: {
@@ -164,6 +202,7 @@ export async function searchProviders(input: {
 }): Promise<{ results: ProviderSearchHit[]; radiusKm: number; expanded: boolean }> {
   const radiusKm = parseRadiusKm(input.radiusKm);
   const limit = Math.min(input.limit ?? 40, 60);
+  const hasQuery = tokenizeSearchQuery(input.query).length > 0;
 
   const scoredRaw = await fetchScoredGeoListings({
     query: input.query,
@@ -172,17 +211,13 @@ export async function searchProviders(input: {
     categorySlug: input.categorySlug,
   });
 
-  const sorted = scoredRaw
-    .filter((row) => row.distanceKm <= radiusKm)
-    .sort((a, b) => {
-      if (a.featured !== b.featured) return a.featured ? -1 : 1;
-      if (a.score !== b.score) return b.score - a.score;
-      return a.distanceKm - b.distanceKm;
-    });
+  const sorted = sortSearchHits(
+    scoredRaw.filter((row) => row.distanceKm <= radiusKm),
+    { hasQuery, useDistance: true }
+  );
 
-  const scored = await finalizeSearchHits(sorted, limit);
-
-  return { results: scored, radiusKm, expanded: false };
+  const results = await finalizeSearchHits(sorted, limit);
+  return { results, radiusKm, expanded: false };
 }
 
 /** No distance filter — for visitors who skip or deny location. */
@@ -191,100 +226,23 @@ export async function searchProvidersBrowse(input: {
   categorySlug?: string | null;
   limit?: number;
 }): Promise<{ results: ProviderSearchHit[]; radiusKm: 0; expanded: false; browse: true }> {
-  const kf = getKasiFindPrisma();
   const limit = Math.min(input.limit ?? 40, 60);
-  const tokens = tokenizeQuery(input.query);
+  const tokens = tokenizeSearchQuery(input.query);
+  const hasQuery = tokens.length > 0;
 
-  const listings = await kf.kfProviderListing.findMany({
-    where: {
-      status: "PUBLISHED",
-      moderationStatus: "APPROVED",
-      ...(input.categorySlug
-        ? {
-            categories: {
-              some: { category: { slug: input.categorySlug } },
-            },
-          }
-        : {}),
-    },
-    include: {
-      categories: { include: { category: true } },
-      services: true,
-      photos: { orderBy: { sortOrder: "asc" }, take: 6 },
-      reviews: { where: { hidden: false }, select: { rating: true } },
-    },
-    take: 200,
+  const listings = await fetchListingCandidates({
+    query: input.query,
+    categorySlug: input.categorySlug,
   });
 
   const scoredRaw = listings
-    .map((listing) => {
-      const haystack = [
-        listing.displayName,
-        listing.description,
-        listing.locationLabel,
-        ...listing.services.map((s) => `${s.name} ${s.keywords}`),
-        ...listing.categories.map((c) => c.category.name),
-      ]
-        .join(" ")
-        .toLowerCase();
+    .map((listing) => mapListingToHit(listing, { tokens }))
+    .filter((row): row is ScoredListingRow => row !== null);
 
-      let score = 0;
-      if (tokens.length === 0) score = 1;
-      for (const token of tokens) {
-        if (haystack.includes(token)) score += 2;
-      }
-      if (score === 0 && tokens.length > 0) return null;
+  const sorted = sortSearchHits(scoredRaw, { hasQuery, useDistance: false });
+  const results = await finalizeSearchHits(sorted, limit);
 
-      const ratings = listing.reviews.map((r) => r.rating);
-      const reviewCount = ratings.length;
-      const averageRating =
-        reviewCount > 0 ? ratings.reduce((a, b) => a + b, 0) / reviewCount : null;
-
-      return {
-        id: listing.id,
-        displayName: listing.displayName,
-        description: listing.description,
-        phone: listing.phone,
-        whatsapp: listing.whatsapp,
-        locationLabel: listing.locationLabel,
-        profileImageUrl: listing.profileImageUrl,
-        priceHint: listing.priceHint,
-        distanceKm: Number.NaN,
-        categories: listing.categories.map((c) => ({
-          slug: c.category.slug,
-          name: c.category.name,
-        })),
-        services: listing.services.map((s) => ({ name: s.name })),
-        photoUrls: listing.photos.map((p) => p.url),
-        averageRating,
-        reviewCount,
-        map: getPublicMapLocation(
-          listing.latitude,
-          listing.longitude,
-          listing.hideExactLocation
-        ),
-        score,
-        featured: listing.featured,
-      };
-    })
-    .filter((row): row is NonNullable<typeof row> => row !== null)
-    .sort((a, b) => {
-      if (a.featured !== b.featured) return a.featured ? -1 : 1;
-      if (a.score !== b.score) return b.score - a.score;
-      if (a.reviewCount !== b.reviewCount) return b.reviewCount - a.reviewCount;
-      return a.displayName.localeCompare(b.displayName);
-    })
-    .slice(0, limit);
-
-  const scored = await Promise.all(
-    scoredRaw.map(async ({ score: _score, featured: _featured, ...rest }) => ({
-      ...rest,
-      photoUrls: await filterReachableUploadUrls(rest.photoUrls),
-      profileImageUrl: await resolvePublicUploadUrl(rest.profileImageUrl),
-    }))
-  );
-
-  return { results: scored, radiusKm: 0, expanded: false, browse: true };
+  return { results, radiusKm: 0, expanded: false, browse: true };
 }
 
 export type ProgressiveSearchResult = {
@@ -293,7 +251,6 @@ export type ProgressiveSearchResult = {
   expanded: boolean;
   includesSurroundingAreas: boolean;
   localListingCount: number;
-  /** True when no listings were found within the maximum discovery ring. */
   coverageExhausted: boolean;
 };
 
@@ -305,6 +262,8 @@ export async function searchWithProgressiveFallback(input: {
   limit?: number;
 }): Promise<ProgressiveSearchResult> {
   const limit = Math.min(input.limit ?? 40, 60);
+  const hasQuery = tokenizeSearchQuery(input.query).length > 0;
+
   const scoredRaw = await fetchScoredGeoListings({
     query: input.query,
     center: input.center,
@@ -312,14 +271,10 @@ export async function searchWithProgressiveFallback(input: {
     categorySlug: input.categorySlug,
   });
 
-  const byDistance = [...scoredRaw].sort((a, b) => {
-    if (a.distanceKm !== b.distanceKm) return a.distanceKm - b.distanceKm;
-    return b.score - a.score;
-  });
-
-  const plan = planProgressiveDiscovery(byDistance.map((h) => h.distanceKm));
-  const withinOuter = filterHitsWithinRadius(byDistance, plan.outerRadiusKm);
-  const results = await finalizeSearchHits(withinOuter, limit);
+  const plan = planProgressiveDiscovery(scoredRaw.map((h) => h.distanceKm));
+  const withinOuter = filterHitsWithinRadius(scoredRaw, plan.outerRadiusKm);
+  const sorted = sortSearchHits(withinOuter, { hasQuery, useDistance: true });
+  const results = await finalizeSearchHits(sorted, limit);
 
   return {
     results,
