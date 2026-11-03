@@ -3448,60 +3448,150 @@ body.kf-listing-flow-active .kf-listing-page-flow > .kf-link {
   border-radius: var(--kf-radius-full);
 }
 
+/* Search card footer — visually tied to listing body, not the next card’s photo. */
+.kf-provider-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  padding: 0.625rem 1rem 0.875rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--kf-forest) 5%, var(--kf-surface)) 0%,
+    color-mix(in srgb, var(--kf-forest) 10%, var(--kf-stone)) 100%
+  );
+  border-top: 1px solid color-mix(in srgb, var(--kf-forest) 16%, var(--kf-border));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.kf-provider-card-footer-label {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 6rem;
+  font-size: var(--kf-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--kf-forest) 70%, var(--kf-muted));
+}
+
 .kf-inline-contact-actions {
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.kf-inline-contact-actions--card {
+  gap: 0.5rem;
+}
+
+.kf-inline-contact-actions--strip {
+  flex: 1 1 100%;
   gap: 1px;
   border-top: 1px solid var(--kf-border);
   background: var(--kf-border);
 }
 
 .kf-inline-contact-btn {
-  flex: 1 1 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.375rem;
-  padding: 0.375rem 0.5rem;
   font-weight: 600;
-  background: var(--kf-surface);
-  color: var(--kf-forest);
   transition:
     background 0.15s ease,
     color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
     transform 0.1s ease;
 }
 
+.kf-inline-contact-actions--card .kf-inline-contact-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  padding: 0;
+  border-radius: var(--kf-radius-md);
+  border: 1px solid color-mix(in srgb, var(--kf-forest) 20%, var(--kf-border));
+  color: var(--kf-forest);
+  box-shadow:
+    0 1px 2px rgba(15, 77, 58, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.kf-inline-contact-actions--card .kf-inline-contact-btn--call {
+  background: linear-gradient(
+    145deg,
+    #ffffff 0%,
+    color-mix(in srgb, var(--kf-stone) 85%, var(--kf-surface)) 100%
+  );
+}
+
+.kf-inline-contact-actions--card .kf-inline-contact-btn--wa {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--kf-forest) 8%, #ffffff) 0%,
+    color-mix(in srgb, var(--kf-forest) 22%, var(--kf-stone)) 100%
+  );
+  border-color: color-mix(in srgb, var(--kf-forest) 32%, var(--kf-border));
+}
+
+.kf-inline-contact-actions--card .kf-inline-contact-btn--directions {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--kf-charcoal) 12%, #ffffff) 0%,
+    color-mix(in srgb, var(--kf-charcoal) 8%, var(--kf-stone)) 100%
+  );
+  color: color-mix(in srgb, var(--kf-charcoal) 88%, var(--kf-forest));
+}
+
+@media (hover: hover) {
+  .kf-inline-contact-actions--card .kf-inline-contact-btn--call:hover {
+    background: linear-gradient(145deg, #ffffff 0%, var(--kf-stone) 100%);
+    box-shadow:
+      0 2px 6px rgba(15, 77, 58, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  }
+
+  .kf-inline-contact-actions--card .kf-inline-contact-btn--wa:hover {
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--kf-forest) 12%, #ffffff) 0%,
+      color-mix(in srgb, var(--kf-forest) 28%, var(--kf-stone)) 100%
+    );
+  }
+
+  .kf-inline-contact-actions--card .kf-inline-contact-btn--directions:hover {
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--kf-charcoal) 16%, #ffffff) 0%,
+      color-mix(in srgb, var(--kf-charcoal) 12%, var(--kf-stone)) 100%
+    );
+  }
+}
+
 .kf-inline-contact-btn:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
-.kf-inline-contact-btn--wa {
-  background: #25d366;
-  color: #fff;
-}
-
-.kf-inline-contact-btn--wa:hover {
-  background: #1ebe57;
-  color: #fff;
-}
-
-.kf-inline-contact-btn--call {
+.kf-inline-contact-actions--strip .kf-inline-contact-btn {
+  flex: 1 1 0;
+  min-height: 2.375rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
   background: var(--kf-surface);
   color: var(--kf-forest);
 }
 
-.kf-inline-contact-btn--call:hover {
-  background: var(--kf-stone);
-}
-
-.kf-inline-contact-btn--directions {
-  background: var(--kf-charcoal);
+.kf-inline-contact-actions--strip .kf-inline-contact-btn--wa {
+  background: linear-gradient(135deg, var(--kf-forest) 0%, #157a5c 100%);
   color: #fff;
 }
 
-.kf-inline-contact-btn--directions:hover {
-  background: #2a2a2a;
+.kf-inline-contact-actions--strip .kf-inline-contact-btn--directions {
+  background: linear-gradient(135deg, #3d3d3d 0%, var(--kf-charcoal) 100%);
   color: #fff;
 }
 
