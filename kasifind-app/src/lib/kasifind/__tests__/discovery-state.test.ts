@@ -43,15 +43,18 @@ test("writeDiscoveryState round-trips location in sessionStorage", () => {
     writeDiscoveryState({
       query: "plumber",
       radiusKm: 10,
+      radiusMode: "auto",
       categorySlug: null,
-      location: { mode: "gps", lat: -25.7, lng: 28.2, label: "Near you" },
+      location: { mode: "gps", lat: -25.7, lng: 28.2, label: "Near me" },
     });
     const read = readDiscoveryState();
+    assert.equal(read?.radiusKm, 15);
+    assert.equal(read?.radiusMode, "auto");
     assert.deepEqual(read?.location, {
       mode: "gps",
       lat: -25.7,
       lng: 28.2,
-      label: "Near you",
+      label: "Near me",
     });
   } finally {
     Object.defineProperty(globalThis, "sessionStorage", {

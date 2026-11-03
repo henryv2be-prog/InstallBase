@@ -1,6 +1,11 @@
 /** Persist homepage discovery filters + location so back-from-listing restores context. */
 
-const KEY = "kf_discovery_state_v2";
+import { DISCOVERY_RADIUS_RINGS_KM } from "@/lib/kasifind/discovery-config";
+
+const KEY_V3 = "kf_discovery_state_v3";
+const KEY_V2 = "kf_discovery_state_v2";
+
+export type KfRadiusMode = "auto" | "fixed";
 
 export type KfDiscoveryLocation =
   | { mode: "browse"; label: string }
@@ -10,9 +15,20 @@ export type KfDiscoveryLocation =
 export type KfDiscoveryState = {
   query: string;
   radiusKm: number;
+  radiusMode: KfRadiusMode;
   categorySlug: string | null;
   location: KfDiscoveryLocation | null;
 };
+
+export function normalizeDiscoveryRadiusKm(km: number): number {
+  if (DISCOVERY_RADIUS_RINGS_KM.includes(km as (typeof DISCOVERY_RADIUS_RINGS_KM)[number])) {
+    return km;
+  }
+  if (km <= 7) return 5;
+  if (km <= 20) return 15;
+  if (km <= 40) return 30;
+  return 50;
+}
 
 export function isValidDiscoveryLocation(value: unknown): value is KfDiscoveryLocation {
   if (!value || typeof value !== "object") return false;
@@ -25,17 +41,38 @@ export function isValidDiscoveryLocation(value: unknown): value is KfDiscoveryLo
   return true;
 }
 
+function normalizeState(raw: Partial<KfDiscoveryState> | null): KfDiscoveryState | null {
+  if (!raw || typeof raw.query !== "string") return null;
+  if (typeof raw.radiusKm !== "number") return null;
+  if (raw.categorySlug !== null && raw.categorySlug !== undefined && typeof raw.categorySlug !== "string") {
+    return null;
+  }
+  if (raw.location !== null && raw.location !== undefined && !isValidDiscoveryLocation(raw.location)) {
+    return null;
+  }
+  const radiusMode: KfRadiusMode = raw.radiusMode === "fixed" ? "fixed" : "auto";
+  return {
+    query: raw.query,
+    radiusKm: normalizeDiscoveryRadiusKm(raw.radiusKm),
+    radiusMode,
+    categorySlug: raw.categorySlug ?? null,
+    location: raw.location ?? null,
+  };
+}
+
 export function readDiscoveryState(): KfDiscoveryState | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = sessionStorage.getItem(KEY);
-    if (!raw) return readLegacyDiscoveryState();
-    const parsed = JSON.parse(raw) as KfDiscoveryState;
-    if (typeof parsed.query !== "string") return null;
-    if (typeof parsed.radiusKm !== "number") return null;
-    if (parsed.categorySlug !== null && typeof parsed.categorySlug !== "string") return null;
-    if (parsed.location !== null && !isValidDiscoveryLocation(parsed.location)) return null;
-    return parsed;
+    const rawV3 = sessionStorage.getItem(KEY_V3);
+    if (rawV3) {
+      return normalizeState(JSON.parse(rawV3) as Partial<KfDiscoveryState>);
+    }
+    const rawV2 = sessionStorage.getItem(KEY_V2);
+    if (rawV2) {
+      const parsed = JSON.parse(rawV2) as Partial<KfDiscoveryState>;
+      return normalizeState({ ...parsed, radiusMode: parsed.radiusMode ?? "auto" });
+    }
+    return readLegacyDiscoveryState();
   } catch {
     return null;
   }
@@ -53,12 +90,13 @@ function readLegacyDiscoveryState(): KfDiscoveryState | null {
     };
     if (typeof parsed.query !== "string" || typeof parsed.radiusKm !== "number") return null;
     if (parsed.categorySlug !== null && typeof parsed.categorySlug !== "string") return null;
-    return {
+    return normalizeState({
       query: parsed.query,
       radiusKm: parsed.radiusKm,
+      radiusMode: "auto",
       categorySlug: parsed.categorySlug ?? null,
       location: null,
-    };
+    });
   } catch {
     return null;
   }
@@ -67,7 +105,13 @@ function readLegacyDiscoveryState(): KfDiscoveryState | null {
 export function writeDiscoveryState(state: KfDiscoveryState): void {
   if (typeof window === "undefined") return;
   try {
-    sessionStorage.setItem(KEY, JSON.stringify(state));
+    sessionStorage.setItem(
+      KEY_V3,
+      JSON.stringify({
+        ...state,
+        radiusKm: normalizeDiscoveryRadiusKm(state.radiusKm),
+      })
+    );
   } catch {
     /* ignore */
   }

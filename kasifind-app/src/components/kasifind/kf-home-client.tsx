@@ -5,7 +5,6 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import {
   Loader2,
   MapPin,
-  Navigation,
   PlusCircle,
   Search,
   SlidersHorizontal,
@@ -27,8 +26,14 @@ import {
   readDiscoveryState,
   writeDiscoveryState,
   type KfDiscoveryLocation,
+  type KfRadiusMode,
 } from "@/lib/kasifind/discovery-state";
-import { KfAreaSearchPicker } from "@/components/kasifind/kf-area-search-picker";
+import {
+  DISCOVERY_RADIUS_CHIPS_KM,
+  formatDiscoveryResultsSubtitle,
+  locationModeLabel,
+} from "@/lib/kasifind/discovery-display";
+import { KfLocationSheet } from "@/components/kasifind/kf-location-sheet";
 import type { GeocodeHit } from "@/lib/kasifind/geocode-utils";
 import { KfCategoryFlashIntro } from "@/components/kasifind/kf-category-flash-intro";
 import {
@@ -38,8 +43,8 @@ import {
 } from "@/lib/kasifind/category-flash-intro";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
-const RADIUS_OPTIONS = [5, 10, 25, 50] as const;
-const BROWSE_LOCATION_LABEL = "All listings · location off";
+const BROWSE_LOCATION_LABEL = "Browsing all areas";
+const GPS_LOCATION_LABEL = "Near me";
 
 type LocationState =
   | { mode: "browse"; label: string }
@@ -93,6 +98,7 @@ export function KfHomeClient({
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [radiusKm, setRadiusKm] = useState<number>(5);
+  const [radiusMode, setRadiusMode] = useState<KfRadiusMode>("auto");
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [categories, setCategories] = useState<KfCategory[]>([]);
   const [results, setResults] = useState<KfSearchResult[]>([]);
@@ -105,8 +111,10 @@ export function KfHomeClient({
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [manualOpen, setManualOpen] = useState(false);
+  const [locationSheetOpen, setLocationSheetOpen] = useState(false);
+  const [locationSheetView, setLocationSheetView] = useState<"menu" | "area">("menu");
   const [filtersHydrated, setFiltersHydrated] = useState(false);
+  const searchGenerationRef = useRef(0);
   const slidesEligibleForIntro =
     categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES;
   const [introGate, setIntroGate] = useState<"pending" | "play" | "off">(() =>
@@ -127,6 +135,7 @@ export function KfHomeClient({
     if (saved) {
       setQuery(saved.query);
       setRadiusKm(saved.radiusKm);
+      setRadiusMode(saved.radiusMode ?? "auto");
       setCategorySlug(saved.categorySlug);
       if (saved.location) {
         let restored: LocationState = saved.location;
@@ -146,8 +155,8 @@ export function KfHomeClient({
 
   useEffect(() => {
     if (!filtersHydrated) return;
-    writeDiscoveryState({ query, radiusKm, categorySlug, location });
-  }, [query, radiusKm, categorySlug, location, filtersHydrated]);
+    writeDiscoveryState({ query, radiusKm, radiusMode, categorySlug, location });
+  }, [query, radiusKm, radiusMode, categorySlug, location, filtersHydrated]);
 
   useEffect(() => {
     if (!dbConfigured) return;
@@ -188,20 +197,17 @@ export function KfHomeClient({
     setLocationDialogOpen(false);
   }, [switchToBrowseMode]);
 
-  const openLocationPrompt = useCallback(() => {
-    if (readLocationConsent() === "granted") {
-      requestNearMeRef.current();
-      return;
-    }
-    setLocationDialogOpen(true);
+  const openLocationSheet = useCallback((view: "menu" | "area" = "menu") => {
+    setLocationSheetView(view);
+    setLocationSheetOpen(true);
   }, []);
 
   const requestNearMeRef = useRef<() => void>(() => undefined);
 
   const requestNearMe = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
-      setError("Your browser does not support location. Search for your area below.");
-      setManualOpen(true);
+      setError("Your browser does not support location. Search for an area instead.");
+      openLocationSheet("area");
       setLocationDialogOpen(false);
       return;
     }
@@ -214,8 +220,9 @@ export function KfHomeClient({
           mode: "gps",
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
-          label: "Near you",
+          label: GPS_LOCATION_LABEL,
         });
+        setLocationSheetOpen(false);
         setLocating(false);
         setLocationDialogOpen(false);
       },
@@ -224,13 +231,13 @@ export function KfHomeClient({
           writeLocationConsent("denied");
         }
         switchToBrowseMode();
-        setManualOpen(true);
+        openLocationSheet("area");
         setLocating(false);
         setLocationDialogOpen(false);
       },
       { enableHighAccuracy: false, timeout: 12000, maximumAge: 300_000 }
     );
-  }, [switchToBrowseMode]);
+  }, [openLocationSheet, switchToBrowseMode]);
 
   requestNearMeRef.current = requestNearMe;
 
@@ -239,11 +246,12 @@ export function KfHomeClient({
   }, [requestNearMe]);
 
   const runSearch = useCallback(
-    async (opts?: { autoExpand?: boolean }) => {
+    async (opts?: { preferAutoExpand?: boolean }) => {
       if (!dbConfigured) {
         setError("KasiFind database is not configured on this server.");
         return;
       }
+      const generation = ++searchGenerationRef.current;
       setLoading(true);
       setError(null);
       try {
@@ -253,14 +261,18 @@ export function KfHomeClient({
         if (location.mode === "browse") {
           params.set("browse", "1");
         } else {
+          const useAutoExpand =
+            opts?.preferAutoExpand === true ||
+            (opts?.preferAutoExpand !== false && radiusMode === "auto");
           params.set("lat", String(location.lat));
           params.set("lng", String(location.lng));
           params.set("radiusKm", String(radiusKm));
-          params.set("autoExpand", opts?.autoExpand === false ? "0" : "1");
+          params.set("autoExpand", useAutoExpand ? "1" : "0");
         }
 
         const res = await fetch(`/api/search?${params}`);
         const data = await res.json();
+        if (generation !== searchGenerationRef.current) return;
         if (!res.ok) {
           setError(data.error ?? "Search failed.");
           setResults([]);
@@ -287,7 +299,7 @@ export function KfHomeClient({
         setLoading(false);
       }
     },
-    [categorySlug, dbConfigured, location, query, radiusKm]
+    [categorySlug, dbConfigured, location, query, radiusKm, radiusMode]
   );
 
   useEffect(() => {
@@ -310,6 +322,9 @@ export function KfHomeClient({
 
     if (consent === "granted") {
       const restored = readDiscoveryState()?.location;
+      if (restored?.mode === "manual" || restored?.mode === "browse") {
+        return;
+      }
       const hasRestoredGps = restored?.mode === "gps";
       if (!hasRestoredGps) setLocating(true);
       navigator.geolocation.getCurrentPosition(
@@ -318,7 +333,7 @@ export function KfHomeClient({
             mode: "gps",
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
-            label: "Near you",
+            label: GPS_LOCATION_LABEL,
           });
           setLocating(false);
         },
@@ -372,6 +387,8 @@ export function KfHomeClient({
     };
   }, []);
 
+  const geolocationAvailable =
+    typeof navigator !== "undefined" && Boolean(navigator.geolocation);
   const locationPill = useMemo(() => {
     if (locating) {
       return (
@@ -381,52 +398,28 @@ export function KfHomeClient({
         </span>
       );
     }
-    if (location.mode === "gps") {
-      return (
-        <span className="kf-location-pill">
-          <MapPin className="h-4 w-4 shrink-0" aria-hidden />
-          {location.label}
-        </span>
-      );
-    }
-    if (location.mode === "browse") {
-      return (
-        <button
-          type="button"
-          className="kf-location-pill kf-location-pill--approx"
-          onClick={openLocationPrompt}
-        >
-          <MapPin className="h-4 w-4 shrink-0" aria-hidden />
-          Location off — tap for nearby results
-        </button>
-      );
-    }
-    if (location.mode === "manual") {
-      return (
-        <button
-          type="button"
-          className="kf-location-pill kf-location-pill--approx"
-          onClick={() => setManualOpen(true)}
-        >
-          <MapPin className="h-4 w-4 shrink-0" aria-hidden />
-          Near {location.label}
-        </button>
-      );
-    }
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      return (
-        <button
-          type="button"
-          className="kf-location-pill kf-location-pill--approx"
-          onClick={openLocationPrompt}
-        >
-          <MapPin className="h-4 w-4 shrink-0" aria-hidden />
-          Near me — accurate distances
-        </button>
-      );
-    }
-    return null;
-  }, [location, locating, openLocationPrompt]);
+    return (
+      <button
+        type="button"
+        className="kf-location-pill kf-location-pill--approx"
+        onClick={() => openLocationSheet("menu")}
+      >
+        <MapPin className="h-4 w-4 shrink-0" aria-hidden />
+        {locationModeLabel(location)}
+      </button>
+    );
+  }, [location, locating, openLocationSheet]);
+
+  const resultsSubtitle = useMemo(
+    () =>
+      formatDiscoveryResultsSubtitle({
+        location,
+        radiusMode,
+        selectedRadiusKm: radiusKm,
+        searchMeta,
+      }),
+    [location, radiusMode, radiusKm, searchMeta]
+  );
 
   const activeCategoryName = categorySlug
     ? categories.find((c) => c.slug === categorySlug)?.name ?? categorySlug
@@ -461,7 +454,46 @@ export function KfHomeClient({
         busy={locating}
         onClose={dismissLocationPrompt}
         onConfirm={confirmLocationFromDialog}
-        onChooseArea={() => setManualOpen(true)}
+        onChooseArea={() => openLocationSheet("area")}
+      />
+      <KfLocationSheet
+        open={locationSheetOpen}
+        onClose={() => {
+          setLocationSheetOpen(false);
+          setLocationSheetView("menu");
+        }}
+        location={location}
+        locating={locating}
+        geolocationAvailable={geolocationAvailable}
+        permissionDenied={readLocationConsent() === "denied"}
+        view={locationSheetView}
+        onViewChange={setLocationSheetView}
+        onUseGps={() => {
+          if (readLocationConsent() === "granted") {
+            requestNearMe();
+            return;
+          }
+          setLocationSheetOpen(false);
+          setLocationDialogOpen(true);
+        }}
+        onBrowseAll={() => {
+          switchToBrowseMode();
+          setLocationSheetOpen(false);
+          setLocationSheetView("menu");
+        }}
+        onAreaSelected={(place: GeocodeHit) => {
+          const shortLabel = place.label.split(",")[0]?.trim() || place.label;
+          setLocation({
+            mode: "manual",
+            lat: place.latitude,
+            lng: place.longitude,
+            label: shortLabel,
+          });
+          setLocationSheetOpen(false);
+          setError(null);
+          void runSearch({ preferAutoExpand: true });
+        }}
+        areaSearchInitialQuery={location.mode === "manual" ? location.label : ""}
       />
       <div className="kf-home-search-stack">
       <section className="kf-hero kf-animate-in">
@@ -485,26 +517,20 @@ export function KfHomeClient({
 
       {usesBrowseMode ? (
         <div className="kf-alert-info kf-animate-in" role="status">
-          <strong>Location is off — limited experience.</strong> You are seeing{" "}
-          <strong>all listings nationwide</strong>, not sorted by distance. Kilometres are hidden
-          until you allow location or search for your area. Tap{" "}
-          <strong>Location off — tap for nearby results</strong> above for the full nearby search.
+          <strong>Browsing all areas.</strong> Results are not sorted by distance. Tap{" "}
+          <button type="button" className="kf-link font-semibold underline" onClick={() => openLocationSheet("menu")}>
+            {locationModeLabel(location)}
+          </button>{" "}
+          to search near you or pick a town.
         </div>
       ) : usesApproximateDistance ? (
         <div className="kf-alert-info kf-animate-in" role="status">
-          <strong>Distances use your chosen area</strong>, not live GPS. Tap{" "}
-          <strong>Near me</strong> above for sorting from where you are now.
+          <strong>Searching near {location.label}</strong> — not live GPS. Open{" "}
+          <button type="button" className="kf-link font-semibold underline" onClick={() => openLocationSheet("menu")}>
+            search location
+          </button>{" "}
+          to use your current location instead.
         </div>
-      ) : null}
-
-      {usesBrowseMode && !manualOpen ? (
-        <button
-          type="button"
-          className="kf-link text-sm underline underline-offset-2"
-          onClick={() => setManualOpen(true)}
-        >
-          Search for your area instead
-        </button>
       ) : null}
 
       {hasActiveFilters ? (
@@ -518,7 +544,7 @@ export function KfHomeClient({
                 aria-label="Clear search text"
                 onClick={() => {
                   setQuery("");
-                  void runSearch({ autoExpand: true });
+                  void runSearch({ preferAutoExpand: true });
                 }}
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
@@ -534,7 +560,7 @@ export function KfHomeClient({
                 aria-label="Clear category filter"
                 onClick={() => {
                   setCategorySlug(null);
-                  void runSearch({ autoExpand: true });
+                  void runSearch({ preferAutoExpand: true });
                 }}
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
@@ -549,7 +575,7 @@ export function KfHomeClient({
         style={{ animationDelay: "60ms" }}
         onSubmit={(e) => {
           e.preventDefault();
-          void runSearch({ autoExpand: false });
+          void runSearch();
         }}
         role="search"
         aria-label="Find local services"
@@ -582,27 +608,48 @@ export function KfHomeClient({
         <div className={`kf-radius-field${usesBrowseMode ? " kf-radius-field--disabled" : ""}`}>
           <span className="kf-radius-label">
             <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
-            Radius
+            How far to search
           </span>
           {usesBrowseMode ? (
             <p className="text-xs text-[var(--kf-muted)]">
-              Turn on location or enter your area to filter by distance.
+              Choose a search location to filter by distance.
             </p>
-          ) : null}
-          <div className="kf-radius-chips" role="group" aria-label="Search radius in kilometres">
-            {RADIUS_OPTIONS.map((r) => (
+          ) : (
+            <p className="text-xs text-[var(--kf-muted)]">
+              Auto expands gently if there aren&apos;t many listings nearby (up to 50 km).
+            </p>
+          )}
+          <div className="kf-radius-chips" role="group" aria-label="Search radius">
+            <button
+              type="button"
+              disabled={usesBrowseMode}
+              onClick={() => {
+                if (usesBrowseMode) {
+                  openLocationSheet("menu");
+                  return;
+                }
+                setRadiusMode("auto");
+                void runSearch({ preferAutoExpand: true });
+              }}
+              className={`kf-chip kf-radius-chip ${radiusMode === "auto" ? "kf-chip-active" : ""}`}
+            >
+              Auto
+            </button>
+            {DISCOVERY_RADIUS_CHIPS_KM.map((r) => (
               <button
                 key={r}
                 type="button"
                 disabled={usesBrowseMode}
                 onClick={() => {
                   if (usesBrowseMode) {
-                    openLocationPrompt();
+                    openLocationSheet("menu");
                     return;
                   }
+                  setRadiusMode("fixed");
                   setRadiusKm(r);
+                  void runSearch({ preferAutoExpand: false });
                 }}
-                className={`kf-chip kf-radius-chip ${radiusKm === r ? "kf-chip-active" : ""}`}
+                className={`kf-chip kf-radius-chip ${radiusMode === "fixed" && radiusKm === r ? "kf-chip-active" : ""}`}
               >
                 {r} km
               </button>
@@ -625,56 +672,6 @@ export function KfHomeClient({
         </button>
       </form>
       </div>
-
-      {manualOpen ? (
-        <div className="kf-card p-4 kf-animate-in">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h2 className="text-sm font-bold text-[var(--kf-charcoal)]">Choose your area</h2>
-              <p className="kf-help">
-                Search for a suburb or town in South Africa. Your live GPS is never shown to
-                providers.
-              </p>
-            </div>
-            <button
-              type="button"
-              className="kf-btn kf-btn-ghost shrink-0 px-2"
-              aria-label="Close area search"
-              onClick={() => setManualOpen(false)}
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="mt-3">
-            <KfAreaSearchPicker
-              initialQuery={location.mode === "manual" ? location.label : ""}
-              onSelect={(place: GeocodeHit) => {
-                const shortLabel = place.label.split(",")[0]?.trim() || place.label;
-                setLocation({
-                  mode: "manual",
-                  lat: place.latitude,
-                  lng: place.longitude,
-                  label: shortLabel,
-                });
-                setManualOpen(false);
-                setError(null);
-                void runSearch({ autoExpand: true });
-              }}
-            />
-          </div>
-        </div>
-      ) : null}
-
-      {(location.mode === "gps" || location.mode === "manual") && !manualOpen ? (
-        <button
-          type="button"
-          className="kf-link flex items-center gap-2 text-sm underline-offset-2 hover:underline"
-          onClick={() => setManualOpen(true)}
-        >
-          <Navigation className="h-4 w-4" aria-hidden />
-          {location.mode === "manual" ? "Change area" : "Search for a different area"}
-        </button>
-      ) : null}
 
       {categories.length > 0 && (
         <section className="kf-animate-in" style={{ animationDelay: "120ms" }}>
@@ -727,20 +724,9 @@ export function KfHomeClient({
             <h2 className="kf-section-title">
               {usesBrowseMode ? "All providers" : "Nearby providers"}
             </h2>
-            <p className="kf-section-sub mt-0.5">
-              {usesBrowseMode
-                ? "Nationwide · sorted by relevance until location is on"
-                : usesApproximateDistance
-                  ? `Up to ${searchMeta?.radiusKm ?? radiusKm} km · closest first from your chosen area`
-                  : searchMeta?.includesSurroundingAreas
-                    ? `Up to ${searchMeta.radiusKm} km · closest first · including surrounding areas`
-                    : `Within ${searchMeta?.radiusKm ?? radiusKm} km · closest first from you`}
-            </p>
-            {!usesBrowseMode && searchMeta?.includesSurroundingAreas ? (
-              <p className="mt-1 text-xs text-[var(--kf-muted-fg)]">
-                Showing businesses from surrounding areas because there aren&apos;t many listings near
-                you yet.
-              </p>
+            <p className="kf-section-sub mt-0.5">{resultsSubtitle.primary}</p>
+            {resultsSubtitle.secondary ? (
+              <p className="mt-1 text-xs text-[var(--kf-muted-fg)]">{resultsSubtitle.secondary}</p>
             ) : null}
           </div>
         </div>
@@ -754,20 +740,48 @@ export function KfHomeClient({
               title="Nobody listed here yet"
               description={
                 searchMeta?.coverageExhausted
-                  ? "KasiFind is still growing in this area — we couldn't find listings within about 50 km. Try another category or help a local trader get listed; it is free."
-                  : "KasiFind is still growing in this area. Try another category, pick a wider radius, or help a local trader get listed — it is free."
+                  ? "KasiFind is still growing here — nothing matched within about 50 km. Try another category, choose a different area, or browse all listings."
+                  : usesBrowseMode
+                    ? "No listings matched your filters nationwide. Try another category or clear your search."
+                    : radiusMode === "fixed"
+                      ? "Nothing matched within your selected distance. Try Auto search, a wider radius, or another area."
+                      : "KasiFind is still growing in this area. Try another category, choose another area, or list a business — it is free."
               }
               action={
-                <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-                  {!searchMeta?.coverageExhausted ? (
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-center">
+                  {!usesBrowseMode && !searchMeta?.coverageExhausted && radiusMode === "fixed" ? (
                     <button
                       type="button"
                       className="kf-btn kf-btn-primary"
-                      onClick={() => void runSearch({ autoExpand: true })}
+                      onClick={() => {
+                        setRadiusMode("auto");
+                        void runSearch({ preferAutoExpand: true });
+                      }}
+                    >
+                      Try auto search
+                    </button>
+                  ) : null}
+                  {!usesBrowseMode && !searchMeta?.coverageExhausted ? (
+                    <button
+                      type="button"
+                      className="kf-btn kf-btn-primary"
+                      onClick={() => void runSearch({ preferAutoExpand: true })}
                     >
                       Search wider area
                     </button>
                   ) : null}
+                  <button
+                    type="button"
+                    className="kf-btn kf-btn-outline"
+                    onClick={() => openLocationSheet(location.mode === "browse" ? "menu" : "area")}
+                  >
+                    {usesBrowseMode ? "Choose search location" : "Change area"}
+                  </button>
+                  {usesBrowseMode ? null : (
+                    <button type="button" className="kf-btn kf-btn-outline" onClick={switchToBrowseMode}>
+                      Browse all areas
+                    </button>
+                  )}
                   <a href="/register" className="kf-btn kf-btn-outline">
                     List your business
                   </a>
