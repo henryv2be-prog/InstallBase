@@ -13,7 +13,7 @@ import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { KfWorkPhotoGallery } from "@/components/kasifind/kf-work-photo-gallery";
 import { KfReviewForm } from "@/components/kasifind/kf-review-form";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
-import { KfContactBar } from "@/components/kasifind/kf-contact-bar";
+import { KfListingContactFooter } from "@/components/kasifind/kf-listing-contact-footer";
 import { KfTrackListingView } from "@/components/kasifind/kf-track-listing-view";
 import { KfProviderLocationMap } from "@/components/kasifind/kf-provider-location-map";
 import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-display";
@@ -54,7 +54,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
   );
 
   return (
-    <article className="pb-24 sm:pb-8">
+    <article className="pb-8">
       <KfTrackListingView listingId={listing.id} />
       <Link
         href={ownerPreview ? "/account/listing" : "/"}
@@ -166,14 +166,6 @@ export default async function KasiFindProviderPage({ params }: Props) {
             </ul>
           )}
 
-          <div className="hidden sm:block">
-            <KfContactBar
-              waUrl={waUrl}
-              phone={listing.phone}
-              directionsUrl={directionsUrl}
-              listingId={listing.id}
-            />
-          </div>
         </div>
       </header>
 
@@ -242,12 +234,12 @@ export default async function KasiFindProviderPage({ params }: Props) {
         <KfReportForm listingId={listing.id} />
       </div>
 
-      <div className="sm:hidden">
-        <KfContactBar
-          waUrl={waUrl}
-          phone={listing.phone}
-          directionsUrl={directionsUrl}
+      <div className="kf-card mt-8 overflow-hidden kf-animate-in">
+        <KfListingContactFooter
           listingId={listing.id}
+          waUrl={waUrl}
+          callPhone={listing.phone}
+          directionsUrl={directionsUrl}
         />
       </div>
     </article>
