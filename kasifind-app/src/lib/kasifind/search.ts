@@ -15,6 +15,10 @@ import {
   filterHitsWithinRadius,
   planProgressiveDiscovery,
 } from "@/lib/kasifind/progressive-discovery";
+import {
+  getPublicMapLocation,
+  type PublicMapLocation,
+} from "@/lib/kasifind/location-display";
 
 export type ProviderSearchHit = {
   id: string;
@@ -31,6 +35,7 @@ export type ProviderSearchHit = {
   photoUrls: string[];
   averageRating: number | null;
   reviewCount: number;
+  map: PublicMapLocation;
 };
 
 function tokenizeQuery(query: string): string[] {
@@ -124,6 +129,11 @@ async function fetchScoredGeoListings(input: {
         photoUrls: listing.photos.map((p) => p.url),
         averageRating,
         reviewCount,
+        map: getPublicMapLocation(
+          listing.latitude,
+          listing.longitude,
+          listing.hideExactLocation
+        ),
         score,
         featured: listing.featured,
       };
@@ -248,6 +258,11 @@ export async function searchProvidersBrowse(input: {
         photoUrls: listing.photos.map((p) => p.url),
         averageRating,
         reviewCount,
+        map: getPublicMapLocation(
+          listing.latitude,
+          listing.longitude,
+          listing.hideExactLocation
+        ),
         score,
         featured: listing.featured,
       };

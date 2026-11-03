@@ -1,3 +1,5 @@
+import type { PublicMapLocation } from "@/lib/kasifind/location-display";
+
 export type KfSearchResult = {
   id: string;
   displayName: string;
@@ -13,6 +15,7 @@ export type KfSearchResult = {
   photoUrls: string[];
   averageRating: number | null;
   reviewCount: number;
+  map: PublicMapLocation;
 };
 
 export type KfCategory = {
