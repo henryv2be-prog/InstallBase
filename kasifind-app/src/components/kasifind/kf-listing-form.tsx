@@ -49,8 +49,8 @@ type ListingData = {
 
 const LAST_STEP = LISTING_FORM_STEPS.length - 1;
 
-function scrollWizardTop() {
-  /* Full-viewport wizard scrolls inside the step panel, not the page. */
+function stepPanelClass(active: boolean) {
+  return active ? "kf-form-section kf-wizard-step-panel" : "kf-form-section";
 }
 
 function validateWizardStep(form: HTMLFormElement, step: number, toastError: (msg: string) => void): boolean {
@@ -100,7 +100,9 @@ export function KfListingForm({
   const router = useRouter();
   const toast = useKfToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const stepScrollRef = useRef<HTMLDivElement>(null);
   const [pending, startTransition] = useTransition();
+  const [savingDraft, setSavingDraft] = useState(false);
   const [publishComplete, setPublishComplete] = useState(false);
   const [publishedListingId, setPublishedListingId] = useState<string | null>(
     listing?.listingId ?? null
@@ -111,7 +113,8 @@ export function KfListingForm({
   const [activeStep, setActiveStep] = useState(0);
 
   const defaultServices = listing?.services.join("\n") ?? "Steel gates\nWelding\nSecurity gates";
-  const formBusy = pending || locatingPublish;
+  const formBusy = pending || locatingPublish || savingDraft;
+  const currentStepMeta = LISTING_FORM_STEPS[activeStep];
   const photoCount = listing?.photos.length ?? 0;
 
   useEffect(() => {
@@ -128,14 +131,55 @@ export function KfListingForm({
   const goToStep = (index: number) => {
     if (index < 0 || index > LAST_STEP) return;
     setActiveStep(index);
-    scrollWizardTop();
+    requestAnimationFrame(() => stepScrollRef.current?.scrollTo({ top: 0, behavior: "auto" }));
+  };
+
+  const persistDraftIfNeeded = async (form: HTMLFormElement): Promise<boolean> => {
+    if (listing?.listingId) return true;
+    const confirmed =
+      (form.querySelector('input[name="locationConfirmed"]') as HTMLInputElement | null)?.value ===
+      "true";
+    if (!confirmed) return true;
+
+    for (let step = 0; step <= Math.min(activeStep, 2); step += 1) {
+      if (!validateWizardStep(form, step, toast.error)) {
+        goToStep(step);
+        return false;
+      }
+    }
+
+    const formData = new FormData(form);
+    formData.set("publish", "false");
+    setSavingDraft(true);
+    try {
+      const result = await kfUpsertListing(formData);
+      if ("error" in result && result.error) {
+        toast.error(result.error);
+        return false;
+      }
+      router.refresh();
+      return true;
+    } finally {
+      setSavingDraft(false);
+    }
   };
 
   const goNext = () => {
     const form = formRef.current;
     if (!form) return;
     if (!validateWizardStep(form, activeStep, toast.error)) return;
-    goToStep(Math.min(activeStep + 1, LAST_STEP));
+
+    const advance = () => goToStep(Math.min(activeStep + 1, LAST_STEP));
+
+    if (!listing?.listingId && activeStep >= 1) {
+      startTransition(async () => {
+        const ok = await persistDraftIfNeeded(form);
+        if (ok) advance();
+      });
+      return;
+    }
+
+    advance();
   };
 
   const goBack = () => goToStep(Math.max(activeStep - 1, 0));
@@ -155,7 +199,7 @@ export function KfListingForm({
       if (publish) {
         setPublishedListingId(id);
         setPublishComplete(true);
-        scrollWizardTop();
+        requestAnimationFrame(() => stepScrollRef.current?.scrollTo({ top: 0, behavior: "auto" }));
       } else {
         toast.success("Draft saved — pick up where you left off anytime.");
       }
@@ -229,6 +273,14 @@ export function KfListingForm({
             if (index <= activeStep) goToStep(index);
           }}
         />
+        {currentStepMeta ? (
+          <div className="kf-wizard-step-banner">
+            <p className="kf-wizard-step-kicker">
+              Step {activeStep + 1} of {LISTING_FORM_STEPS.length}
+            </p>
+            <h2 className="kf-wizard-step-heading">{currentStepMeta.label}</h2>
+          </div>
+        ) : null}
         {listing?.listingId &&
           listing.moderationStatus === "PENDING" &&
           listing.status === "PUBLISHED" && (
@@ -243,7 +295,10 @@ export function KfListingForm({
         ) : null}
       </header>
 
-      <div className="kf-listing-flow-body kf-listing-flow-body--scroll kf-classic-wizard-body">
+      <div
+        ref={stepScrollRef}
+        className="kf-listing-flow-body kf-listing-flow-body--scroll kf-classic-wizard-body"
+      >
         <form
           ref={formRef}
           id="kf-listing-form"
@@ -253,28 +308,20 @@ export function KfListingForm({
         <section
           id="kf-step-business"
           data-wizard-step="0"
-          className="kf-form-section"
+          className={stepPanelClass(activeStep === 0)}
           hidden={activeStep !== 0}
         >
-          <div className="kf-form-section-head">
-            <h2 className="kf-form-section-title">Basic info</h2>
-            <p className="kf-form-section-sub">How neighbours will recognise your business.</p>
-          </div>
-          <div className="space-y-4">
-            <KfProfilePhotoField
-              listingId={listing?.listingId ?? null}
-              profileImageUrl={listing?.profileImageUrl ?? null}
-              disabled={formBusy}
-              wizardFormRef={formRef}
-            />
+          <p className="kf-wizard-step-lead">How neighbours will recognise your business.</p>
+          <div className="kf-wizard-fields">
             <label className="kf-label">
               Trading / display name
               <input
                 name="displayName"
                 required
                 defaultValue={listing?.displayName ?? ""}
-                className="kf-input mt-1"
+                className="kf-input kf-input-compact mt-1"
                 placeholder="e.g. Sipho Steel Works"
+                autoComplete="organization"
               />
             </label>
             <label className="kf-label">
@@ -283,9 +330,9 @@ export function KfListingForm({
                 name="description"
                 required
                 minLength={20}
-                rows={4}
+                rows={3}
                 defaultValue={listing?.description ?? ""}
-                className="kf-input mt-1"
+                className="kf-input kf-input-compact kf-listing-flow-textarea mt-1"
                 placeholder="What you do, areas you cover, what makes you reliable…"
               />
             </label>
@@ -296,16 +343,17 @@ export function KfListingForm({
                   name="phone"
                   required
                   defaultValue={listing?.phone ?? ""}
-                  className="kf-input mt-1"
+                  className="kf-input kf-input-compact mt-1"
                   inputMode="tel"
+                  autoComplete="tel"
                 />
               </label>
               <label className="kf-label">
-                WhatsApp (optional)
+                WhatsApp <span className="font-normal text-[var(--kf-muted)]">(optional)</span>
                 <input
                   name="whatsapp"
                   defaultValue={listing?.whatsapp ?? ""}
-                  className="kf-input mt-1"
+                  className="kf-input kf-input-compact mt-1"
                   inputMode="tel"
                 />
               </label>
@@ -316,17 +364,13 @@ export function KfListingForm({
         <section
           id="kf-step-location"
           data-wizard-step="1"
-          className="kf-form-section"
+          className={stepPanelClass(activeStep === 1)}
           hidden={activeStep !== 1}
         >
-          <div className="kf-form-section-head">
-            <h2 className="kf-form-section-title">Location</h2>
-            <p className="kf-form-section-sub">
-              Choose approximate (tap the map) or exact (GPS on publish). We never guess your
-              location.
-            </p>
-          </div>
-          <div className="space-y-4">
+          <p className="kf-wizard-step-lead">
+            Tap the map for an approximate area, or use My location. We never guess your pin.
+          </p>
+          <div className="kf-wizard-fields kf-listing-flow-stack kf-listing-flow-stack--map">
             <label className="kf-label">
               Neighbourhood / landmark (shown publicly)
               <input
@@ -334,32 +378,31 @@ export function KfListingForm({
                 required
                 defaultValue={listing?.locationLabel ?? ""}
                 placeholder="e.g. Near Maponya Mall, Soweto"
-                className="kf-input mt-1"
+                className="kf-input kf-input-compact mt-1"
               />
             </label>
-            <KfLocationPicker
-              key={`${listing?.latitude ?? "new"}-${listing?.longitude ?? "new"}-${listing?.hideExactLocation ?? true}`}
-              initialLatitude={listing?.latitude ?? null}
-              initialLongitude={listing?.longitude ?? null}
-              initialHideExactLocation={listing?.hideExactLocation ?? true}
-            />
+            <div className="kf-location-map--flow">
+              <KfLocationPicker
+                key={`${listing?.latitude ?? "new"}-${listing?.longitude ?? "new"}-${listing?.hideExactLocation ?? true}`}
+                initialLatitude={listing?.latitude ?? null}
+                initialLongitude={listing?.longitude ?? null}
+                initialHideExactLocation={listing?.hideExactLocation ?? true}
+              />
+            </div>
           </div>
         </section>
 
         <section
           id="kf-step-services"
           data-wizard-step="2"
-          className="kf-form-section"
+          className={stepPanelClass(activeStep === 2)}
           hidden={activeStep !== 2}
         >
-          <div className="kf-form-section-head">
-            <h2 className="kf-form-section-title">Services & categories</h2>
-            <p className="kf-form-section-sub">Helps customers find you when they search.</p>
-          </div>
-          <div className="space-y-4">
-            <fieldset>
+          <p className="kf-wizard-step-lead">Pick categories and list what you offer — search uses these words.</p>
+          <div className="kf-wizard-fields">
+            <fieldset className="kf-wizard-fieldset">
               <legend className="kf-label">Categories</legend>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <div className="kf-listing-flow-categories mt-2 grid gap-2 sm:grid-cols-2">
                 {categories.map((c) => (
                   <label key={c.id} className="kf-category-check">
                     <input
@@ -374,51 +417,59 @@ export function KfListingForm({
               </div>
             </fieldset>
             <label className="kf-label">
-              Services (one per line)
+              Services <span className="font-normal text-[var(--kf-muted)]">(one per line)</span>
               <textarea
                 name="services"
-                rows={4}
+                rows={3}
                 defaultValue={defaultServices}
-                className="kf-input mt-1 text-sm"
+                className="kf-input kf-input-compact kf-listing-flow-textarea mt-1 text-sm"
               />
             </label>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="kf-label">
-                Price hint (optional)
-                <input
-                  name="priceHint"
-                  defaultValue={listing?.priceHint ?? ""}
-                  placeholder="From R800 / gate"
-                  className="kf-input mt-1"
-                />
-              </label>
-              <label className="kf-label">
-                Hours (optional)
-                <input
-                  name="hoursNote"
-                  defaultValue={listing?.hoursNote ?? ""}
-                  className="kf-input mt-1"
-                  placeholder="Mon–Sat 8am–5pm"
-                />
-              </label>
-            </div>
+            <details className="kf-wizard-optional">
+              <summary>Price & hours (optional)</summary>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <label className="kf-label">
+                  Price hint
+                  <input
+                    name="priceHint"
+                    defaultValue={listing?.priceHint ?? ""}
+                    placeholder="From R800 / gate"
+                    className="kf-input kf-input-compact mt-1"
+                  />
+                </label>
+                <label className="kf-label">
+                  Hours
+                  <input
+                    name="hoursNote"
+                    defaultValue={listing?.hoursNote ?? ""}
+                    className="kf-input kf-input-compact mt-1"
+                    placeholder="Mon–Sat 8am–5pm"
+                  />
+                </label>
+              </div>
+            </details>
           </div>
         </section>
 
         <section
           id="kf-step-photos"
           data-wizard-step="3"
-          className="kf-form-section"
+          className={stepPanelClass(activeStep === 3)}
           hidden={activeStep !== 3}
         >
-          <div className="kf-form-section-head">
-            <h2 className="kf-form-section-title">Work photos</h2>
-            <p className="kf-form-section-sub">
-              Real examples build trust — even one clear photo makes a difference.
-            </p>
-          </div>
+          <p className="kf-wizard-step-lead">
+            Add your business photo and examples of your work — customers decide with their eyes.
+          </p>
           {listing?.listingId ? (
             <>
+              <div className="kf-profile-photo-field--flow mb-4">
+                <KfProfilePhotoField
+                  listingId={listing.listingId}
+                  profileImageUrl={listing.profileImageUrl ?? null}
+                  disabled={formBusy}
+                  wizardFormRef={formRef}
+                />
+              </div>
               {photoCount > 0 ? (
                 <KfWorkPhotoGallery
                   priorityFirst
@@ -488,39 +539,23 @@ export function KfListingForm({
               </label>
             </>
           ) : (
-            <div className="space-y-3">
-              <KfEmptyState
-                icon={<Camera className="h-6 w-6" aria-hidden />}
-                title="Save a draft to add photos"
-                description="We need a quick draft of your business details before uploads unlock. It only takes a moment — you will stay on this step."
-                action={
-                  <button
-                    type="submit"
-                    name="publish"
-                    value="false"
-                    disabled={formBusy}
-                    className="kf-btn kf-btn-primary"
-                  >
-                    Save draft & unlock uploads
-                  </button>
-                }
-              />
-            </div>
+            <KfEmptyState
+              icon={<Camera className="h-6 w-6" aria-hidden />}
+              title="Complete location first"
+              description="Go back to Location and set your area on the map, then tap Next — we will save a draft automatically so you can upload photos here."
+            />
           )}
         </section>
 
         <section
           id="kf-step-publish"
           data-wizard-step="4"
-          className="kf-form-section"
+          className={stepPanelClass(activeStep === LAST_STEP)}
           hidden={activeStep !== LAST_STEP}
         >
-          <div className="kf-form-section-head">
-            <h2 className="kf-form-section-title">Ready to publish?</h2>
-            <p className="kf-form-section-sub">
-              Check your details, save a draft, or submit for review.
-            </p>
-          </div>
+          <p className="kf-wizard-step-lead">
+            Review everything, save a draft, or submit for moderation.
+          </p>
           <KfListingWizardSummary
             formRef={formRef}
             photoCount={photoCount}
@@ -585,8 +620,17 @@ export function KfListingForm({
               onClick={goNext}
               disabled={formBusy}
             >
-              Next
-              <ArrowRight className="h-4 w-4" aria-hidden />
+              {savingDraft ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Saving…
+                </>
+              ) : (
+                <>
+                  Next
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </>
+              )}
             </button>
           ) : (
             <button
