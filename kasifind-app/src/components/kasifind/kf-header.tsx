@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { Home, LayoutDashboard, LogOut, Menu, PlusCircle, Store, X } from "lucide-react";
+import { Home, LayoutDashboard, LogOut, Map, Menu, PlusCircle, Store, X } from "lucide-react";
 import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
 import { kfSignOutProvider } from "@/lib/kasifind/actions";
 
@@ -37,6 +37,7 @@ export function KfHeader({
   const [open, setOpen] = useState(false);
   const [signingOut, startSignOut] = useTransition();
   const isHome = pathname === "/";
+  const isActivityMap = pathname.startsWith("/activity-map");
   const isAdmin = user?.role === "ADMIN";
   const signedIn = Boolean(user);
 
@@ -55,6 +56,7 @@ export function KfHeader({
   const hideListingCount =
     pathname.startsWith("/admin") ||
     pathname.startsWith("/account/listing") ||
+    pathname.startsWith("/activity-map") ||
     publishedListingCount === null;
 
   return (
@@ -71,6 +73,14 @@ export function KfHeader({
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex" aria-label="Main">
+          <Link
+            href="/activity-map"
+            className="kf-btn kf-btn-outline text-sm"
+            aria-current={isActivityMap ? "page" : undefined}
+          >
+            <Map className="h-4 w-4" aria-hidden />
+            Activity Map
+          </Link>
           {isAdmin ? (
             <Link href="/admin" className="kf-btn kf-btn-outline text-sm">
               <LayoutDashboard className="h-4 w-4" aria-hidden />
@@ -116,6 +126,15 @@ export function KfHeader({
             >
               <Home className="h-4 w-4" aria-hidden />
               Home
+            </Link>
+            <Link
+              href="/activity-map"
+              className="kf-btn kf-btn-outline w-full"
+              onClick={() => setOpen(false)}
+              aria-current={isActivityMap ? "page" : undefined}
+            >
+              <Map className="h-4 w-4" aria-hidden />
+              Activity Map
             </Link>
 
             {signedIn ? (
