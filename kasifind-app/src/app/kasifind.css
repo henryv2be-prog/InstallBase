@@ -3451,10 +3451,9 @@ body.kf-listing-flow-active .kf-listing-page-flow > .kf-link {
 /* Search card footer — visually tied to listing body, not the next card’s photo. */
 .kf-provider-card-footer {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem 0.75rem;
+  gap: 0.625rem 0.75rem;
   padding: 0.625rem 1rem 0.875rem;
   background: linear-gradient(
     180deg,
@@ -3468,19 +3467,21 @@ body.kf-listing-flow-active .kf-listing-page-flow > .kf-link {
 .kf-provider-card-footer-label {
   margin: 0;
   flex: 1 1 auto;
-  min-width: 6rem;
-  font-size: var(--kf-text-xs);
+  min-width: 0;
+  max-width: min(50vw, 50%);
+  font-size: var(--kf-text-sm);
   font-weight: 700;
   letter-spacing: 0.01em;
   text-transform: none;
-  line-height: 1.35;
-  color: color-mix(in srgb, var(--kf-forest) 70%, var(--kf-muted));
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--kf-forest) 78%, var(--kf-charcoal));
 }
 
 .kf-inline-contact-actions {
   display: flex;
   align-items: center;
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .kf-inline-contact-actions--card {
