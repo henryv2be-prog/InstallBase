@@ -665,6 +665,43 @@
     border-color var(--kf-duration) var(--kf-ease);
 }
 
+.kf-area-search-results {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 14rem;
+  overflow-y: auto;
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-surface);
+  box-shadow: var(--kf-shadow-sm);
+}
+
+.kf-area-search-option {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  font-size: var(--kf-text-sm);
+  line-height: 1.35;
+  color: var(--kf-charcoal);
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--kf-border);
+  cursor: pointer;
+}
+
+.kf-area-search-option:last-child {
+  border-bottom: none;
+}
+
+.kf-area-search-option:hover,
+.kf-area-search-option-active {
+  background: var(--kf-forest-soft);
+}
+
 .kf-search-shell:focus-within {
   box-shadow:
     0 0 0 4px var(--kf-orange-soft),
