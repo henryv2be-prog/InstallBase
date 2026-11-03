@@ -3448,16 +3448,61 @@ body.kf-listing-flow-active .kf-listing-page-flow > .kf-link {
   border-radius: var(--kf-radius-full);
 }
 
-.kf-provider-contact-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.kf-inline-contact-actions {
+  display: flex;
+  align-items: stretch;
   gap: 1px;
   border-top: 1px solid var(--kf-border);
   background: var(--kf-border);
 }
 
-.kf-provider-contact-row--single {
-  grid-template-columns: 1fr;
+.kf-inline-contact-btn {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.375rem;
+  padding: 0.375rem 0.5rem;
+  font-weight: 600;
+  background: var(--kf-surface);
+  color: var(--kf-forest);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.kf-inline-contact-btn:active {
+  transform: scale(0.97);
+}
+
+.kf-inline-contact-btn--wa {
+  background: #25d366;
+  color: #fff;
+}
+
+.kf-inline-contact-btn--wa:hover {
+  background: #1ebe57;
+  color: #fff;
+}
+
+.kf-inline-contact-btn--call {
+  background: var(--kf-surface);
+  color: var(--kf-forest);
+}
+
+.kf-inline-contact-btn--call:hover {
+  background: var(--kf-stone);
+}
+
+.kf-inline-contact-btn--directions {
+  background: var(--kf-charcoal);
+  color: #fff;
+}
+
+.kf-inline-contact-btn--directions:hover {
+  background: #2a2a2a;
+  color: #fff;
 }
 
 .kf-category-tile {

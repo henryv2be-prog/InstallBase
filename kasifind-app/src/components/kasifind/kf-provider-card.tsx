@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, MessageCircle, Phone } from "lucide-react";
+import { useMemo } from "react";
+import { ChevronRight } from "lucide-react";
 import {
   KfListingRatingDisplay,
   KfProviderRatingFloat,
@@ -11,6 +12,8 @@ import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { useKfListingImpression } from "@/components/kasifind/use-kf-listing-impression";
+import { KfInlineContactActions } from "@/components/kasifind/kf-inline-contact-actions";
+import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
 
 type Props = {
   provider: KfSearchResult;
@@ -22,6 +25,10 @@ type Props = {
 
 function phoneDigits(phone: string): string {
   return phone.replace(/\D/g, "");
+}
+
+function hasNavCoordinates(map: KfSearchResult["map"]): boolean {
+  return Number.isFinite(map.latitude) && Number.isFinite(map.longitude);
 }
 
 export function KfProviderCard({
@@ -38,10 +45,16 @@ export function KfProviderCard({
   const waUrl = canWhatsApp
     ? buildWhatsAppUrl(waPhone, defaultEnquiryMessage(p.displayName, serviceHint))
     : null;
+  const directionsUrl = useMemo(() => {
+    if (!hasNavCoordinates(p.map)) return null;
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : undefined;
+    return pickDirectionsUrl(p.map.latitude, p.map.longitude, p.locationLabel, ua);
+  }, [p.map, p.locationLabel]);
   const thumb = p.photoUrls[0] ?? p.profileImageUrl;
   const servicesPreview = p.services.slice(0, 3).map((s) => s.name).join(" · ");
   const primaryCategory = p.categories[0]?.name;
   const hasRating = p.reviewCount > 0 && p.averageRating !== null;
+  const showContactRow = Boolean(waUrl || canCall || directionsUrl);
 
   return (
     <li
@@ -104,32 +117,15 @@ export function KfProviderCard({
           ) : null}
         </div>
       </Link>
-      {(canWhatsApp || canCall) && (
-        <div
-          className={`kf-provider-contact-row${canWhatsApp && canCall ? "" : " kf-provider-contact-row--single"}`}
-        >
-          {canWhatsApp && waUrl ? (
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="kf-btn kf-btn-wa min-h-[2.75rem] rounded-none text-sm"
-            >
-              <MessageCircle className="h-4 w-4" aria-hidden />
-              WhatsApp
-            </a>
-          ) : null}
-          {canCall ? (
-            <a
-              href={`tel:${callPhone.replace(/\s/g, "")}`}
-              className="kf-btn kf-btn-secondary min-h-[2.75rem] rounded-none text-sm text-[var(--kf-forest)]"
-            >
-              <Phone className="h-4 w-4" aria-hidden />
-              Call
-            </a>
-          ) : null}
-        </div>
-      )}
+      {showContactRow ? (
+        <KfInlineContactActions
+          listingId={p.id}
+          waUrl={waUrl}
+          callPhone={callPhone}
+          directionsUrl={directionsUrl}
+          className="kf-provider-contact-row"
+        />
+      ) : null}
     </li>
   );
 }
