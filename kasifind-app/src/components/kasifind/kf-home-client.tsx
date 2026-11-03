@@ -14,6 +14,7 @@ import {
 import type { KfCategory, KfSearchResult } from "@/components/kasifind/types";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
 import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
+import { useListingContactCtaLabels } from "@/components/kasifind/use-listing-contact-cta-labels";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { trackKfEvent } from "@/lib/kasifind/track-client";
 import { KfLocationConsentDialog } from "@/components/kasifind/kf-location-consent-dialog";
@@ -186,6 +187,9 @@ export function KfHomeClient({
       results.map((r) => r.id).join(","),
     ].join("|");
   }, [query, categorySlug, searchMeta, radiusKm, location, results]);
+
+  const resultListingIds = useMemo(() => results.map((r) => r.id), [results]);
+  const contactCtaLabels = useListingContactCtaLabels(resultListingIds, impressionScopeKey);
 
   const switchToBrowseMode = useCallback(() => {
     setLocation({ mode: "browse", label: BROWSE_LOCATION_LABEL });
@@ -797,6 +801,7 @@ export function KfHomeClient({
                   serviceHint={p.services[0]?.name ?? query}
                   index={i}
                   impressionScopeKey={impressionScopeKey}
+                  contactCtaLabel={contactCtaLabels.get(p.id)}
                 />
               ))}
             </ul>
