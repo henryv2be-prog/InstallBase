@@ -2,12 +2,10 @@
 
 const KEY = "kf_discovery_state_v2";
 
-export type KfDiscoveryLocation = {
-  mode: "gps" | "manual";
-  lat: number;
-  lng: number;
-  label: string;
-};
+export type KfDiscoveryLocation =
+  | { mode: "browse"; label: string }
+  | { mode: "gps"; lat: number; lng: number; label: string }
+  | { mode: "manual"; lat: number; lng: number; label: string };
 
 export type KfDiscoveryState = {
   query: string;
@@ -19,10 +17,11 @@ export type KfDiscoveryState = {
 export function isValidDiscoveryLocation(value: unknown): value is KfDiscoveryLocation {
   if (!value || typeof value !== "object") return false;
   const o = value as Record<string, unknown>;
-  if (o.mode !== "gps" && o.mode !== "manual") return false;
+  if (o.mode !== "gps" && o.mode !== "manual" && o.mode !== "browse") return false;
+  if (typeof o.label !== "string" || !o.label.trim()) return false;
+  if (o.mode === "browse") return true;
   if (typeof o.lat !== "number" || typeof o.lng !== "number") return false;
   if (!Number.isFinite(o.lat) || !Number.isFinite(o.lng)) return false;
-  if (typeof o.label !== "string" || !o.label.trim()) return false;
   return true;
 }
 
