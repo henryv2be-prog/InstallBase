@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, X } from "lucide-react";
-import type { Circle, Map as LeafletMap, TileLayer } from "leaflet";
+import type { Circle, CircleMarker, Map as LeafletMap, TileLayer } from "leaflet";
 import { SA_MAP_DEFAULT_VIEW } from "@/lib/kasifind/geo";
 import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
 import type { KfSearchResult } from "@/components/kasifind/types";
@@ -29,7 +29,7 @@ function heatColor(count: number, maxCount: number): string {
   const r = Math.round(15 + t * (255 - 15));
   const g = Math.round(77 + t * (138 - 77));
   const b = Math.round(58 + t * (0 - 58));
-  const a = 0.25 + t * 0.45;
+  const a = 0.35 + t * 0.5;
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
@@ -44,7 +44,8 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
   const mapRef = useRef<LeafletMap | null>(null);
   const tilesRef = useRef<TileLayer | null>(null);
   const heatLayersRef = useRef<Circle[]>([]);
-  const userMarkerRef = useRef<Circle | null>(null);
+  const userMarkerRef = useRef<CircleMarker | null>(null);
+  const hasAutoFramedRef = useRef(false);
   const fetchTimerRef = useRef<number | null>(null);
 
   const [mapReady, setMapReady] = useState(false);
@@ -55,6 +56,7 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
   const [exploreResults, setExploreResults] = useState<KfSearchResult[]>([]);
   const [exploreError, setExploreError] = useState<string | null>(null);
   const [totalPublished, setTotalPublished] = useState(initialTotal);
+  const [noHotspotsInView, setNoHotspotsInView] = useState(false);
 
   const clearHeatLayers = useCallback(() => {
     for (const layer of heatLayersRef.current) {
@@ -83,8 +85,22 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
         setCellsPayload(null);
         return;
       }
+      const cells = data.cells ?? [];
+      if (
+        !hasAutoFramedRef.current &&
+        (data.totalPublished ?? 0) > 0 &&
+        cells.length === 0 &&
+        map.getZoom() > 9
+      ) {
+        map.setView([SA_MAP_DEFAULT_VIEW.latitude, SA_MAP_DEFAULT_VIEW.longitude], 6);
+        return;
+      }
       setCellsPayload(data);
       if (typeof data.totalPublished === "number") setTotalPublished(data.totalPublished);
+      const inView = (data.cells ?? []).filter((cell) =>
+        bounds.contains([cell.centerLat, cell.centerLng])
+      ).length;
+      setNoHotspotsInView((data.totalPublished ?? 0) > 0 && inView === 0);
     } finally {
       setLoadingCells(false);
     }
@@ -158,14 +174,27 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
       if (!map) return;
 
       clearHeatLayers();
-      const maxCount = Math.max(1, ...cellsPayload.cells.map((c) => c.count));
-      const radiusM = cellsPayload.gridStep * 111_000 * 0.42;
+      const cells = cellsPayload.cells;
+      if (cells.length === 0) return;
 
-      for (const cell of cellsPayload.cells) {
+      if (!hasAutoFramedRef.current) {
+        const latLngs = cells.map((c) => [c.centerLat, c.centerLng] as [number, number]);
+        map.fitBounds(latLngs, { padding: [36, 36], maxZoom: 11 });
+        hasAutoFramedRef.current = true;
+      }
+
+      const maxCount = Math.max(1, ...cells.map((c) => c.count));
+      const zoom = map.getZoom();
+      const radiusM = Math.max(
+        2200,
+        cellsPayload.gridStep * 111_000 * (zoom >= 11 ? 0.55 : 0.48)
+      );
+
+      for (const cell of cells) {
         const circle = L.circle([cell.centerLat, cell.centerLng], {
           radius: radiusM,
           color: heatStroke(cell.count, maxCount),
-          weight: cell.count > maxCount * 0.5 ? 2 : 1,
+          weight: cell.count > maxCount * 0.5 ? 2.5 : 1.5,
           fillColor: heatColor(cell.count, maxCount),
           fillOpacity: 1,
         }).addTo(map);
@@ -176,6 +205,7 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
           setExploreError(null);
         });
 
+        circle.bringToFront();
         heatLayersRef.current.push(circle);
       }
     })();
@@ -195,13 +225,14 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
           void import("leaflet").then((leaflet) => {
             const L = leaflet.default;
             userMarkerRef.current?.remove();
-            userMarkerRef.current = L.circle([pos.coords.latitude, pos.coords.longitude], {
-              radius: 800,
-              color: "rgba(59, 130, 246, 0.9)",
+            userMarkerRef.current = L.circleMarker([pos.coords.latitude, pos.coords.longitude], {
+              radius: 7,
+              color: "#1d4ed8",
               weight: 2,
-              fillColor: "rgba(59, 130, 246, 0.25)",
-              fillOpacity: 1,
+              fillColor: "#3b82f6",
+              fillOpacity: 0.95,
             }).addTo(mapRef.current!);
+            userMarkerRef.current.bringToFront();
           });
         },
         () => undefined,
@@ -265,14 +296,23 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
         </div>
       </header>
 
-      <div className="kf-activity-map-legend" aria-hidden>
+      <div className="kf-activity-map-legend">
         <span className="kf-activity-map-legend-label">Fewer listings</span>
-        <span className="kf-activity-map-legend-gradient" />
+        <span className="kf-activity-map-legend-gradient" aria-hidden />
         <span className="kf-activity-map-legend-label">More listings</span>
+        <span className="kf-activity-map-legend-you" aria-hidden>
+          <span className="kf-activity-map-legend-dot" /> Your location
+        </span>
       </div>
 
       <div className="kf-activity-map-shell">
         <div ref={containerRef} className="kf-activity-map-canvas" role="application" aria-label="South Africa listing density map" />
+        {noHotspotsInView ? (
+          <p className="kf-activity-map-empty-view" role="status">
+            No listings in this map view yet — pinch out to see where the {totalPublished}{" "}
+            published {totalPublished === 1 ? "business is" : "businesses are"} on KasiFind.
+          </p>
+        ) : null}
       </div>
 
       {selected ? (

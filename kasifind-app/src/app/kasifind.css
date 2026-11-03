@@ -3550,11 +3550,30 @@ main.admin-main:has(.kf-activity-map-page) {
 
 .kf-activity-map-legend {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   padding: 0 var(--kf-space-4);
   font-size: var(--kf-text-xs);
   color: var(--kf-muted);
+}
+
+.kf-activity-map-legend-you {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--kf-charcoal);
+}
+
+.kf-activity-map-legend-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #3b82f6;
+  border: 2px solid #1d4ed8;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85);
 }
 
 .kf-activity-map-legend-gradient {
@@ -3580,6 +3599,26 @@ main.admin-main:has(.kf-activity-map-page) {
 .kf-activity-map-canvas {
   height: min(52dvh, 520px);
   width: 100%;
+}
+
+.kf-activity-map-empty-view {
+  position: absolute;
+  left: 50%;
+  bottom: 0.75rem;
+  z-index: 500;
+  max-width: min(22rem, calc(100% - 1.5rem));
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  transform: translateX(-50%);
+  font-size: var(--kf-text-xs);
+  line-height: 1.45;
+  text-align: center;
+  color: var(--kf-charcoal);
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  box-shadow: var(--kf-shadow-sm);
+  pointer-events: none;
 }
 
 @media (min-width: 768px) {
