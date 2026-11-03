@@ -2245,6 +2245,128 @@
   cursor: pointer;
 }
 
+/* —— Location sheet (homepage search area) —— */
+.kf-location-sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+
+@media (min-width: 640px) {
+  .kf-location-sheet-root {
+    align-items: center;
+    padding: var(--kf-space-4);
+  }
+}
+
+.kf-location-sheet-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 28rem;
+  max-height: min(90dvh, 640px);
+  overflow-y: auto;
+  padding: var(--kf-space-4) var(--kf-space-4) var(--kf-space-5);
+  background: var(--kf-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid color-mix(in srgb, var(--kf-forest) 18%, var(--kf-border));
+  border-radius: var(--kf-radius-xl) var(--kf-radius-xl) 0 0;
+  box-shadow: var(--kf-shadow-lg);
+}
+
+@media (min-width: 640px) {
+  .kf-location-sheet-panel {
+    border-radius: var(--kf-radius-xl);
+  }
+}
+
+.kf-location-sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--kf-space-2);
+}
+
+.kf-location-sheet-kicker {
+  margin: 0;
+  font-size: var(--kf-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--kf-forest);
+}
+
+.kf-location-sheet-title {
+  margin: 0.2rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--kf-charcoal);
+}
+
+.kf-location-sheet-current {
+  margin: 0.35rem 0 0;
+  font-size: var(--kf-text-sm);
+  color: var(--kf-muted);
+}
+
+.kf-location-sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: var(--kf-space-3);
+}
+
+.kf-location-sheet-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.75rem 0.85rem;
+  text-align: left;
+  background: var(--kf-surface);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  cursor: pointer;
+  transition: border-color var(--kf-duration) var(--kf-ease);
+}
+
+.kf-location-sheet-option:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--kf-forest) 35%, var(--kf-border));
+}
+
+.kf-location-sheet-option:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.kf-location-sheet-option-title {
+  display: block;
+  font-size: var(--kf-text-sm);
+  font-weight: 700;
+  color: var(--kf-charcoal);
+}
+
+.kf-location-sheet-option-sub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: var(--kf-text-xs);
+  line-height: 1.4;
+  color: var(--kf-muted);
+}
+
+.kf-location-sheet-foot {
+  margin: var(--kf-space-4) 0 0;
+  font-size: var(--kf-text-xs);
+  line-height: 1.45;
+  color: var(--kf-muted);
+}
+
 .kf-dialog-panel {
   position: relative;
   z-index: 1;

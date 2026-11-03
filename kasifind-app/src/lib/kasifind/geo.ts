@@ -36,7 +36,7 @@ export function formatDistanceKm(km: number): string {
 }
 
 export const DEFAULT_RADIUS_KM = 5;
-export const RADIUS_OPTIONS_KM = [5, 10, 25, 50] as const;
+export const RADIUS_OPTIONS_KM = [5, 15, 30, 50] as const;
 
 export function parseRadiusKm(value: string | number | null | undefined): number {
   const parsed = typeof value === "number" ? value : Number.parseFloat(String(value ?? ""));
