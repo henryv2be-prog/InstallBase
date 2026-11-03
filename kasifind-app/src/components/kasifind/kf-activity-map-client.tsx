@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, X } from "lucide-react";
-import type { Circle, CircleMarker, Map as LeafletMap, TileLayer } from "leaflet";
+import type { Circle, CircleMarker, LatLngBounds, Map as LeafletMap, TileLayer } from "leaflet";
 import { SA_MAP_DEFAULT_VIEW } from "@/lib/kasifind/geo";
 import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
 import type { KfSearchResult } from "@/components/kasifind/types";
@@ -39,6 +39,10 @@ function heatStroke(count: number, maxCount: number): string {
   return t > 0.65 ? "rgba(255, 138, 0, 0.85)" : "rgba(15, 77, 58, 0.55)";
 }
 
+function countHotspotsInView(cells: ActivityCell[], bounds: LatLngBounds): number {
+  return cells.filter((cell) => bounds.contains([cell.centerLat, cell.centerLng])).length;
+}
+
 export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LeafletMap | null>(null);
@@ -46,7 +50,9 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
   const heatLayersRef = useRef<Circle[]>([]);
   const userMarkerRef = useRef<CircleMarker | null>(null);
   const hasAutoFramedRef = useRef(false);
+  const suppressMoveFetchRef = useRef(false);
   const fetchTimerRef = useRef<number | null>(null);
+  const cellsPayloadRef = useRef<CellsPayload | null>(null);
 
   const [mapReady, setMapReady] = useState(false);
   const [loadingCells, setLoadingCells] = useState(false);
@@ -57,6 +63,9 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
   const [exploreError, setExploreError] = useState<string | null>(null);
   const [totalPublished, setTotalPublished] = useState(initialTotal);
   const [noHotspotsInView, setNoHotspotsInView] = useState(false);
+  const [cellsFetchError, setCellsFetchError] = useState<string | null>(null);
+  const [hotspotsInView, setHotspotsInView] = useState(0);
+  const [noMappableCells, setNoMappableCells] = useState(false);
 
   const clearHeatLayers = useCallback(() => {
     for (const layer of heatLayersRef.current) {
@@ -65,12 +74,67 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
     heatLayersRef.current = [];
   }, []);
 
-  const fetchCells = useCallback(async () => {
+  const paintHeatLayers = useCallback(
+    async (payload: CellsPayload) => {
+      const leaflet = await import("leaflet");
+      const L = leaflet.default;
+      const map = mapRef.current;
+      if (!map) return;
+
+      clearHeatLayers();
+      const cells = payload.cells;
+      if (cells.length === 0) return;
+
+      const maxCount = Math.max(1, ...cells.map((c) => c.count));
+      const zoom = map.getZoom();
+      const radiusM = Math.max(
+        2400,
+        payload.gridStep * 111_000 * (zoom >= 11 ? 0.62 : 0.52)
+      );
+
+      for (const cell of cells) {
+        const circle = L.circle([cell.centerLat, cell.centerLng], {
+          radius: radiusM,
+          color: heatStroke(cell.count, maxCount),
+          weight: cell.count > maxCount * 0.5 ? 2.5 : 1.5,
+          fillColor: heatColor(cell.count, maxCount),
+          fillOpacity: 1,
+          interactive: true,
+        }).addTo(map);
+
+        circle.on("click", () => {
+          setSelected(cell);
+          setExploreResults([]);
+          setExploreError(null);
+        });
+
+        circle.bringToFront();
+        heatLayersRef.current.push(circle);
+      }
+
+      userMarkerRef.current?.bringToFront();
+    },
+    [clearHeatLayers]
+  );
+
+  const updateViewMeta = useCallback((payload: CellsPayload) => {
     const map = mapRef.current;
     if (!map) return;
     const bounds = map.getBounds();
+    const inView = countHotspotsInView(payload.cells, bounds);
+    setHotspotsInView(inView);
+    setNoHotspotsInView((payload.totalPublished ?? 0) > 0 && inView === 0);
+  }, []);
+
+  const fetchCells = useCallback(async () => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (suppressMoveFetchRef.current) return;
+
+    const bounds = map.getBounds();
     const zoom = map.getZoom();
     setLoadingCells(true);
+    setCellsFetchError(null);
     try {
       const params = new URLSearchParams({
         zoom: String(zoom),
@@ -82,31 +146,52 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
       const res = await fetch(`/api/activity-map/cells?${params}`);
       const data = (await res.json()) as CellsPayload & { error?: string };
       if (!res.ok) {
-        setCellsPayload(null);
+        setCellsFetchError(data.error ?? "Could not load listing hotspots.");
         return;
       }
-      const cells = data.cells ?? [];
+
+      const payload: CellsPayload = {
+        cells: data.cells ?? [],
+        gridStep: data.gridStep,
+        searchRadiusKm: data.searchRadiusKm,
+        totalPublished: data.totalPublished ?? initialTotal,
+      };
+
+      cellsPayloadRef.current = payload;
+      setCellsPayload(payload);
+      if (typeof data.totalPublished === "number") setTotalPublished(data.totalPublished);
+
+      setNoMappableCells(payload.totalPublished > 0 && payload.cells.length === 0);
+      await paintHeatLayers(payload);
+      updateViewMeta(payload);
+
       if (
         !hasAutoFramedRef.current &&
-        (data.totalPublished ?? 0) > 0 &&
-        cells.length === 0 &&
-        map.getZoom() > 9
+        payload.totalPublished > 0 &&
+        payload.cells.length > 0
       ) {
-        map.setView([SA_MAP_DEFAULT_VIEW.latitude, SA_MAP_DEFAULT_VIEW.longitude], 6);
-        return;
+        hasAutoFramedRef.current = true;
+        suppressMoveFetchRef.current = true;
+        const latLngs = payload.cells.map((c) => [c.centerLat, c.centerLng] as [number, number]);
+        map.fitBounds(latLngs, { padding: [40, 40], maxZoom: 12 });
+        map.once("moveend", () => {
+          suppressMoveFetchRef.current = false;
+          const latest = cellsPayloadRef.current;
+          if (latest) {
+            void paintHeatLayers(latest);
+            updateViewMeta(latest);
+          }
+        });
       }
-      setCellsPayload(data);
-      if (typeof data.totalPublished === "number") setTotalPublished(data.totalPublished);
-      const inView = (data.cells ?? []).filter((cell) =>
-        bounds.contains([cell.centerLat, cell.centerLng])
-      ).length;
-      setNoHotspotsInView((data.totalPublished ?? 0) > 0 && inView === 0);
+    } catch {
+      setCellsFetchError("Network error loading listing hotspots.");
     } finally {
       setLoadingCells(false);
     }
-  }, []);
+  }, [initialTotal, paintHeatLayers, updateViewMeta]);
 
   const scheduleFetchCells = useCallback(() => {
+    if (suppressMoveFetchRef.current) return;
     if (fetchTimerRef.current) window.clearTimeout(fetchTimerRef.current);
     fetchTimerRef.current = window.setTimeout(() => {
       void fetchCells();
@@ -127,6 +212,7 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
         zoom: SA_MAP_DEFAULT_VIEW.zoom,
         minZoom: 5,
         maxZoom: 13,
+        preferCanvas: true,
         maxBounds: [
           [-35.5, 16],
           [-22, 33.5],
@@ -145,6 +231,7 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
       map.on("zoomend", scheduleFetchCells);
       requestAnimationFrame(() => map.invalidateSize());
       window.setTimeout(() => map.invalidateSize(), 200);
+      window.setTimeout(() => map.invalidateSize(), 600);
     })();
 
     return () => {
@@ -161,55 +248,10 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
 
   useEffect(() => {
     if (!mapReady) return;
-    void fetchCells();
+    window.setTimeout(() => {
+      void fetchCells();
+    }, 350);
   }, [mapReady, fetchCells]);
-
-  useEffect(() => {
-    if (!mapReady || !cellsPayload) return;
-
-    void (async () => {
-      const leaflet = await import("leaflet");
-      const L = leaflet.default;
-      const map = mapRef.current;
-      if (!map) return;
-
-      clearHeatLayers();
-      const cells = cellsPayload.cells;
-      if (cells.length === 0) return;
-
-      if (!hasAutoFramedRef.current) {
-        const latLngs = cells.map((c) => [c.centerLat, c.centerLng] as [number, number]);
-        map.fitBounds(latLngs, { padding: [36, 36], maxZoom: 11 });
-        hasAutoFramedRef.current = true;
-      }
-
-      const maxCount = Math.max(1, ...cells.map((c) => c.count));
-      const zoom = map.getZoom();
-      const radiusM = Math.max(
-        2200,
-        cellsPayload.gridStep * 111_000 * (zoom >= 11 ? 0.55 : 0.48)
-      );
-
-      for (const cell of cells) {
-        const circle = L.circle([cell.centerLat, cell.centerLng], {
-          radius: radiusM,
-          color: heatStroke(cell.count, maxCount),
-          weight: cell.count > maxCount * 0.5 ? 2.5 : 1.5,
-          fillColor: heatColor(cell.count, maxCount),
-          fillOpacity: 1,
-        }).addTo(map);
-
-        circle.on("click", () => {
-          setSelected(cell);
-          setExploreResults([]);
-          setExploreError(null);
-        });
-
-        circle.bringToFront();
-        heatLayersRef.current.push(circle);
-      }
-    })();
-  }, [cellsPayload, mapReady, clearHeatLayers]);
 
   useEffect(() => {
     if (!mapReady) return;
@@ -290,6 +332,16 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
             <p className="kf-activity-map-stat-hint">
               <Loader2 className="inline h-3 w-3 animate-spin" aria-hidden /> Updating map…
             </p>
+          ) : cellsFetchError ? (
+            <p className="kf-activity-map-stat-hint text-[var(--kf-terracotta)]">{cellsFetchError}</p>
+          ) : noMappableCells ? (
+            <p className="kf-activity-map-stat-hint text-[var(--kf-terracotta)]">
+              Listings exist but no valid map pins — check coordinates on each listing.
+            </p>
+          ) : hotspotsInView > 0 ? (
+            <p className="kf-activity-map-stat-hint">
+              {hotspotsInView} hotspot{hotspotsInView === 1 ? "" : "s"} in this view · tap to explore
+            </p>
           ) : (
             <p className="kf-activity-map-stat-hint">Tap a hotspot to explore an area</p>
           )}
@@ -305,12 +357,15 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
         </span>
       </div>
 
+      {cellsFetchError ? <div className="kf-alert-error mx-4 text-sm">{cellsFetchError}</div> : null}
+
       <div className="kf-activity-map-shell">
         <div ref={containerRef} className="kf-activity-map-canvas" role="application" aria-label="South Africa listing density map" />
         {noHotspotsInView ? (
           <p className="kf-activity-map-empty-view" role="status">
-            No listings in this map view yet — pinch out to see where the {totalPublished}{" "}
-            published {totalPublished === 1 ? "business is" : "businesses are"} on KasiFind.
+            No listing hotspots in this view — the map uses each business&apos;s map pin (not the
+            suburb name). Pinch out or pan to the coloured zones, or check pins in My listing /
+            admin if you expected coverage here.
           </p>
         ) : null}
       </div>

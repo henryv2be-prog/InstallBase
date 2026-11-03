@@ -1,5 +1,4 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
 import {
   gridStepForZoom,
   searchRadiusKmForGridStep,
@@ -34,10 +33,7 @@ function cellId(latIndex: number, lngIndex: number, gridStep: number): string {
   return `${gridStep}:${latIndex}:${lngIndex}`;
 }
 
-async function queryActivityCells(
-  gridStep: number,
-  bounds?: ActivityMapBounds
-): Promise<ActivityMapCell[]> {
+async function queryActivityCells(gridStep: number): Promise<ActivityMapCell[]> {
   const kf = getKasiFindPrisma();
 
   type Row = {
@@ -48,11 +44,6 @@ async function queryActivityCells(
     lat_index: number;
     lng_index: number;
   };
-
-  const south = bounds?.south ?? -35.5;
-  const north = bounds?.north ?? -22;
-  const west = bounds?.west ?? 16;
-  const east = bounds?.east ?? 33.5;
 
   const rows = await kf.$queryRaw<Row[]>`
     WITH points AS (
@@ -69,10 +60,6 @@ async function queryActivityCells(
         AND l.latitude <= ${-22}
         AND l.longitude >= ${16}
         AND l.longitude <= ${33.5}
-        AND l.latitude >= ${south}
-        AND l.latitude <= ${north}
-        AND l.longitude >= ${west}
-        AND l.longitude <= ${east}
     )
     SELECT
       (FLOOR(rlat / ${gridStep}) * ${gridStep} + ${gridStep} / 2.0)::float8 AS center_lat,
@@ -94,34 +81,18 @@ async function queryActivityCells(
   }));
 }
 
-const cachedCellsForGrid = unstable_cache(
-  async (gridStep: number, boundsKey: string) => {
-    if (!isKasiFindDbConfigured()) return [];
-    const [south, north, west, east] = boundsKey.split(",").map(Number.parseFloat);
-    const bounds: ActivityMapBounds = { south, north, west, east };
-    return queryActivityCells(gridStep, bounds);
-  },
-  ["kf-activity-map-cells"],
-  { revalidate: 300 }
-);
-
+/** Nationwide cells for current zoom (listing count is small — no viewport filter). */
 export async function getActivityMapCells(options: {
   zoom: number;
-  bounds: ActivityMapBounds;
+  bounds?: ActivityMapBounds;
 }): Promise<{ cells: ActivityMapCell[]; gridStep: number; searchRadiusKm: number }> {
+  void options.bounds;
   if (!isKasiFindDbConfigured()) {
     return { cells: [], gridStep: 1, searchRadiusKm: 25 };
   }
 
   const gridStep = gridStepForZoom(options.zoom);
-  const boundsKey = [
-    options.bounds.south.toFixed(3),
-    options.bounds.north.toFixed(3),
-    options.bounds.west.toFixed(3),
-    options.bounds.east.toFixed(3),
-  ].join(",");
-
-  const cells = await cachedCellsForGrid(gridStep, boundsKey);
+  const cells = await queryActivityCells(gridStep);
   return {
     cells,
     gridStep,
