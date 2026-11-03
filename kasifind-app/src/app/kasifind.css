@@ -508,6 +508,29 @@
   color: var(--kf-forest);
 }
 
+.kf-hero-provider-cta {
+  margin-top: var(--kf-space-4);
+  max-width: 22rem;
+}
+
+.kf-hero-provider-btn {
+  width: 100%;
+  min-height: 3rem;
+  font-size: var(--kf-text-base);
+  box-shadow: var(--kf-shadow-md);
+}
+
+.kf-hero-provider-hint {
+  margin: 0.5rem 0 0;
+  font-size: var(--kf-text-xs);
+  line-height: 1.45;
+  color: var(--kf-muted);
+}
+
+.kf-hero .kf-location-pill {
+  margin-top: var(--kf-space-3);
+}
+
 .kf-link {
   font-weight: 600;
   color: var(--kf-forest);

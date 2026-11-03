@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   Loader2,
   MapPin,
   Navigation,
+  PlusCircle,
   Search,
   SlidersHorizontal,
   Store,
@@ -66,12 +68,20 @@ function ResultSkeletons() {
   );
 }
 
+export type KfProviderListCta = {
+  href: string;
+  label: string;
+  hint: string;
+};
+
 export function KfHomeClient({
   dbConfigured,
   categoryFlashSlides = [],
+  providerListCta = null,
 }: {
   dbConfigured: boolean;
   categoryFlashSlides?: CategoryFlashSlide[];
+  providerListCta?: KfProviderListCta | null;
 }) {
   const [location, setLocation] = useState<LocationState>({
     mode: "browse",
@@ -451,6 +461,15 @@ export function KfHomeClient({
         <p className="kf-hero-lead">
           Discover trusted local services, skilled artisans and businesses around you.
         </p>
+        {providerListCta ? (
+          <div className="kf-hero-provider-cta kf-animate-in">
+            <Link href={providerListCta.href} className="kf-btn kf-btn-primary kf-hero-provider-btn">
+              <PlusCircle className="h-5 w-5 shrink-0" aria-hidden />
+              {providerListCta.label}
+            </Link>
+            <p className="kf-hero-provider-hint">{providerListCta.hint}</p>
+          </div>
+        ) : null}
         {locationPill}
       </section>
 
