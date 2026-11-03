@@ -2,8 +2,16 @@ import { NextRequest } from "next/server";
 import { getActivityMapCells, getActivityMapPublishedTotal } from "@/lib/kasifind/activity-map";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { parseCoordinate } from "@/lib/kasifind/geo";
+import { ACTIVITY_MAP_SA_BOUNDS } from "@/lib/kasifind/activity-map-utils";
 
 export const dynamic = "force-dynamic";
+
+const SA_BOUNDS_FALLBACK = {
+  north: ACTIVITY_MAP_SA_BOUNDS.maxLat,
+  south: ACTIVITY_MAP_SA_BOUNDS.minLat,
+  east: ACTIVITY_MAP_SA_BOUNDS.maxLng,
+  west: ACTIVITY_MAP_SA_BOUNDS.minLng,
+};
 
 function parseBounds(searchParams: URLSearchParams) {
   const north = parseCoordinate(searchParams.get("north"));
@@ -22,10 +30,7 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const zoom = Number.parseInt(searchParams.get("zoom") ?? "6", 10);
-  const bounds = parseBounds(searchParams);
-  if (!bounds) {
-    return Response.json({ error: "Valid map bounds are required." }, { status: 400 });
-  }
+  const bounds = parseBounds(searchParams) ?? SA_BOUNDS_FALLBACK;
 
   try {
     const [payload, totalPublished] = await Promise.all([
