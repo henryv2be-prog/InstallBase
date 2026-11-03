@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, MapPin, X } from "lucide-react";
 import type { Circle, CircleMarker, LatLngBounds, Map as LeafletMap, TileLayer } from "leaflet";
 import { SA_MAP_DEFAULT_VIEW } from "@/lib/kasifind/geo";
 import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
+import { useListingContactCtaLabels } from "@/components/kasifind/use-listing-contact-cta-labels";
 import type { KfSearchResult } from "@/components/kasifind/types";
 
 type ActivityCell = {
@@ -66,6 +67,17 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
   const [cellsFetchError, setCellsFetchError] = useState<string | null>(null);
   const [hotspotsInView, setHotspotsInView] = useState(0);
   const [noMappableCells, setNoMappableCells] = useState(false);
+
+  const exploreListingIds = useMemo(() => exploreResults.map((r) => r.id), [exploreResults]);
+  const exploreContactScopeKey = useMemo(() => {
+    if (exploreListingIds.length === 0) return null;
+    const cellPart = selected?.id ?? "none";
+    return `${cellPart}|${exploreListingIds.join(",")}`;
+  }, [exploreListingIds, selected?.id]);
+  const exploreContactCtaLabels = useListingContactCtaLabels(
+    exploreListingIds,
+    exploreContactScopeKey
+  );
 
   const clearHeatLayers = useCallback(() => {
     for (const layer of heatLayersRef.current) {
@@ -426,7 +438,8 @@ export function KfActivityMapClient({ initialTotal }: { initialTotal: number }) 
                   provider={p}
                   serviceHint={p.services[0]?.name ?? ""}
                   index={i}
-                  impressionScopeKey={null}
+                  impressionScopeKey={exploreContactScopeKey}
+                  contactCtaLabel={exploreContactCtaLabels.get(p.id)}
                 />
               ))}
             </ul>

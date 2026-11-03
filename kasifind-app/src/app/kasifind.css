@@ -3471,8 +3471,9 @@ body.kf-listing-flow-active .kf-listing-page-flow > .kf-link {
   min-width: 6rem;
   font-size: var(--kf-text-xs);
   font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  line-height: 1.35;
   color: color-mix(in srgb, var(--kf-forest) 70%, var(--kf-muted));
 }
 

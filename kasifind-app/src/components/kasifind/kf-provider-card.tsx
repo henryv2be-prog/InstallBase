@@ -21,6 +21,8 @@ type Props = {
   index?: number;
   /** Changes when search results / filters change; drives impression dedupe. */
   impressionScopeKey?: string | null;
+  /** Playful footer line; omit to hide footer label only when no contact row. */
+  contactCtaLabel?: string;
 };
 
 function phoneDigits(phone: string): string {
@@ -36,6 +38,7 @@ export function KfProviderCard({
   serviceHint,
   index = 0,
   impressionScopeKey = null,
+  contactCtaLabel,
 }: Props) {
   const impressionRef = useKfListingImpression(p.id, impressionScopeKey);
   const waPhone = (p.whatsapp || p.phone || "").trim();
@@ -119,7 +122,9 @@ export function KfProviderCard({
       </Link>
       {showContactRow ? (
         <div className="kf-provider-card-footer">
-          <p className="kf-provider-card-footer-label">Contact this listing</p>
+          {contactCtaLabel ? (
+            <p className="kf-provider-card-footer-label">{contactCtaLabel}</p>
+          ) : null}
           <KfInlineContactActions
             listingId={p.id}
             waUrl={waUrl}
