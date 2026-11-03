@@ -98,6 +98,8 @@ export function KfHomeClient({
     expanded: boolean;
     radiusKm: number;
     browse?: boolean;
+    includesSurroundingAreas?: boolean;
+    coverageExhausted?: boolean;
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -272,8 +274,9 @@ export function KfHomeClient({
           setSearchMeta({
             expanded: Boolean(data.expanded),
             radiusKm: data.radiusKm ?? radiusKm,
+            includesSurroundingAreas: Boolean(data.includesSurroundingAreas),
+            coverageExhausted: Boolean(data.coverageExhausted),
           });
-          if (data.radiusKm && data.radiusKm !== radiusKm) setRadiusKm(data.radiusKm);
         }
         trackKfEvent("SEARCH", {
           query: query.trim() || undefined,
@@ -731,15 +734,18 @@ export function KfHomeClient({
               {usesBrowseMode
                 ? "Nationwide · sorted by relevance until location is on"
                 : usesApproximateDistance
-                  ? `Within ${radiusKm} km · sorted from your chosen area`
-                  : `Within ${radiusKm} km · sorted by distance from you`}
+                  ? `Up to ${searchMeta?.radiusKm ?? radiusKm} km · closest first from your chosen area`
+                  : searchMeta?.includesSurroundingAreas
+                    ? `Up to ${searchMeta.radiusKm} km · closest first · including surrounding areas`
+                    : `Within ${searchMeta?.radiusKm ?? radiusKm} km · closest first from you`}
             </p>
+            {!usesBrowseMode && searchMeta?.includesSurroundingAreas ? (
+              <p className="mt-1 text-xs text-[var(--kf-muted-fg)]">
+                Showing businesses from surrounding areas because there aren&apos;t many listings near
+                you yet.
+              </p>
+            ) : null}
           </div>
-          {searchMeta?.expanded ? (
-            <span className="text-xs font-medium text-[var(--kf-terracotta)]">
-              Expanded to {searchMeta.radiusKm} km
-            </span>
-          ) : null}
         </div>
 
         <div className="mt-4">
@@ -749,16 +755,22 @@ export function KfHomeClient({
             <KfEmptyState
               icon={<Store className="h-6 w-6" aria-hidden />}
               title="Nobody listed here yet"
-              description="KasiFind is still growing in this area. Widen your search, try another category, or help a local trader get listed — it is free."
+              description={
+                searchMeta?.coverageExhausted
+                  ? "KasiFind is still growing in this area — we couldn't find listings within about 50 km. Try another category or help a local trader get listed; it is free."
+                  : "KasiFind is still growing in this area. Try another category, pick a wider radius, or help a local trader get listed — it is free."
+              }
               action={
                 <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-                  <button
-                    type="button"
-                    className="kf-btn kf-btn-primary"
-                    onClick={() => void runSearch({ autoExpand: true })}
-                  >
-                    Search wider area
-                  </button>
+                  {!searchMeta?.coverageExhausted ? (
+                    <button
+                      type="button"
+                      className="kf-btn kf-btn-primary"
+                      onClick={() => void runSearch({ autoExpand: true })}
+                    >
+                      Search wider area
+                    </button>
+                  ) : null}
                   <a href="/register" className="kf-btn kf-btn-outline">
                     List your business
                   </a>

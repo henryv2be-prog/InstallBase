@@ -10,6 +10,11 @@ import {
   filterReachableUploadUrls,
   resolvePublicUploadUrl,
 } from "@/lib/kasifind/upload-asset";
+import { DISCOVERY_MAX_RADIUS_KM } from "@/lib/kasifind/discovery-config";
+import {
+  filterHitsWithinRadius,
+  planProgressiveDiscovery,
+} from "@/lib/kasifind/progressive-discovery";
 
 export type ProviderSearchHit = {
   id: string;
@@ -36,18 +41,17 @@ function tokenizeQuery(query: string): string[] {
     .filter((t) => t.length >= 2);
 }
 
-export async function searchProviders(input: {
+type ScoredListingRow = ProviderSearchHit & { score: number; featured: boolean };
+
+async function fetchScoredGeoListings(input: {
   query: string;
   center: GeoPoint;
-  radiusKm?: number;
+  maxRadiusKm: number;
   categorySlug?: string | null;
-  limit?: number;
-}): Promise<{ results: ProviderSearchHit[]; radiusKm: number; expanded: boolean }> {
+}): Promise<ScoredListingRow[]> {
   const kf = getKasiFindPrisma();
-  const radiusKm = parseRadiusKm(input.radiusKm);
-  const limit = Math.min(input.limit ?? 40, 60);
   const tokens = tokenizeQuery(input.query);
-  const box = boundingBox(input.center, radiusKm);
+  const box = boundingBox(input.center, input.maxRadiusKm);
 
   const listings = await kf.kfProviderListing.findMany({
     where: {
@@ -72,13 +76,13 @@ export async function searchProviders(input: {
     take: 200,
   });
 
-  const scoredRaw = listings
+  return listings
     .map((listing) => {
       const distanceKm = haversineDistanceKm(input.center, {
         latitude: listing.latitude,
         longitude: listing.longitude,
       });
-      if (distanceKm > radiusKm) return null;
+      if (distanceKm > input.maxRadiusKm) return null;
 
       const haystack = [
         listing.displayName,
@@ -124,21 +128,49 @@ export async function searchProviders(input: {
         featured: listing.featured,
       };
     })
-    .filter((row): row is NonNullable<typeof row> => row !== null)
-    .sort((a, b) => {
-      if (a.featured !== b.featured) return a.featured ? -1 : 1;
-      if (a.score !== b.score) return b.score - a.score;
-      return a.distanceKm - b.distanceKm;
-    })
-    .slice(0, limit);
+    .filter((row): row is NonNullable<typeof row> => row !== null);
+}
 
-  const scored = await Promise.all(
-    scoredRaw.map(async ({ score: _score, featured: _featured, ...rest }) => ({
+async function finalizeSearchHits(
+  scoredRaw: ScoredListingRow[],
+  limit: number
+): Promise<ProviderSearchHit[]> {
+  const sliced = scoredRaw.slice(0, limit);
+  return Promise.all(
+    sliced.map(async ({ score: _score, featured: _featured, ...rest }) => ({
       ...rest,
       photoUrls: await filterReachableUploadUrls(rest.photoUrls),
       profileImageUrl: await resolvePublicUploadUrl(rest.profileImageUrl),
     }))
   );
+}
+
+export async function searchProviders(input: {
+  query: string;
+  center: GeoPoint;
+  radiusKm?: number;
+  categorySlug?: string | null;
+  limit?: number;
+}): Promise<{ results: ProviderSearchHit[]; radiusKm: number; expanded: boolean }> {
+  const radiusKm = parseRadiusKm(input.radiusKm);
+  const limit = Math.min(input.limit ?? 40, 60);
+
+  const scoredRaw = await fetchScoredGeoListings({
+    query: input.query,
+    center: input.center,
+    maxRadiusKm: radiusKm,
+    categorySlug: input.categorySlug,
+  });
+
+  const sorted = scoredRaw
+    .filter((row) => row.distanceKm <= radiusKm)
+    .sort((a, b) => {
+      if (a.featured !== b.featured) return a.featured ? -1 : 1;
+      if (a.score !== b.score) return b.score - a.score;
+      return a.distanceKm - b.distanceKm;
+    });
+
+  const scored = await finalizeSearchHits(sorted, limit);
 
   return { results: scored, radiusKm, expanded: false };
 }
@@ -240,22 +272,49 @@ export async function searchProvidersBrowse(input: {
   return { results: scored, radiusKm: 0, expanded: false, browse: true };
 }
 
-export async function searchWithAutoExpand(input: {
+export type ProgressiveSearchResult = {
+  results: ProviderSearchHit[];
+  radiusKm: number;
+  expanded: boolean;
+  includesSurroundingAreas: boolean;
+  localListingCount: number;
+  /** True when no listings were found within the maximum discovery ring. */
+  coverageExhausted: boolean;
+};
+
+/** Single-query progressive radius fallback (5 → 15 → 30 → 50 km). */
+export async function searchWithProgressiveFallback(input: {
   query: string;
   center: GeoPoint;
-  radiusKm?: number;
   categorySlug?: string | null;
-}): Promise<{ results: ProviderSearchHit[]; radiusKm: number; expanded: boolean }> {
-  const startRadius = parseRadiusKm(input.radiusKm);
-  const radii = [startRadius, 10, 25, 50].filter((v, i, arr) => arr.indexOf(v) === i);
+  limit?: number;
+}): Promise<ProgressiveSearchResult> {
+  const limit = Math.min(input.limit ?? 40, 60);
+  const scoredRaw = await fetchScoredGeoListings({
+    query: input.query,
+    center: input.center,
+    maxRadiusKm: DISCOVERY_MAX_RADIUS_KM,
+    categorySlug: input.categorySlug,
+  });
 
-  for (let i = 0; i < radii.length; i++) {
-    const radiusKm = radii[i]!;
-    const batch = await searchProviders({ ...input, radiusKm, categorySlug: input.categorySlug });
-    if (batch.results.length > 0 || i === radii.length - 1) {
-      return { ...batch, expanded: radiusKm > startRadius };
-    }
-  }
+  const byDistance = [...scoredRaw].sort((a, b) => {
+    if (a.distanceKm !== b.distanceKm) return a.distanceKm - b.distanceKm;
+    return b.score - a.score;
+  });
 
-  return { results: [], radiusKm: startRadius, expanded: false };
+  const plan = planProgressiveDiscovery(byDistance.map((h) => h.distanceKm));
+  const withinOuter = filterHitsWithinRadius(byDistance, plan.outerRadiusKm);
+  const results = await finalizeSearchHits(withinOuter, limit);
+
+  return {
+    results,
+    radiusKm: plan.outerRadiusKm,
+    expanded: plan.includesSurroundingAreas,
+    includesSurroundingAreas: plan.includesSurroundingAreas,
+    localListingCount: plan.localListingCount,
+    coverageExhausted: results.length === 0,
+  };
 }
+
+/** @deprecated Use searchWithProgressiveFallback — kept for imports during transition. */
+export const searchWithAutoExpand = searchWithProgressiveFallback;
