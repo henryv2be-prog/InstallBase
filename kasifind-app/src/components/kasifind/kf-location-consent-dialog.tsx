@@ -6,10 +6,11 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  onChooseArea?: () => void;
   busy?: boolean;
 };
 
-export function KfLocationConsentDialog({ open, onClose, onConfirm, busy }: Props) {
+export function KfLocationConsentDialog({ open, onClose, onConfirm, onChooseArea, busy }: Props) {
   if (!open) return null;
 
   return (
@@ -41,8 +42,21 @@ export function KfLocationConsentDialog({ open, onClose, onConfirm, busy }: Prop
           <button type="button" className="kf-btn kf-btn-primary w-full" disabled={busy} onClick={onConfirm}>
             {busy ? "Getting location…" : "Use my location"}
           </button>
-          <button type="button" className="kf-btn kf-btn-outline w-full" disabled={busy} onClick={onClose}>
-            Not now
+          {onChooseArea ? (
+            <button
+              type="button"
+              className="kf-btn kf-btn-outline w-full"
+              disabled={busy}
+              onClick={() => {
+                onChooseArea();
+                onClose();
+              }}
+            >
+              Search for an area instead
+            </button>
+          ) : null}
+          <button type="button" className="kf-btn kf-btn-ghost w-full" disabled={busy} onClick={onClose}>
+            Not now — browse all listings
           </button>
         </div>
       </div>

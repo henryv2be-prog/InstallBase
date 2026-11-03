@@ -28,6 +28,8 @@ import {
   writeDiscoveryState,
   type KfDiscoveryLocation,
 } from "@/lib/kasifind/discovery-state";
+import { KfAreaSearchPicker } from "@/components/kasifind/kf-area-search-picker";
+import type { GeocodeHit } from "@/lib/kasifind/geocode-utils";
 import { KfCategoryFlashIntro } from "@/components/kasifind/kf-category-flash-intro";
 import {
   CATEGORY_FLASH_MIN_SLIDES,
@@ -104,9 +106,6 @@ export function KfHomeClient({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualOpen, setManualOpen] = useState(false);
-  const [manualLat, setManualLat] = useState(String(DEFAULT_CENTER.lat));
-  const [manualLng, setManualLng] = useState(String(DEFAULT_CENTER.lng));
-  const [manualLabel, setManualLabel] = useState("Johannesburg area");
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const slidesEligibleForIntro =
     categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES;
@@ -201,7 +200,7 @@ export function KfHomeClient({
 
   const requestNearMe = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
-      setError("Your browser does not support location. Enter your area manually below.");
+      setError("Your browser does not support location. Search for your area below.");
       setManualOpen(true);
       setLocationDialogOpen(false);
       return;
@@ -402,6 +401,18 @@ export function KfHomeClient({
         </button>
       );
     }
+    if (location.mode === "manual") {
+      return (
+        <button
+          type="button"
+          className="kf-location-pill kf-location-pill--approx"
+          onClick={() => setManualOpen(true)}
+        >
+          <MapPin className="h-4 w-4 shrink-0" aria-hidden />
+          Near {location.label}
+        </button>
+      );
+    }
     if (typeof navigator !== "undefined" && navigator.geolocation) {
       return (
         <button
@@ -414,12 +425,7 @@ export function KfHomeClient({
         </button>
       );
     }
-    return (
-      <span className="kf-location-pill">
-        <MapPin className="h-4 w-4 shrink-0" aria-hidden />
-        {location.label}
-      </span>
-    );
+    return null;
   }, [location, locating, openLocationPrompt]);
 
   const activeCategoryName = categorySlug
@@ -455,6 +461,7 @@ export function KfHomeClient({
         busy={locating}
         onClose={dismissLocationPrompt}
         onConfirm={confirmLocationFromDialog}
+        onChooseArea={() => setManualOpen(true)}
       />
       <div className="kf-home-search-stack">
       <section className="kf-hero kf-animate-in">
@@ -480,7 +487,7 @@ export function KfHomeClient({
         <div className="kf-alert-info kf-animate-in" role="status">
           <strong>Location is off — limited experience.</strong> You are seeing{" "}
           <strong>all listings nationwide</strong>, not sorted by distance. Kilometres are hidden
-          until you allow location or enter your area. Tap{" "}
+          until you allow location or search for your area. Tap{" "}
           <strong>Location off — tap for nearby results</strong> above for the full nearby search.
         </div>
       ) : usesApproximateDistance ? (
@@ -496,7 +503,7 @@ export function KfHomeClient({
           className="kf-link text-sm underline underline-offset-2"
           onClick={() => setManualOpen(true)}
         >
-          Enter your town or coordinates manually
+          Search for your area instead
         </button>
       ) : null}
 
@@ -621,63 +628,53 @@ export function KfHomeClient({
 
       {manualOpen ? (
         <div className="kf-card p-4 kf-animate-in">
-          <h2 className="text-sm font-bold text-[var(--kf-charcoal)]">Enter location manually</h2>
-          <p className="kf-help">Your live GPS is never shown to providers.</p>
-          <div className="mt-3 space-y-3">
-            <input
-              className="kf-input"
-              value={manualLabel}
-              onChange={(e) => setManualLabel(e.target.value)}
-              placeholder="Neighbourhood or town"
-              aria-label="Area name"
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                className="kf-input"
-                value={manualLat}
-                onChange={(e) => setManualLat(e.target.value)}
-                inputMode="decimal"
-                aria-label="Latitude"
-              />
-              <input
-                className="kf-input"
-                value={manualLng}
-                onChange={(e) => setManualLng(e.target.value)}
-                inputMode="decimal"
-                aria-label="Longitude"
-              />
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-bold text-[var(--kf-charcoal)]">Choose your area</h2>
+              <p className="kf-help">
+                Search for a suburb or town in South Africa. Your live GPS is never shown to
+                providers.
+              </p>
             </div>
             <button
               type="button"
-              className="kf-btn kf-btn-outline w-full"
-              onClick={() => {
-                const lat = Number.parseFloat(manualLat);
-                const lng = Number.parseFloat(manualLng);
-                if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-                  setError("Enter valid coordinates.");
-                  return;
-                }
-                setLocation({ mode: "manual", lat, lng, label: manualLabel || "Your area" });
-                setError(null);
-                void runSearch();
-              }}
+              className="kf-btn kf-btn-ghost shrink-0 px-2"
+              aria-label="Close area search"
+              onClick={() => setManualOpen(false)}
             >
-              Use this location
+              <X className="h-5 w-5" />
             </button>
+          </div>
+          <div className="mt-3">
+            <KfAreaSearchPicker
+              initialQuery={location.mode === "manual" ? location.label : ""}
+              onSelect={(place: GeocodeHit) => {
+                const shortLabel = place.label.split(",")[0]?.trim() || place.label;
+                setLocation({
+                  mode: "manual",
+                  lat: place.latitude,
+                  lng: place.longitude,
+                  label: shortLabel,
+                });
+                setManualOpen(false);
+                setError(null);
+                void runSearch({ autoExpand: true });
+              }}
+            />
           </div>
         </div>
       ) : null}
 
-      {location.mode === "gps" && !manualOpen && (
+      {(location.mode === "gps" || location.mode === "manual") && !manualOpen ? (
         <button
           type="button"
           className="kf-link flex items-center gap-2 text-sm underline-offset-2 hover:underline"
           onClick={() => setManualOpen(true)}
         >
           <Navigation className="h-4 w-4" aria-hidden />
-          Enter location manually
+          {location.mode === "manual" ? "Change area" : "Search for a different area"}
         </button>
-      )}
+      ) : null}
 
       {categories.length > 0 && (
         <section className="kf-animate-in" style={{ animationDelay: "120ms" }}>
