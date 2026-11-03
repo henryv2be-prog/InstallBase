@@ -12,7 +12,7 @@ import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { useKfListingImpression } from "@/components/kasifind/use-kf-listing-impression";
-import { KfInlineContactActions } from "@/components/kasifind/kf-inline-contact-actions";
+import { KfListingContactFooter } from "@/components/kasifind/kf-listing-contact-footer";
 import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
 
 type Props = {
@@ -57,8 +57,6 @@ export function KfProviderCard({
   const servicesPreview = p.services.slice(0, 3).map((s) => s.name).join(" · ");
   const primaryCategory = p.categories[0]?.name;
   const hasRating = p.reviewCount > 0 && p.averageRating !== null;
-  const showContactRow = Boolean(waUrl || canCall || directionsUrl);
-
   return (
     <li
       ref={impressionRef}
@@ -120,20 +118,13 @@ export function KfProviderCard({
           ) : null}
         </div>
       </Link>
-      {showContactRow ? (
-        <div className="kf-provider-card-footer">
-          {contactCtaLabel ? (
-            <p className="kf-provider-card-footer-label">{contactCtaLabel}</p>
-          ) : null}
-          <KfInlineContactActions
-            listingId={p.id}
-            waUrl={waUrl}
-            callPhone={callPhone}
-            directionsUrl={directionsUrl}
-            variant="card"
-          />
-        </div>
-      ) : null}
+      <KfListingContactFooter
+        listingId={p.id}
+        waUrl={waUrl}
+        callPhone={callPhone}
+        directionsUrl={directionsUrl}
+        contactCtaLabel={contactCtaLabel}
+      />
     </li>
   );
 }
