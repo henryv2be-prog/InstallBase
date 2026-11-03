@@ -1,11 +1,6 @@
 import "server-only";
+import { LISTING_CONTACT_CLICK_TYPES } from "@/lib/kasifind/contact-click-display";
 import { getKasiFindPrisma } from "@/lib/kasifind/prisma";
-
-const CLICK_TYPES = [
-  "LISTING_CLICK_WHATSAPP",
-  "LISTING_CLICK_CALL",
-  "LISTING_CLICK_DIRECTIONS",
-] as const;
 
 export async function getListingEngagementMetrics(listingId: string) {
   const kf = getKasiFindPrisma();
@@ -17,7 +12,7 @@ export async function getListingEngagementMetrics(listingId: string) {
       where: { listingId, eventType: "LISTING_VIEW" },
     }),
     kf.kfAnalyticsEvent.count({
-      where: { listingId, eventType: { in: [...CLICK_TYPES] } },
+      where: { listingId, eventType: { in: [...LISTING_CONTACT_CLICK_TYPES] } },
     }),
   ]);
 
