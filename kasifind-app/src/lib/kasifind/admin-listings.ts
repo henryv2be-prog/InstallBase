@@ -125,6 +125,7 @@ export async function getAdminListingDetail(id: string) {
       where: { listingId: id },
       orderBy: { createdAt: "desc" },
       take: 20,
+      include: { user: { select: { email: true, name: true } } },
     }),
   ]);
 

@@ -6,6 +6,11 @@ import {
   kfAdminSetListingFeaturedAction,
 } from "@/lib/kasifind/admin-actions";
 import { getAdminListingDetail } from "@/lib/kasifind/admin-listings";
+import {
+  formatKfClickIdentity,
+  getListingContactClickLog,
+} from "@/lib/kasifind/contact-click-log";
+import { KfContactClickLog } from "@/components/kasifind/kf-contact-click-log";
 import { formatKfDateTime } from "@/lib/kasifind/format-datetime";
 import { KfAdminDeleteButton } from "@/components/kasifind/kf-admin-delete-button";
 
@@ -19,6 +24,7 @@ export default async function AdminListingDetailPage({ params }: Props) {
   if (!data) notFound();
 
   const { listing, metrics, recentEvents } = data;
+  const contactClickLog = await getListingContactClickLog(id, { limit: 200 });
 
   return (
     <div className="space-y-6">
@@ -127,20 +133,29 @@ export default async function AdminListingDetailPage({ params }: Props) {
         />
       </section>
 
+      <section className="kf-card p-5">
+        <KfContactClickLog
+          rows={contactClickLog}
+          title="Contact click log"
+          emptyMessage="No WhatsApp, call, or directions taps recorded for this listing yet."
+        />
+      </section>
+
       <section>
-        <h3 className="kf-admin-section-title">Recent events</h3>
+        <h3 className="kf-admin-section-title">Recent events (all types)</h3>
         <div className="kf-admin-table-wrap mt-2">
           <table className="kf-admin-data-table">
             <thead>
               <tr>
                 <th>Time</th>
                 <th>Event</th>
+                <th>Who</th>
               </tr>
             </thead>
             <tbody>
               {recentEvents.length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="py-6 text-center text-sm text-[var(--kf-muted)]">
+                  <td colSpan={3} className="py-6 text-center text-sm text-[var(--kf-muted)]">
                     No tracked events yet.
                   </td>
                 </tr>
@@ -149,6 +164,15 @@ export default async function AdminListingDetailPage({ params }: Props) {
                   <tr key={e.id}>
                     <td className="text-xs">{formatKfDateTime(e.createdAt)}</td>
                     <td className="text-sm">{e.eventType.replace(/_/g, " ")}</td>
+                    <td className="text-sm">
+                      {
+                        formatKfClickIdentity({
+                          userName: e.user?.name ?? null,
+                          userEmail: e.user?.email ?? null,
+                          visitorId: e.visitorId,
+                        }).label
+                      }
+                    </td>
                   </tr>
                 ))
               )}
