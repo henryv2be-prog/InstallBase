@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { Home, LayoutDashboard, LogOut, Map, Menu, PlusCircle, Store, X } from "lucide-react";
 import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
+import { KfTrustNavLinks } from "@/components/kasifind/kf-trust-nav-links";
 import { kfSignOutProvider } from "@/lib/kasifind/actions";
 
 function BrandMark() {
@@ -188,6 +189,7 @@ export function KfHeader({
                 </Link>
               </>
             )}
+            <KfTrustNavLinks onNavigate={() => setOpen(false)} />
           </div>
         </nav>
       ) : null}

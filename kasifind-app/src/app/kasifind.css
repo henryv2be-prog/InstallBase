@@ -1081,7 +1081,7 @@
 
 .kf-footer {
   margin-top: var(--kf-space-8);
-  padding: var(--kf-space-6) var(--kf-space-4);
+  padding: var(--kf-space-5) var(--kf-space-4);
   text-align: center;
   font-size: var(--kf-text-xs);
   color: var(--kf-muted);
@@ -1089,6 +1089,114 @@
   background: color-mix(in srgb, var(--kf-glass) 88%, var(--kf-ivory));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+.kf-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.75rem;
+}
+
+.kf-footer-link {
+  font-weight: 600;
+  color: var(--kf-forest);
+  text-decoration: none;
+}
+
+.kf-footer-link:hover {
+  text-decoration: underline;
+}
+
+.kf-trust-nav-links {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--kf-border);
+}
+
+.kf-trust-nav-kicker {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--kf-muted);
+}
+
+.kf-trust-nav-link {
+  display: block;
+  padding: 0.35rem 0;
+  font-size: var(--kf-text-sm);
+  font-weight: 600;
+  color: var(--kf-forest);
+  text-decoration: none;
+}
+
+.kf-trust-nav-link:hover {
+  text-decoration: underline;
+}
+
+.kf-legal-page {
+  max-width: 42rem;
+}
+
+.kf-legal-title {
+  font-size: clamp(1.5rem, 4vw, 1.875rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--kf-charcoal);
+}
+
+.kf-legal-prose {
+  font-size: var(--kf-text-sm);
+  line-height: 1.65;
+  color: var(--kf-text);
+}
+
+.kf-legal-prose h2 {
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  font-size: var(--kf-text-base);
+  font-weight: 700;
+  color: var(--kf-charcoal);
+}
+
+.kf-legal-prose p {
+  margin-top: 0.75rem;
+}
+
+.kf-legal-prose ul {
+  margin-top: 0.75rem;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.kf-legal-prose li {
+  margin-top: 0.35rem;
+}
+
+.kf-legal-prose code {
+  font-size: 0.85em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: var(--kf-stone);
+}
+
+.kf-legal-closing {
+  margin-top: 1.5rem;
+  font-weight: 600;
+  color: var(--kf-forest);
+}
+
+.kf-legal-notice {
+  padding: 1rem 1.125rem;
+  border-radius: var(--kf-radius-md);
+  border: 1px solid color-mix(in srgb, var(--kf-forest) 18%, var(--kf-border));
+  background: color-mix(in srgb, var(--kf-forest) 6%, var(--kf-surface));
+}
+
+.kf-contact-card:hover {
+  border-color: color-mix(in srgb, var(--kf-forest) 35%, var(--kf-border));
 }
 
 .kf-form-section {

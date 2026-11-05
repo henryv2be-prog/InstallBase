@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { KfAppShell } from "@/components/kasifind/kf-app-shell";
 import { KfHeader } from "@/components/kasifind/kf-header";
+import { KfSiteFooter } from "@/components/kasifind/kf-site-footer";
 import { getPublishedListingCount } from "@/lib/kasifind/listing-count";
 import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
@@ -54,12 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <KfAppShell>
           <KfHeader user={headerUser} publishedListingCount={publishedListingCount} />
           <main className="mx-auto max-w-5xl px-4 pb-8 pt-2 admin-main">{children}</main>
-          <footer className="kf-footer">
-            <p className="font-semibold text-[var(--kf-forest)]">KasiFind — Find local. Support local.</p>
-            <p className="mt-2 max-w-md mx-auto leading-relaxed">
-              Proudly South African local discovery for communities and entrepreneurs.
-            </p>
-          </footer>
+          <KfSiteFooter />
         </KfAppShell>
       </body>
     </html>
