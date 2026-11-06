@@ -42,6 +42,10 @@ import {
   shouldPlayCategoryFlashIntro,
   type CategoryFlashSlide,
 } from "@/lib/kasifind/category-flash-intro";
+import {
+  KF_LOCATION_CONSENT_AFTER_INTRO_MS,
+  shouldDeferHomeLocationConsentPrompt,
+} from "@/lib/kasifind/location-consent-prompt-timing";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const BROWSE_LOCATION_LABEL = "Browsing all areas";
@@ -320,6 +324,7 @@ export function KfHomeClient({
 
   useEffect(() => {
     if (!dbConfigured) return;
+    if (shouldDeferHomeLocationConsentPrompt(introGate)) return;
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
 
     const consent = readLocationConsent();
@@ -354,8 +359,12 @@ export function KfHomeClient({
 
     if (consent === "dismissed" || consent === "denied") return;
 
-    setLocationDialogOpen(true);
-  }, [dbConfigured]);
+    const timer = window.setTimeout(() => {
+      setLocationDialogOpen(true);
+    }, KF_LOCATION_CONSENT_AFTER_INTRO_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [dbConfigured, introGate]);
 
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.permissions?.query) return;
@@ -455,6 +464,7 @@ export function KfHomeClient({
       ) : null}
       <KfLocationConsentDialog
         open={locationDialogOpen}
+        subtle
         busy={locating}
         onClose={dismissLocationPrompt}
         onConfirm={confirmLocationFromDialog}

@@ -8,16 +8,28 @@ type Props = {
   onConfirm: () => void;
   onChooseArea?: () => void;
   busy?: boolean;
+  /** Softer entry (homepage after intro); default keeps standard dialog motion. */
+  subtle?: boolean;
 };
 
-export function KfLocationConsentDialog({ open, onClose, onConfirm, onChooseArea, busy }: Props) {
+export function KfLocationConsentDialog({
+  open,
+  onClose,
+  onConfirm,
+  onChooseArea,
+  busy,
+  subtle = false,
+}: Props) {
   if (!open) return null;
 
   return (
-    <div className="kf-dialog-root" role="presentation">
+    <div
+      className={`kf-dialog-root${subtle ? " kf-location-consent--subtle" : ""}`}
+      role="presentation"
+    >
       <button type="button" className="kf-dialog-backdrop" aria-label="Close dialog" onClick={onClose} />
       <div
-        className="kf-dialog-panel kf-animate-in"
+        className={`kf-dialog-panel${subtle ? " kf-location-consent-panel" : " kf-animate-in"}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="kf-location-dialog-title"
@@ -26,17 +38,26 @@ export function KfLocationConsentDialog({ open, onClose, onConfirm, onChooseArea
         <button type="button" className="kf-dialog-close" aria-label="Close" onClick={onClose}>
           <X className="h-5 w-5" />
         </button>
-        <div className="kf-dialog-icon" aria-hidden>
-          <MapPin className="h-7 w-7" />
+        <div className={`kf-dialog-icon${subtle ? " kf-location-consent-icon" : ""}`} aria-hidden>
+          <MapPin className={subtle ? "h-5 w-5" : "h-7 w-7"} />
         </div>
         <h2 id="kf-location-dialog-title" className="kf-dialog-title">
-          Accurate distances need your area
+          {subtle ? "Show nearby businesses?" : "Accurate distances need your area"}
         </h2>
         <p id="kf-location-dialog-desc" className="kf-dialog-body">
-          Without location you can still browse <strong>all listings nationwide</strong>, but you
-          miss nearby sorting and distance in km. Allow location to see providers sorted by real
-          distance from you. Your exact GPS is <strong>not shown</strong> on provider profiles — it
-          is only used for search and sorting on your device.
+          {subtle ? (
+            <>
+              You can browse nationwide without sharing location. Allow access to sort by distance
+              from you — your exact pin is not shown on listings.
+            </>
+          ) : (
+            <>
+              Without location you can still browse <strong>all listings nationwide</strong>, but you
+              miss nearby sorting and distance in km. Allow location to see providers sorted by real
+              distance from you. Your exact GPS is <strong>not shown</strong> on provider profiles —
+              it is only used for search and sorting on your device.
+            </>
+          )}
         </p>
         <div className="kf-dialog-actions">
           <button type="button" className="kf-btn kf-btn-primary w-full" disabled={busy} onClick={onConfirm}>
