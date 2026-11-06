@@ -46,6 +46,7 @@ import {
   KF_LOCATION_CONSENT_AFTER_INTRO_MS,
   shouldDeferHomeLocationConsentPrompt,
 } from "@/lib/kasifind/location-consent-prompt-timing";
+import { shouldSkipAutoGpsOnHomeLoad } from "@/lib/kasifind/location-consent-restore";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const BROWSE_LOCATION_LABEL = "Browsing all areas";
@@ -331,7 +332,7 @@ export function KfHomeClient({
 
     if (consent === "granted") {
       const restored = readDiscoveryState()?.location;
-      if (restored?.mode === "manual" || restored?.mode === "browse") {
+      if (shouldSkipAutoGpsOnHomeLoad(consent, restored)) {
         return;
       }
       const hasRestoredGps = restored?.mode === "gps";
@@ -371,12 +372,12 @@ export function KfHomeClient({
 
     let cancelled = false;
     let statusRef: PermissionStatus | null = null;
-    let onChange: (() => void) | null = null;
+    let onPermissionChange: (() => void) | null = null;
 
     void navigator.permissions.query({ name: "geolocation" }).then((status) => {
       if (cancelled) return;
       statusRef = status;
-      onChange = () => {
+      const syncPermission = () => {
         if (status.state === "granted") {
           writeLocationConsent("granted");
           return;
@@ -386,17 +387,21 @@ export function KfHomeClient({
           setLocation({ mode: "browse", label: BROWSE_LOCATION_LABEL });
           return;
         }
+      };
+      onPermissionChange = () => {
         if (status.state === "prompt" && readLocationConsent() === "granted") {
           clearLocationConsent();
         }
+        syncPermission();
       };
-      onChange();
-      status.addEventListener("change", onChange);
+      syncPermission();
+      status.addEventListener("change", onPermissionChange);
     });
 
     return () => {
       cancelled = true;
-      if (statusRef && onChange) statusRef.removeEventListener("change", onChange);
+      if (statusRef && onPermissionChange)
+        statusRef.removeEventListener("change", onPermissionChange);
     };
   }, []);
 
@@ -491,6 +496,7 @@ export function KfHomeClient({
           setLocationDialogOpen(true);
         }}
         onBrowseAll={() => {
+          writeLocationConsent("dismissed");
           switchToBrowseMode();
           setLocationSheetOpen(false);
           setLocationSheetView("menu");
