@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { getProviderPerformanceReportMetrics } from "@/lib/kasifind/provider-performance-metrics";
+import { getProviderListingWhatsAppPhone } from "@/lib/kasifind/provider-performance-listings";
 import {
   providerReportGeneratedStamp,
   resolveProviderReportPeriod,
@@ -46,9 +47,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "listing_not_found" }, { status: 404 });
   }
 
+  const whatsAppPhone = await getProviderListingWhatsAppPhone(listingId);
+
   return NextResponse.json({
     metrics,
     generatedAtLabel: providerReportGeneratedStamp(),
     timeZone: "Africa/Johannesburg",
+    whatsAppPhone,
   });
 }

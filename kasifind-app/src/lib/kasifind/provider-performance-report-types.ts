@@ -1,3 +1,12 @@
+export type ProviderReportListingRow = {
+  id: string;
+  displayName: string;
+  status: string;
+  moderationStatus: string;
+  phone: string;
+  whatsapp: string | null;
+};
+
 export type ProviderPerformanceReportMetrics = {
   listingId: string;
   businessName: string;

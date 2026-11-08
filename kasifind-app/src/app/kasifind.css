@@ -4136,6 +4136,10 @@ main.admin-main:has(.kf-activity-map-page) {
 }
 
 /* —— Admin provider performance report (1080×1350 artboard) —— */
+.kf-ppr-listing-scroll {
+  scrollbar-width: thin;
+}
+
 .kf-ppr-preview-wrap {
   overflow: auto;
   padding: var(--kf-space-3);
