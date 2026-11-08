@@ -4134,3 +4134,191 @@ main.admin-main:has(.kf-activity-map-page) {
   gap: 0.5rem;
   margin-top: var(--kf-space-3);
 }
+
+/* —— Admin provider performance report (1080×1350 artboard) —— */
+.kf-ppr-preview-wrap {
+  overflow: auto;
+  padding: var(--kf-space-3);
+  background: color-mix(in srgb, var(--kf-stone) 40%, var(--kf-ivory));
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-xl);
+}
+
+.kf-ppr-preview-wrap .kf-ppr-artboard {
+  margin: 0 auto;
+  transform: scale(0.42);
+  transform-origin: top center;
+  box-shadow: var(--kf-shadow-lg);
+}
+
+@media (min-width: 900px) {
+  .kf-ppr-preview-wrap .kf-ppr-artboard {
+    transform: scale(0.55);
+  }
+}
+
+.kf-ppr-artboard {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 3.5rem 3rem 2.75rem;
+  color: #fff;
+  background: linear-gradient(165deg, #0f4d3a 0%, #0a3d2e 38%, #f6f3ea 38.5%, #f6f3ea 100%);
+  font-family: var(--kf-font, system-ui, sans-serif);
+}
+
+.kf-ppr-header {
+  text-align: center;
+}
+
+.kf-ppr-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.kf-ppr-logo {
+  width: 2.75rem;
+  height: 2.75rem;
+  color: #fff;
+}
+
+.kf-ppr-wordmark {
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.kf-ppr-kicker {
+  margin: 1.35rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  opacity: 0.92;
+}
+
+.kf-ppr-business {
+  margin: 0.65rem 0 0;
+  font-size: 2.05rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.kf-ppr-period {
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.kf-ppr-meta {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.kf-ppr-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 2.25rem;
+}
+
+.kf-ppr-stat-card {
+  padding: 1.15rem 1rem;
+  text-align: center;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--kf-forest) 12%, #e8e4db);
+  border-radius: 1rem;
+  box-shadow: 0 6px 20px rgba(15, 77, 58, 0.08);
+}
+
+.kf-ppr-stat-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.kf-ppr-stat-value {
+  margin: 0.35rem 0 0;
+  font-size: 2.35rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #0f4d3a;
+}
+
+.kf-ppr-feedback {
+  margin-top: 1.75rem;
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+  background: #fff;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--kf-forest) 14%, #e8e4db);
+}
+
+.kf-ppr-feedback-title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kf-ppr-stars {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 1.45rem;
+  letter-spacing: 0.12em;
+  color: #f6c945;
+}
+
+.kf-ppr-stars--empty {
+  font-size: 1rem;
+  letter-spacing: 0;
+  color: #6b7280;
+}
+
+.kf-ppr-rating-num {
+  margin-left: 0.35rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f4d3a;
+}
+
+.kf-ppr-review-count {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.kf-ppr-footer {
+  margin-top: auto;
+  padding-top: 1.75rem;
+  text-align: center;
+  color: #0f4d3a;
+}
+
+.kf-ppr-thanks {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.kf-ppr-tagline {
+  margin: 0.35rem 0 0;
+  font-size: 0.92rem;
+  color: #4b5563;
+}
+
+.kf-ppr-site {
+  margin: 0.65rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f4d3a;
+}
