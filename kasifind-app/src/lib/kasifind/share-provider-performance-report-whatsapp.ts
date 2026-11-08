@@ -10,34 +10,43 @@ import {
   downloadProviderPerformanceReportFile,
   renderProviderPerformanceReportPngFile,
 } from "@/lib/kasifind/export-provider-performance-report-png";
-import {
-  canShareProviderReportPngFile,
-  PROVIDER_REPORT_WA_CHAT_OPEN_MS,
-} from "@/lib/kasifind/provider-performance-report-share-flow";
+import { tryCopyProviderReportPngToClipboard } from "@/lib/kasifind/provider-performance-report-clipboard";
+import { canShareProviderReportPngFile } from "@/lib/kasifind/provider-performance-report-share-flow";
 
 export type ProviderReportWhatsAppShareResult =
-  | { mode: "wa_listing_attached"; displayPhone: string }
-  | { mode: "wa_listing"; displayPhone: string }
+  | {
+      mode: "share_with_image";
+      displayPhone: string;
+      businessName: string;
+    }
+  | {
+      mode: "wa_listing";
+      displayPhone: string;
+      imageCopied: boolean;
+    }
   | { mode: "native_share" }
   | { mode: "no_phone" };
 
 function openWhatsAppChat(url: string) {
-  const opened = window.open(url, "_blank", "noopener,noreferrer");
-  if (!opened) {
-    window.location.href = url;
-  }
+  const link = document.createElement("a");
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.click();
 }
 
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
+function shareTextForProvider(input: {
+  businessName: string;
+  periodLabel: string;
+  displayPhone: string;
+}): string {
+  const body = buildProviderReportWhatsAppPrefill(input.businessName, input.periodLabel);
+  return `${body}\n\n(To: ${input.businessName} · WhatsApp ${input.displayPhone})`;
 }
 
 /**
- * Sends a provider report on WhatsApp using their listing number.
- *
- * When the browser can share files: opens that provider's chat via wa.me, then
- * triggers a file share so WhatsApp can pick up the PNG (mobile). Desktop still
- * downloads the PNG for manual attach — wa.me cannot include images.
+ * Mobile: one system share with the PNG attached (pick WhatsApp + provider in the sheet).
+ * Desktop: download PNG, optional clipboard copy, open wa.me — attach or paste in chat.
  */
 export async function shareProviderPerformanceReportWhatsApp(input: {
   node: HTMLElement;
@@ -46,33 +55,46 @@ export async function shareProviderPerformanceReportWhatsApp(input: {
   whatsAppPhone: string | null;
 }): Promise<ProviderReportWhatsAppShareResult> {
   const file = await renderProviderPerformanceReportPngFile(input.node, input.businessName);
-  const shareText = buildProviderReportWhatsAppPrefill(input.businessName, input.periodLabel);
 
   if (isValidProviderWhatsAppPhone(input.whatsAppPhone)) {
     const phone = input.whatsAppPhone!.trim();
     const displayPhone = formatListingPhoneForDisplay(phone);
-    const url = providerReportWhatsAppUrl(phone, shareText);
+    const shareText = shareTextForProvider({
+      businessName: input.businessName,
+      periodLabel: input.periodLabel,
+      displayPhone,
+    });
 
     if (canShareProviderReportPngFile(file)) {
-      openWhatsAppChat(url);
-      await wait(PROVIDER_REPORT_WA_CHAT_OPEN_MS);
       try {
-        await navigator.share({ files: [file] });
-        return { mode: "wa_listing_attached", displayPhone };
+        await navigator.share({
+          files: [file],
+          text: shareText,
+          title: `KasiFind report — ${input.businessName}`,
+        });
+        return {
+          mode: "share_with_image",
+          displayPhone,
+          businessName: input.businessName,
+        };
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
           throw err;
         }
-        downloadProviderPerformanceReportFile(file);
-        return { mode: "wa_listing", displayPhone };
       }
     }
 
     downloadProviderPerformanceReportFile(file);
+    const imageCopied = await tryCopyProviderReportPngToClipboard(file);
+    const url = providerReportWhatsAppUrl(
+      phone,
+      buildProviderReportWhatsAppPrefill(input.businessName, input.periodLabel)
+    );
     openWhatsAppChat(url);
-    return { mode: "wa_listing", displayPhone };
+    return { mode: "wa_listing", displayPhone, imageCopied };
   }
 
+  const shareText = buildProviderReportWhatsAppPrefill(input.businessName, input.periodLabel);
   if (typeof navigator !== "undefined" && navigator.share) {
     try {
       const payload: ShareData = { text: shareText, files: [file] };

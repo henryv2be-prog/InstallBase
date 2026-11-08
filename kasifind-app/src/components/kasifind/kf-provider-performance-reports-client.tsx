@@ -150,13 +150,15 @@ export function KfProviderPerformanceReportsClient() {
         setError(
           "This listing has no WhatsApp or phone number. Download the PNG and share it manually."
         );
-      } else if (result.mode === "wa_listing_attached") {
+      } else if (result.mode === "share_with_image") {
         setShareNote(
-          `Opened WhatsApp to ${result.displayPhone}. On the share screen, choose WhatsApp again to attach the report image to that chat, then send.`
+          `Share sheet opened with the report image. Choose WhatsApp, then open the chat for ${result.businessName} (${result.displayPhone}), and send.`
         );
       } else if (result.mode === "wa_listing") {
         setShareNote(
-          `Opened WhatsApp to ${result.displayPhone}. The report PNG was downloaded — use the attachment (📎) button and pick that file in the chat.`
+          result.imageCopied
+            ? `Chat opened for ${result.displayPhone}. The PNG is downloaded and copied — paste in WhatsApp or attach the file from Downloads.`
+            : `Chat opened for ${result.displayPhone}. The PNG was downloaded — tap attach (📎) in WhatsApp and choose that file.`
         );
       } else {
         setShareNote("Shared — choose WhatsApp and the provider in the share sheet.");
@@ -175,9 +177,9 @@ export function KfProviderPerformanceReportsClient() {
         <h2 className="kf-admin-section-title">Provider Performance Reports</h2>
         <p className="mt-1 text-sm text-[var(--kf-muted)]">
           Pick a business from the list, generate the image, then download or share to the
-          provider&apos;s WhatsApp number from their listing. On phone we open their chat and then
-          prompt you to share the report image into WhatsApp; on desktop the PNG downloads for you
-          to attach manually in that chat.
+          provider&apos;s number. On a phone, use the share sheet to send the report image through
+          WhatsApp (pick their chat). On desktop we download the image, open their chat, and try to
+          copy the image for paste — otherwise attach the downloaded PNG.
         </p>
       </div>
 

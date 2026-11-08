@@ -6,6 +6,3 @@ export function canShareProviderReportPngFile(file: File): boolean {
     return false;
   }
 }
-
-/** Lets WhatsApp (mobile) come to foreground before the attach-image share sheet. */
-export const PROVIDER_REPORT_WA_CHAT_OPEN_MS = 900;
