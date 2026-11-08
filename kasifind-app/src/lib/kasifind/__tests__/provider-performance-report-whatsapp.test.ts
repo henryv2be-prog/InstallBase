@@ -4,6 +4,7 @@ import {
   buildProviderReportWhatsAppPrefill,
   isValidProviderWhatsAppPhone,
   providerReportWhatsAppUrl,
+  resolveListingWhatsAppPhone,
 } from "../provider-performance-report-whatsapp";
 
 test("provider report WhatsApp prefill includes business and period", () => {
@@ -15,6 +16,17 @@ test("provider report WhatsApp prefill includes business and period", () => {
 test("isValidProviderWhatsAppPhone accepts SA numbers", () => {
   assert.equal(isValidProviderWhatsAppPhone("067 395 5715"), true);
   assert.equal(isValidProviderWhatsAppPhone(""), false);
+});
+
+test("resolveListingWhatsAppPhone prefers listing WhatsApp", () => {
+  assert.equal(
+    resolveListingWhatsAppPhone({ whatsapp: "082 111 2222", phone: "083 333 4444" }),
+    "082 111 2222"
+  );
+  assert.equal(
+    resolveListingWhatsAppPhone({ whatsapp: null, phone: "083 333 4444" }),
+    "083 333 4444"
+  );
 });
 
 test("providerReportWhatsAppUrl uses wa.me", () => {

@@ -23,3 +23,16 @@ export function isValidProviderWhatsAppPhone(phone: string | null | undefined): 
   const digits = normalizePhoneForWhatsApp(phone);
   return digits.length >= 9;
 }
+
+/** Listing WhatsApp field first, then phone — same as public listing contact. */
+export function resolveListingWhatsAppPhone(input: {
+  whatsapp: string | null;
+  phone: string;
+}): string | null {
+  const preferred = input.whatsapp?.trim() || input.phone.trim();
+  return preferred || null;
+}
+
+export function formatListingPhoneForDisplay(phone: string): string {
+  return phone.trim();
+}

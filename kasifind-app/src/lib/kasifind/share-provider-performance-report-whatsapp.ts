@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  buildProviderReportWhatsAppFallbackMessage,
   buildProviderReportWhatsAppPrefill,
+  formatListingPhoneForDisplay,
   isValidProviderWhatsAppPhone,
   providerReportWhatsAppUrl,
 } from "@/lib/kasifind/provider-performance-report-whatsapp";
@@ -12,13 +12,20 @@ import {
 } from "@/lib/kasifind/export-provider-performance-report-png";
 
 export type ProviderReportWhatsAppShareResult =
+  | { mode: "wa_listing"; displayPhone: string }
   | { mode: "native_share" }
-  | { mode: "wa_open"; note: string }
   | { mode: "no_phone" };
 
+function openWhatsAppChat(url: string) {
+  const opened = window.open(url, "_blank", "noopener,noreferrer");
+  if (!opened) {
+    window.location.href = url;
+  }
+}
+
 /**
- * Shares the report PNG with WhatsApp where the browser allows it (Web Share API + file).
- * Otherwise downloads the PNG and opens wa.me to the provider with a pre-filled message.
+ * When the listing has WhatsApp/phone, always open that provider's chat via wa.me.
+ * The PNG is downloaded for attaching in that conversation (web cannot attach via URL).
  */
 export async function shareProviderPerformanceReportWhatsApp(input: {
   node: HTMLElement;
@@ -26,9 +33,17 @@ export async function shareProviderPerformanceReportWhatsApp(input: {
   periodLabel: string;
   whatsAppPhone: string | null;
 }): Promise<ProviderReportWhatsAppShareResult> {
-  const file = await renderProviderPerformanceReportPngFile(input.node, input.businessName);
   const shareText = buildProviderReportWhatsAppPrefill(input.businessName, input.periodLabel);
 
+  if (isValidProviderWhatsAppPhone(input.whatsAppPhone)) {
+    const phone = input.whatsAppPhone!.trim();
+    const url = providerReportWhatsAppUrl(phone, shareText);
+    openWhatsAppChat(url);
+    await downloadProviderPerformanceReportPng(input.node, input.businessName);
+    return { mode: "wa_listing", displayPhone: formatListingPhoneForDisplay(phone) };
+  }
+
+  const file = await renderProviderPerformanceReportPngFile(input.node, input.businessName);
   if (typeof navigator !== "undefined" && navigator.share) {
     try {
       const payload: ShareData = { text: shareText, files: [file] };
@@ -43,22 +58,6 @@ export async function shareProviderPerformanceReportWhatsApp(input: {
     }
   }
 
-  if (!isValidProviderWhatsAppPhone(input.whatsAppPhone)) {
-    await downloadProviderPerformanceReportPng(input.node, input.businessName);
-    return { mode: "no_phone" };
-  }
-
   await downloadProviderPerformanceReportPng(input.node, input.businessName);
-  const message = buildProviderReportWhatsAppFallbackMessage(
-    input.businessName,
-    input.periodLabel
-  );
-  const url = providerReportWhatsAppUrl(input.whatsAppPhone!, message);
-  window.open(url, "_blank", "noopener,noreferrer");
-
-  return {
-    mode: "wa_open",
-    note:
-      "Desktop browsers cannot attach files via WhatsApp links. The PNG was downloaded — attach it in the chat.",
-  };
+  return { mode: "no_phone" };
 }
