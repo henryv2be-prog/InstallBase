@@ -150,15 +150,11 @@ export function KfProviderPerformanceReportsClient() {
         setError(
           "This listing has no WhatsApp or phone number. Download the PNG and share it manually."
         );
-      } else if (result.mode === "share_with_image") {
-        setShareNote(
-          `Share sheet opened with the report image. Choose WhatsApp, then open the chat for ${result.businessName} (${result.displayPhone}), and send.`
-        );
       } else if (result.mode === "wa_listing") {
         setShareNote(
           result.imageCopied
-            ? `Chat opened for ${result.displayPhone}. The PNG is downloaded and copied — paste in WhatsApp or attach the file from Downloads.`
-            : `Chat opened for ${result.displayPhone}. The PNG was downloaded — tap attach (📎) in WhatsApp and choose that file.`
+            ? `Opening WhatsApp to ${result.businessName} (${result.displayPhone}). "${result.fileName}" is downloaded and copied — paste the image in that chat, or attach the file from Downloads, then send with the pre-filled text.`
+            : `Opening WhatsApp to ${result.businessName} (${result.displayPhone}). Attach "${result.fileName}" from your downloads (📎), then send with the pre-filled text.`
         );
       } else {
         setShareNote("Shared — choose WhatsApp and the provider in the share sheet.");
@@ -177,9 +173,9 @@ export function KfProviderPerformanceReportsClient() {
         <h2 className="kf-admin-section-title">Provider Performance Reports</h2>
         <p className="mt-1 text-sm text-[var(--kf-muted)]">
           Pick a business from the list, generate the image, then download or share to the
-          provider&apos;s number. On a phone, use the share sheet to send the report image through
-          WhatsApp (pick their chat). On desktop we download the image, open their chat, and try to
-          copy the image for paste — otherwise attach the downloaded PNG.
+          provider&apos;s WhatsApp number from their listing (no contact picker). The report image is
+          downloaded so you can attach it in that chat — paste if your browser copied the image, or
+          use the attach button and choose the downloaded PNG.
         </p>
       </div>
 
@@ -366,7 +362,7 @@ export function KfProviderPerformanceReportsClient() {
                 ) : (
                   <MessageCircle className="h-4 w-4" aria-hidden />
                 )}
-                Send via WhatsApp
+                Open WhatsApp & prepare image
               </button>
               <button
                 type="button"
