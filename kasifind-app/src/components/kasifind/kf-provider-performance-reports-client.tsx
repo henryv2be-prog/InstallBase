@@ -8,6 +8,7 @@ import type { ProviderPerformanceReportMetrics } from "@/lib/kasifind/provider-p
 import type { ProviderReportPeriodPreset } from "@/lib/kasifind/provider-performance-report-period";
 import { kfDateKeyInSast } from "@/lib/kasifind/format-datetime";
 import type { ProviderReportListingRow } from "@/lib/kasifind/provider-performance-report-types";
+import { resolveListingWhatsAppPhone } from "@/lib/kasifind/provider-performance-report-whatsapp";
 import { shareProviderPerformanceReportWhatsApp } from "@/lib/kasifind/share-provider-performance-report-whatsapp";
 
 export function KfProviderPerformanceReportsClient() {
@@ -125,9 +126,16 @@ export function KfProviderPerformanceReportsClient() {
     }
   }, [metrics]);
 
+  const selectedListing = rows.find((h) => h.id === selectedId);
+  const effectiveWhatsAppPhone =
+    whatsAppPhone ??
+    (selectedListing ? resolveListingWhatsAppPhone(selectedListing) : null);
+
   const sendWhatsApp = useCallback(async () => {
     const node = artboardRef.current;
     if (!node || !metrics) return;
+    const listing = rows.find((h) => h.id === selectedId);
+    const phone = whatsAppPhone ?? (listing ? resolveListingWhatsAppPhone(listing) : null);
     setSharingWhatsApp(true);
     setError(null);
     setShareNote(null);
@@ -136,16 +144,18 @@ export function KfProviderPerformanceReportsClient() {
         node,
         businessName: metrics.businessName,
         periodLabel: metrics.periodLabel,
-        whatsAppPhone,
+        whatsAppPhone: phone,
       });
       if (result.mode === "no_phone") {
         setError(
           "This listing has no WhatsApp or phone number. Download the PNG and share it manually."
         );
-      } else if (result.mode === "wa_open") {
-        setShareNote(result.note);
+      } else if (result.mode === "wa_listing") {
+        setShareNote(
+          `Opened WhatsApp to ${result.displayPhone} (from this listing). Attach the downloaded PNG in that chat.`
+        );
       } else {
-        setShareNote("Shared — choose WhatsApp in the share sheet to send the image.");
+        setShareNote("Shared — choose WhatsApp and the provider in the share sheet.");
       }
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
@@ -153,9 +163,7 @@ export function KfProviderPerformanceReportsClient() {
     } finally {
       setSharingWhatsApp(false);
     }
-  }, [metrics, whatsAppPhone]);
-
-  const selectedListing = rows.find((h) => h.id === selectedId);
+  }, [metrics, rows, selectedId, whatsAppPhone]);
 
   return (
     <div className="space-y-8">
@@ -163,8 +171,8 @@ export function KfProviderPerformanceReportsClient() {
         <h2 className="kf-admin-section-title">Provider Performance Reports</h2>
         <p className="mt-1 text-sm text-[var(--kf-muted)]">
           Pick a business from the list, generate the image, then download or share to the
-          provider&apos;s WhatsApp. On phones, Share can attach the PNG automatically; on desktop we
-          open WhatsApp and download the image for you to attach.
+          provider&apos;s WhatsApp number from their listing. The report image is downloaded for you
+          to attach in that chat (WhatsApp Web cannot attach files automatically).
         </p>
       </div>
 
@@ -303,6 +311,15 @@ export function KfProviderPerformanceReportsClient() {
         {selectedListing ? (
           <p className="text-xs text-[var(--kf-muted)]">
             Selected: <strong>{selectedListing.displayName}</strong>
+            {resolveListingWhatsAppPhone(selectedListing) ? (
+              <>
+                {" "}
+                · WhatsApp send-to:{" "}
+                <strong>{resolveListingWhatsAppPhone(selectedListing)}</strong>
+              </>
+            ) : (
+              <> · No WhatsApp/phone on listing</>
+            )}
           </p>
         ) : null}
       </section>
@@ -322,7 +339,14 @@ export function KfProviderPerformanceReportsClient() {
       {metrics ? (
         <section className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-semibold text-[var(--kf-charcoal)]">3. Preview & send</h3>
+            <div>
+              <h3 className="font-semibold text-[var(--kf-charcoal)]">3. Preview & send</h3>
+              {effectiveWhatsAppPhone ? (
+                <p className="text-xs text-[var(--kf-muted)]">
+                  Will open WhatsApp to <strong>{effectiveWhatsAppPhone}</strong>
+                </p>
+              ) : null}
+            </div>
             <div className="ml-auto flex flex-wrap gap-2">
               <button
                 type="button"
