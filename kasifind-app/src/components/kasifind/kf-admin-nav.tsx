@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
+  BarChart3,
   Flag,
   FolderTree,
   LayoutDashboard,
@@ -15,6 +16,11 @@ const LINKS = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/listings", label: "Listings", icon: ListChecks },
+  {
+    href: "/admin/provider-performance",
+    label: "Provider reports",
+    icon: BarChart3,
+  },
   { href: "/admin/events", label: "Events", icon: Activity },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/reports", label: "Reports", icon: Flag },
