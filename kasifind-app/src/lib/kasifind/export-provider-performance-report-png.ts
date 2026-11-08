@@ -30,14 +30,19 @@ export async function renderProviderPerformanceReportPngFile(
   });
 }
 
+export function downloadProviderPerformanceReportFile(file: File): void {
+  const url = URL.createObjectURL(file);
+  const link = document.createElement("a");
+  link.download = file.name;
+  link.href = url;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
 export async function downloadProviderPerformanceReportPng(
   node: HTMLElement,
   businessName: string
 ): Promise<void> {
-  const dataUrl = await captureProviderPerformanceReportPngDataUrl(node);
-
-  const link = document.createElement("a");
-  link.download = buildProviderPerformanceReportFilename(businessName);
-  link.href = dataUrl;
-  link.click();
+  const file = await renderProviderPerformanceReportPngFile(node, businessName);
+  downloadProviderPerformanceReportFile(file);
 }

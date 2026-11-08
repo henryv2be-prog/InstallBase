@@ -150,9 +150,13 @@ export function KfProviderPerformanceReportsClient() {
         setError(
           "This listing has no WhatsApp or phone number. Download the PNG and share it manually."
         );
+      } else if (result.mode === "wa_listing_attached") {
+        setShareNote(
+          `Opened WhatsApp to ${result.displayPhone}. On the share screen, choose WhatsApp again to attach the report image to that chat, then send.`
+        );
       } else if (result.mode === "wa_listing") {
         setShareNote(
-          `Opened WhatsApp to ${result.displayPhone} (from this listing). Attach the downloaded PNG in that chat.`
+          `Opened WhatsApp to ${result.displayPhone}. The report PNG was downloaded — use the attachment (📎) button and pick that file in the chat.`
         );
       } else {
         setShareNote("Shared — choose WhatsApp and the provider in the share sheet.");
@@ -171,8 +175,9 @@ export function KfProviderPerformanceReportsClient() {
         <h2 className="kf-admin-section-title">Provider Performance Reports</h2>
         <p className="mt-1 text-sm text-[var(--kf-muted)]">
           Pick a business from the list, generate the image, then download or share to the
-          provider&apos;s WhatsApp number from their listing. The report image is downloaded for you
-          to attach in that chat (WhatsApp Web cannot attach files automatically).
+          provider&apos;s WhatsApp number from their listing. On phone we open their chat and then
+          prompt you to share the report image into WhatsApp; on desktop the PNG downloads for you
+          to attach manually in that chat.
         </p>
       </div>
 
