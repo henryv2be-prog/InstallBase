@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
-import { searchListingsForProviderReport } from "@/lib/kasifind/provider-performance-metrics";
+import { getProviderReportListingsPage } from "@/lib/kasifind/provider-performance-listings";
 import { requireKasiFindAdmin } from "@/lib/kasifind/session";
 
 export async function GET(request: Request) {
@@ -12,11 +12,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
-  const q = new URL(request.url).searchParams.get("q")?.trim() ?? "";
-  if (q.length < 2) {
-    return NextResponse.json({ listings: [] });
-  }
+  const params = new URL(request.url).searchParams;
+  const page = Number.parseInt(params.get("page") ?? "1", 10);
+  const q = params.get("q")?.trim() ?? "";
 
-  const listings = await searchListingsForProviderReport(q);
-  return NextResponse.json({ listings });
+  const data = await getProviderReportListingsPage({
+    page: Number.isFinite(page) ? page : 1,
+    q: q || undefined,
+  });
+
+  return NextResponse.json(data);
 }

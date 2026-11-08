@@ -1,58 +1,75 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
-import { Download, ImageIcon, Loader2, Search } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Download, ImageIcon, Loader2, MessageCircle } from "lucide-react";
 import { KfProviderPerformanceReportArtboard } from "@/components/kasifind/kf-provider-performance-report-artboard";
 import { downloadProviderPerformanceReportPng } from "@/lib/kasifind/export-provider-performance-report-png";
 import type { ProviderPerformanceReportMetrics } from "@/lib/kasifind/provider-performance-report-types";
 import type { ProviderReportPeriodPreset } from "@/lib/kasifind/provider-performance-report-period";
 import { kfDateKeyInSast } from "@/lib/kasifind/format-datetime";
-
-type ListingHit = {
-  id: string;
-  displayName: string;
-  status: string;
-  moderationStatus: string;
-};
+import type { ProviderReportListingRow } from "@/lib/kasifind/provider-performance-report-types";
+import { shareProviderPerformanceReportWhatsApp } from "@/lib/kasifind/share-provider-performance-report-whatsapp";
 
 export function KfProviderPerformanceReportsClient() {
   const artboardRef = useRef<HTMLDivElement>(null);
   const todayKey = kfDateKeyInSast(new Date());
 
-  const [search, setSearch] = useState("");
-  const [searching, setSearching] = useState(false);
-  const [hits, setHits] = useState<ListingHit[]>([]);
+  const [filter, setFilter] = useState("");
+  const [listLoading, setListLoading] = useState(true);
+  const [rows, setRows] = useState<ProviderReportListingRow[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [pageSize, setPageSize] = useState(30);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
   const [period, setPeriod] = useState<ProviderReportPeriodPreset>("30d");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState(todayKey);
 
   const [metrics, setMetrics] = useState<ProviderPerformanceReportMetrics | null>(null);
+  const [whatsAppPhone, setWhatsAppPhone] = useState<string | null>(null);
   const [generatedAtLabel, setGeneratedAtLabel] = useState<string>("");
   const [loadingReport, setLoadingReport] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [sharingWhatsApp, setSharingWhatsApp] = useState(false);
+  const [shareNote, setShareNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const runSearch = useCallback(async () => {
-    const q = search.trim();
-    if (q.length < 2) {
-      setHits([]);
-      return;
-    }
-    setSearching(true);
+  const loadListings = useCallback(async (opts: { page: number; q: string }) => {
+    setListLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/listings/search?q=${encodeURIComponent(q)}`);
-      const data = (await res.json()) as { listings?: ListingHit[]; error?: string };
-      if (!res.ok) throw new Error(data.error ?? "search_failed");
-      setHits(data.listings ?? []);
+      const params = new URLSearchParams({ page: String(opts.page) });
+      if (opts.q.trim()) params.set("q", opts.q.trim());
+      const res = await fetch(`/api/admin/provider-performance-listings?${params}`);
+      const data = (await res.json()) as {
+        rows?: ProviderReportListingRow[];
+        total?: number;
+        page?: number;
+        pageSize?: number;
+        error?: string;
+      };
+      if (!res.ok) throw new Error(data.error ?? "list_failed");
+      setRows(data.rows ?? []);
+      setTotal(data.total ?? 0);
+      setPage(data.page ?? opts.page);
+      setPageSize(data.pageSize ?? 30);
     } catch {
-      setError("Could not search listings.");
-      setHits([]);
+      setError("Could not load listings.");
+      setRows([]);
     } finally {
-      setSearching(false);
+      setListLoading(false);
     }
-  }, [search]);
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void loadListings({ page: 1, q: filter });
+    }, 280);
+    return () => window.clearTimeout(timer);
+  }, [filter, loadListings]);
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const generateReport = useCallback(async () => {
     if (!selectedId) {
@@ -65,6 +82,7 @@ export function KfProviderPerformanceReportsClient() {
     }
     setLoadingReport(true);
     setError(null);
+    setShareNote(null);
     try {
       const params = new URLSearchParams({
         listingId: selectedId,
@@ -78,10 +96,12 @@ export function KfProviderPerformanceReportsClient() {
       const data = (await res.json()) as {
         metrics?: ProviderPerformanceReportMetrics;
         generatedAtLabel?: string;
+        whatsAppPhone?: string | null;
         error?: string;
       };
       if (!res.ok) throw new Error(data.error ?? "report_failed");
       setMetrics(data.metrics ?? null);
+      setWhatsAppPhone(data.whatsAppPhone ?? null);
       setGeneratedAtLabel(data.generatedAtLabel ?? "");
     } catch (e) {
       setMetrics(null);
@@ -105,69 +125,122 @@ export function KfProviderPerformanceReportsClient() {
     }
   }, [metrics]);
 
-  const selectedListing = hits.find((h) => h.id === selectedId);
+  const sendWhatsApp = useCallback(async () => {
+    const node = artboardRef.current;
+    if (!node || !metrics) return;
+    setSharingWhatsApp(true);
+    setError(null);
+    setShareNote(null);
+    try {
+      const result = await shareProviderPerformanceReportWhatsApp({
+        node,
+        businessName: metrics.businessName,
+        periodLabel: metrics.periodLabel,
+        whatsAppPhone,
+      });
+      if (result.mode === "no_phone") {
+        setError(
+          "This listing has no WhatsApp or phone number. Download the PNG and share it manually."
+        );
+      } else if (result.mode === "wa_open") {
+        setShareNote(result.note);
+      } else {
+        setShareNote("Shared — choose WhatsApp in the share sheet to send the image.");
+      }
+    } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
+      setError("Could not share via WhatsApp. Try downloading the PNG instead.");
+    } finally {
+      setSharingWhatsApp(false);
+    }
+  }, [metrics, whatsAppPhone]);
+
+  const selectedListing = rows.find((h) => h.id === selectedId);
 
   return (
     <div className="space-y-8">
       <div>
         <h2 className="kf-admin-section-title">Provider Performance Reports</h2>
         <p className="mt-1 text-sm text-[var(--kf-muted)]">
-          Search for a business, choose a period, preview the shareable image, then download a PNG for
-          WhatsApp. Statistics come from KasiFind analytics — admin views do not add events.
+          Pick a business from the list, generate the image, then download or share to the
+          provider&apos;s WhatsApp. On phones, Share can attach the PNG automatically; on desktop we
+          open WhatsApp and download the image for you to attach.
         </p>
       </div>
 
       <section className="kf-card space-y-4 rounded-xl p-4">
-        <h3 className="font-semibold text-[var(--kf-charcoal)]">1. Find a listing</h3>
-        <div className="flex flex-wrap gap-2">
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Business name…"
-            className="kf-input min-w-[16rem] flex-1"
-            aria-label="Search by business name"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                void runSearch();
-              }
-            }}
-          />
-          <button
-            type="button"
-            className="kf-btn kf-btn-primary"
-            disabled={searching || search.trim().length < 2}
-            onClick={() => void runSearch()}
-          >
-            {searching ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Search className="h-4 w-4" />}
-            Search
-          </button>
-        </div>
-        {hits.length > 0 ? (
-          <ul className="space-y-2">
-            {hits.map((row) => (
-              <li key={row.id}>
-                <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-[var(--kf-border)] p-3">
-                  <input
-                    type="radio"
-                    name="listing"
-                    checked={selectedId === row.id}
-                    onChange={() => setSelectedId(row.id)}
-                    className="mt-1"
-                  />
-                  <span>
-                    <span className="font-medium">{row.displayName}</span>
-                    <span className="block text-xs text-[var(--kf-muted)]">
-                      {row.status} · {row.moderationStatus}
-                    </span>
-                  </span>
-                </label>
-              </li>
-            ))}
-          </ul>
+        <h3 className="font-semibold text-[var(--kf-charcoal)]">1. Choose a listing</h3>
+        <input
+          type="search"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Filter by name…"
+          className="kf-input w-full max-w-md"
+          aria-label="Filter listings by name"
+        />
+        {listLoading ? (
+          <p className="flex items-center gap-2 text-sm text-[var(--kf-muted)]">
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            Loading listings…
+          </p>
         ) : (
-          <p className="text-sm text-[var(--kf-muted)]">Results appear after you search.</p>
+          <>
+            <p className="text-xs text-[var(--kf-muted)]">
+              {total.toLocaleString("en-ZA")} listing{total === 1 ? "" : "s"}
+              {filter.trim() ? ` matching “${filter.trim()}”` : ""}
+            </p>
+            <ul className="kf-ppr-listing-scroll max-h-[22rem] space-y-2 overflow-y-auto pr-1">
+              {rows.length === 0 ? (
+                <li className="text-sm text-[var(--kf-muted)]">No listings found.</li>
+              ) : (
+                rows.map((row) => (
+                  <li key={row.id}>
+                    <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-[var(--kf-border)] p-3 hover:border-[var(--kf-forest)]">
+                      <input
+                        type="radio"
+                        name="listing"
+                        checked={selectedId === row.id}
+                        onChange={() => setSelectedId(row.id)}
+                        className="mt-1"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="font-medium">{row.displayName}</span>
+                        <span className="block text-xs text-[var(--kf-muted)]">
+                          {row.status} · {row.moderationStatus}
+                          {row.whatsapp || row.phone
+                            ? ` · WhatsApp ${(row.whatsapp || row.phone).trim()}`
+                            : " · No WhatsApp number"}
+                        </span>
+                      </span>
+                    </label>
+                  </li>
+                ))
+              )}
+            </ul>
+            {totalPages > 1 ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  className="kf-btn kf-btn-outline text-sm"
+                  disabled={page <= 1 || listLoading}
+                  onClick={() => void loadListings({ page: page - 1, q: filter })}
+                >
+                  Previous
+                </button>
+                <span className="text-sm text-[var(--kf-muted)]">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  className="kf-btn kf-btn-outline text-sm"
+                  disabled={page >= totalPages || listLoading}
+                  onClick={() => void loadListings({ page: page + 1, q: filter })}
+                >
+                  Next
+                </button>
+              </div>
+            ) : null}
+          </>
         )}
       </section>
 
@@ -240,23 +313,44 @@ export function KfProviderPerformanceReportsClient() {
         </p>
       ) : null}
 
+      {shareNote ? (
+        <p className="rounded-lg bg-[var(--kf-forest-soft)] px-3 py-2 text-sm text-[var(--kf-forest)]">
+          {shareNote}
+        </p>
+      ) : null}
+
       {metrics ? (
         <section className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="font-semibold text-[var(--kf-charcoal)]">3. Preview & download</h3>
-            <button
-              type="button"
-              className="kf-btn kf-btn-primary"
-              disabled={downloading}
-              onClick={() => void downloadPng()}
-            >
-              {downloading ? (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-              ) : (
-                <Download className="h-4 w-4" aria-hidden />
-              )}
-              Download PNG
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-semibold text-[var(--kf-charcoal)]">3. Preview & send</h3>
+            <div className="ml-auto flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="kf-btn kf-btn-primary"
+                disabled={sharingWhatsApp}
+                onClick={() => void sendWhatsApp()}
+              >
+                {sharingWhatsApp ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                ) : (
+                  <MessageCircle className="h-4 w-4" aria-hidden />
+                )}
+                Send via WhatsApp
+              </button>
+              <button
+                type="button"
+                className="kf-btn kf-btn-outline"
+                disabled={downloading}
+                onClick={() => void downloadPng()}
+              >
+                {downloading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                ) : (
+                  <Download className="h-4 w-4" aria-hidden />
+                )}
+                Download PNG
+              </button>
+            </div>
           </div>
           <ul className="list-disc space-y-1 pl-5 text-xs text-[var(--kf-muted)]">
             {metrics.trackingNotes.map((note) => (

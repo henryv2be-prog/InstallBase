@@ -71,14 +71,3 @@ export async function getProviderPerformanceReportMetrics(
   };
 }
 
-export async function searchListingsForProviderReport(q: string) {
-  const kf = getKasiFindPrisma();
-  const term = q.trim();
-  if (term.length < 2) return [];
-  return kf.kfProviderListing.findMany({
-    where: { displayName: { contains: term, mode: "insensitive" } },
-    select: { id: true, displayName: true, status: true, moderationStatus: true },
-    orderBy: { displayName: "asc" },
-    take: 25,
-  });
-}
