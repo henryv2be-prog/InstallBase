@@ -8,6 +8,7 @@ import {
   Flag,
   FolderTree,
   LayoutDashboard,
+  HandHelping,
   ListChecks,
   Users,
 } from "lucide-react";
@@ -16,6 +17,7 @@ const LINKS = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/listings", label: "Listings", icon: ListChecks },
+  { href: "/admin/listing-assistance", label: "Listing assistance", icon: HandHelping },
   {
     href: "/admin/provider-performance",
     label: "Provider reports",

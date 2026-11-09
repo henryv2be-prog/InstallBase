@@ -58,6 +58,21 @@ export type KfReview = Prisma.KfReviewModel
  */
 export type KfReport = Prisma.KfReportModel
 /**
+ * Model KfListingAssistanceRequest
+ * 
+ */
+export type KfListingAssistanceRequest = Prisma.KfListingAssistanceRequestModel
+/**
+ * Model KfListingAssistanceStatusEvent
+ * 
+ */
+export type KfListingAssistanceStatusEvent = Prisma.KfListingAssistanceStatusEventModel
+/**
+ * Model KfListingAssistanceAuditEntry
+ * 
+ */
+export type KfListingAssistanceAuditEntry = Prisma.KfListingAssistanceAuditEntryModel
+/**
  * Model KfAdminAudit
  * 
  */

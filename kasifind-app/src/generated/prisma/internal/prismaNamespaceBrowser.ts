@@ -59,6 +59,9 @@ export const ModelName = {
   KfProviderPhoto: 'KfProviderPhoto',
   KfReview: 'KfReview',
   KfReport: 'KfReport',
+  KfListingAssistanceRequest: 'KfListingAssistanceRequest',
+  KfListingAssistanceStatusEvent: 'KfListingAssistanceStatusEvent',
+  KfListingAssistanceAuditEntry: 'KfListingAssistanceAuditEntry',
   KfAdminAudit: 'KfAdminAudit',
   KfAnalyticsEvent: 'KfAnalyticsEvent'
 } as const
@@ -188,6 +191,48 @@ export const KfReportScalarFieldEnum = {
 } as const
 
 export type KfReportScalarFieldEnum = (typeof KfReportScalarFieldEnum)[keyof typeof KfReportScalarFieldEnum]
+
+
+export const KfListingAssistanceRequestScalarFieldEnum = {
+  id: 'id',
+  listingId: 'listingId',
+  userId: 'userId',
+  providerMessage: 'providerMessage',
+  status: 'status',
+  adminNotes: 'adminNotes',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KfListingAssistanceRequestScalarFieldEnum = (typeof KfListingAssistanceRequestScalarFieldEnum)[keyof typeof KfListingAssistanceRequestScalarFieldEnum]
+
+
+export const KfListingAssistanceStatusEventScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  adminId: 'adminId',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type KfListingAssistanceStatusEventScalarFieldEnum = (typeof KfListingAssistanceStatusEventScalarFieldEnum)[keyof typeof KfListingAssistanceStatusEventScalarFieldEnum]
+
+
+export const KfListingAssistanceAuditEntryScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  listingId: 'listingId',
+  adminId: 'adminId',
+  fieldName: 'fieldName',
+  previousValue: 'previousValue',
+  newValue: 'newValue',
+  createdAt: 'createdAt'
+} as const
+
+export type KfListingAssistanceAuditEntryScalarFieldEnum = (typeof KfListingAssistanceAuditEntryScalarFieldEnum)[keyof typeof KfListingAssistanceAuditEntryScalarFieldEnum]
 
 
 export const KfAdminAuditScalarFieldEnum = {

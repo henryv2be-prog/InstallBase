@@ -35,6 +35,16 @@ export const KfModerationStatus = {
 export type KfModerationStatus = (typeof KfModerationStatus)[keyof typeof KfModerationStatus]
 
 
+export const KfListingAssistanceStatus = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  DECLINED: 'DECLINED'
+} as const
+
+export type KfListingAssistanceStatus = (typeof KfListingAssistanceStatus)[keyof typeof KfListingAssistanceStatus]
+
+
 export const KfAnalyticsEventType = {
   LISTING_IMPRESSION: 'LISTING_IMPRESSION',
   LISTING_VIEW: 'LISTING_VIEW',

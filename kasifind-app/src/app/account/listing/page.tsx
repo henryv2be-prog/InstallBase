@@ -13,6 +13,9 @@ import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
 import { getListingContactClickLog } from "@/lib/kasifind/contact-click-log";
 import { getListingEngagementMetrics } from "@/lib/kasifind/listing-metrics";
 import { KfContactClickLog } from "@/components/kasifind/kf-contact-click-log";
+import { KfListingAssistanceRequest } from "@/components/kasifind/kf-listing-assistance-request";
+import { canProviderSubmitListingAssistance } from "@/lib/kasifind/listing-assistance-status";
+import { getProviderListingAssistanceRequest } from "@/lib/kasifind/listing-assistance";
 
 export const dynamic = "force-dynamic";
 
@@ -28,10 +31,13 @@ export default async function KfListingEditorPage() {
   const user = await getKasiFindSessionUser();
   if (!user) redirect("/login");
 
-  const [categories, listing] = await Promise.all([
+  const [categories, listing, assistanceRequest] = await Promise.all([
     listKfCategories(),
     getListingForUser(user.id),
+    getProviderListingAssistanceRequest(user.id),
   ]);
+
+  const canRequestAssistance = canProviderSubmitListingAssistance(assistanceRequest?.status ?? null);
 
   const engagement = listing
     ? await getListingEngagementMetrics(listing.id)
@@ -139,6 +145,11 @@ export default async function KfListingEditorPage() {
           <KfContactClickLog rows={contactClickLog} />
         </div>
       ) : null}
+      <KfListingAssistanceRequest
+        hasListing={Boolean(listingData)}
+        currentRequest={assistanceRequest}
+        canSubmit={canRequestAssistance}
+      />
       <KfListingForm
         categories={categories.map((c) => ({
           id: c.id,

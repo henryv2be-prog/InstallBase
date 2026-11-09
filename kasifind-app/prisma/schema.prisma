@@ -24,6 +24,13 @@ enum KfModerationStatus {
   REJECTED
 }
 
+enum KfListingAssistanceStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DECLINED
+}
+
 enum KfAnalyticsEventType {
   LISTING_IMPRESSION
   LISTING_VIEW
@@ -49,6 +56,9 @@ model KfUser {
   reviews         KfReview[]
   reports         KfReport[] @relation("Reporter")
   analyticsEvents KfAnalyticsEvent[]
+  listingAssistanceRequests KfListingAssistanceRequest[]
+  listingAssistanceStatusEvents KfListingAssistanceStatusEvent[] @relation("AssistanceStatusAdmin")
+  listingAssistanceAuditEntries KfListingAssistanceAuditEntry[] @relation("AssistanceAuditAdmin")
 }
 
 model KfCategory {
@@ -93,6 +103,8 @@ model KfProviderListing {
   reviews    KfReview[]
   reports    KfReport[]
   analyticsEvents KfAnalyticsEvent[]
+  assistanceRequests KfListingAssistanceRequest[]
+  assistanceAuditEntries KfListingAssistanceAuditEntry[]
 }
 
 model KfListingCategory {
@@ -158,6 +170,61 @@ model KfReport {
 
   listing  KfProviderListing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
   reporter KfUser?            @relation("Reporter", fields: [reporterId], references: [id], onDelete: SetNull)
+}
+
+model KfListingAssistanceRequest {
+  id              String                    @id @default(cuid())
+  listingId       String
+  userId          String
+  providerMessage String?                   @db.Text
+  status          KfListingAssistanceStatus @default(PENDING)
+  adminNotes      String?                   @db.Text
+  completedAt     DateTime?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  listing      KfProviderListing                 @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user         KfUser                            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  statusEvents KfListingAssistanceStatusEvent[]
+  auditEntries KfListingAssistanceAuditEntry[]
+
+  @@index([status, createdAt])
+  @@index([listingId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model KfListingAssistanceStatusEvent {
+  id         String                     @id @default(cuid())
+  requestId  String
+  fromStatus KfListingAssistanceStatus?
+  toStatus   KfListingAssistanceStatus
+  adminId    String
+  note       String?                    @db.Text
+  createdAt  DateTime                   @default(now())
+
+  request KfListingAssistanceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  admin   KfUser                     @relation("AssistanceStatusAdmin", fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt])
+}
+
+model KfListingAssistanceAuditEntry {
+  id            String   @id @default(cuid())
+  requestId     String
+  listingId     String
+  adminId       String
+  fieldName     String
+  previousValue String?  @db.Text
+  newValue      String?  @db.Text
+  createdAt     DateTime @default(now())
+
+  request KfListingAssistanceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  listing KfProviderListing        @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  admin   KfUser                   @relation("AssistanceAuditAdmin", fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt])
+  @@index([listingId, createdAt])
 }
 
 model KfAdminAudit {
