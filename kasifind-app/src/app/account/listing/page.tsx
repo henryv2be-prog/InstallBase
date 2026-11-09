@@ -10,9 +10,7 @@ import {
   listingStatusSummary,
 } from "@/components/kasifind/kf-listing-status";
 import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
-import { getListingContactClickLog } from "@/lib/kasifind/contact-click-log";
 import { getListingEngagementMetrics } from "@/lib/kasifind/listing-metrics";
-import { KfContactClickLog } from "@/components/kasifind/kf-contact-click-log";
 import {
   KfListingAssistanceHeroExtras,
   KfListingAssistanceProvider,
@@ -45,10 +43,6 @@ export default async function KfListingEditorPage() {
   const engagement = listing
     ? await getListingEngagementMetrics(listing.id)
     : null;
-  const contactClickLog = listing
-    ? await getListingContactClickLog(listing.id, { limit: 100 })
-    : null;
-
   const listingData = listing
     ? {
         listingId: listing.id,
@@ -154,11 +148,6 @@ export default async function KfListingEditorPage() {
           Open admin moderation
         </Link>
       )}
-      {contactClickLog ? (
-        <div className="kf-card p-5">
-          <KfContactClickLog rows={contactClickLog} />
-        </div>
-      ) : null}
       <KfListingForm
         categories={categories.map((c) => ({
           id: c.id,
