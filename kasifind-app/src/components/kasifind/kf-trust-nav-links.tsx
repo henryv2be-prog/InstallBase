@@ -8,19 +8,39 @@ const LINKS = [
 ] as const;
 
 /** Compact trust links for mobile menu and similar surfaces. */
-export function KfTrustNavLinks({ onNavigate }: { onNavigate?: () => void }) {
+export function KfTrustNavLinks({
+  onNavigate,
+  collapsed = false,
+}: {
+  onNavigate?: () => void;
+  /** Collapse under a disclosure in the hamburger menu. */
+  collapsed?: boolean;
+}) {
+  const list = (
+    <ul className="mt-2 space-y-1">
+      {LINKS.map(({ href, label }) => (
+        <li key={href}>
+          <Link href={href} className="kf-trust-nav-link" onClick={onNavigate}>
+            {label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+
+  if (!collapsed) {
+    return (
+      <div className="kf-trust-nav-links">
+        <p className="kf-trust-nav-kicker">Trust & support</p>
+        {list}
+      </div>
+    );
+  }
+
   return (
-    <div className="kf-trust-nav-links">
-      <p className="kf-trust-nav-kicker">Trust & support</p>
-      <ul className="mt-2 space-y-1">
-        {LINKS.map(({ href, label }) => (
-          <li key={href}>
-            <Link href={href} className="kf-trust-nav-link" onClick={onNavigate}>
-              {label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <details className="kf-mobile-nav-details kf-trust-nav-links">
+      <summary className="kf-mobile-nav-summary">Trust &amp; support</summary>
+      {list}
+    </details>
   );
 }
