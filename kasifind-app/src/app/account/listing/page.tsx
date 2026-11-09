@@ -1,20 +1,12 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { getListingForUser } from "@/lib/kasifind/provider-listing";
 import { KfListingForm } from "@/components/kasifind/kf-listing-form";
-import {
-  KfListingStatusChip,
-  listingStatusSummary,
-} from "@/components/kasifind/kf-listing-status";
 import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
-import { getListingEngagementMetrics } from "@/lib/kasifind/listing-metrics";
-import {
-  KfListingAssistanceHeroExtras,
-  KfListingAssistanceProvider,
-} from "@/components/kasifind/kf-listing-assistance-provider";
+import { KfListingAssistanceProvider } from "@/components/kasifind/kf-listing-assistance-provider";
 import { canProviderSubmitListingAssistance } from "@/lib/kasifind/listing-assistance-status";
 import { getProviderListingAssistanceRequest } from "@/lib/kasifind/listing-assistance";
 
@@ -40,9 +32,6 @@ export default async function KfListingEditorPage() {
 
   const canRequestAssistance = canProviderSubmitListingAssistance(assistanceRequest?.status ?? null);
 
-  const engagement = listing
-    ? await getListingEngagementMetrics(listing.id)
-    : null;
   const listingData = listing
     ? {
         listingId: listing.id,
@@ -72,93 +61,34 @@ export default async function KfListingEditorPage() {
       ])
     : 0;
 
-  const statusCopy = listingData
-    ? listingStatusSummary(listingData)
-    : {
-        label: "Get started",
-        detail: "Create your free listing — no company registration required.",
-      };
-
   return (
-    <KfListingAssistanceProvider
-      hasListing={Boolean(listingData)}
-      canSubmit={canRequestAssistance}
-      currentRequest={assistanceRequest}
-    >
-    <div className="kf-listing-page-flow kf-listing-page-classic">
-      <div className="kf-dashboard-hero kf-animate-in">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-white/80">
-              Provider dashboard
-            </p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight">
-              {listingData?.displayName ?? "Your listing"}
-            </h1>
-          </div>
-          {listingData ? <KfListingStatusChip listing={listingData} /> : null}
-        </div>
-        <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/90">{statusCopy.detail}</p>
-        {listingData ? (
-          <KfListingAssistanceHeroExtras
-            currentRequest={assistanceRequest}
-            canSubmit={canRequestAssistance}
+    <Suspense fallback={null}>
+      <KfListingAssistanceProvider
+        hasListing={Boolean(listingData)}
+        canSubmit={canRequestAssistance}
+        currentRequest={assistanceRequest}
+      >
+        <div className="kf-listing-page-flow kf-listing-page-classic">
+          {missingPhotoCount > 0 ? (
+            <div className="kf-alert-info kf-listing-flow-alert" role="status">
+              <strong>
+                {missingPhotoCount} work photo{missingPhotoCount === 1 ? "" : "s"}
+              </strong>{" "}
+              need to be re-uploaded after a deploy. Add them again in the Photos step.
+            </div>
+          ) : null}
+          <KfListingForm
+            categories={categories.map((c) => ({
+              id: c.id,
+              slug: c.slug,
+              name: c.name,
+              children: c.children.map((ch) => ({ id: ch.id, slug: ch.slug, name: ch.name })),
+            }))}
+            listing={listingData}
+            userEmail={user.email}
           />
-        ) : null}
-        {engagement ? (
-          <div
-            className="mt-4 grid gap-2 sm:grid-cols-3"
-            aria-label="How people find your listing"
-          >
-            <div className="rounded-xl bg-white/10 px-3 py-2 backdrop-blur-sm">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-white/75">
-                Seen in search
-              </p>
-              <p className="text-xl font-bold tabular-nums">{engagement.impressions}</p>
-            </div>
-            <div className="rounded-xl bg-white/10 px-3 py-2 backdrop-blur-sm">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-white/75">
-                Profile views
-              </p>
-              <p className="text-xl font-bold tabular-nums">{engagement.profileViews}</p>
-            </div>
-            <div className="rounded-xl bg-white/10 px-3 py-2 backdrop-blur-sm">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-white/75">
-                Contact taps
-              </p>
-              <p className="text-xl font-bold tabular-nums">{engagement.clicks}</p>
-            </div>
-          </div>
-        ) : null}
-        {!listingData && (
-          <p className="mt-2 text-sm text-white/75">
-            Add services like &quot;steel gates&quot; so people can find you in search.
-          </p>
-        )}
-      </div>
-      {missingPhotoCount > 0 ? (
-        <div className="kf-alert-info" role="status">
-          <strong>{missingPhotoCount} work photo{missingPhotoCount === 1 ? "" : "s"}</strong> need to
-          be added again — the files are missing on the server (common after a deploy without an
-          uploads volume). Re-add your <strong>business photo</strong> and <strong>work photos</strong>.
         </div>
-      ) : null}
-      {user.role === "ADMIN" && (
-        <Link href="/admin" className="kf-link text-sm underline">
-          Open admin moderation
-        </Link>
-      )}
-      <KfListingForm
-        categories={categories.map((c) => ({
-          id: c.id,
-          slug: c.slug,
-          name: c.name,
-          children: c.children.map((ch) => ({ id: ch.id, slug: ch.slug, name: ch.name })),
-        }))}
-        listing={listingData}
-        userEmail={user.email}
-      />
-    </div>
-    </KfListingAssistanceProvider>
+      </KfListingAssistanceProvider>
+    </Suspense>
   );
 }

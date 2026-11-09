@@ -11,7 +11,7 @@ import {
   useTransition,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { HandHelping, Loader2, X } from "lucide-react";
 import { kfSubmitListingAssistanceRequest } from "@/lib/kasifind/listing-assistance-actions";
 import type { ProviderAssistanceRequestView } from "@/lib/kasifind/listing-assistance";
@@ -48,6 +48,7 @@ export function KfListingAssistanceProvider({
   children: ReactNode;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [mode, setMode] = useState<"entry" | "publish">("entry");
   const [publishGaps, setPublishGaps] = useState<string[]>([]);
@@ -86,12 +87,17 @@ export function KfListingAssistanceProvider({
   );
 
   useEffect(() => {
+    if (searchParams.get("help") === "1" && hasListing && canSubmit && !activeRequest) {
+      setMode("entry");
+      setDialogOpen(true);
+      return;
+    }
     if (!hasListing || !canSubmit || activeRequest) return;
     if (typeof window === "undefined") return;
     if (window.localStorage.getItem(LISTING_ASSISTANCE_ENTRY_DISMISS_KEY) === "1") return;
     setMode("entry");
     setDialogOpen(true);
-  }, [activeRequest, canSubmit, hasListing]);
+  }, [activeRequest, canSubmit, hasListing, searchParams]);
 
   const closeDialog = (choice: PublishChoice = "cancel") => {
     setDialogOpen(false);
@@ -253,17 +259,22 @@ function KfListingAssistanceDialogPanel({
 export function KfListingAssistanceHeroExtras({
   currentRequest,
   canSubmit,
+  tone = "hero",
 }: {
   currentRequest: ProviderAssistanceRequestView | null;
   canSubmit: boolean;
+  tone?: "hero" | "surface";
 }) {
   const ctx = useListingAssistance();
   const active =
     currentRequest && isActiveListingAssistanceStatus(currentRequest.status);
 
+  const statusClass =
+    tone === "hero" ? "mt-2 text-sm text-white/85" : "text-sm text-[var(--kf-muted)]";
+
   if (currentRequest && (active || currentRequest.status === "COMPLETED" || currentRequest.status === "DECLINED")) {
     return (
-      <p className="mt-2 text-sm text-white/85" role="status">
+      <p className={statusClass} role="status">
         Assistance: <strong>{currentRequest.statusLabel}</strong>
       </p>
     );
@@ -274,7 +285,11 @@ export function KfListingAssistanceHeroExtras({
   return (
     <button
       type="button"
-      className="mt-2 text-sm font-medium text-white underline decoration-white/50 underline-offset-2 hover:decoration-white"
+      className={
+        tone === "hero"
+          ? "mt-2 text-sm font-medium text-white underline decoration-white/50 underline-offset-2 hover:decoration-white"
+          : "kf-btn kf-btn-outline text-sm"
+      }
       onClick={() => ctx.openHelpDialog()}
     >
       Need help with your listing?
