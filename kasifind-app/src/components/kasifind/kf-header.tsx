@@ -42,7 +42,9 @@ export function KfHeader({
   const isAdmin = user?.role === "ADMIN";
   const signedIn = Boolean(user);
   const isListingFlow =
-    pathname.startsWith("/account/listing") || pathname.startsWith("/account/insights");
+    pathname.startsWith("/account/listing") ||
+    pathname.startsWith("/account/insights") ||
+    pathname.startsWith("/account/listing-support");
   const adminMobileMenu = isAdmin && pathname.startsWith("/admin");
   const desktopNavClass = adminMobileMenu ? "hidden lg:flex" : "hidden sm:flex";
   const mobileMenuBtnClass = adminMobileMenu ? "lg:hidden" : "sm:hidden";
@@ -94,9 +96,14 @@ export function KfHeader({
             Activity Map
           </Link>
           {signedIn ? (
-            <Link href="/account/insights" className="kf-btn kf-btn-outline text-sm">
-              Insights
-            </Link>
+            <>
+              <Link href="/account/insights" className="kf-btn kf-btn-outline text-sm">
+                Insights
+              </Link>
+              <Link href="/account/listing-support" className="kf-btn kf-btn-outline text-sm">
+                Listing support
+              </Link>
+            </>
           ) : null}
           {isAdmin ? (
             <Link href="/admin" className="kf-btn kf-btn-outline text-sm">

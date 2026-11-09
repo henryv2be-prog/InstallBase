@@ -73,6 +73,8 @@ export async function kfSubmitListingAssistanceRequest(formData: FormData) {
   });
 
   revalidatePath("/account/listing");
+  revalidatePath("/account/listing-support");
+  revalidatePath("/account/insights");
   revalidatePath("/admin/listing-assistance");
   return { success: true };
 }
