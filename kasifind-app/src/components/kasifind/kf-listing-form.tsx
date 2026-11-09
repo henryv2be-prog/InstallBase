@@ -130,9 +130,10 @@ export function KfListingForm({
   const photoCount = listing?.photos.length ?? 0;
 
   useEffect(() => {
+    if (adminAssist) return undefined;
     document.body.classList.add("kf-listing-flow-active");
     return () => document.body.classList.remove("kf-listing-flow-active");
-  }, []);
+  }, [adminAssist]);
 
   useEffect(() => {
     requestAnimationFrame(scrollActiveStepPanel);
@@ -304,7 +305,9 @@ export function KfListingForm({
   }
 
   return (
-    <div className="kf-listing-flow kf-classic-wizard">
+    <div
+      className={`kf-listing-flow kf-classic-wizard${adminAssist ? " kf-listing-flow--embedded" : ""}`}
+    >
       <header className="kf-listing-flow-head kf-classic-wizard-head">
         <KfFormStepper
           steps={LISTING_FORM_STEPS}
@@ -686,22 +689,24 @@ export function KfListingForm({
             </button>
           )}
         </nav>
-        <p className="kf-listing-flow-account">
-          {userEmail}{" "}
-          <button
-            type="button"
-            className="underline"
-            onClick={() => {
-              startTransition(async () => {
-                await kfSignOutProvider();
-                router.push("/");
-                router.refresh();
-              });
-            }}
-          >
-            Sign out
-          </button>
-        </p>
+        {adminAssist ? null : (
+          <p className="kf-listing-flow-account">
+            {userEmail}{" "}
+            <button
+              type="button"
+              className="underline"
+              onClick={() => {
+                startTransition(async () => {
+                  await kfSignOutProvider();
+                  router.push("/");
+                  router.refresh();
+                });
+              }}
+            >
+              Sign out
+            </button>
+          </p>
+        )}
       </footer>
     </div>
   );

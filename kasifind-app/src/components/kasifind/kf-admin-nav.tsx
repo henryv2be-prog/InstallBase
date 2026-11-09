@@ -2,31 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Activity,
-  BarChart3,
-  Flag,
-  FolderTree,
-  LayoutDashboard,
-  HandHelping,
-  ListChecks,
-  Users,
-} from "lucide-react";
-
-const LINKS = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/listings", label: "Listings", icon: ListChecks },
-  { href: "/admin/listing-assistance", label: "Listing assistance", icon: HandHelping },
-  {
-    href: "/admin/provider-performance",
-    label: "Provider reports",
-    icon: BarChart3,
-  },
-  { href: "/admin/events", label: "Events", icon: Activity },
-  { href: "/admin/categories", label: "Categories", icon: FolderTree },
-  { href: "/admin/reports", label: "Reports", icon: Flag },
-] as const;
+import { KF_ADMIN_NAV_LINKS } from "@/lib/kasifind/admin-nav-links";
 
 export function KfAdminNav() {
   const pathname = usePathname();
@@ -35,8 +11,7 @@ export function KfAdminNav() {
     <nav className="kf-admin-nav" aria-label="Admin">
       <p className="kf-admin-nav-kicker">Admin portal</p>
       <ul className="mt-2 space-y-1">
-        {LINKS.map(({ href, label, icon: Icon, ...rest }) => {
-          const exact = "exact" in rest && rest.exact;
+        {KF_ADMIN_NAV_LINKS.map(({ href, label, icon: Icon, exact }) => {
           const active = exact ? pathname === href : pathname.startsWith(href);
           return (
             <li key={href}>
