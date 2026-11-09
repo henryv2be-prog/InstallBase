@@ -87,14 +87,16 @@ export function KfHeader({
         </Link>
 
         <nav className={`items-center gap-1 ${desktopNavClass}`} aria-label="Main">
-          <Link
-            href="/activity-map"
-            className="kf-btn kf-btn-outline text-sm"
-            aria-current={isActivityMap ? "page" : undefined}
-          >
-            <Map className="h-4 w-4" aria-hidden />
-            Activity Map
-          </Link>
+          {isAdmin ? (
+            <Link
+              href="/activity-map"
+              className="kf-btn kf-btn-outline text-sm"
+              aria-current={isActivityMap ? "page" : undefined}
+            >
+              <Map className="h-4 w-4" aria-hidden />
+              Activity Map
+            </Link>
+          ) : null}
           {signedIn ? (
             <>
               <Link href="/account/insights" className="kf-btn kf-btn-outline text-sm">

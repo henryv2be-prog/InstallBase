@@ -14,7 +14,6 @@ import {
   Store,
 } from "lucide-react";
 import { KF_ADMIN_NAV_LINKS } from "@/lib/kasifind/admin-nav-links";
-import { KfTrustNavLinks } from "@/components/kasifind/kf-trust-nav-links";
 
 function NavButton({
   href,
@@ -60,28 +59,23 @@ export function KfMobileNavMenu({
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isActivityMap = pathname.startsWith("/activity-map");
-  const isListing = pathname.startsWith("/account/listing");
+  const isListingEditor = pathname === "/account/listing";
   const isInsights = pathname.startsWith("/account/insights");
   const isListingSupport = pathname.startsWith("/account/listing-support");
   const onAdmin = pathname.startsWith("/admin");
 
   return (
     <div className="flex flex-col gap-3">
+      <NavButton href="/" label="Home" icon={Home} active={isHome} onNavigate={onClose} />
+
       {signedIn ? (
         <section className="kf-mobile-nav-section" aria-label="Your business">
           <NavButton
             href="/account/listing"
             label="Edit my listing"
             icon={Store}
-            active={isListing}
+            active={isListingEditor}
             primary
-            onNavigate={onClose}
-          />
-          <NavButton
-            href="/account/insights"
-            label="Listing insights"
-            icon={BarChart3}
-            active={isInsights}
             onNavigate={onClose}
           />
           <NavButton
@@ -89,6 +83,13 @@ export function KfMobileNavMenu({
             label="Listing support"
             icon={HandHelping}
             active={isListingSupport}
+            onNavigate={onClose}
+          />
+          <NavButton
+            href="/account/insights"
+            label="Listing insights"
+            icon={BarChart3}
+            active={isInsights}
             onNavigate={onClose}
           />
         </section>
@@ -107,24 +108,15 @@ export function KfMobileNavMenu({
         </section>
       )}
 
-      <section className="kf-mobile-nav-section" aria-label="Explore">
-        <details className="kf-mobile-nav-details">
-          <summary className="kf-mobile-nav-summary">Explore KasiFind</summary>
-          <div className="mt-2 flex flex-col gap-2">
-            <NavButton href="/" label="Home" icon={Home} active={isHome} onNavigate={onClose} />
-            <NavButton
-              href="/activity-map"
-              label="Activity map"
-              icon={Map}
-              active={isActivityMap}
-              onNavigate={onClose}
-            />
-          </div>
-        </details>
-      </section>
-
       {isAdmin ? (
         <section className="kf-mobile-nav-section" aria-label="Admin">
+          <NavButton
+            href="/activity-map"
+            label="Activity map"
+            icon={Map}
+            active={isActivityMap}
+            onNavigate={onClose}
+          />
           <details className="kf-mobile-nav-details" open={onAdmin}>
             <summary className="kf-mobile-nav-summary">
               <LayoutDashboard className="inline h-4 w-4" aria-hidden /> Admin portal
@@ -145,8 +137,6 @@ export function KfMobileNavMenu({
           {signingOut ? "Signing out…" : "Log out"}
         </button>
       ) : null}
-
-      <KfTrustNavLinks collapsed onNavigate={onClose} />
     </div>
   );
 }
