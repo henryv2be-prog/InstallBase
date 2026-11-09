@@ -4326,3 +4326,78 @@ main.admin-main:has(.kf-activity-map-page) {
   font-weight: 700;
   color: #0f4d3a;
 }
+
+/* Admin mobile: nav lives in site header menu */
+.kf-mobile-admin-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--kf-border);
+}
+
+.kf-mobile-admin-kicker {
+  margin: 0 0 0.15rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--kf-muted);
+}
+
+.kf-mobile-admin-link--active {
+  border-color: color-mix(in srgb, var(--kf-forest) 35%, var(--kf-border));
+  background: color-mix(in srgb, var(--kf-forest) 8%, white);
+  color: var(--kf-forest);
+}
+
+.kf-mobile-nav {
+  max-height: min(78dvh, calc(100dvh - 4.5rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 1023px) {
+  .kf-admin-hero--compact-mobile {
+    padding: var(--kf-space-3) var(--kf-space-4);
+  }
+
+  .kf-admin-hero--compact-mobile .kf-admin-hero-title {
+    font-size: 1.15rem;
+  }
+
+}
+
+/* Admin embedded listing editor: normal page scroll (not full-viewport wizard) */
+.kf-listing-flow--embedded {
+  flex: none;
+  min-height: auto;
+  padding: 0;
+}
+
+.kf-listing-flow--embedded .kf-listing-flow-body,
+.kf-listing-flow--embedded .kf-classic-wizard-body {
+  flex: none;
+  min-height: auto;
+  overflow: visible;
+  justify-content: flex-start;
+}
+
+.kf-listing-flow--embedded .kf-classic-wizard-body .kf-wizard-card {
+  flex: none;
+  min-height: auto;
+  overflow: visible;
+}
+
+.kf-listing-flow--embedded .kf-wizard-step-panel {
+  max-height: none;
+  overflow: visible;
+}
+
+.kf-listing-flow--embedded .kf-listing-flow-foot {
+  position: static;
+  flex-shrink: 0;
+  padding-bottom: 0.5rem;
+}

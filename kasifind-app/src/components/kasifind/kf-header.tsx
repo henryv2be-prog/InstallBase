@@ -7,6 +7,7 @@ import { Home, LayoutDashboard, LogOut, Map, Menu, PlusCircle, Store, X } from "
 import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
 import { KfTrustNavLinks } from "@/components/kasifind/kf-trust-nav-links";
 import { kfSignOutProvider } from "@/lib/kasifind/actions";
+import { KF_ADMIN_NAV_LINKS } from "@/lib/kasifind/admin-nav-links";
 
 function BrandMark() {
   return (
@@ -41,6 +42,9 @@ export function KfHeader({
   const isActivityMap = pathname.startsWith("/activity-map");
   const isAdmin = user?.role === "ADMIN";
   const signedIn = Boolean(user);
+  const adminMobileMenu = isAdmin && pathname.startsWith("/admin");
+  const desktopNavClass = adminMobileMenu ? "hidden lg:flex" : "hidden sm:flex";
+  const mobileMenuBtnClass = adminMobileMenu ? "lg:hidden" : "sm:hidden";
 
   useEffect(() => {
     setOpen(false);
@@ -73,7 +77,7 @@ export function KfHeader({
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-1 sm:flex" aria-label="Main">
+        <nav className={`items-center gap-1 ${desktopNavClass}`} aria-label="Main">
           <Link
             href="/activity-map"
             className="kf-btn kf-btn-outline text-sm"
@@ -96,7 +100,7 @@ export function KfHeader({
 
         <button
           type="button"
-          className="kf-btn kf-btn-ghost sm:hidden"
+          className={`kf-btn kf-btn-ghost ${mobileMenuBtnClass}`}
           aria-expanded={open}
           aria-controls="kf-mobile-nav"
           aria-label={open ? "Close menu" : "Open menu"}
@@ -115,7 +119,7 @@ export function KfHeader({
       {open ? (
         <nav
           id="kf-mobile-nav"
-          className="kf-mobile-nav border-t border-[var(--kf-border)] bg-white px-4 py-3 sm:hidden kf-animate-in"
+          className={`kf-mobile-nav border-t border-[var(--kf-border)] bg-white px-4 py-3 kf-animate-in ${mobileMenuBtnClass}`}
           aria-label="Mobile"
         >
           <div className="flex flex-col gap-2">
@@ -150,15 +154,24 @@ export function KfHeader({
                   My listing
                 </Link>
                 {isAdmin ? (
-                  <Link
-                    href="/admin"
-                    className="kf-btn kf-btn-outline w-full"
-                    onClick={() => setOpen(false)}
-                    aria-current={pathname.startsWith("/admin") ? "page" : undefined}
-                  >
-                    <LayoutDashboard className="h-4 w-4" aria-hidden />
-                    Admin portal
-                  </Link>
+                  <div className="kf-mobile-admin-links" aria-label="Admin sections">
+                    <p className="kf-mobile-admin-kicker">Admin portal</p>
+                    {KF_ADMIN_NAV_LINKS.map(({ href, label, icon: Icon, exact }) => {
+                      const active = exact ? pathname === href : pathname.startsWith(href);
+                      return (
+                        <Link
+                          key={href}
+                          href={href}
+                          className={`kf-btn kf-btn-outline w-full${active ? " kf-mobile-admin-link--active" : ""}`}
+                          onClick={() => setOpen(false)}
+                          aria-current={active ? "page" : undefined}
+                        >
+                          <Icon className="h-4 w-4" aria-hidden />
+                          {label}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 ) : null}
                 <button
                   type="button"
