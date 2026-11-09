@@ -13,7 +13,10 @@ import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
 import { getListingContactClickLog } from "@/lib/kasifind/contact-click-log";
 import { getListingEngagementMetrics } from "@/lib/kasifind/listing-metrics";
 import { KfContactClickLog } from "@/components/kasifind/kf-contact-click-log";
-import { KfListingAssistanceRequest } from "@/components/kasifind/kf-listing-assistance-request";
+import {
+  KfListingAssistanceHeroExtras,
+  KfListingAssistanceProvider,
+} from "@/components/kasifind/kf-listing-assistance-provider";
 import { canProviderSubmitListingAssistance } from "@/lib/kasifind/listing-assistance-status";
 import { getProviderListingAssistanceRequest } from "@/lib/kasifind/listing-assistance";
 
@@ -83,6 +86,11 @@ export default async function KfListingEditorPage() {
       };
 
   return (
+    <KfListingAssistanceProvider
+      hasListing={Boolean(listingData)}
+      canSubmit={canRequestAssistance}
+      currentRequest={assistanceRequest}
+    >
     <div className="kf-listing-page-flow kf-listing-page-classic">
       <div className="kf-dashboard-hero kf-animate-in">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -97,6 +105,12 @@ export default async function KfListingEditorPage() {
           {listingData ? <KfListingStatusChip listing={listingData} /> : null}
         </div>
         <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/90">{statusCopy.detail}</p>
+        {listingData ? (
+          <KfListingAssistanceHeroExtras
+            currentRequest={assistanceRequest}
+            canSubmit={canRequestAssistance}
+          />
+        ) : null}
         {engagement ? (
           <div
             className="mt-4 grid gap-2 sm:grid-cols-3"
@@ -145,11 +159,6 @@ export default async function KfListingEditorPage() {
           <KfContactClickLog rows={contactClickLog} />
         </div>
       ) : null}
-      <KfListingAssistanceRequest
-        hasListing={Boolean(listingData)}
-        currentRequest={assistanceRequest}
-        canSubmit={canRequestAssistance}
-      />
       <KfListingForm
         categories={categories.map((c) => ({
           id: c.id,
@@ -161,5 +170,6 @@ export default async function KfListingEditorPage() {
         userEmail={user.email}
       />
     </div>
+    </KfListingAssistanceProvider>
   );
 }

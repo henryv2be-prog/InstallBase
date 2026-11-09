@@ -29,6 +29,8 @@ import {
 } from "@/components/kasifind/kf-form-stepper";
 import { KfListingWizardSummary } from "@/components/kasifind/kf-listing-wizard-summary";
 import { KfPublishSuccessScreen } from "@/components/kasifind/kf-publish-success-screen";
+import { useListingAssistance } from "@/components/kasifind/kf-listing-assistance-provider";
+import { readCompletenessFromListingForm } from "@/lib/kasifind/listing-assistance-prompt";
 import { useKfToast } from "@/components/kasifind/kf-toast";
 import type { KfCategory } from "@/components/kasifind/types";
 
@@ -105,6 +107,7 @@ export function KfListingForm({
   adminAssist?: { assistanceRequestId: string };
 }) {
   const router = useRouter();
+  const listingAssistance = useListingAssistance();
   const upsertListing = adminAssist ? kfAdminAssistedUpsertListing : kfUpsertListing;
   const addListingPhoto = adminAssist ? kfAdminAssistedAddListingPhoto : kfAddListingPhoto;
   const removeListingPhoto = adminAssist ? kfAdminAssistedRemoveListingPhoto : kfRemoveListingPhoto;
@@ -252,6 +255,16 @@ export function KfListingForm({
       }
     } else if (!validateWizardStep(form, activeStep, toast.error)) {
       return;
+    }
+
+    if (publish && listingAssistance && !adminAssist) {
+      const completeness = readCompletenessFromListingForm(
+        form,
+        photoCount,
+        Boolean(listing?.profileImageUrl)
+      );
+      const choice = await listingAssistance.offerHelpBeforePublish(completeness);
+      if (choice === "help" || choice === "cancel") return;
     }
 
     const formData = new FormData(form);
