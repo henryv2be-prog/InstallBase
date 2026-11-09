@@ -11,6 +11,7 @@ import {
   useTransition,
   type ReactNode,
 } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { HandHelping, Loader2, X } from "lucide-react";
 import { kfSubmitListingAssistanceRequest } from "@/lib/kasifind/listing-assistance-actions";
@@ -61,12 +62,19 @@ export function KfListingAssistanceProvider({
     currentRequest && isActiveListingAssistanceStatus(currentRequest.status);
 
   const openHelpDialog = useCallback(() => {
-    if (!hasListing || !canSubmit || activeRequest) return;
+    if (!hasListing) {
+      router.push("/account/listing");
+      return;
+    }
+    if (activeRequest || !canSubmit) {
+      router.push("/account/listing-support");
+      return;
+    }
     setMode("entry");
     setPublishGaps([]);
     setError(null);
     setDialogOpen(true);
-  }, [activeRequest, canSubmit, hasListing]);
+  }, [activeRequest, canSubmit, hasListing, router]);
 
   const offerHelpBeforePublish = useCallback(
     (input: ListingCompletenessInput) => {
@@ -87,9 +95,8 @@ export function KfListingAssistanceProvider({
   );
 
   useEffect(() => {
-    if (searchParams.get("help") === "1" && hasListing && canSubmit && !activeRequest) {
-      setMode("entry");
-      setDialogOpen(true);
+    if (searchParams.get("help") === "1") {
+      router.replace("/account/listing-support");
       return;
     }
     if (!hasListing || !canSubmit || activeRequest) return;
@@ -97,7 +104,7 @@ export function KfListingAssistanceProvider({
     if (window.localStorage.getItem(LISTING_ASSISTANCE_ENTRY_DISMISS_KEY) === "1") return;
     setMode("entry");
     setDialogOpen(true);
-  }, [activeRequest, canSubmit, hasListing, searchParams]);
+  }, [activeRequest, canSubmit, hasListing, searchParams, router]);
 
   const closeDialog = (choice: PublishChoice = "cancel") => {
     setDialogOpen(false);
@@ -265,34 +272,26 @@ export function KfListingAssistanceHeroExtras({
   canSubmit: boolean;
   tone?: "hero" | "surface";
 }) {
-  const ctx = useListingAssistance();
-  const active =
-    currentRequest && isActiveListingAssistanceStatus(currentRequest.status);
-
   const statusClass =
     tone === "hero" ? "mt-2 text-sm text-white/85" : "text-sm text-[var(--kf-muted)]";
 
-  if (currentRequest && (active || currentRequest.status === "COMPLETED" || currentRequest.status === "DECLINED")) {
-    return (
-      <p className={statusClass} role="status">
-        Assistance: <strong>{currentRequest.statusLabel}</strong>
-      </p>
-    );
-  }
-
-  if (!canSubmit || !ctx) return null;
-
   return (
-    <button
-      type="button"
-      className={
-        tone === "hero"
-          ? "mt-2 text-sm font-medium text-white underline decoration-white/50 underline-offset-2 hover:decoration-white"
-          : "kf-btn kf-btn-outline text-sm"
-      }
-      onClick={() => ctx.openHelpDialog()}
-    >
-      Need help with your listing?
-    </button>
+    <div className={tone === "hero" ? "mt-2 space-y-2" : "space-y-2"}>
+      {currentRequest ? (
+        <p className={statusClass} role="status">
+          Listing support: <strong>{currentRequest.statusLabel}</strong>
+        </p>
+      ) : null}
+      <Link
+        href="/account/listing-support"
+        className={
+          tone === "hero"
+            ? "inline-block text-sm font-medium text-white underline decoration-white/50 underline-offset-2 hover:decoration-white"
+            : "kf-btn kf-btn-outline text-sm"
+        }
+      >
+        {canSubmit ? "Request listing support" : "View listing support"}
+      </Link>
+    </div>
   );
 }

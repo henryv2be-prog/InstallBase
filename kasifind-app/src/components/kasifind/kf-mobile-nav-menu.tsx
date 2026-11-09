@@ -62,6 +62,7 @@ export function KfMobileNavMenu({
   const isActivityMap = pathname.startsWith("/activity-map");
   const isListing = pathname.startsWith("/account/listing");
   const isInsights = pathname.startsWith("/account/insights");
+  const isListingSupport = pathname.startsWith("/account/listing-support");
   const onAdmin = pathname.startsWith("/admin");
 
   return (
@@ -84,9 +85,10 @@ export function KfMobileNavMenu({
             onNavigate={onClose}
           />
           <NavButton
-            href="/account/listing?help=1"
-            label="Get listing help"
+            href="/account/listing-support"
+            label="Listing support"
             icon={HandHelping}
+            active={isListingSupport}
             onNavigate={onClose}
           />
         </section>
