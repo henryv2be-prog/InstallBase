@@ -339,6 +339,8 @@ export type KfProviderListingWhereInput = {
   reviews?: Prisma.KfReviewListRelationFilter
   reports?: Prisma.KfReportListRelationFilter
   analyticsEvents?: Prisma.KfAnalyticsEventListRelationFilter
+  assistanceRequests?: Prisma.KfListingAssistanceRequestListRelationFilter
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryListRelationFilter
 }
 
 export type KfProviderListingOrderByWithRelationInput = {
@@ -368,6 +370,8 @@ export type KfProviderListingOrderByWithRelationInput = {
   reviews?: Prisma.KfReviewOrderByRelationAggregateInput
   reports?: Prisma.KfReportOrderByRelationAggregateInput
   analyticsEvents?: Prisma.KfAnalyticsEventOrderByRelationAggregateInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestOrderByRelationAggregateInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryOrderByRelationAggregateInput
 }
 
 export type KfProviderListingWhereUniqueInput = Prisma.AtLeast<{
@@ -400,6 +404,8 @@ export type KfProviderListingWhereUniqueInput = Prisma.AtLeast<{
   reviews?: Prisma.KfReviewListRelationFilter
   reports?: Prisma.KfReportListRelationFilter
   analyticsEvents?: Prisma.KfAnalyticsEventListRelationFilter
+  assistanceRequests?: Prisma.KfListingAssistanceRequestListRelationFilter
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryListRelationFilter
 }, "id" | "userId">
 
 export type KfProviderListingOrderByWithAggregationInput = {
@@ -480,6 +486,8 @@ export type KfProviderListingCreateInput = {
   reviews?: Prisma.KfReviewCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingUncheckedCreateInput = {
@@ -508,6 +516,8 @@ export type KfProviderListingUncheckedCreateInput = {
   reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingUpdateInput = {
@@ -536,6 +546,8 @@ export type KfProviderListingUpdateInput = {
   reviews?: Prisma.KfReviewUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingUncheckedUpdateInput = {
@@ -564,6 +576,8 @@ export type KfProviderListingUncheckedUpdateInput = {
   reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUncheckedUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingCreateManyInput = {
@@ -837,6 +851,34 @@ export type KfProviderListingUpdateOneWithoutReportsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.KfProviderListingUpdateToOneWithWhereWithoutReportsInput, Prisma.KfProviderListingUpdateWithoutReportsInput>, Prisma.KfProviderListingUncheckedUpdateWithoutReportsInput>
 }
 
+export type KfProviderListingCreateNestedOneWithoutAssistanceRequestsInput = {
+  create?: Prisma.XOR<Prisma.KfProviderListingCreateWithoutAssistanceRequestsInput, Prisma.KfProviderListingUncheckedCreateWithoutAssistanceRequestsInput>
+  connectOrCreate?: Prisma.KfProviderListingCreateOrConnectWithoutAssistanceRequestsInput
+  connect?: Prisma.KfProviderListingWhereUniqueInput
+}
+
+export type KfProviderListingUpdateOneRequiredWithoutAssistanceRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.KfProviderListingCreateWithoutAssistanceRequestsInput, Prisma.KfProviderListingUncheckedCreateWithoutAssistanceRequestsInput>
+  connectOrCreate?: Prisma.KfProviderListingCreateOrConnectWithoutAssistanceRequestsInput
+  upsert?: Prisma.KfProviderListingUpsertWithoutAssistanceRequestsInput
+  connect?: Prisma.KfProviderListingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.KfProviderListingUpdateToOneWithWhereWithoutAssistanceRequestsInput, Prisma.KfProviderListingUpdateWithoutAssistanceRequestsInput>, Prisma.KfProviderListingUncheckedUpdateWithoutAssistanceRequestsInput>
+}
+
+export type KfProviderListingCreateNestedOneWithoutAssistanceAuditEntriesInput = {
+  create?: Prisma.XOR<Prisma.KfProviderListingCreateWithoutAssistanceAuditEntriesInput, Prisma.KfProviderListingUncheckedCreateWithoutAssistanceAuditEntriesInput>
+  connectOrCreate?: Prisma.KfProviderListingCreateOrConnectWithoutAssistanceAuditEntriesInput
+  connect?: Prisma.KfProviderListingWhereUniqueInput
+}
+
+export type KfProviderListingUpdateOneRequiredWithoutAssistanceAuditEntriesNestedInput = {
+  create?: Prisma.XOR<Prisma.KfProviderListingCreateWithoutAssistanceAuditEntriesInput, Prisma.KfProviderListingUncheckedCreateWithoutAssistanceAuditEntriesInput>
+  connectOrCreate?: Prisma.KfProviderListingCreateOrConnectWithoutAssistanceAuditEntriesInput
+  upsert?: Prisma.KfProviderListingUpsertWithoutAssistanceAuditEntriesInput
+  connect?: Prisma.KfProviderListingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.KfProviderListingUpdateToOneWithWhereWithoutAssistanceAuditEntriesInput, Prisma.KfProviderListingUpdateWithoutAssistanceAuditEntriesInput>, Prisma.KfProviderListingUncheckedUpdateWithoutAssistanceAuditEntriesInput>
+}
+
 export type KfProviderListingCreateNestedOneWithoutAnalyticsEventsInput = {
   create?: Prisma.XOR<Prisma.KfProviderListingCreateWithoutAnalyticsEventsInput, Prisma.KfProviderListingUncheckedCreateWithoutAnalyticsEventsInput>
   connectOrCreate?: Prisma.KfProviderListingCreateOrConnectWithoutAnalyticsEventsInput
@@ -878,6 +920,8 @@ export type KfProviderListingCreateWithoutUserInput = {
   reviews?: Prisma.KfReviewCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingUncheckedCreateWithoutUserInput = {
@@ -905,6 +949,8 @@ export type KfProviderListingUncheckedCreateWithoutUserInput = {
   reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingCreateOrConnectWithoutUserInput = {
@@ -948,6 +994,8 @@ export type KfProviderListingUpdateWithoutUserInput = {
   reviews?: Prisma.KfReviewUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingUncheckedUpdateWithoutUserInput = {
@@ -975,6 +1023,8 @@ export type KfProviderListingUncheckedUpdateWithoutUserInput = {
   reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUncheckedUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingCreateWithoutCategoriesInput = {
@@ -1002,6 +1052,8 @@ export type KfProviderListingCreateWithoutCategoriesInput = {
   reviews?: Prisma.KfReviewCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingUncheckedCreateWithoutCategoriesInput = {
@@ -1029,6 +1081,8 @@ export type KfProviderListingUncheckedCreateWithoutCategoriesInput = {
   reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingCreateOrConnectWithoutCategoriesInput = {
@@ -1072,6 +1126,8 @@ export type KfProviderListingUpdateWithoutCategoriesInput = {
   reviews?: Prisma.KfReviewUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingUncheckedUpdateWithoutCategoriesInput = {
@@ -1099,6 +1155,8 @@ export type KfProviderListingUncheckedUpdateWithoutCategoriesInput = {
   reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUncheckedUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingCreateWithoutServicesInput = {
@@ -1126,6 +1184,8 @@ export type KfProviderListingCreateWithoutServicesInput = {
   reviews?: Prisma.KfReviewCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingUncheckedCreateWithoutServicesInput = {
@@ -1153,6 +1213,8 @@ export type KfProviderListingUncheckedCreateWithoutServicesInput = {
   reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingCreateOrConnectWithoutServicesInput = {
@@ -1196,6 +1258,8 @@ export type KfProviderListingUpdateWithoutServicesInput = {
   reviews?: Prisma.KfReviewUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingUncheckedUpdateWithoutServicesInput = {
@@ -1223,6 +1287,8 @@ export type KfProviderListingUncheckedUpdateWithoutServicesInput = {
   reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUncheckedUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingCreateWithoutPhotosInput = {
@@ -1250,6 +1316,8 @@ export type KfProviderListingCreateWithoutPhotosInput = {
   reviews?: Prisma.KfReviewCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingUncheckedCreateWithoutPhotosInput = {
@@ -1277,6 +1345,8 @@ export type KfProviderListingUncheckedCreateWithoutPhotosInput = {
   reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingCreateOrConnectWithoutPhotosInput = {
@@ -1320,6 +1390,8 @@ export type KfProviderListingUpdateWithoutPhotosInput = {
   reviews?: Prisma.KfReviewUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingUncheckedUpdateWithoutPhotosInput = {
@@ -1347,6 +1419,8 @@ export type KfProviderListingUncheckedUpdateWithoutPhotosInput = {
   reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUncheckedUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingCreateWithoutReviewsInput = {
@@ -1374,6 +1448,8 @@ export type KfProviderListingCreateWithoutReviewsInput = {
   photos?: Prisma.KfProviderPhotoCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingUncheckedCreateWithoutReviewsInput = {
@@ -1401,6 +1477,8 @@ export type KfProviderListingUncheckedCreateWithoutReviewsInput = {
   photos?: Prisma.KfProviderPhotoUncheckedCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingCreateOrConnectWithoutReviewsInput = {
@@ -1444,6 +1522,8 @@ export type KfProviderListingUpdateWithoutReviewsInput = {
   photos?: Prisma.KfProviderPhotoUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingUncheckedUpdateWithoutReviewsInput = {
@@ -1471,6 +1551,8 @@ export type KfProviderListingUncheckedUpdateWithoutReviewsInput = {
   photos?: Prisma.KfProviderPhotoUncheckedUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUncheckedUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingCreateWithoutReportsInput = {
@@ -1498,6 +1580,8 @@ export type KfProviderListingCreateWithoutReportsInput = {
   photos?: Prisma.KfProviderPhotoCreateNestedManyWithoutListingInput
   reviews?: Prisma.KfReviewCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingUncheckedCreateWithoutReportsInput = {
@@ -1525,6 +1609,8 @@ export type KfProviderListingUncheckedCreateWithoutReportsInput = {
   photos?: Prisma.KfProviderPhotoUncheckedCreateNestedManyWithoutListingInput
   reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutListingInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingCreateOrConnectWithoutReportsInput = {
@@ -1568,6 +1654,8 @@ export type KfProviderListingUpdateWithoutReportsInput = {
   photos?: Prisma.KfProviderPhotoUpdateManyWithoutListingNestedInput
   reviews?: Prisma.KfReviewUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingUncheckedUpdateWithoutReportsInput = {
@@ -1595,6 +1683,272 @@ export type KfProviderListingUncheckedUpdateWithoutReportsInput = {
   photos?: Prisma.KfProviderPhotoUncheckedUpdateManyWithoutListingNestedInput
   reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutListingNestedInput
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutListingNestedInput
+}
+
+export type KfProviderListingCreateWithoutAssistanceRequestsInput = {
+  id?: string
+  displayName: string
+  description: string
+  phone: string
+  whatsapp?: string | null
+  latitude: number
+  longitude: number
+  locationLabel: string
+  hideExactLocation?: boolean
+  priceHint?: string | null
+  hoursNote?: string | null
+  status?: $Enums.KfListingStatus
+  moderationStatus?: $Enums.KfModerationStatus
+  profileImageUrl?: string | null
+  featured?: boolean
+  featuredAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.KfUserCreateNestedOneWithoutListingInput
+  categories?: Prisma.KfListingCategoryCreateNestedManyWithoutListingInput
+  services?: Prisma.KfProviderServiceCreateNestedManyWithoutListingInput
+  photos?: Prisma.KfProviderPhotoCreateNestedManyWithoutListingInput
+  reviews?: Prisma.KfReviewCreateNestedManyWithoutListingInput
+  reports?: Prisma.KfReportCreateNestedManyWithoutListingInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutListingInput
+}
+
+export type KfProviderListingUncheckedCreateWithoutAssistanceRequestsInput = {
+  id?: string
+  userId: string
+  displayName: string
+  description: string
+  phone: string
+  whatsapp?: string | null
+  latitude: number
+  longitude: number
+  locationLabel: string
+  hideExactLocation?: boolean
+  priceHint?: string | null
+  hoursNote?: string | null
+  status?: $Enums.KfListingStatus
+  moderationStatus?: $Enums.KfModerationStatus
+  profileImageUrl?: string | null
+  featured?: boolean
+  featuredAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  categories?: Prisma.KfListingCategoryUncheckedCreateNestedManyWithoutListingInput
+  services?: Prisma.KfProviderServiceUncheckedCreateNestedManyWithoutListingInput
+  photos?: Prisma.KfProviderPhotoUncheckedCreateNestedManyWithoutListingInput
+  reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutListingInput
+  reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutListingInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutListingInput
+}
+
+export type KfProviderListingCreateOrConnectWithoutAssistanceRequestsInput = {
+  where: Prisma.KfProviderListingWhereUniqueInput
+  create: Prisma.XOR<Prisma.KfProviderListingCreateWithoutAssistanceRequestsInput, Prisma.KfProviderListingUncheckedCreateWithoutAssistanceRequestsInput>
+}
+
+export type KfProviderListingUpsertWithoutAssistanceRequestsInput = {
+  update: Prisma.XOR<Prisma.KfProviderListingUpdateWithoutAssistanceRequestsInput, Prisma.KfProviderListingUncheckedUpdateWithoutAssistanceRequestsInput>
+  create: Prisma.XOR<Prisma.KfProviderListingCreateWithoutAssistanceRequestsInput, Prisma.KfProviderListingUncheckedCreateWithoutAssistanceRequestsInput>
+  where?: Prisma.KfProviderListingWhereInput
+}
+
+export type KfProviderListingUpdateToOneWithWhereWithoutAssistanceRequestsInput = {
+  where?: Prisma.KfProviderListingWhereInput
+  data: Prisma.XOR<Prisma.KfProviderListingUpdateWithoutAssistanceRequestsInput, Prisma.KfProviderListingUncheckedUpdateWithoutAssistanceRequestsInput>
+}
+
+export type KfProviderListingUpdateWithoutAssistanceRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  locationLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  hideExactLocation?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hoursNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumKfListingStatusFieldUpdateOperationsInput | $Enums.KfListingStatus
+  moderationStatus?: Prisma.EnumKfModerationStatusFieldUpdateOperationsInput | $Enums.KfModerationStatus
+  profileImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  featuredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.KfUserUpdateOneRequiredWithoutListingNestedInput
+  categories?: Prisma.KfListingCategoryUpdateManyWithoutListingNestedInput
+  services?: Prisma.KfProviderServiceUpdateManyWithoutListingNestedInput
+  photos?: Prisma.KfProviderPhotoUpdateManyWithoutListingNestedInput
+  reviews?: Prisma.KfReviewUpdateManyWithoutListingNestedInput
+  reports?: Prisma.KfReportUpdateManyWithoutListingNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutListingNestedInput
+}
+
+export type KfProviderListingUncheckedUpdateWithoutAssistanceRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  locationLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  hideExactLocation?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hoursNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumKfListingStatusFieldUpdateOperationsInput | $Enums.KfListingStatus
+  moderationStatus?: Prisma.EnumKfModerationStatusFieldUpdateOperationsInput | $Enums.KfModerationStatus
+  profileImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  featuredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  categories?: Prisma.KfListingCategoryUncheckedUpdateManyWithoutListingNestedInput
+  services?: Prisma.KfProviderServiceUncheckedUpdateManyWithoutListingNestedInput
+  photos?: Prisma.KfProviderPhotoUncheckedUpdateManyWithoutListingNestedInput
+  reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutListingNestedInput
+  reports?: Prisma.KfReportUncheckedUpdateManyWithoutListingNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutListingNestedInput
+}
+
+export type KfProviderListingCreateWithoutAssistanceAuditEntriesInput = {
+  id?: string
+  displayName: string
+  description: string
+  phone: string
+  whatsapp?: string | null
+  latitude: number
+  longitude: number
+  locationLabel: string
+  hideExactLocation?: boolean
+  priceHint?: string | null
+  hoursNote?: string | null
+  status?: $Enums.KfListingStatus
+  moderationStatus?: $Enums.KfModerationStatus
+  profileImageUrl?: string | null
+  featured?: boolean
+  featuredAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.KfUserCreateNestedOneWithoutListingInput
+  categories?: Prisma.KfListingCategoryCreateNestedManyWithoutListingInput
+  services?: Prisma.KfProviderServiceCreateNestedManyWithoutListingInput
+  photos?: Prisma.KfProviderPhotoCreateNestedManyWithoutListingInput
+  reviews?: Prisma.KfReviewCreateNestedManyWithoutListingInput
+  reports?: Prisma.KfReportCreateNestedManyWithoutListingInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutListingInput
+}
+
+export type KfProviderListingUncheckedCreateWithoutAssistanceAuditEntriesInput = {
+  id?: string
+  userId: string
+  displayName: string
+  description: string
+  phone: string
+  whatsapp?: string | null
+  latitude: number
+  longitude: number
+  locationLabel: string
+  hideExactLocation?: boolean
+  priceHint?: string | null
+  hoursNote?: string | null
+  status?: $Enums.KfListingStatus
+  moderationStatus?: $Enums.KfModerationStatus
+  profileImageUrl?: string | null
+  featured?: boolean
+  featuredAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  categories?: Prisma.KfListingCategoryUncheckedCreateNestedManyWithoutListingInput
+  services?: Prisma.KfProviderServiceUncheckedCreateNestedManyWithoutListingInput
+  photos?: Prisma.KfProviderPhotoUncheckedCreateNestedManyWithoutListingInput
+  reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutListingInput
+  reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutListingInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutListingInput
+}
+
+export type KfProviderListingCreateOrConnectWithoutAssistanceAuditEntriesInput = {
+  where: Prisma.KfProviderListingWhereUniqueInput
+  create: Prisma.XOR<Prisma.KfProviderListingCreateWithoutAssistanceAuditEntriesInput, Prisma.KfProviderListingUncheckedCreateWithoutAssistanceAuditEntriesInput>
+}
+
+export type KfProviderListingUpsertWithoutAssistanceAuditEntriesInput = {
+  update: Prisma.XOR<Prisma.KfProviderListingUpdateWithoutAssistanceAuditEntriesInput, Prisma.KfProviderListingUncheckedUpdateWithoutAssistanceAuditEntriesInput>
+  create: Prisma.XOR<Prisma.KfProviderListingCreateWithoutAssistanceAuditEntriesInput, Prisma.KfProviderListingUncheckedCreateWithoutAssistanceAuditEntriesInput>
+  where?: Prisma.KfProviderListingWhereInput
+}
+
+export type KfProviderListingUpdateToOneWithWhereWithoutAssistanceAuditEntriesInput = {
+  where?: Prisma.KfProviderListingWhereInput
+  data: Prisma.XOR<Prisma.KfProviderListingUpdateWithoutAssistanceAuditEntriesInput, Prisma.KfProviderListingUncheckedUpdateWithoutAssistanceAuditEntriesInput>
+}
+
+export type KfProviderListingUpdateWithoutAssistanceAuditEntriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  locationLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  hideExactLocation?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hoursNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumKfListingStatusFieldUpdateOperationsInput | $Enums.KfListingStatus
+  moderationStatus?: Prisma.EnumKfModerationStatusFieldUpdateOperationsInput | $Enums.KfModerationStatus
+  profileImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  featuredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.KfUserUpdateOneRequiredWithoutListingNestedInput
+  categories?: Prisma.KfListingCategoryUpdateManyWithoutListingNestedInput
+  services?: Prisma.KfProviderServiceUpdateManyWithoutListingNestedInput
+  photos?: Prisma.KfProviderPhotoUpdateManyWithoutListingNestedInput
+  reviews?: Prisma.KfReviewUpdateManyWithoutListingNestedInput
+  reports?: Prisma.KfReportUpdateManyWithoutListingNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutListingNestedInput
+}
+
+export type KfProviderListingUncheckedUpdateWithoutAssistanceAuditEntriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  locationLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  hideExactLocation?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hoursNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumKfListingStatusFieldUpdateOperationsInput | $Enums.KfListingStatus
+  moderationStatus?: Prisma.EnumKfModerationStatusFieldUpdateOperationsInput | $Enums.KfModerationStatus
+  profileImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  featuredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  categories?: Prisma.KfListingCategoryUncheckedUpdateManyWithoutListingNestedInput
+  services?: Prisma.KfProviderServiceUncheckedUpdateManyWithoutListingNestedInput
+  photos?: Prisma.KfProviderPhotoUncheckedUpdateManyWithoutListingNestedInput
+  reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutListingNestedInput
+  reports?: Prisma.KfReportUncheckedUpdateManyWithoutListingNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingCreateWithoutAnalyticsEventsInput = {
@@ -1622,6 +1976,8 @@ export type KfProviderListingCreateWithoutAnalyticsEventsInput = {
   photos?: Prisma.KfProviderPhotoCreateNestedManyWithoutListingInput
   reviews?: Prisma.KfReviewCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingUncheckedCreateWithoutAnalyticsEventsInput = {
@@ -1649,6 +2005,8 @@ export type KfProviderListingUncheckedCreateWithoutAnalyticsEventsInput = {
   photos?: Prisma.KfProviderPhotoUncheckedCreateNestedManyWithoutListingInput
   reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutListingInput
   reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutListingInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutListingInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutListingInput
 }
 
 export type KfProviderListingCreateOrConnectWithoutAnalyticsEventsInput = {
@@ -1692,6 +2050,8 @@ export type KfProviderListingUpdateWithoutAnalyticsEventsInput = {
   photos?: Prisma.KfProviderPhotoUpdateManyWithoutListingNestedInput
   reviews?: Prisma.KfReviewUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutListingNestedInput
 }
 
 export type KfProviderListingUncheckedUpdateWithoutAnalyticsEventsInput = {
@@ -1719,6 +2079,8 @@ export type KfProviderListingUncheckedUpdateWithoutAnalyticsEventsInput = {
   photos?: Prisma.KfProviderPhotoUncheckedUpdateManyWithoutListingNestedInput
   reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutListingNestedInput
   reports?: Prisma.KfReportUncheckedUpdateManyWithoutListingNestedInput
+  assistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutListingNestedInput
+  assistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutListingNestedInput
 }
 
 
@@ -1733,6 +2095,8 @@ export type KfProviderListingCountOutputType = {
   reviews: number
   reports: number
   analyticsEvents: number
+  assistanceRequests: number
+  assistanceAuditEntries: number
 }
 
 export type KfProviderListingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1742,6 +2106,8 @@ export type KfProviderListingCountOutputTypeSelect<ExtArgs extends runtime.Types
   reviews?: boolean | KfProviderListingCountOutputTypeCountReviewsArgs
   reports?: boolean | KfProviderListingCountOutputTypeCountReportsArgs
   analyticsEvents?: boolean | KfProviderListingCountOutputTypeCountAnalyticsEventsArgs
+  assistanceRequests?: boolean | KfProviderListingCountOutputTypeCountAssistanceRequestsArgs
+  assistanceAuditEntries?: boolean | KfProviderListingCountOutputTypeCountAssistanceAuditEntriesArgs
 }
 
 /**
@@ -1796,6 +2162,20 @@ export type KfProviderListingCountOutputTypeCountAnalyticsEventsArgs<ExtArgs ext
   where?: Prisma.KfAnalyticsEventWhereInput
 }
 
+/**
+ * KfProviderListingCountOutputType without action
+ */
+export type KfProviderListingCountOutputTypeCountAssistanceRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.KfListingAssistanceRequestWhereInput
+}
+
+/**
+ * KfProviderListingCountOutputType without action
+ */
+export type KfProviderListingCountOutputTypeCountAssistanceAuditEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.KfListingAssistanceAuditEntryWhereInput
+}
+
 
 export type KfProviderListingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1824,6 +2204,8 @@ export type KfProviderListingSelect<ExtArgs extends runtime.Types.Extensions.Int
   reviews?: boolean | Prisma.KfProviderListing$reviewsArgs<ExtArgs>
   reports?: boolean | Prisma.KfProviderListing$reportsArgs<ExtArgs>
   analyticsEvents?: boolean | Prisma.KfProviderListing$analyticsEventsArgs<ExtArgs>
+  assistanceRequests?: boolean | Prisma.KfProviderListing$assistanceRequestsArgs<ExtArgs>
+  assistanceAuditEntries?: boolean | Prisma.KfProviderListing$assistanceAuditEntriesArgs<ExtArgs>
   _count?: boolean | Prisma.KfProviderListingCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["kfProviderListing"]>
 
@@ -1904,6 +2286,8 @@ export type KfProviderListingInclude<ExtArgs extends runtime.Types.Extensions.In
   reviews?: boolean | Prisma.KfProviderListing$reviewsArgs<ExtArgs>
   reports?: boolean | Prisma.KfProviderListing$reportsArgs<ExtArgs>
   analyticsEvents?: boolean | Prisma.KfProviderListing$analyticsEventsArgs<ExtArgs>
+  assistanceRequests?: boolean | Prisma.KfProviderListing$assistanceRequestsArgs<ExtArgs>
+  assistanceAuditEntries?: boolean | Prisma.KfProviderListing$assistanceAuditEntriesArgs<ExtArgs>
   _count?: boolean | Prisma.KfProviderListingCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type KfProviderListingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1923,6 +2307,8 @@ export type $KfProviderListingPayload<ExtArgs extends runtime.Types.Extensions.I
     reviews: Prisma.$KfReviewPayload<ExtArgs>[]
     reports: Prisma.$KfReportPayload<ExtArgs>[]
     analyticsEvents: Prisma.$KfAnalyticsEventPayload<ExtArgs>[]
+    assistanceRequests: Prisma.$KfListingAssistanceRequestPayload<ExtArgs>[]
+    assistanceAuditEntries: Prisma.$KfListingAssistanceAuditEntryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2345,6 +2731,8 @@ export interface Prisma__KfProviderListingClient<T, Null = never, ExtArgs extend
   reviews<T extends Prisma.KfProviderListing$reviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfProviderListing$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reports<T extends Prisma.KfProviderListing$reportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfProviderListing$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   analyticsEvents<T extends Prisma.KfProviderListing$analyticsEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfProviderListing$analyticsEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfAnalyticsEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assistanceRequests<T extends Prisma.KfProviderListing$assistanceRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfProviderListing$assistanceRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfListingAssistanceRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assistanceAuditEntries<T extends Prisma.KfProviderListing$assistanceAuditEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfProviderListing$assistanceAuditEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfListingAssistanceAuditEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2935,6 +3323,54 @@ export type KfProviderListing$analyticsEventsArgs<ExtArgs extends runtime.Types.
   take?: number
   skip?: number
   distinct?: Prisma.KfAnalyticsEventScalarFieldEnum | Prisma.KfAnalyticsEventScalarFieldEnum[]
+}
+
+/**
+ * KfProviderListing.assistanceRequests
+ */
+export type KfProviderListing$assistanceRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KfListingAssistanceRequest
+   */
+  select?: Prisma.KfListingAssistanceRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KfListingAssistanceRequest
+   */
+  omit?: Prisma.KfListingAssistanceRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KfListingAssistanceRequestInclude<ExtArgs> | null
+  where?: Prisma.KfListingAssistanceRequestWhereInput
+  orderBy?: Prisma.KfListingAssistanceRequestOrderByWithRelationInput | Prisma.KfListingAssistanceRequestOrderByWithRelationInput[]
+  cursor?: Prisma.KfListingAssistanceRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.KfListingAssistanceRequestScalarFieldEnum | Prisma.KfListingAssistanceRequestScalarFieldEnum[]
+}
+
+/**
+ * KfProviderListing.assistanceAuditEntries
+ */
+export type KfProviderListing$assistanceAuditEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KfListingAssistanceAuditEntry
+   */
+  select?: Prisma.KfListingAssistanceAuditEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KfListingAssistanceAuditEntry
+   */
+  omit?: Prisma.KfListingAssistanceAuditEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KfListingAssistanceAuditEntryInclude<ExtArgs> | null
+  where?: Prisma.KfListingAssistanceAuditEntryWhereInput
+  orderBy?: Prisma.KfListingAssistanceAuditEntryOrderByWithRelationInput | Prisma.KfListingAssistanceAuditEntryOrderByWithRelationInput[]
+  cursor?: Prisma.KfListingAssistanceAuditEntryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.KfListingAssistanceAuditEntryScalarFieldEnum | Prisma.KfListingAssistanceAuditEntryScalarFieldEnum[]
 }
 
 /**

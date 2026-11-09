@@ -253,6 +253,40 @@ export type EnumKfModerationStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumKfModerationStatusFilter<$PrismaModel>
 }
 
+export type EnumKfListingAssistanceStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.KfListingAssistanceStatus | Prisma.EnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKfListingAssistanceStatusFilter<$PrismaModel> | $Enums.KfListingAssistanceStatus
+}
+
+export type EnumKfListingAssistanceStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KfListingAssistanceStatus | Prisma.EnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKfListingAssistanceStatusWithAggregatesFilter<$PrismaModel> | $Enums.KfListingAssistanceStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumKfListingAssistanceStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumKfListingAssistanceStatusFilter<$PrismaModel>
+}
+
+export type EnumKfListingAssistanceStatusNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.KfListingAssistanceStatus | Prisma.EnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumKfListingAssistanceStatusNullableFilter<$PrismaModel> | $Enums.KfListingAssistanceStatus | null
+}
+
+export type EnumKfListingAssistanceStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KfListingAssistanceStatus | Prisma.EnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumKfListingAssistanceStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.KfListingAssistanceStatus | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumKfListingAssistanceStatusNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumKfListingAssistanceStatusNullableFilter<$PrismaModel>
+}
+
 export type EnumKfAnalyticsEventTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.KfAnalyticsEventType | Prisma.EnumKfAnalyticsEventTypeFieldRefInput<$PrismaModel>
   in?: $Enums.KfAnalyticsEventType[] | Prisma.ListEnumKfAnalyticsEventTypeFieldRefInput<$PrismaModel>
@@ -509,6 +543,40 @@ export type NestedEnumKfModerationStatusWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumKfModerationStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumKfModerationStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumKfListingAssistanceStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.KfListingAssistanceStatus | Prisma.EnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKfListingAssistanceStatusFilter<$PrismaModel> | $Enums.KfListingAssistanceStatus
+}
+
+export type NestedEnumKfListingAssistanceStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KfListingAssistanceStatus | Prisma.EnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKfListingAssistanceStatusWithAggregatesFilter<$PrismaModel> | $Enums.KfListingAssistanceStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumKfListingAssistanceStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumKfListingAssistanceStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumKfListingAssistanceStatusNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.KfListingAssistanceStatus | Prisma.EnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumKfListingAssistanceStatusNullableFilter<$PrismaModel> | $Enums.KfListingAssistanceStatus | null
+}
+
+export type NestedEnumKfListingAssistanceStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KfListingAssistanceStatus | Prisma.EnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.KfListingAssistanceStatus[] | Prisma.ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumKfListingAssistanceStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.KfListingAssistanceStatus | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumKfListingAssistanceStatusNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumKfListingAssistanceStatusNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumKfAnalyticsEventTypeFilter<$PrismaModel = never> = {

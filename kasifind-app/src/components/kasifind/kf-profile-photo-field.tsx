@@ -8,6 +8,10 @@ import {
   kfSaveListingProfileFromWizard,
   kfSetListingProfileImage,
 } from "@/lib/kasifind/actions";
+import {
+  kfAdminAssistedClearListingProfileImage,
+  kfAdminAssistedSetListingProfileImage,
+} from "@/lib/kasifind/listing-assistance-actions";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { useKfToast } from "@/components/kasifind/kf-toast";
 
@@ -17,6 +21,7 @@ type Props = {
   disabled?: boolean;
   /** When no listing exists yet, step-1 fields are read from this form to save a draft + photo. */
   wizardFormRef?: RefObject<HTMLFormElement | null>;
+  assistanceRequestId?: string;
 };
 
 function validateStep0ForPhoto(form: HTMLFormElement, toastError: (msg: string) => void): boolean {
@@ -44,6 +49,7 @@ export function KfProfilePhotoField({
   profileImageUrl,
   disabled,
   wizardFormRef,
+  assistanceRequestId,
 }: Props) {
   const router = useRouter();
   const toast = useKfToast();
@@ -69,8 +75,11 @@ export function KfProfilePhotoField({
       if (listingId) {
         const fd = new FormData();
         fd.set("url", data.url);
+        if (assistanceRequestId) fd.set("assistanceRequestId", assistanceRequestId);
         startTransition(async () => {
-          const result = await kfSetListingProfileImage(fd);
+          const result = assistanceRequestId
+            ? await kfAdminAssistedSetListingProfileImage(fd)
+            : await kfSetListingProfileImage(fd);
           if ("error" in result && result.error) toast.error(result.error);
           else {
             toast.success("Business photo updated.");
@@ -126,7 +135,11 @@ export function KfProfilePhotoField({
                 disabled={busy}
                 onClick={() => {
                   startTransition(async () => {
-                    const result = await kfClearListingProfileImage();
+                    const fd = new FormData();
+                    if (assistanceRequestId) fd.set("assistanceRequestId", assistanceRequestId);
+                    const result = assistanceRequestId
+                      ? await kfAdminAssistedClearListingProfileImage(fd)
+                      : await kfClearListingProfileImage();
                     if ("error" in result && result.error) toast.error(result.error);
                     else {
                       toast.success("Business photo removed.");

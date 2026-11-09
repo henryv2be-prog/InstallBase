@@ -11,6 +11,11 @@ import {
   kfUpsertListing,
 } from "@/lib/kasifind/actions";
 import {
+  kfAdminAssistedAddListingPhoto,
+  kfAdminAssistedRemoveListingPhoto,
+  kfAdminAssistedUpsertListing,
+} from "@/lib/kasifind/listing-assistance-actions";
+import {
   publishLocationErrorMessage,
   requestCurrentPositionForPublish,
 } from "@/lib/kasifind/request-current-position";
@@ -92,12 +97,17 @@ export function KfListingForm({
   categories,
   listing,
   userEmail,
+  adminAssist,
 }: {
   categories: KfCategory[];
   listing: ListingData | null;
   userEmail: string;
+  adminAssist?: { assistanceRequestId: string };
 }) {
   const router = useRouter();
+  const upsertListing = adminAssist ? kfAdminAssistedUpsertListing : kfUpsertListing;
+  const addListingPhoto = adminAssist ? kfAdminAssistedAddListingPhoto : kfAddListingPhoto;
+  const removeListingPhoto = adminAssist ? kfAdminAssistedRemoveListingPhoto : kfRemoveListingPhoto;
   const toast = useKfToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();
@@ -162,7 +172,8 @@ export function KfListingForm({
     formData.set("publish", "false");
     setSavingDraft(true);
     try {
-      const result = await kfUpsertListing(formData);
+      if (adminAssist) formData.set("assistanceRequestId", adminAssist.assistanceRequestId);
+      const result = await upsertListing(formData);
       if ("error" in result && result.error) {
         toast.error(result.error);
         return false;
@@ -197,7 +208,8 @@ export function KfListingForm({
   const submitListing = (formData: FormData) => {
     startTransition(async () => {
       const publish = formData.get("publish") === "true";
-      const result = await kfUpsertListing(formData);
+      if (adminAssist) formData.set("assistanceRequestId", adminAssist.assistanceRequestId);
+      const result = await upsertListing(formData);
       if ("error" in result && result.error) {
         toast.error(result.error);
         return;
@@ -206,6 +218,11 @@ export function KfListingForm({
         "listingId" in result && typeof result.listingId === "string"
           ? result.listingId
           : listing?.listingId ?? null;
+      if (adminAssist) {
+        toast.success("Listing updated for this provider.");
+        router.refresh();
+        return;
+      }
       if (publish) {
         setPublishedListingId(id);
         setPublishComplete(true);
@@ -312,6 +329,9 @@ export function KfListingForm({
           className="kf-card kf-wizard-card rounded-2xl p-4 sm:p-5"
           onSubmit={(e) => void handleFormSubmit(e)}
         >
+        {adminAssist ? (
+          <input type="hidden" name="assistanceRequestId" value={adminAssist.assistanceRequestId} />
+        ) : null}
         <section
           id="kf-step-business"
           data-wizard-step="0"
@@ -475,6 +495,7 @@ export function KfListingForm({
                   profileImageUrl={listing.profileImageUrl ?? null}
                   disabled={formBusy}
                   wizardFormRef={formRef}
+                  assistanceRequestId={adminAssist?.assistanceRequestId}
                 />
               </div>
               {photoCount > 0 ? (
@@ -489,7 +510,8 @@ export function KfListingForm({
                       try {
                         const fd = new FormData();
                         fd.set("photoId", photoId);
-                        const result = await kfRemoveListingPhoto(fd);
+                        if (adminAssist) fd.set("assistanceRequestId", adminAssist.assistanceRequestId);
+                        const result = await removeListingPhoto(fd);
                         if ("error" in result && result.error) toast.error(result.error);
                         else {
                           toast.success("Photo removed.");
@@ -529,7 +551,8 @@ export function KfListingForm({
                         }
                         const fd = new FormData();
                         fd.set("url", data.url);
-                        const add = await kfAddListingPhoto(fd);
+                        if (adminAssist) fd.set("assistanceRequestId", adminAssist.assistanceRequestId);
+                        const add = await addListingPhoto(fd);
                         if ("error" in add && add.error) toast.error(add.error);
                         else {
                           toast.success("Photo added.");

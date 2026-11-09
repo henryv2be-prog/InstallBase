@@ -13,6 +13,10 @@ import {
   setKasiFindSession,
 } from "@/lib/kasifind/session";
 import { isValidSaCoordinate, parseCoordinate } from "@/lib/kasifind/geo";
+import {
+  applyParsedListingUpsert,
+  parseListingUpsertFormData,
+} from "@/lib/kasifind/listing-upsert-shared";
 import { validatePassword } from "@/lib/shared/auth-validation";
 
 function dbGuard() {
@@ -78,109 +82,52 @@ export async function kfUpsertListing(formData: FormData) {
   const auth = await requireKasiFindProvider();
   if ("error" in auth) return auth;
 
-  const displayName = (formData.get("displayName") as string | null)?.trim();
-  const description = (formData.get("description") as string | null)?.trim();
-  const phone = (formData.get("phone") as string | null)?.trim();
-  const whatsapp = (formData.get("whatsapp") as string | null)?.trim() || null;
-  const locationLabel = (formData.get("locationLabel") as string | null)?.trim();
-  const priceHint = (formData.get("priceHint") as string | null)?.trim() || null;
-  const hoursNote = (formData.get("hoursNote") as string | null)?.trim() || null;
-  const servicesRaw = (formData.get("services") as string | null)?.trim() ?? "";
-  const categoryIds = formData.getAll("categoryId").map(String).filter(Boolean);
-  const publish = formData.get("publish") === "true";
-
-  const lat = parseCoordinate(formData.get("latitude") as string);
-  const lng = parseCoordinate(formData.get("longitude") as string);
-  const hideExactLocation = formData.get("hideExactLocation") !== "false";
-
-  if (!displayName || displayName.length < 2) return { error: "Business name is required." };
-  if (!phone || phone.length < 9) return { error: "A valid phone number is required." };
-  if (!locationLabel) return { error: "Neighbourhood or landmark is required." };
-  const locationConfirmed = formData.get("locationConfirmed") === "true";
-  if (
-    !locationConfirmed ||
-    lat === null ||
-    lng === null ||
-    !isValidSaCoordinate(lat, lng)
-  ) {
-    return {
-      error:
-        "Set your service area on the Location step — tap the map or use My location. We do not use a default city.",
-    };
-  }
-
-  let finalDescription = description ?? "";
-  if (finalDescription.length < 20) {
-    finalDescription = `${displayName} — local services around ${locationLabel}. WhatsApp or call for prices and availability.`;
-  }
-
-  const serviceLines = servicesRaw
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .slice(0, 20);
+  const parsed = parseListingUpsertFormData(formData);
+  if ("error" in parsed) return { error: parsed.error };
 
   const kf = getKasiFindPrisma();
   const existing = await kf.kfProviderListing.findUnique({ where: { userId: auth.user.id } });
 
-  const profileImageUrlRaw = (formData.get("profileImageUrl") as string | null)?.trim() || null;
-  const profileImageUrl =
-    profileImageUrlRaw && profileImageUrlRaw.startsWith("/uploads/") ? profileImageUrlRaw : null;
-
-  const data = {
-    displayName,
-    description: finalDescription,
-    phone,
-    whatsapp,
-    locationLabel,
-    latitude: lat,
-    longitude: lng,
-    hideExactLocation,
-    priceHint,
-    hoursNote,
-    status: publish ? ("PUBLISHED" as const) : ("DRAFT" as const),
-    moderationStatus: publish ? ("PENDING" as const) : ("PENDING" as const),
-    ...(profileImageUrl ? { profileImageUrl } : {}),
-  };
-
   if (
     existing?.profileImageUrl &&
-    profileImageUrl &&
-    existing.profileImageUrl !== profileImageUrl
+    parsed.data.profileImageUrl &&
+    existing.profileImageUrl !== parsed.data.profileImageUrl
   ) {
     await deleteLocalUpload(existing.profileImageUrl);
   }
 
-  const listing = existing
-    ? await kf.kfProviderListing.update({
-        where: { id: existing.id },
-        data,
-      })
-    : await kf.kfProviderListing.create({
-        data: { ...data, userId: auth.user.id },
-      });
-
-  await kf.kfListingCategory.deleteMany({ where: { listingId: listing.id } });
-  await kf.kfListingCategory.createMany({
-    data: categoryIds.map((categoryId) => ({ listingId: listing.id, categoryId })),
-  });
-
-  await kf.kfProviderService.deleteMany({ where: { listingId: listing.id } });
-  if (serviceLines.length > 0) {
-    await kf.kfProviderService.createMany({
-      data: serviceLines.map((name) => ({
-        listingId: listing.id,
-        name,
-        keywords: name.toLowerCase(),
-      })),
+  let listingId: string;
+  if (existing) {
+    await applyParsedListingUpsert(kf, existing.id, parsed.data);
+    listingId = existing.id;
+  } else {
+    const created = await kf.kfProviderListing.create({
+      data: {
+        userId: auth.user.id,
+        displayName: parsed.data.displayName,
+        description: parsed.data.description,
+        phone: parsed.data.phone,
+        whatsapp: parsed.data.whatsapp,
+        locationLabel: parsed.data.locationLabel,
+        latitude: parsed.data.latitude,
+        longitude: parsed.data.longitude,
+        hideExactLocation: parsed.data.hideExactLocation,
+        priceHint: parsed.data.priceHint,
+        hoursNote: parsed.data.hoursNote,
+        status: parsed.data.publish ? "PUBLISHED" : "DRAFT",
+        moderationStatus: "PENDING",
+        ...(parsed.data.profileImageUrl ? { profileImageUrl: parsed.data.profileImageUrl } : {}),
+      },
     });
+    listingId = created.id;
+    await applyParsedListingUpsert(kf, listingId, parsed.data);
   }
 
   revalidatePath("/");
-  revalidatePath(`/providers/${listing.id}`);
-  revalidatePath("/providers/listing");
+  revalidatePath(`/providers/${listingId}`);
+  revalidatePath("/account/listing");
 
-  return { success: true, listingId: listing.id };
+  return { success: true, listingId };
 }
 
 export async function kfSubmitReview(formData: FormData) {

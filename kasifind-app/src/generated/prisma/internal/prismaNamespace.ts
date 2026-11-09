@@ -405,6 +405,9 @@ export const ModelName = {
   KfProviderPhoto: 'KfProviderPhoto',
   KfReview: 'KfReview',
   KfReport: 'KfReport',
+  KfListingAssistanceRequest: 'KfListingAssistanceRequest',
+  KfListingAssistanceStatusEvent: 'KfListingAssistanceStatusEvent',
+  KfListingAssistanceAuditEntry: 'KfListingAssistanceAuditEntry',
   KfAdminAudit: 'KfAdminAudit',
   KfAnalyticsEvent: 'KfAnalyticsEvent'
 } as const
@@ -422,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "kfUser" | "kfCategory" | "kfProviderListing" | "kfListingCategory" | "kfProviderService" | "kfProviderPhoto" | "kfReview" | "kfReport" | "kfAdminAudit" | "kfAnalyticsEvent"
+    modelProps: "kfUser" | "kfCategory" | "kfProviderListing" | "kfListingCategory" | "kfProviderService" | "kfProviderPhoto" | "kfReview" | "kfReport" | "kfListingAssistanceRequest" | "kfListingAssistanceStatusEvent" | "kfListingAssistanceAuditEntry" | "kfAdminAudit" | "kfAnalyticsEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1018,6 +1021,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    KfListingAssistanceRequest: {
+      payload: Prisma.$KfListingAssistanceRequestPayload<ExtArgs>
+      fields: Prisma.KfListingAssistanceRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KfListingAssistanceRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KfListingAssistanceRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.KfListingAssistanceRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KfListingAssistanceRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload>
+        }
+        findMany: {
+          args: Prisma.KfListingAssistanceRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload>[]
+        }
+        create: {
+          args: Prisma.KfListingAssistanceRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload>
+        }
+        createMany: {
+          args: Prisma.KfListingAssistanceRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KfListingAssistanceRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.KfListingAssistanceRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload>
+        }
+        update: {
+          args: Prisma.KfListingAssistanceRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.KfListingAssistanceRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KfListingAssistanceRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KfListingAssistanceRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.KfListingAssistanceRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.KfListingAssistanceRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKfListingAssistanceRequest>
+        }
+        groupBy: {
+          args: Prisma.KfListingAssistanceRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfListingAssistanceRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KfListingAssistanceRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfListingAssistanceRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    KfListingAssistanceStatusEvent: {
+      payload: Prisma.$KfListingAssistanceStatusEventPayload<ExtArgs>
+      fields: Prisma.KfListingAssistanceStatusEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KfListingAssistanceStatusEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KfListingAssistanceStatusEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload>
+        }
+        findFirst: {
+          args: Prisma.KfListingAssistanceStatusEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KfListingAssistanceStatusEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload>
+        }
+        findMany: {
+          args: Prisma.KfListingAssistanceStatusEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload>[]
+        }
+        create: {
+          args: Prisma.KfListingAssistanceStatusEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload>
+        }
+        createMany: {
+          args: Prisma.KfListingAssistanceStatusEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KfListingAssistanceStatusEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload>[]
+        }
+        delete: {
+          args: Prisma.KfListingAssistanceStatusEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload>
+        }
+        update: {
+          args: Prisma.KfListingAssistanceStatusEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.KfListingAssistanceStatusEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KfListingAssistanceStatusEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KfListingAssistanceStatusEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.KfListingAssistanceStatusEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceStatusEventPayload>
+        }
+        aggregate: {
+          args: Prisma.KfListingAssistanceStatusEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKfListingAssistanceStatusEvent>
+        }
+        groupBy: {
+          args: Prisma.KfListingAssistanceStatusEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfListingAssistanceStatusEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KfListingAssistanceStatusEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfListingAssistanceStatusEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    KfListingAssistanceAuditEntry: {
+      payload: Prisma.$KfListingAssistanceAuditEntryPayload<ExtArgs>
+      fields: Prisma.KfListingAssistanceAuditEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KfListingAssistanceAuditEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KfListingAssistanceAuditEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.KfListingAssistanceAuditEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KfListingAssistanceAuditEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload>
+        }
+        findMany: {
+          args: Prisma.KfListingAssistanceAuditEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload>[]
+        }
+        create: {
+          args: Prisma.KfListingAssistanceAuditEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload>
+        }
+        createMany: {
+          args: Prisma.KfListingAssistanceAuditEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KfListingAssistanceAuditEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.KfListingAssistanceAuditEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload>
+        }
+        update: {
+          args: Prisma.KfListingAssistanceAuditEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.KfListingAssistanceAuditEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KfListingAssistanceAuditEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KfListingAssistanceAuditEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.KfListingAssistanceAuditEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfListingAssistanceAuditEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.KfListingAssistanceAuditEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKfListingAssistanceAuditEntry>
+        }
+        groupBy: {
+          args: Prisma.KfListingAssistanceAuditEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfListingAssistanceAuditEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KfListingAssistanceAuditEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfListingAssistanceAuditEntryCountAggregateOutputType> | number
+        }
+      }
+    }
     KfAdminAudit: {
       payload: Prisma.$KfAdminAuditPayload<ExtArgs>
       fields: Prisma.KfAdminAuditFieldRefs
@@ -1316,6 +1541,48 @@ export const KfReportScalarFieldEnum = {
 export type KfReportScalarFieldEnum = (typeof KfReportScalarFieldEnum)[keyof typeof KfReportScalarFieldEnum]
 
 
+export const KfListingAssistanceRequestScalarFieldEnum = {
+  id: 'id',
+  listingId: 'listingId',
+  userId: 'userId',
+  providerMessage: 'providerMessage',
+  status: 'status',
+  adminNotes: 'adminNotes',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KfListingAssistanceRequestScalarFieldEnum = (typeof KfListingAssistanceRequestScalarFieldEnum)[keyof typeof KfListingAssistanceRequestScalarFieldEnum]
+
+
+export const KfListingAssistanceStatusEventScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  adminId: 'adminId',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type KfListingAssistanceStatusEventScalarFieldEnum = (typeof KfListingAssistanceStatusEventScalarFieldEnum)[keyof typeof KfListingAssistanceStatusEventScalarFieldEnum]
+
+
+export const KfListingAssistanceAuditEntryScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  listingId: 'listingId',
+  adminId: 'adminId',
+  fieldName: 'fieldName',
+  previousValue: 'previousValue',
+  newValue: 'newValue',
+  createdAt: 'createdAt'
+} as const
+
+export type KfListingAssistanceAuditEntryScalarFieldEnum = (typeof KfListingAssistanceAuditEntryScalarFieldEnum)[keyof typeof KfListingAssistanceAuditEntryScalarFieldEnum]
+
+
 export const KfAdminAuditScalarFieldEnum = {
   id: 'id',
   adminId: 'adminId',
@@ -1475,6 +1742,20 @@ export type EnumKfModerationStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
  * Reference to a field of type 'KfModerationStatus[]'
  */
 export type ListEnumKfModerationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfModerationStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'KfListingAssistanceStatus'
+ */
+export type EnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfListingAssistanceStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'KfListingAssistanceStatus[]'
+ */
+export type ListEnumKfListingAssistanceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfListingAssistanceStatus[]'>
     
 
 
@@ -1650,6 +1931,9 @@ export type GlobalOmitConfig = {
   kfProviderPhoto?: Prisma.KfProviderPhotoOmit
   kfReview?: Prisma.KfReviewOmit
   kfReport?: Prisma.KfReportOmit
+  kfListingAssistanceRequest?: Prisma.KfListingAssistanceRequestOmit
+  kfListingAssistanceStatusEvent?: Prisma.KfListingAssistanceStatusEventOmit
+  kfListingAssistanceAuditEntry?: Prisma.KfListingAssistanceAuditEntryOmit
   kfAdminAudit?: Prisma.KfAdminAuditOmit
   kfAnalyticsEvent?: Prisma.KfAnalyticsEventOmit
 }
