@@ -102,6 +102,8 @@ export function compareSearchRanking(
 ): number {
   if (options.hasQuery) {
     if (a.relevanceTotal !== b.relevanceTotal) return b.relevanceTotal - a.relevanceTotal;
+  } else if (!options.useDistance) {
+    if (a.featured !== b.featured) return a.featured ? -1 : 1;
   }
 
   if (options.useDistance) {

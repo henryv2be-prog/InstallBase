@@ -25,6 +25,17 @@ test("formatDiscoveryResultsSubtitle explains auto expansion", () => {
   assert.ok(out.secondary?.includes("Not many businesses"));
 });
 
+test("formatDiscoveryResultsSubtitle for browse does not imply distance sort", () => {
+  const out = formatDiscoveryResultsSubtitle({
+    location: { mode: "browse", label: "Browsing all areas" },
+    radiusMode: "auto",
+    selectedRadiusKm: 5,
+    searchMeta: { browse: true },
+  });
+  assert.match(out.primary, /featured first/i);
+  assert.match(out.secondary ?? "", /not sorted by distance/i);
+});
+
 test("formatDiscoveryResultsSubtitle respects fixed radius copy", () => {
   const out = formatDiscoveryResultsSubtitle({
     location: { mode: "manual", lat: -26, lng: 28, label: "Soweto" },

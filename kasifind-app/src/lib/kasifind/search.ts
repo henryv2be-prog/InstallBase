@@ -10,7 +10,11 @@ import {
   filterReachableUploadUrls,
   resolvePublicUploadUrl,
 } from "@/lib/kasifind/upload-asset";
-import { DISCOVERY_MAX_RADIUS_KM } from "@/lib/kasifind/discovery-config";
+import {
+  BROWSE_LISTING_LIMIT,
+  DISCOVERY_MAX_RADIUS_KM,
+  GEO_SEARCH_RESULT_LIMIT,
+} from "@/lib/kasifind/discovery-config";
 import {
   filterHitsWithinRadius,
   planProgressiveDiscovery,
@@ -193,6 +197,17 @@ async function fetchScoredGeoListings(input: {
     .filter((row): row is ScoredListingRow => row !== null);
 }
 
+export function normalizeSearchResultLimit(
+  limit: number | undefined,
+  mode: "browse" | "geo"
+): number {
+  const cap = mode === "browse" ? BROWSE_LISTING_LIMIT : GEO_SEARCH_RESULT_LIMIT;
+  const fallback = mode === "browse" ? BROWSE_LISTING_LIMIT : 40;
+  const parsed = limit ?? fallback;
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(Math.max(Math.floor(parsed), 1), cap);
+}
+
 export async function searchProviders(input: {
   query: string;
   center: GeoPoint;
@@ -201,7 +216,7 @@ export async function searchProviders(input: {
   limit?: number;
 }): Promise<{ results: ProviderSearchHit[]; radiusKm: number; expanded: boolean }> {
   const radiusKm = parseRadiusKm(input.radiusKm);
-  const limit = Math.min(input.limit ?? 40, 60);
+  const limit = normalizeSearchResultLimit(input.limit, "geo");
   const hasQuery = tokenizeSearchQuery(input.query).length > 0;
 
   const scoredRaw = await fetchScoredGeoListings({
@@ -226,7 +241,7 @@ export async function searchProvidersBrowse(input: {
   categorySlug?: string | null;
   limit?: number;
 }): Promise<{ results: ProviderSearchHit[]; radiusKm: 0; expanded: false; browse: true }> {
-  const limit = Math.min(input.limit ?? 40, 60);
+  const limit = normalizeSearchResultLimit(input.limit, "browse");
   const tokens = tokenizeSearchQuery(input.query);
   const hasQuery = tokens.length > 0;
 
@@ -261,7 +276,7 @@ export async function searchWithProgressiveFallback(input: {
   categorySlug?: string | null;
   limit?: number;
 }): Promise<ProgressiveSearchResult> {
-  const limit = Math.min(input.limit ?? 40, 60);
+  const limit = normalizeSearchResultLimit(input.limit, "geo");
   const hasQuery = tokenizeSearchQuery(input.query).length > 0;
 
   const scoredRaw = await fetchScoredGeoListings({
