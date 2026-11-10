@@ -8,7 +8,8 @@ import {
   KfProviderRatingFloat,
 } from "@/components/kasifind/kf-listing-rating-display";
 import type { KfSearchResult } from "@/components/kasifind/types";
-import { KfListingImage } from "@/components/kasifind/kf-listing-image";
+import { KfProviderCardGallery } from "@/components/kasifind/kf-provider-card-gallery";
+import { collectListingCardPhotoUrls } from "@/lib/kasifind/listing-card-photos";
 import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { useKfListingImpression } from "@/components/kasifind/use-kf-listing-impression";
@@ -53,7 +54,10 @@ export function KfProviderCard({
     const ua = typeof navigator !== "undefined" ? navigator.userAgent : undefined;
     return pickDirectionsUrl(p.map.latitude, p.map.longitude, p.locationLabel, ua);
   }, [p.map, p.locationLabel]);
-  const thumb = p.photoUrls[0] ?? p.profileImageUrl;
+  const cardPhotos = useMemo(
+    () => collectListingCardPhotoUrls({ photoUrls: p.photoUrls, profileImageUrl: p.profileImageUrl }),
+    [p.photoUrls, p.profileImageUrl]
+  );
   const servicesPreview = p.services.slice(0, 3).map((s) => s.name).join(" · ");
   const primaryCategory = p.categories[0]?.name;
   const hasRating = p.reviewCount > 0 && p.averageRating !== null;
@@ -64,18 +68,11 @@ export function KfProviderCard({
     >
       <Link href={`/providers/${p.id}`} className="block group">
         <div className="kf-provider-media">
-          {thumb ? (
-            <KfListingImage
-              src={thumb}
-              alt=""
-              className="kf-provider-thumb transition-transform duration-300 group-hover:scale-[1.02]"
-              priority
-            />
-          ) : (
-            <div className="kf-provider-thumb-placeholder">
-              <span className="font-semibold text-[var(--kf-muted)]">No photo yet</span>
-            </div>
-          )}
+          <KfProviderCardGallery
+            photos={cardPhotos}
+            displayName={p.displayName}
+            priority={index < 4}
+          />
           {primaryCategory ? (
             <span className="kf-provider-category-badge">{primaryCategory}</span>
           ) : null}
