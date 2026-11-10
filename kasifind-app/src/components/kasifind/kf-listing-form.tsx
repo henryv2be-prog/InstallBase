@@ -23,6 +23,7 @@ import { KfLocationPicker } from "@/components/kasifind/kf-location-picker";
 import { KfWorkPhotoGallery } from "@/components/kasifind/kf-work-photo-gallery";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { KfProfilePhotoField } from "@/components/kasifind/kf-profile-photo-field";
+import { KfWorkPhotoUploadField } from "@/components/kasifind/kf-work-photo-upload-field";
 import {
   KfFormStepper,
   LISTING_FORM_STEPS,
@@ -119,7 +120,6 @@ export function KfListingForm({
   const [publishedListingId, setPublishedListingId] = useState<string | null>(
     listing?.listingId ?? null
   );
-  const [uploading, setUploading] = useState(false);
   const [locatingPublish, setLocatingPublish] = useState(false);
   const [removingPhotoId, setRemovingPhotoId] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState(0);
@@ -518,7 +518,7 @@ export function KfListingForm({
                 <KfWorkPhotoGallery
                   priorityFirst
                   photos={listing.photos.map((p) => ({ id: p.id, src: p.url, alt: "Your work photo" }))}
-                  removeDisabled={pending || uploading}
+                  removeDisabled={pending}
                   removingPhotoId={removingPhotoId}
                   onRemovePhoto={(photoId) => {
                     setRemovingPhotoId(photoId);
@@ -546,43 +546,13 @@ export function KfListingForm({
                   description="Add at least one clear photo of your work. Customers often message before they visit — photos help them choose you with confidence."
                 />
               )}
-              <label className="relative mt-4 block">
-                <span className="kf-file-input">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    disabled={uploading || pending}
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      setUploading(true);
-                      try {
-                        const body = new FormData();
-                        body.append("file", file);
-                        const res = await fetch("/api/upload", { method: "POST", body });
-                        const data = await res.json();
-                        if (!res.ok) {
-                          toast.error(data.error ?? "Upload failed");
-                          return;
-                        }
-                        const fd = new FormData();
-                        fd.set("url", data.url);
-                        if (adminAssist) fd.set("assistanceRequestId", adminAssist.assistanceRequestId);
-                        const add = await addListingPhoto(fd);
-                        if ("error" in add && add.error) toast.error(add.error);
-                        else {
-                          toast.success("Photo added.");
-                          router.refresh();
-                        }
-                      } finally {
-                        setUploading(false);
-                        e.target.value = "";
-                      }
-                    }}
-                  />
-                  {uploading ? "Uploading…" : "Tap to add a photo"}
-                </span>
-              </label>
+              <KfWorkPhotoUploadField
+                existingPhotoCount={photoCount}
+                disabled={pending}
+                assistanceRequestId={adminAssist?.assistanceRequestId}
+                addListingPhoto={addListingPhoto}
+                onPhotoAttached={() => router.refresh()}
+              />
             </>
           ) : (
             <KfEmptyState
