@@ -14,6 +14,7 @@ import {
 } from "@/lib/kasifind/listing-assistance-actions";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { useKfToast } from "@/components/kasifind/kf-toast";
+import { uploadListingImageFile } from "@/lib/kasifind/upload-file-client";
 
 type Props = {
   listingId: string | null;
@@ -55,6 +56,7 @@ export function KfProfilePhotoField({
   const toast = useKfToast();
   const [pending, startTransition] = useTransition();
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
 
   const shownUrl = profileImageUrl ?? localPreviewUrl;
@@ -62,15 +64,14 @@ export function KfProfilePhotoField({
 
   const uploadAndAttach = async (file: File) => {
     setUploading(true);
+    setUploadProgress(0);
     try {
-      const body = new FormData();
-      body.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error ?? "Upload failed");
+      const uploaded = await uploadListingImageFile(file, setUploadProgress);
+      if ("error" in uploaded) {
+        toast.error(uploaded.error);
         return;
       }
+      const data = { url: uploaded.url };
 
       if (listingId) {
         const fd = new FormData();
@@ -113,6 +114,7 @@ export function KfProfilePhotoField({
       });
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -177,7 +179,7 @@ export function KfProfilePhotoField({
             <input
               type="file"
               accept="image/*"
-              disabled={busy}
+              disabled={uploading || (disabled ?? false) || pending}
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -188,9 +190,24 @@ export function KfProfilePhotoField({
                 }
               }}
             />
-            {uploading ? "Uploading…" : shownUrl ? "Replace photo" : "Add business photo"}
+            {uploading ? `Uploading… ${uploadProgress}%` : shownUrl ? "Replace photo" : "Add business photo"}
           </span>
         </label>
+        {uploading ? (
+          <div
+            className="kf-work-photo-upload-bar mt-2"
+            role="progressbar"
+            aria-valuenow={uploadProgress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Business photo upload progress"
+          >
+            <span
+              className="kf-work-photo-upload-bar-fill"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        ) : null}
       </div>
     </div>
   );

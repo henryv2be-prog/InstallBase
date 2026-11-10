@@ -1805,6 +1805,68 @@
   clip: rect(0, 0, 0, 0);
 }
 
+.kf-work-photo-upload-queue {
+  margin-top: var(--kf-space-3);
+  padding: var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-surface);
+}
+
+.kf-work-photo-upload-queue-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--kf-space-2);
+  margin-bottom: var(--kf-space-2);
+}
+
+.kf-work-photo-upload-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--kf-space-2);
+}
+
+.kf-work-photo-upload-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--kf-space-2);
+}
+
+.kf-work-photo-upload-bar {
+  margin-top: 0.25rem;
+  height: 0.35rem;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--kf-radius-full);
+  background: var(--kf-stone);
+}
+
+.kf-work-photo-upload-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--kf-forest), var(--kf-sage));
+  transition: width 0.2s ease;
+}
+
+.kf-work-photo-upload-bar-fill--pulse {
+  animation: kf-upload-saving-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes kf-upload-saving-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
 .kf-profile-photo-field {
   display: flex;
   flex-wrap: wrap;
