@@ -37,8 +37,8 @@ export function formatDiscoveryResultsSubtitle(input: {
 
   if (location.mode === "browse") {
     return {
-      primary: "Nationwide · sorted by relevance",
-      secondary: null,
+      primary: "Nationwide · featured first, then relevance",
+      secondary: "Not sorted by distance until you search near an area.",
     };
   }
 

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { parseCoordinate, parseRadiusKm, isValidSaCoordinate } from "@/lib/kasifind/geo";
 import {
+  normalizeSearchResultLimit,
   searchProvidersBrowse,
   searchWithProgressiveFallback,
 } from "@/lib/kasifind/search";
@@ -21,15 +22,24 @@ export async function GET(request: NextRequest) {
   const radiusKm = parseRadiusKm(searchParams.get("radiusKm"));
   const categorySlug = searchParams.get("category")?.trim() || null;
   const autoExpand = searchParams.get("autoExpand") !== "0";
+  const limitParam = Number.parseInt(searchParams.get("limit") ?? "", 10);
 
   if (browse) {
     try {
-      const payload = await searchProvidersBrowse({ query, categorySlug });
+      const payload = await searchProvidersBrowse({
+        query,
+        categorySlug,
+        limit: normalizeSearchResultLimit(
+          Number.isFinite(limitParam) ? limitParam : undefined,
+          "browse"
+        ),
+      });
       return Response.json({
         query,
         browse: true,
         radiusKm: 0,
         expanded: false,
+        resultLimit: payload.results.length,
         results: payload.results,
       });
     } catch (error) {
@@ -51,6 +61,10 @@ export async function GET(request: NextRequest) {
         query,
         center: { latitude: lat, longitude: lng },
         categorySlug,
+        limit: normalizeSearchResultLimit(
+          Number.isFinite(limitParam) ? limitParam : undefined,
+          "geo"
+        ),
       });
       return Response.json({
         query,
@@ -71,6 +85,10 @@ export async function GET(request: NextRequest) {
       center: { latitude: lat, longitude: lng },
       radiusKm,
       categorySlug,
+      limit: normalizeSearchResultLimit(
+        Number.isFinite(limitParam) ? limitParam : undefined,
+        "geo"
+      ),
     });
 
     return Response.json({

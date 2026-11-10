@@ -34,6 +34,7 @@ import {
   formatDiscoveryResultsSubtitle,
   locationModeLabel,
 } from "@/lib/kasifind/discovery-display";
+import { BROWSE_LISTING_LIMIT } from "@/lib/kasifind/discovery-config";
 import { KfLocationSheet } from "@/components/kasifind/kf-location-sheet";
 import type { GeocodeHit } from "@/lib/kasifind/geocode-utils";
 import { KfCategoryFlashIntro } from "@/components/kasifind/kf-category-flash-intro";
@@ -42,11 +43,6 @@ import {
   shouldPlayCategoryFlashIntro,
   type CategoryFlashSlide,
 } from "@/lib/kasifind/category-flash-intro";
-import {
-  KF_LOCATION_CONSENT_AFTER_INTRO_MS,
-  shouldDeferHomeLocationConsentPrompt,
-} from "@/lib/kasifind/location-consent-prompt-timing";
-import { shouldSkipAutoGpsOnHomeLoad } from "@/lib/kasifind/location-consent-restore";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
 const BROWSE_LOCATION_LABEL = "Browsing all areas";
@@ -269,6 +265,7 @@ export function KfHomeClient({
 
         if (location.mode === "browse") {
           params.set("browse", "1");
+          params.set("limit", String(BROWSE_LISTING_LIMIT));
         } else {
           const useAutoExpand =
             opts?.preferAutoExpand === true ||
@@ -322,50 +319,6 @@ export function KfHomeClient({
     void runSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when location source changes
   }, [dbConfigured, filtersHydrated, location]);
-
-  useEffect(() => {
-    if (!dbConfigured) return;
-    if (shouldDeferHomeLocationConsentPrompt(introGate)) return;
-    if (typeof navigator === "undefined" || !navigator.geolocation) return;
-
-    const consent = readLocationConsent();
-
-    if (consent === "granted") {
-      const restored = readDiscoveryState()?.location;
-      if (shouldSkipAutoGpsOnHomeLoad(consent, restored)) {
-        return;
-      }
-      const hasRestoredGps = restored?.mode === "gps";
-      if (!hasRestoredGps) setLocating(true);
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setLocation({
-            mode: "gps",
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-            label: GPS_LOCATION_LABEL,
-          });
-          setLocating(false);
-        },
-        (err) => {
-          setLocating(false);
-          if (err.code === 1) {
-            writeLocationConsent("denied");
-          }
-        },
-        { enableHighAccuracy: false, timeout: 12000, maximumAge: 600_000 }
-      );
-      return;
-    }
-
-    if (consent === "dismissed" || consent === "denied") return;
-
-    const timer = window.setTimeout(() => {
-      setLocationDialogOpen(true);
-    }, KF_LOCATION_CONSENT_AFTER_INTRO_MS);
-
-    return () => window.clearTimeout(timer);
-  }, [dbConfigured, introGate]);
 
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.permissions?.query) return;
@@ -488,12 +441,7 @@ export function KfHomeClient({
         view={locationSheetView}
         onViewChange={setLocationSheetView}
         onUseGps={() => {
-          if (readLocationConsent() === "granted") {
-            requestNearMe();
-            return;
-          }
-          setLocationSheetOpen(false);
-          setLocationDialogOpen(true);
+          requestNearMe();
         }}
         onBrowseAll={() => {
           writeLocationConsent("dismissed");
@@ -536,12 +484,43 @@ export function KfHomeClient({
       </section>
 
       {usesBrowseMode ? (
-        <div className="kf-alert-info kf-animate-in" role="status">
-          <strong>Browsing all areas.</strong> Results are not sorted by distance. Tap{" "}
-          <button type="button" className="kf-link font-semibold underline" onClick={() => openLocationSheet("menu")}>
-            {locationModeLabel(location)}
-          </button>{" "}
-          to search near you or pick a town.
+        <div className="kf-card kf-animate-in p-4" role="status">
+          <p className="text-sm font-semibold text-[var(--kf-charcoal)]">Browse all listings</p>
+          <p className="mt-1 text-sm text-[var(--kf-muted)]">
+            No location needed — showing published businesses from all areas (featured first).
+          </p>
+          <p className="mt-3 text-sm font-semibold text-[var(--kf-charcoal)]">
+            Find businesses near you
+          </p>
+          <p className="mt-0.5 text-sm text-[var(--kf-muted)]">
+            Allow KasiFind to show businesses closest to your current location.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {geolocationAvailable ? (
+              <button
+                type="button"
+                className="kf-btn kf-btn-primary text-sm"
+                disabled={locating}
+                onClick={() => requestNearMe()}
+              >
+                Use my current location
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="kf-btn kf-btn-outline text-sm"
+              onClick={() => openLocationSheet("area")}
+            >
+              Search for your area
+            </button>
+            <button
+              type="button"
+              className="kf-btn kf-btn-ghost text-sm"
+              onClick={() => openLocationSheet("menu")}
+            >
+              More location options
+            </button>
+          </div>
         </div>
       ) : usesApproximateDistance ? (
         <div className="kf-alert-info kf-animate-in" role="status">

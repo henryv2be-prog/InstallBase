@@ -163,6 +163,28 @@ test("compareSearchRanking: distance breaks tie on comparable relevance", () => 
   );
 });
 
+test("compareSearchRanking: nationwide browse features featured before reviews", () => {
+  const featured = {
+    relevanceTotal: 0,
+    distanceKm: Number.NaN,
+    featured: true,
+    reviewCount: 0,
+    averageRating: null,
+    displayName: "Featured Co",
+  };
+  const popular = {
+    relevanceTotal: 0,
+    distanceKm: Number.NaN,
+    featured: false,
+    reviewCount: 200,
+    averageRating: 5,
+    displayName: "Popular Co",
+  };
+  assert.ok(
+    compareSearchRanking(featured, popular, { hasQuery: false, useDistance: false }) < 0
+  );
+});
+
 test("compareSearchRanking: no query uses distance first", () => {
   const a = {
     relevanceTotal: 0,
