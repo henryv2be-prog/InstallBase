@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import { KfAppShell } from "@/components/kasifind/kf-app-shell";
-import { KfHeader } from "@/components/kasifind/kf-header";
+import { KfHeaderAsync } from "@/components/kasifind/kf-header-async";
+import { KfHeaderLoaderFallback } from "@/components/kasifind/kf-page-loader";
 import { KfSiteFooter } from "@/components/kasifind/kf-site-footer";
-import { getPublishedListingCount } from "@/lib/kasifind/listing-count";
-import { getKasiFindSessionUser } from "@/lib/kasifind/session";
-import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import "./globals.css";
 import "./kasifind.css";
 
@@ -39,21 +38,14 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const dbReady = isKasiFindDbConfigured();
-  const sessionUser = dbReady ? await getKasiFindSessionUser().catch(() => null) : null;
-  const headerUser = sessionUser
-    ? { role: sessionUser.role, email: sessionUser.email }
-    : null;
-  const publishedListingCount = dbReady
-    ? await getPublishedListingCount().catch(() => null)
-    : null;
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-ZA">
       <body className={`kf-root kf-tech-bg ${inter.variable}`}>
         <KfAppShell>
-          <KfHeader user={headerUser} publishedListingCount={publishedListingCount} />
+          <Suspense fallback={<KfHeaderLoaderFallback />}>
+            <KfHeaderAsync />
+          </Suspense>
           <main className="mx-auto max-w-5xl px-4 pb-8 pt-2 admin-main">{children}</main>
           <KfSiteFooter />
         </KfAppShell>
