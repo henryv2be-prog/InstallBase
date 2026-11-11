@@ -3037,6 +3037,28 @@ body.kf-listing-flow-active main.admin-main {
   justify-content: center;
 }
 
+/* Classic mobile wizard: scroll inside the step, keep Next/Back footer on screen */
+body.kf-listing-flow-active .kf-listing-flow-body.kf-classic-wizard-body {
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+body.kf-listing-flow-active .kf-classic-wizard-body .kf-wizard-card {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 100%;
+}
+
+body.kf-listing-flow-active .kf-wizard-step-panel {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding-bottom: 0.75rem;
+}
+
 .kf-listing-flow-body:has(.kf-listing-flow-stack--map),
 .kf-listing-flow-body:has(.kf-listing-flow-categories) {
   justify-content: stretch;
