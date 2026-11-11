@@ -114,6 +114,7 @@ export function KfListingForm({
   const removeListingPhoto = adminAssist ? kfAdminAssistedRemoveListingPhoto : kfRemoveListingPhoto;
   const toast = useKfToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const flowBodyRef = useRef<HTMLDivElement>(null);
   const [pending, startTransition] = useTransition();
   const [savingDraft, setSavingDraft] = useState(false);
   const [publishComplete, setPublishComplete] = useState(false);
@@ -147,6 +148,7 @@ export function KfListingForm({
   }, [activeStep]);
 
   const scrollActiveStepPanel = () => {
+    flowBodyRef.current?.scrollTo({ top: 0, behavior: "auto" });
     const form = formRef.current;
     if (!form) return;
     const panel = form.querySelector<HTMLElement>(`[data-wizard-step="${activeStep}"]`);
@@ -338,7 +340,7 @@ export function KfListingForm({
         ) : null}
       </header>
 
-      <div className="kf-listing-flow-body kf-classic-wizard-body">
+      <div ref={flowBodyRef} className="kf-listing-flow-body kf-classic-wizard-body">
         <form
           ref={formRef}
           id="kf-listing-form"

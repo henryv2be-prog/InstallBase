@@ -2950,6 +2950,10 @@ body.kf-listing-flow-active .kf-header-inner {
   padding-bottom: 0.35rem;
 }
 
+body.kf-listing-flow-active .kf-header {
+  flex-shrink: 0;
+}
+
 body.kf-listing-flow-active main.admin-main {
   flex: 1;
   min-height: 0;
@@ -3037,9 +3041,17 @@ body.kf-listing-flow-active main.admin-main {
   justify-content: center;
 }
 
-/* Classic mobile wizard: scroll step content above pinned Next/Back footer */
-body.kf-listing-flow-active .kf-listing-flow-body.kf-classic-wizard-body {
-  justify-content: flex-start;
+/* Classic mobile wizard: grid locks Next/Back; middle row scrolls step fields */
+body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  flex: 1;
+  min-height: 0;
+}
+
+body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-body.kf-classic-wizard-body {
+  min-height: 0;
+  display: block;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -3047,23 +3059,29 @@ body.kf-listing-flow-active .kf-listing-flow-body.kf-classic-wizard-body {
   touch-action: pan-y;
 }
 
-body.kf-listing-flow-active .kf-classic-wizard-body .kf-wizard-card {
-  flex: 0 1 auto;
+body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-foot {
+  background: var(--kf-surface);
+  box-shadow: 0 -4px 16px rgba(15, 77, 58, 0.07);
+}
+
+body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-classic-wizard-body .kf-wizard-card,
+body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-wizard-step-panel {
+  display: block;
+  flex: none;
   min-height: auto;
   max-height: none;
   overflow: visible;
 }
 
-body.kf-listing-flow-active .kf-wizard-step-panel {
-  flex: 0 1 auto;
-  min-height: auto;
-  overflow: visible;
-  max-height: none;
+/* Map step only (not when hidden in DOM on other steps) */
+.kf-listing-flow-body:has(#kf-step-location:not([hidden]) .kf-listing-flow-stack--map) {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
-.kf-listing-flow-body:has(.kf-listing-flow-stack--map),
-.kf-listing-flow-body:has(.kf-listing-flow-categories) {
-  justify-content: stretch;
+.kf-listing-flow-body:has(.kf-listing-flow-categories:not([hidden])) {
+  justify-content: flex-start;
 }
 
 .kf-listing-flow-input {
