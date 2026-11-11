@@ -148,6 +148,8 @@ export function KfListingForm({
   }, [activeStep]);
 
   const scrollActiveStepPanel = () => {
+    const main = flowBodyRef.current?.closest("main");
+    main?.scrollTo({ top: 0, behavior: "auto" });
     flowBodyRef.current?.scrollTo({ top: 0, behavior: "auto" });
     const form = formRef.current;
     if (!form) return;
