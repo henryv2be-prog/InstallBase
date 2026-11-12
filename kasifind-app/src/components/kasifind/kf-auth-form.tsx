@@ -22,7 +22,8 @@ export function KfAuthForm({ mode }: { mode: "login" | "register" }) {
             toast.error(result.error);
             return;
           }
-          router.push("/account/listing");
+          const landingHref = mode === "register" ? "/account/listing" : "/";
+          router.push(landingHref);
           router.refresh();
         });
       }}
