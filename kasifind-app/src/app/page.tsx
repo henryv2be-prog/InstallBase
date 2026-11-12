@@ -10,7 +10,14 @@ export default async function KasiFindHomePage() {
   const dbConfigured = isKasiFindDbConfigured();
   const categoryFlashSlides = dbConfigured ? await getCategoryFlashSlidesFromListings() : [];
 
-  let providerListCta: { href: string; label: string; hint: string } | null = null;
+  let providerListCta: {
+    href: string;
+    label: string;
+    hint: string;
+    listingId?: string | null;
+    displayName?: string | null;
+    shareEnabled?: boolean;
+  } | null = null;
   if (dbConfigured) {
     const user = await getKasiFindSessionUser().catch(() => null);
     if (user) {
@@ -21,6 +28,11 @@ export default async function KasiFindHomePage() {
         hint: listing
           ? "Update photos, services, and publish from your dashboard."
           : "Set up in minutes — no company registration required.",
+        listingId: listing?.id ?? null,
+        displayName: listing?.displayName ?? null,
+        shareEnabled: listing
+          ? listing.status === "PUBLISHED" && listing.moderationStatus === "APPROVED"
+          : false,
       };
     } else {
       providerListCta = {

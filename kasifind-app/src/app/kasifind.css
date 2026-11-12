@@ -3964,6 +3964,115 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   color: #fff;
 }
 
+/* Provider manage / share — same tactile style as inline contact chips */
+.kf-provider-listing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.kf-provider-listing-actions--hero {
+  flex-direction: column;
+  width: 100%;
+  max-width: 22rem;
+}
+
+.kf-provider-listing-actions--inline {
+  align-items: stretch;
+}
+
+.kf-provider-listing-actions-hint {
+  flex: 1 1 100%;
+  margin: 0.35rem 0 0;
+  font-size: var(--kf-text-xs);
+  line-height: 1.45;
+  color: var(--kf-muted);
+}
+
+.kf-provider-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 1rem;
+  font-size: var(--kf-text-sm);
+  font-weight: 600;
+  line-height: 1.25;
+  border-radius: var(--kf-radius-md);
+  border: 1px solid color-mix(in srgb, var(--kf-forest) 20%, var(--kf-border));
+  box-shadow:
+    0 1px 2px rgba(15, 77, 58, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+.kf-provider-listing-actions--hero .kf-provider-action-btn {
+  width: 100%;
+  min-height: 3rem;
+  font-size: var(--kf-text-base);
+  box-shadow: var(--kf-shadow-md);
+}
+
+.kf-provider-listing-actions--inline .kf-provider-action-btn {
+  flex: 1 1 8.5rem;
+}
+
+.kf-provider-action-btn--manage {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--kf-forest) 8%, #ffffff) 0%,
+    color-mix(in srgb, var(--kf-forest) 22%, var(--kf-stone)) 100%
+  );
+  color: var(--kf-forest);
+  border-color: color-mix(in srgb, var(--kf-forest) 32%, var(--kf-border));
+}
+
+.kf-provider-action-btn--share {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--kf-orange) 12%, #ffffff) 0%,
+    color-mix(in srgb, var(--kf-orange) 28%, var(--kf-stone)) 100%
+  );
+  color: color-mix(in srgb, var(--kf-charcoal) 82%, var(--kf-forest));
+  border-color: color-mix(in srgb, var(--kf-orange) 38%, var(--kf-border));
+}
+
+.kf-provider-action-btn--share:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (hover: hover) {
+  .kf-provider-action-btn--manage:hover {
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--kf-forest) 12%, #ffffff) 0%,
+      color-mix(in srgb, var(--kf-forest) 28%, var(--kf-stone)) 100%
+    );
+    box-shadow:
+      0 2px 6px rgba(15, 77, 58, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  }
+
+  .kf-provider-action-btn--share:hover:not(:disabled) {
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--kf-orange) 18%, #ffffff) 0%,
+      color-mix(in srgb, var(--kf-orange) 34%, var(--kf-stone)) 100%
+    );
+  }
+}
+
+.kf-provider-action-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
 .kf-category-tile {
   min-height: var(--kf-touch-min);
   min-width: 5.5rem;

@@ -2,15 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import {
-  Loader2,
-  MapPin,
-  PlusCircle,
-  Search,
-  SlidersHorizontal,
-  Store,
-  X,
-} from "lucide-react";
+import { Loader2, MapPin, Search, SlidersHorizontal, Store, X } from "lucide-react";
+import { KfProviderListingActions } from "@/components/kasifind/kf-provider-listing-actions";
 import type { KfCategory, KfSearchResult } from "@/components/kasifind/types";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
 import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
@@ -81,6 +74,9 @@ export type KfProviderListCta = {
   href: string;
   label: string;
   hint: string;
+  listingId?: string | null;
+  displayName?: string | null;
+  shareEnabled?: boolean;
 };
 
 export function KfHomeClient({
@@ -473,11 +469,18 @@ export function KfHomeClient({
         </p>
         {providerListCta ? (
           <div className="kf-hero-provider-cta kf-animate-in">
-            <Link href={providerListCta.href} className="kf-btn kf-btn-primary kf-hero-provider-btn">
-              <PlusCircle className="h-5 w-5 shrink-0" aria-hidden />
-              {providerListCta.label}
-            </Link>
-            <p className="kf-hero-provider-hint">{providerListCta.hint}</p>
+            <KfProviderListingActions
+              manageHref={providerListCta.href}
+              manageLabel={providerListCta.label}
+              listingId={providerListCta.listingId ?? null}
+              displayName={providerListCta.displayName ?? null}
+              shareEnabled={Boolean(providerListCta.shareEnabled)}
+              layout="hero"
+              hint={providerListCta.listingId ? providerListCta.hint : null}
+            />
+            {!providerListCta.listingId ? (
+              <p className="kf-hero-provider-hint">{providerListCta.hint}</p>
+            ) : null}
           </div>
         ) : null}
         {locationPill}
