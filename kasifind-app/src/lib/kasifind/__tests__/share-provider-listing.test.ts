@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  buildListingShareMessage,
   buildListingShareText,
   listingPublicPath,
   listingPublicUrl,
@@ -17,8 +18,15 @@ test("listingPublicUrl strips trailing slash on origin", () => {
   );
 });
 
-test("buildListingShareText includes name and link", () => {
+test("buildListingShareMessage includes business name only", () => {
+  const message = buildListingShareMessage("Sipho Steel");
+  assert.match(message, /Sipho Steel/);
+  assert.doesNotMatch(message, /https?:\/\//);
+});
+
+test("buildListingShareText includes name and single link line", () => {
   const text = buildListingShareText("Sipho Steel", "https://kasifind.example/providers/x");
   assert.match(text, /Sipho Steel/);
-  assert.match(text, /https:\/\/kasifind\.example\/providers\/x/);
+  assert.match(text, /https:\/\/kasifind\.example\/providers\/x$/);
+  assert.equal((text.match(/https:\/\/kasifind\.example\/providers\/x/g) ?? []).length, 1);
 });

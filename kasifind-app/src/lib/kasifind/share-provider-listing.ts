@@ -7,9 +7,14 @@ export function listingPublicUrl(listingId: string, origin: string): string {
   return `${base}${listingPublicPath(listingId)}`;
 }
 
-export function buildListingShareText(displayName: string, publicUrl: string): string {
+export function buildListingShareMessage(displayName: string): string {
   const name = displayName.trim() || "my business";
-  return `Hi — find ${name} on KasiFind (local services near you):\n${publicUrl}`;
+  return `Hi — find ${name} on KasiFind (local services near you):`;
+}
+
+/** Clipboard / paste targets: one block with a single link line */
+export function buildListingShareText(displayName: string, publicUrl: string): string {
+  return `${buildListingShareMessage(displayName)}\n${publicUrl}`;
 }
 
 export type ShareProviderListingResult =
@@ -24,12 +29,14 @@ export async function shareProviderListing(input: {
 }): Promise<ShareProviderListingResult> {
   const url = listingPublicUrl(input.listingId, input.origin);
   const text = buildListingShareText(input.displayName, url);
+  const shareMessage = buildListingShareMessage(input.displayName);
 
   if (typeof navigator !== "undefined" && navigator.share) {
     try {
+      /* `url` is appended by many targets — do not repeat it inside `text` */
       await navigator.share({
         title: `${input.displayName.trim() || "KasiFind listing"}`,
-        text,
+        text: shareMessage,
         url,
       });
       return { mode: "native_share" };
