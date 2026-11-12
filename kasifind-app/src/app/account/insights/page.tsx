@@ -16,6 +16,7 @@ import {
   KfListingAssistanceHeroExtras,
   KfListingAssistanceProvider,
 } from "@/components/kasifind/kf-listing-assistance-provider";
+import { KfProviderListingActions } from "@/components/kasifind/kf-provider-listing-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -119,14 +120,22 @@ export default async function ProviderInsightsPage() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Link href={`/providers/${listing.id}`} className="kf-btn kf-btn-outline">
-            View public listing
-          </Link>
-          <Link href="/account/listing" className="kf-btn kf-btn-primary">
-            Edit listing
-          </Link>
-        </div>
+        <KfProviderListingActions
+          manageHref="/account/listing"
+          manageLabel="Edit listing"
+          listingId={listing.id}
+          displayName={listing.displayName}
+          shareEnabled={
+            listing.status === "PUBLISHED" && listing.moderationStatus === "APPROVED"
+          }
+          layout="inline"
+        />
+        <Link
+          href={`/providers/${listing.id}`}
+          className="text-sm font-semibold text-[var(--kf-forest)] underline underline-offset-2"
+        >
+          View public listing
+        </Link>
       </div>
     </KfListingAssistanceProvider>
     </Suspense>
