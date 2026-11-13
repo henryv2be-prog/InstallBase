@@ -321,6 +321,7 @@ export function KfListingForm({
   return (
     <div
       className={`kf-listing-flow kf-classic-wizard${adminAssist ? " kf-listing-flow--embedded" : ""}`}
+      data-active-step={activeStep}
     >
       <header className="kf-listing-flow-head kf-classic-wizard-head">
         <KfFormStepper
@@ -460,7 +461,7 @@ export function KfListingForm({
             <fieldset className="kf-wizard-fieldset kf-wizard-fieldset--categories">
               <legend className="kf-label">Categories</legend>
               <div className="kf-wizard-category-scroll">
-              <div className="kf-wizard-category-grid mt-2 grid gap-2 sm:grid-cols-2">
+                <div className="kf-wizard-category-grid mt-2 grid gap-2 sm:grid-cols-2">
                 {categories.map((c) => (
                   <label key={c.id} className="kf-category-check">
                     <input
@@ -472,7 +473,7 @@ export function KfListingForm({
                     {c.name}
                   </label>
                 ))}
-              </div>
+                </div>
               </div>
             </fieldset>
             <label className="kf-label kf-wizard-services-field">
