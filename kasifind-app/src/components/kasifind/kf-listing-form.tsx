@@ -477,9 +477,9 @@ export function KfListingForm({
               Services <span className="font-normal text-[var(--kf-muted)]">(one per line)</span>
               <textarea
                 name="services"
-                rows={3}
+                rows={2}
                 defaultValue={defaultServices}
-                className="kf-input kf-input-compact kf-listing-flow-textarea mt-1 text-sm"
+                className="kf-input kf-input-compact kf-listing-flow-textarea kf-wizard-services-textarea mt-1 text-sm"
               />
             </label>
             <details className="kf-wizard-optional">
