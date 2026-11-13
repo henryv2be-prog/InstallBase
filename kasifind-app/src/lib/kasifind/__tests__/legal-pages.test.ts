@@ -53,5 +53,5 @@ test("site footer includes legal links", () => {
   assert.match(text, /@kasifindsa/);
   assert.match(text, /tiktok\.com\/@kasifindsa/);
   assert.match(text, /instagram\.com\/kasifindsa/);
-  assert.match(text, /facebook\.com\/kasifindsa/);
+  assert.match(text, /facebook\.com\/kasifind/);
 });

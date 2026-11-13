@@ -10,7 +10,7 @@ const FOOTER_LINKS = [
 const SOCIAL_LINKS = [
   { href: "https://www.tiktok.com/@kasifindsa", label: "TikTok" },
   { href: "https://www.instagram.com/kasifindsa", label: "Instagram" },
-  { href: "https://www.facebook.com/kasifindsa", label: "Facebook" },
+  { href: "https://www.facebook.com/kasifind", label: "Facebook" },
 ] as const;
 
 const SOCIAL_HANDLE = "@kasifindsa";
