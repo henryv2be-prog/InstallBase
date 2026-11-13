@@ -4893,6 +4893,50 @@ main.admin-main:has(.kf-activity-map-page) {
   display: none;
 }
 
+/* One style for every row in the hamburger menu (links and buttons). */
+.kf-mobile-nav-link {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  min-height: var(--kf-touch-min);
+  padding: 0.65rem 0.85rem;
+  font-size: var(--kf-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--kf-forest);
+  background: color-mix(in srgb, var(--kf-glass) 70%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--kf-forest) 35%, var(--kf-border));
+  border-radius: var(--kf-radius-md);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition:
+    background var(--kf-duration) var(--kf-ease),
+    border-color var(--kf-duration) var(--kf-ease),
+    color var(--kf-duration) var(--kf-ease);
+}
+
+@media (hover: hover) {
+  .kf-mobile-nav-link:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--kf-orange) 55%, var(--kf-forest));
+    color: var(--kf-orange-hover);
+    background: color-mix(in srgb, var(--kf-orange-soft) 80%, var(--kf-glass));
+  }
+}
+
+.kf-mobile-nav-link:focus-visible {
+  outline: 2px solid var(--kf-orange);
+  outline-offset: 2px;
+}
+
+.kf-mobile-nav-link:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .kf-mobile-nav-link--active {
   border-color: color-mix(in srgb, var(--kf-forest) 35%, var(--kf-border));
   background: color-mix(in srgb, var(--kf-forest) 8%, white);
@@ -4902,10 +4946,8 @@ main.admin-main:has(.kf-activity-map-page) {
 .kf-mobile-admin-links {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  margin-top: 0.25rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--kf-border);
+  gap: 0.5rem;
+  margin-top: 0.35rem;
 }
 
 .kf-mobile-admin-kicker {
@@ -4915,12 +4957,6 @@ main.admin-main:has(.kf-activity-map-page) {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--kf-muted);
-}
-
-.kf-mobile-admin-link--active {
-  border-color: color-mix(in srgb, var(--kf-forest) 35%, var(--kf-border));
-  background: color-mix(in srgb, var(--kf-forest) 8%, white);
-  color: var(--kf-forest);
 }
 
 .kf-mobile-nav {
