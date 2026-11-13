@@ -13,7 +13,6 @@ export function KfBrandLogo({ className }: { className?: string }) {
         fill="currentColor"
       />
       <circle cx="16" cy="12.2" r="4.2" fill="#F6C945" />
-      <circle cx="16" cy="12.2" r="1.6" fill="#0F4D3A" />
     </svg>
   );
 }

@@ -36,7 +36,6 @@ export function buildKasiFindAppIconSvg(
   <svg x="${markOffset}" y="${markOffset}" width="${markSize}" height="${markSize}" viewBox="0 0 32 32" fill="none">
     <path d="${PIN_PATH}" fill="#ffffff"/>
     <circle cx="16" cy="12.2" r="4.2" fill="${yellow}"/>
-    <circle cx="16" cy="12.2" r="1.6" fill="${forest}"/>
   </svg>
 </svg>`;
 }
