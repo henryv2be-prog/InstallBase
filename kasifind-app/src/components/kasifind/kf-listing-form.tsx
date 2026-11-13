@@ -78,9 +78,7 @@ function validateWizardStep(form: HTMLFormElement, step: number, toastError: (ms
   if (step === 1) {
     const confirmed = form.querySelector('input[name="locationConfirmed"]') as HTMLInputElement | null;
     if (confirmed?.value !== "true") {
-      toastError(
-        "Set your location — tap the map for an approximate area, or use My location."
-      );
+      toastError("Place your pin on the map or use My location.");
       return false;
     }
   }
@@ -426,9 +424,7 @@ export function KfListingForm({
           className={stepPanelClass(activeStep === 1)}
           hidden={activeStep !== 1}
         >
-          <p className="kf-wizard-step-lead">
-            Tap the map for an approximate area, or use My location. We never guess your pin.
-          </p>
+          <p className="kf-wizard-step-lead">Pick how you appear on the map, then set your pin.</p>
           <div className="kf-wizard-fields kf-listing-flow-stack kf-listing-flow-stack--map">
             <label className="kf-label">
               Neighbourhood / landmark (shown publicly)

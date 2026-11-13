@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Loader2, MapPin, Navigation } from "lucide-react";
+import { Loader2, Navigation } from "lucide-react";
 import { KfLocationMap } from "@/components/kasifind/kf-location-map";
 import { APPROXIMATE_MAP_RADIUS_M } from "@/lib/kasifind/location-display";
 import {
@@ -54,6 +54,17 @@ export function KfLocationPicker({
     toast.error(publishLocationErrorMessage(position.reason));
   }, [applyPosition, toast]);
 
+  const chooseApproximate = () => {
+    setHideExactLocation(true);
+  };
+
+  const chooseExact = () => {
+    setHideExactLocation(false);
+    if (!pinPlaced && !locating) {
+      void useMyLocation();
+    }
+  };
+
   return (
     <div className="space-y-3">
       <input type="hidden" name="latitude" value={pinPlaced ? String(latitude) : ""} readOnly />
@@ -61,13 +72,51 @@ export function KfLocationPicker({
       <input type="hidden" name="locationConfirmed" value={pinPlaced ? "true" : "false"} readOnly />
       <input type="hidden" name="hideExactLocation" value={hideExactLocation ? "true" : "false"} />
 
-      {!pinPlaced ? (
-        <p className="kf-location-required-hint" role="status">
-          <MapPin className="h-4 w-4 shrink-0 text-[var(--kf-orange)]" aria-hidden />
-          Tap the map to set an approximate area, or use <strong>My location</strong> for a precise
-          pin.
-        </p>
-      ) : null}
+      <fieldset className="space-y-2">
+        <legend className="kf-label">On your public map</legend>
+        <label
+          className={`flex cursor-pointer items-start gap-3 rounded-lg border p-2.5 ${
+            hideExactLocation
+              ? "border-[var(--kf-orange)] bg-[var(--kf-orange-soft)]"
+              : "border-[var(--kf-border)]"
+          }`}
+        >
+          <input
+            type="radio"
+            name="locationVisibilityChoice"
+            className="mt-1"
+            checked={hideExactLocation}
+            onChange={chooseApproximate}
+          />
+          <span>
+            <span className="block text-sm font-semibold text-[var(--kf-charcoal)]">
+              Approximate area
+            </span>
+            <span className="mt-0.5 block text-xs text-[var(--kf-muted)]">~1 km circle on the map.</span>
+          </span>
+        </label>
+        <label
+          className={`flex cursor-pointer items-start gap-3 rounded-lg border p-2.5 ${
+            !hideExactLocation
+              ? "border-[var(--kf-orange)] bg-[var(--kf-orange-soft)]"
+              : "border-[var(--kf-border)]"
+          }`}
+        >
+          <input
+            type="radio"
+            name="locationVisibilityChoice"
+            className="mt-1"
+            checked={!hideExactLocation}
+            onChange={chooseExact}
+          />
+          <span>
+            <span className="block text-sm font-semibold text-[var(--kf-charcoal)]">Exact pin</span>
+            <span className="mt-0.5 block text-xs text-[var(--kf-muted)]">
+              GPS pin — we ask when you choose this.
+            </span>
+          </span>
+        </label>
+      </fieldset>
 
       <KfLocationMap
         latitude={latitude}
@@ -79,76 +128,36 @@ export function KfLocationPicker({
         onLocationChange={applyPosition}
       />
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          className="kf-btn kf-btn-ghost text-sm"
-          disabled={locating}
-          onClick={() => void useMyLocation()}
-        >
-          {locating ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-              Locating…
-            </>
-          ) : (
-            <>
-              <Navigation className="h-4 w-4" aria-hidden />
-              Use my location
-            </>
-          )}
-        </button>
-      </div>
+      <button
+        type="button"
+        className="kf-btn kf-btn-outline w-full min-h-[2.75rem] text-sm"
+        disabled={locating}
+        onClick={() => void useMyLocation()}
+      >
+        {locating ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            Getting GPS…
+          </>
+        ) : (
+          <>
+            <Navigation className="h-4 w-4" aria-hidden />
+            Use my location
+          </>
+        )}
+      </button>
 
-      <fieldset className="space-y-2">
-        <legend className="kf-label">What customers see on the map</legend>
-        <label
-          className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${
-            hideExactLocation
-              ? "border-[var(--kf-orange)] bg-[var(--kf-orange-soft)]"
-              : "border-[var(--kf-border)]"
-          }`}
-        >
-          <input
-            type="radio"
-            name="locationVisibilityChoice"
-            className="mt-1"
-            checked={hideExactLocation}
-            onChange={() => setHideExactLocation(true)}
-          />
-          <span>
-            <span className="block text-sm font-semibold text-[var(--kf-charcoal)]">
-              Approximate area
-            </span>
-            <span className="mt-0.5 block text-xs text-[var(--kf-muted)]">
-              Tap the map to place a ~1 km circle — works without GPS permission.
-            </span>
-          </span>
-        </label>
-        <label
-          className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${
-            !hideExactLocation
-              ? "border-[var(--kf-orange)] bg-[var(--kf-orange-soft)]"
-              : "border-[var(--kf-border)]"
-          }`}
-        >
-          <input
-            type="radio"
-            name="locationVisibilityChoice"
-            className="mt-1"
-            checked={!hideExactLocation}
-            onChange={() => setHideExactLocation(false)}
-          />
-          <span>
-            <span className="block text-sm font-semibold text-[var(--kf-charcoal)]">
-              Exact pin
-            </span>
-            <span className="mt-0.5 block text-xs text-[var(--kf-muted)]">
-              Uses your device location when you publish (shopfront, yard, etc.).
-            </span>
-          </span>
-        </label>
-      </fieldset>
+      {!pinPlaced ? (
+        <p className="kf-help m-0 text-center" role="status">
+          {hideExactLocation
+            ? "Tap the map or use My location to continue."
+            : "Allow GPS or tap the map to place your pin."}
+        </p>
+      ) : (
+        <p className="kf-help m-0 text-center text-[var(--kf-forest)]" role="status">
+          Pin set — you can tap Next.
+        </p>
+      )}
     </div>
   );
 }

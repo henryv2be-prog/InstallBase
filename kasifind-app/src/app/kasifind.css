@@ -3127,6 +3127,35 @@ body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-f
   justify-content: flex-start;
 }
 
+/* Listing wizard grid: keep scrollable body; don't stretch map off-screen */
+body.kf-listing-flow-active
+  .kf-listing-flow-body:has(#kf-step-location:not([hidden]) .kf-listing-flow-stack--map) {
+  display: block;
+}
+
+body.kf-listing-flow-active
+  .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded)
+  #kf-step-location:not([hidden])
+  .kf-listing-flow-stack--map,
+body.kf-listing-flow-active
+  .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded)
+  #kf-step-location:not([hidden])
+  .kf-location-map--flow {
+  flex: none;
+  min-height: 0;
+}
+
+body.kf-listing-flow-active
+  .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded)
+  #kf-step-location:not([hidden])
+  .kf-location-map--flow
+  .kf-location-map-canvas {
+  flex: none;
+  height: 10.5rem !important;
+  min-height: 10.5rem;
+  max-height: 10.5rem;
+}
+
 .kf-listing-flow-body:has(.kf-listing-flow-categories:not([hidden])) {
   justify-content: flex-start;
 }
