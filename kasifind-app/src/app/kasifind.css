@@ -20,6 +20,7 @@
   --kf-stone: #eef2eb;
   --kf-text: var(--kf-charcoal);
   --kf-muted: #4b5563;
+  --kf-muted-fg: color-mix(in srgb, var(--kf-muted) 94%, var(--kf-charcoal));
   --kf-muted-soft: var(--kf-sage);
   --kf-border: rgba(31, 41, 55, 0.1);
   --kf-border-strong: rgba(31, 41, 55, 0.16);
@@ -3842,6 +3843,39 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   text-transform: none;
   line-height: 1.4;
   color: color-mix(in srgb, var(--kf-forest) 78%, var(--kf-charcoal));
+}
+
+.kf-profile-contact-bar {
+  position: sticky;
+  top: calc(var(--kf-header-h) + env(safe-area-inset-top, 0px));
+  z-index: 35;
+  margin: 0 calc(-1 * var(--kf-space-4));
+  padding: 0.5rem var(--kf-space-4) 0.65rem;
+  background: rgba(249, 250, 247, 0.94);
+  border-bottom: 1px solid var(--kf-border);
+  box-shadow: 0 4px 14px rgba(15, 77, 58, 0.07);
+  backdrop-filter: blur(8px);
+}
+
+.kf-profile-contact-bar-actions {
+  margin-left: 0;
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .kf-profile-contact-bar {
+    margin: 0;
+    border-radius: var(--kf-radius-lg);
+    border: 1px solid color-mix(in srgb, var(--kf-forest) 14%, var(--kf-border));
+    top: calc(var(--kf-header-h) + 0.5rem);
+  }
+
+  .kf-profile-contact-bar-actions {
+    justify-content: center;
+  }
 }
 
 .kf-inline-contact-actions {

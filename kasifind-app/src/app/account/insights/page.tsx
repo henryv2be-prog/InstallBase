@@ -17,6 +17,7 @@ import {
   KfListingAssistanceProvider,
 } from "@/components/kasifind/kf-listing-assistance-provider";
 import { KfProviderListingActions } from "@/components/kasifind/kf-provider-listing-actions";
+import { loginPathWithNext } from "@/lib/kasifind/auth-redirect";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ export default async function ProviderInsightsPage() {
   }
 
   const user = await getKasiFindSessionUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(loginPathWithNext("/account/insights"));
 
   const [listing, assistanceRequest] = await Promise.all([
     getListingForUser(user.id),

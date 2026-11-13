@@ -1,8 +1,20 @@
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { KfAuthForm } from "@/components/kasifind/kf-auth-form";
+import { loginPathWithNext, sanitizeAuthNextPath } from "@/lib/kasifind/auth-redirect";
 
-export default function KfRegisterPage() {
+type Props = {
+  searchParams?: Promise<{ next?: string }>;
+};
+
+export default async function KfRegisterPage({ searchParams }: Props) {
+  const resolved = searchParams ? await searchParams : {};
+  const nextPath = resolved.next ?? null;
+  const loginHref =
+    nextPath && nextPath.length > 0
+      ? loginPathWithNext(sanitizeAuthNextPath(nextPath, "/account/listing"))
+      : "/login";
+
   return (
     <div className="kf-auth-shell space-y-4 kf-animate-in">
       <h1 className="kf-hero-title text-2xl">Register your business</h1>
@@ -13,7 +25,7 @@ export default function KfRegisterPage() {
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
         <span>Your email is only used to manage your listing — customers contact you on WhatsApp or phone.</span>
       </div>
-      <KfAuthForm mode="register" />
+      <KfAuthForm mode="register" nextPath={nextPath} />
       <div className="kf-auth-benefits">
         <p className="font-semibold text-[var(--kf-charcoal)]">What happens next</p>
         <ul>
@@ -25,7 +37,7 @@ export default function KfRegisterPage() {
       </div>
       <p className="text-center text-sm">
         Already registered?{" "}
-        <Link href="/login" className="kf-link underline">
+        <Link href={loginHref} className="kf-link underline">
           Sign in
         </Link>
       </p>

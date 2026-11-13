@@ -14,6 +14,7 @@ import { KfWorkPhotoGallery } from "@/components/kasifind/kf-work-photo-gallery"
 import { KfReviewForm } from "@/components/kasifind/kf-review-form";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
 import { KfListingContactFooter } from "@/components/kasifind/kf-listing-contact-footer";
+import { KfListingProfileContactBar } from "@/components/kasifind/kf-listing-profile-contact-bar";
 import { KfTrackListingView } from "@/components/kasifind/kf-track-listing-view";
 import { KfProviderLocationMap } from "@/components/kasifind/kf-provider-location-map";
 import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-display";
@@ -168,6 +169,14 @@ export default async function KasiFindProviderPage({ params }: Props) {
 
         </div>
       </header>
+
+      <KfListingProfileContactBar
+        listingId={listing.id}
+        displayName={listing.displayName}
+        waUrl={waUrl}
+        callPhone={listing.phone}
+        directionsUrl={directionsUrl}
+      />
 
       <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
 

@@ -6,6 +6,7 @@ import { getListingForUser } from "@/lib/kasifind/provider-listing";
 import { getProviderListingAssistanceRequest } from "@/lib/kasifind/listing-assistance";
 import { canProviderSubmitListingAssistance } from "@/lib/kasifind/listing-assistance-status";
 import { KfListingSupportPanel } from "@/components/kasifind/kf-listing-support-panel";
+import { loginPathWithNext } from "@/lib/kasifind/auth-redirect";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export default async function ListingSupportPage() {
   }
 
   const user = await getKasiFindSessionUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(loginPathWithNext("/account/listing-support"));
 
   const [listing, assistanceRequest] = await Promise.all([
     getListingForUser(user.id),

@@ -5,8 +5,15 @@ import { useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { kfRegisterProvider, kfSignInProvider } from "@/lib/kasifind/actions";
 import { useKfToast } from "@/components/kasifind/kf-toast";
+import { sanitizeAuthNextPath } from "@/lib/kasifind/auth-redirect";
 
-export function KfAuthForm({ mode }: { mode: "login" | "register" }) {
+export function KfAuthForm({
+  mode,
+  nextPath = null,
+}: {
+  mode: "login" | "register";
+  nextPath?: string | null;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const toast = useKfToast();
@@ -22,7 +29,10 @@ export function KfAuthForm({ mode }: { mode: "login" | "register" }) {
             toast.error(result.error);
             return;
           }
-          const landingHref = mode === "register" ? "/account/listing" : "/";
+          const landingHref =
+            mode === "register"
+              ? sanitizeAuthNextPath(nextPath, "/account/listing")
+              : sanitizeAuthNextPath(nextPath, "/");
           router.push(landingHref);
           router.refresh();
         });

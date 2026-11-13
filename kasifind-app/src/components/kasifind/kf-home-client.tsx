@@ -784,9 +784,9 @@ export function KfHomeClient({
                       Browse all areas
                     </button>
                   )}
-                  <a href="/register" className="kf-btn kf-btn-outline">
+                  <Link href="/register" className="kf-btn kf-btn-outline">
                     List your business
-                  </a>
+                  </Link>
                 </div>
               }
             />
