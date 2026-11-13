@@ -96,7 +96,7 @@ export function KfMobileNavMenu({
       ) : (
         <section className="kf-mobile-nav-section">
           <NavButton
-            href="/account/listing"
+            href="/register"
             label="List your business"
             icon={PlusCircle}
             primary

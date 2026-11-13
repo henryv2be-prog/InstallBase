@@ -9,6 +9,7 @@ import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
 import { KfListingAssistanceProvider } from "@/components/kasifind/kf-listing-assistance-provider";
 import { canProviderSubmitListingAssistance } from "@/lib/kasifind/listing-assistance-status";
 import { getProviderListingAssistanceRequest } from "@/lib/kasifind/listing-assistance";
+import { loginPathWithNext } from "@/lib/kasifind/auth-redirect";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,7 @@ export default async function KfListingEditorPage() {
   }
 
   const user = await getKasiFindSessionUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(loginPathWithNext("/account/listing"));
 
   const [categories, listing, assistanceRequest] = await Promise.all([
     listKfCategories(),
