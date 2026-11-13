@@ -457,8 +457,9 @@ export function KfListingForm({
         >
           <p className="kf-wizard-step-lead">Pick categories and list what you offer — search uses these words.</p>
           <div className="kf-wizard-fields">
-            <fieldset className="kf-wizard-fieldset">
+            <fieldset className="kf-wizard-fieldset kf-wizard-fieldset--categories">
               <legend className="kf-label">Categories</legend>
+              <div className="kf-wizard-category-scroll">
               <div className="kf-wizard-category-grid mt-2 grid gap-2 sm:grid-cols-2">
                 {categories.map((c) => (
                   <label key={c.id} className="kf-category-check">
@@ -472,14 +473,15 @@ export function KfListingForm({
                   </label>
                 ))}
               </div>
+              </div>
             </fieldset>
-            <label className="kf-label">
+            <label className="kf-label kf-wizard-services-field">
               Services <span className="font-normal text-[var(--kf-muted)]">(one per line)</span>
               <textarea
                 name="services"
-                rows={2}
+                rows={3}
                 defaultValue={defaultServices}
-                className="kf-input kf-input-compact kf-listing-flow-textarea kf-wizard-services-textarea mt-1 text-sm"
+                className="kf-input kf-input-compact kf-listing-flow-textarea mt-1 text-sm"
               />
             </label>
             <details className="kf-wizard-optional">
