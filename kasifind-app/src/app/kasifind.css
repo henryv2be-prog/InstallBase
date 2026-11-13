@@ -2919,12 +2919,9 @@
   color: var(--kf-muted);
 }
 
-/* Listing wizard — one screen per step on mobile (no page scroll) */
+/* Listing wizard — compact chrome; do not lock viewport (avoids 0-height collapse on mobile). */
 body.kf-listing-flow-active.kf-root {
-  display: flex;
-  flex-direction: column;
-  height: 100dvh;
-  overflow: hidden;
+  min-height: 100dvh;
 }
 
 body.kf-listing-flow-active .kf-footer {
@@ -2946,14 +2943,11 @@ body.kf-listing-flow-active .kf-header {
 }
 
 body.kf-listing-flow-active main.admin-main {
-  flex: 1 1 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  display: block;
   max-width: none;
   margin: 0;
-  padding: 0;
+  padding: 0 0 1rem;
+  overflow: visible;
 }
 
 .kf-listing-page-flow {
@@ -3033,49 +3027,50 @@ body.kf-listing-flow-active main.admin-main {
 }
 
 /*
- * R-C01 mobile wizard: flex column (head | scroll body | foot in one viewport).
- * One scroll owner: .kf-listing-flow-body (nested scroll only where marked).
+ * Classic listing wizard: natural document flow + sticky nav on small screens.
  */
 body.kf-listing-flow-active .kf-listing-page-flow.kf-listing-page-classic {
-  flex: 1 1 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  display: block;
+  width: 100%;
 }
 
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  flex: 1 1 0;
-  min-height: 0;
-  max-height: 100%;
-  align-content: stretch;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: auto;
+  max-height: none;
 }
 
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-head {
-  grid-row: 1;
+  flex-shrink: 0;
 }
 
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-body.kf-classic-wizard-body {
-  grid-row: 2;
-  min-height: 0;
+  flex: none;
+  min-height: auto;
   display: block;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
+  overflow: visible;
 }
 
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-foot {
-  grid-row: 3;
-  z-index: 2;
-  padding-top: 0.35rem;
-  padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
+  flex-shrink: 0;
+  z-index: 20;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
   background: rgba(249, 250, 247, 0.98);
   border-top: 1px solid var(--kf-border);
   box-shadow: 0 -4px 16px rgba(15, 77, 58, 0.06);
+}
+
+@media (max-width: 639px) {
+  body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-foot {
+    position: sticky;
+    bottom: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
 }
 
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-classic-wizard-body .kf-wizard-card {
@@ -3557,7 +3552,7 @@ body.kf-listing-flow-active .kf-listing-flow-account {
 }
 
 .kf-classic-wizard-body {
-  overflow: hidden;
+  overflow: visible;
 }
 
 body.kf-listing-flow-active .kf-classic-wizard-body {
@@ -3565,11 +3560,7 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
 }
 
 .kf-classic-wizard-body .kf-wizard-card {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
+  display: block;
   border: none;
   box-shadow: none;
   background: transparent;
@@ -3577,11 +3568,7 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
 }
 
 .kf-wizard-step-panel {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  display: block;
   padding-right: 0.15rem;
 }
 
