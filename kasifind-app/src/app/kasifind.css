@@ -29,7 +29,7 @@
   --kf-glass-solid: #ffffff;
   --kf-forest-glow: rgba(15, 77, 58, 0.28);
   --kf-orange-glow: rgba(255, 138, 0, 0.24);
-  --kf-grid: rgba(15, 77, 58, 0.07);
+  --kf-grid: rgba(15, 77, 58, 0.042);
 
   /* Legacy aliases (used across components) */
   --kf-green: var(--kf-forest);
@@ -483,6 +483,12 @@
   padding: var(--kf-space-5) 0 var(--kf-space-4);
 }
 
+.kf-home-landing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kf-space-5);
+}
+
 .kf-home-search-stack {
   display: flex;
   flex-direction: column;
@@ -491,6 +497,178 @@
 
 .kf-home-search-stack .kf-hero {
   padding-bottom: 0;
+}
+
+.kf-hero--landing {
+  padding: var(--kf-space-3) 0 0;
+}
+
+.kf-hero--landing .kf-hero-title {
+  margin-top: var(--kf-space-1);
+}
+
+.kf-hero-search-title {
+  margin: 0;
+  font-size: var(--kf-text-sm);
+  font-weight: 700;
+  color: var(--kf-charcoal);
+}
+
+.kf-location-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin-top: var(--kf-space-2);
+}
+
+.kf-location-status .kf-location-pill {
+  margin-top: 0;
+}
+
+.kf-location-status-sep {
+  color: var(--kf-muted-soft);
+  font-weight: 300;
+  user-select: none;
+}
+
+.kf-location-status-action {
+  min-height: var(--kf-touch-min);
+  padding: 0.25rem 0.5rem;
+  font-size: var(--kf-text-sm);
+  font-weight: 700;
+  color: var(--kf-forest);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.kf-location-status-action:hover {
+  color: var(--kf-orange-hover);
+}
+
+.kf-location-status-action:focus-visible {
+  outline: 2px solid var(--kf-orange);
+  outline-offset: 2px;
+  border-radius: var(--kf-radius-sm);
+}
+
+.kf-radius-disclosure {
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: color-mix(in srgb, var(--kf-surface) 55%, transparent);
+}
+
+.kf-radius-disclosure-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--kf-touch-min);
+  padding: 0.5rem 0.65rem;
+  font-size: var(--kf-text-sm);
+  font-weight: 600;
+  color: var(--kf-charcoal);
+  list-style: none;
+  cursor: pointer;
+}
+
+.kf-radius-disclosure-summary::-webkit-details-marker {
+  display: none;
+}
+
+.kf-radius-disclosure-chevron {
+  margin-left: auto;
+  color: var(--kf-muted);
+  transition: transform var(--kf-duration) var(--kf-ease);
+}
+
+.kf-radius-disclosure[open] .kf-radius-disclosure-chevron {
+  transform: rotate(180deg);
+}
+
+.kf-radius-disclosure .kf-radius-field {
+  padding: 0 0.65rem 0.65rem;
+  margin-top: 0;
+}
+
+.kf-radius-disclosure--disabled .kf-radius-disclosure-summary {
+  opacity: 0.92;
+}
+
+.kf-home-provider-cta {
+  padding: var(--kf-space-2) 0 0;
+  border-top: 1px solid color-mix(in srgb, var(--kf-border) 85%, transparent);
+}
+
+.kf-home-provider-cta .kf-provider-listing-actions {
+  width: 100%;
+}
+
+.kf-home-provider-cta .kf-provider-action-btn--manage {
+  flex: 1 1 auto;
+  min-height: var(--kf-touch-min);
+  font-size: var(--kf-text-sm);
+  background: color-mix(in srgb, var(--kf-glass) 75%, transparent);
+  color: var(--kf-forest);
+  border-color: color-mix(in srgb, var(--kf-forest) 28%, var(--kf-border));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.kf-home-provider-hint {
+  margin: 0.35rem 0 0;
+  font-size: var(--kf-text-xs);
+  line-height: 1.4;
+  color: var(--kf-muted);
+}
+
+.kf-home-categories {
+  padding-top: var(--kf-space-1);
+}
+
+.kf-home-categories .kf-section-sub {
+  margin-top: 0.15rem;
+}
+
+.kf-home-categories .kf-category-scroll {
+  margin-top: var(--kf-space-2);
+}
+
+.kf-home-results {
+  margin-top: var(--kf-space-1);
+}
+
+@media (max-width: 639px) {
+  .kf-home-landing {
+    gap: var(--kf-space-4);
+  }
+
+  .kf-home-search-stack {
+    gap: var(--kf-space-2);
+  }
+
+  .kf-hero--landing {
+    padding-top: var(--kf-space-2);
+  }
+
+  .kf-hero--landing .kf-hero-title {
+    font-size: clamp(1.35rem, 6vw, 1.75rem);
+    line-height: 1.2;
+  }
+
+  .kf-hero-bg {
+    height: 9rem;
+    inset: -0.5rem -0.5rem auto -0.5rem;
+  }
+
+  .kf-hero-search-card {
+    padding: var(--kf-space-3);
+    border-color: color-mix(in srgb, var(--kf-forest) 22%, var(--kf-border));
+    box-shadow:
+      0 6px 24px rgba(15, 77, 58, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
 }
 
 .kf-hero-bg {

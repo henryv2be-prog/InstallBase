@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Loader2, MapPin, Search, SlidersHorizontal, Store, X } from "lucide-react";
+import { ChevronDown, Loader2, MapPin, Search, SlidersHorizontal, Store, X } from "lucide-react";
 import { KfProviderListingActions } from "@/components/kasifind/kf-provider-listing-actions";
 import type { KfCategory, KfSearchResult } from "@/components/kasifind/types";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
@@ -25,6 +25,7 @@ import {
   DISCOVERY_RADIUS_CHIPS_KM,
   formatDiscoveryResultsSubtitle,
   locationModeLabel,
+  radiusChipLabel,
 } from "@/lib/kasifind/discovery-display";
 import { BROWSE_LISTING_LIMIT } from "@/lib/kasifind/discovery-config";
 import { KfLocationSheet } from "@/components/kasifind/kf-location-sheet";
@@ -165,7 +166,6 @@ export function KfHomeClient({
   }, [dbConfigured]);
 
   const usesBrowseMode = location.mode === "browse";
-  const usesApproximateDistance = location.mode === "manual";
 
   const impressionScopeKey = useMemo(() => {
     if (results.length === 0) return null;
@@ -343,26 +343,54 @@ export function KfHomeClient({
 
   const geolocationAvailable =
     typeof navigator !== "undefined" && Boolean(navigator.geolocation);
-  const locationPill = useMemo(() => {
+  const radiusSummaryLabel = radiusMode === "auto" ? radiusChipLabel("auto") : radiusChipLabel(radiusKm);
+
+  const locationStatus = useMemo(() => {
     if (locating) {
       return (
-        <span className="kf-location-pill">
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-          Finding your area…
-        </span>
+        <div className="kf-location-status" role="status">
+          <span className="kf-location-pill">
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            Finding your area…
+          </span>
+        </div>
       );
     }
     return (
-      <button
-        type="button"
-        className="kf-location-pill kf-location-pill--approx"
-        onClick={() => openLocationSheet("menu")}
-      >
-        <MapPin className="h-4 w-4 shrink-0" aria-hidden />
-        {locationModeLabel(location)}
-      </button>
+      <div className="kf-location-status">
+        <button
+          type="button"
+          className="kf-location-pill kf-location-pill--approx"
+          onClick={() => openLocationSheet("menu")}
+        >
+          <MapPin className="h-4 w-4 shrink-0" aria-hidden />
+          {locationModeLabel(location)}
+        </button>
+        {usesBrowseMode ? (
+          <>
+            <span className="kf-location-status-sep" aria-hidden>
+              |
+            </span>
+            <button
+              type="button"
+              className="kf-location-status-action"
+              onClick={() => openLocationSheet("menu")}
+            >
+              Set my area
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            className="kf-location-status-action"
+            onClick={() => openLocationSheet("menu")}
+          >
+            Change area
+          </button>
+        )}
+      </div>
     );
-  }, [location, locating, openLocationSheet]);
+  }, [location, locating, openLocationSheet, usesBrowseMode]);
 
   const resultsSubtitle = useMemo(
     () =>
@@ -393,7 +421,7 @@ export function KfHomeClient({
   }
 
   return (
-    <div className="space-y-8 pb-4">
+    <div className="kf-home-landing pb-4">
       {introGate === "pending" && slidesEligibleForIntro ? (
         <div className="kf-category-flash kf-category-flash--page-veil" aria-hidden role="presentation" />
       ) : null}
@@ -439,38 +467,12 @@ export function KfHomeClient({
         areaSearchInitialQuery={location.mode === "manual" ? location.label : ""}
       />
       <div className="kf-home-search-stack">
-      <section className="kf-hero kf-animate-in">
+      <section className="kf-hero kf-hero--landing kf-animate-in">
         <div className="kf-hero-bg" aria-hidden />
         <p className="kf-hero-kicker">Find local. Support local. Grow local.</p>
-        <h1 className="kf-hero-title mt-2">Your next great local find is closer than you think.</h1>
-        {providerListCta ? (
-          <div className="kf-hero-provider-cta kf-animate-in">
-            <KfProviderListingActions
-              manageHref={providerListCta.href}
-              manageLabel={providerListCta.label}
-              listingId={providerListCta.listingId ?? null}
-              displayName={providerListCta.displayName ?? null}
-              shareEnabled={Boolean(providerListCta.shareEnabled)}
-              layout="hero"
-              hint={providerListCta.listingId ? providerListCta.hint : null}
-            />
-            {!providerListCta.listingId ? (
-              <p className="kf-hero-provider-hint">{providerListCta.hint}</p>
-            ) : null}
-          </div>
-        ) : null}
-        {locationPill}
+        <h1 className="kf-hero-title">Your next great local find is closer than you think.</h1>
+        {locationStatus}
       </section>
-
-      {usesApproximateDistance ? (
-        <div className="kf-alert-info kf-animate-in" role="status">
-          <strong>Searching near {location.label}</strong> — not live GPS. Open{" "}
-          <button type="button" className="kf-link font-semibold underline" onClick={() => openLocationSheet("menu")}>
-            search location
-          </button>{" "}
-          to use your current location instead.
-        </div>
-      ) : null}
 
       {hasActiveFilters ? (
         <div className="kf-active-filters kf-animate-in" aria-label="Active search filters">
@@ -525,7 +527,7 @@ export function KfHomeClient({
         role="search"
         aria-label="Find local services"
       >
-        <p className="text-sm font-semibold text-[var(--kf-charcoal)]">Search your area</p>
+        <p className="kf-hero-search-title">Find a local service</p>
         <div className="kf-search-shell">
           <Search className="h-5 w-5 shrink-0 text-[var(--kf-forest)]" aria-hidden />
           <input
@@ -550,39 +552,35 @@ export function KfHomeClient({
           ) : null}
         </div>
 
-        <div className={`kf-radius-field${usesBrowseMode ? " kf-radius-field--disabled" : ""}`}>
-          <span className="kf-radius-label">
-            <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
-            How far to search
-          </span>
-          {usesBrowseMode ? (
-            <p className="text-xs text-[var(--kf-muted)]">
-              Choose a search location to filter by distance.
-            </p>
-          ) : (
-            <p className="text-xs text-[var(--kf-muted)]">
-              Auto expands gently if there aren&apos;t many listings nearby (up to 50 km).
-            </p>
-          )}
-          <div className="kf-radius-chips" role="group" aria-label="Search radius">
-            <button
-              type="button"
-              disabled={usesBrowseMode}
-              onClick={() => {
-                if (usesBrowseMode) {
-                  openLocationSheet("menu");
-                  return;
-                }
-                setRadiusMode("auto");
-                void runSearch({ preferAutoExpand: true });
-              }}
-              className={`kf-chip kf-radius-chip ${radiusMode === "auto" ? "kf-chip-active" : ""}`}
-            >
-              Auto
-            </button>
-            {DISCOVERY_RADIUS_CHIPS_KM.map((r) => (
+        <details
+          className={`kf-radius-disclosure${usesBrowseMode ? " kf-radius-disclosure--disabled" : ""}`}
+        >
+          <summary className="kf-radius-disclosure-summary">
+            <SlidersHorizontal className="h-4 w-4 shrink-0 text-[var(--kf-forest)]" aria-hidden />
+            <span>
+              Search distance: <strong>{usesBrowseMode ? "—" : radiusSummaryLabel}</strong>
+            </span>
+            <ChevronDown className="kf-radius-disclosure-chevron h-4 w-4 shrink-0" aria-hidden />
+          </summary>
+          <div className={`kf-radius-field${usesBrowseMode ? " kf-radius-field--disabled" : ""}`}>
+            {usesBrowseMode ? (
+              <p className="text-xs text-[var(--kf-muted)]">
+                <button
+                  type="button"
+                  className="kf-link font-semibold underline"
+                  onClick={() => openLocationSheet("menu")}
+                >
+                  Set your area
+                </button>{" "}
+                to filter by distance.
+              </p>
+            ) : (
+              <p className="text-xs text-[var(--kf-muted)]">
+                Auto expands gently if there aren&apos;t many listings nearby (up to 50 km).
+              </p>
+            )}
+            <div className="kf-radius-chips" role="group" aria-label="Search radius">
               <button
-                key={r}
                 type="button"
                 disabled={usesBrowseMode}
                 onClick={() => {
@@ -590,17 +588,35 @@ export function KfHomeClient({
                     openLocationSheet("menu");
                     return;
                   }
-                  setRadiusMode("fixed");
-                  setRadiusKm(r);
-                  void runSearch({ preferAutoExpand: false });
+                  setRadiusMode("auto");
+                  void runSearch({ preferAutoExpand: true });
                 }}
-                className={`kf-chip kf-radius-chip ${radiusMode === "fixed" && radiusKm === r ? "kf-chip-active" : ""}`}
+                className={`kf-chip kf-radius-chip ${radiusMode === "auto" ? "kf-chip-active" : ""}`}
               >
-                {r} km
+                Auto
               </button>
-            ))}
+              {DISCOVERY_RADIUS_CHIPS_KM.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  disabled={usesBrowseMode}
+                  onClick={() => {
+                    if (usesBrowseMode) {
+                      openLocationSheet("menu");
+                      return;
+                    }
+                    setRadiusMode("fixed");
+                    setRadiusKm(r);
+                    void runSearch({ preferAutoExpand: false });
+                  }}
+                  className={`kf-chip kf-radius-chip ${radiusMode === "fixed" && radiusKm === r ? "kf-chip-active" : ""}`}
+                >
+                  {r} km
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        </details>
 
         <button type="submit" disabled={loading} className="kf-btn kf-btn-primary w-full text-base">
           {loading ? (
@@ -616,13 +632,29 @@ export function KfHomeClient({
           )}
         </button>
       </form>
-      </div>
 
-      {categories.length > 0 && (
-        <section className="kf-animate-in" style={{ animationDelay: "120ms" }}>
+      {providerListCta ? (
+        <div className="kf-home-provider-cta kf-animate-in">
+          <KfProviderListingActions
+            manageHref={providerListCta.href}
+            manageLabel={providerListCta.label}
+            listingId={providerListCta.listingId ?? null}
+            displayName={providerListCta.displayName ?? null}
+            shareEnabled={Boolean(providerListCta.shareEnabled)}
+            layout="inline"
+            hint={providerListCta.listingId ? providerListCta.hint : null}
+          />
+          {!providerListCta.listingId ? (
+            <p className="kf-home-provider-hint">{providerListCta.hint}</p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {categories.length > 0 ? (
+        <section className="kf-home-categories kf-animate-in">
           <h2 className="kf-section-title">Browse by category</h2>
-          <p className="kf-section-sub mt-1">Tap a trade to filter nearby results.</p>
-          <div className="kf-category-scroll mt-4" role="list">
+          <p className="kf-section-sub">Tap a trade to filter nearby results.</p>
+          <div className="kf-category-scroll" role="list">
             <button
               type="button"
               role="listitem"
@@ -659,11 +691,12 @@ export function KfHomeClient({
             })}
           </div>
         </section>
-      )}
+      ) : null}
+      </div>
 
       {error ? <div className="kf-alert-error">{error}</div> : null}
 
-      <section aria-live="polite" className="kf-animate-in" style={{ animationDelay: "160ms" }}>
+      <section aria-live="polite" className="kf-home-results kf-animate-in">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
             <h2 className="kf-section-title">
