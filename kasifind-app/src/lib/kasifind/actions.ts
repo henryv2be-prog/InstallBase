@@ -51,6 +51,65 @@ export async function kfRegisterProvider(formData: FormData) {
   return { success: true };
 }
 
+/** Guest wizard: create account after listing steps 1–3, then save listing draft server-side. */
+export async function kfRegisterProviderWithListing(formData: FormData) {
+  const guard = dbGuard();
+  if (guard) return guard;
+
+  const email = (formData.get("guestEmail") as string | null)?.trim().toLowerCase();
+  const password = formData.get("guestPassword") as string | null;
+  const name = (formData.get("guestName") as string | null)?.trim();
+
+  if (!email || !password) return { error: "Email and password are required." };
+  const passwordError = validatePassword(password);
+  if (passwordError) return { error: passwordError };
+
+  const parsed = parseListingUpsertFormData(formData);
+  if ("error" in parsed) return { error: parsed.error };
+  if (parsed.data.publish) {
+    parsed.data.publish = false;
+  }
+
+  const kf = getKasiFindPrisma();
+  const existingUser = await kf.kfUser.findUnique({ where: { email } });
+  if (existingUser) {
+    return { error: "An account with this email already exists. Sign in and open My listing." };
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+  const user = await kf.kfUser.create({
+    data: { email, passwordHash, name: name || null, role: "PROVIDER" },
+  });
+
+  const created = await kf.kfProviderListing.create({
+    data: {
+      userId: user.id,
+      displayName: parsed.data.displayName,
+      description: parsed.data.description,
+      phone: parsed.data.phone,
+      whatsapp: parsed.data.whatsapp,
+      locationLabel: parsed.data.locationLabel,
+      latitude: parsed.data.latitude,
+      longitude: parsed.data.longitude,
+      hideExactLocation: parsed.data.hideExactLocation,
+      priceHint: parsed.data.priceHint,
+      hoursNote: parsed.data.hoursNote,
+      status: "DRAFT",
+      moderationStatus: "PENDING",
+      ...(parsed.data.profileImageUrl ? { profileImageUrl: parsed.data.profileImageUrl } : {}),
+    },
+  });
+
+  await applyParsedListingUpsert(kf, created.id, parsed.data);
+  await setKasiFindSession(user.id);
+
+  revalidatePath("/");
+  revalidatePath("/account/listing");
+  revalidatePath(`/providers/${created.id}`);
+
+  return { success: true, listingId: created.id };
+}
+
 export async function kfSignInProvider(formData: FormData) {
   const guard = dbGuard();
   if (guard) return guard;

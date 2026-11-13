@@ -68,7 +68,7 @@ export function KfHeader({
     pathname.startsWith("/activity-map") ||
     publishedListingCount === null;
 
-  const listingCtaHref = signedIn ? "/account/listing" : "/register";
+  const listingCtaHref = "/account/listing";
   const listingCtaLabel = signedIn ? "My listing" : "List your business";
 
   return (

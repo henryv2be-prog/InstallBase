@@ -760,7 +760,7 @@ export function KfHomeClient({
                       Browse all areas
                     </button>
                   )}
-                  <Link href="/register" className="kf-btn kf-btn-outline">
+                  <Link href="/account/listing" className="kf-btn kf-btn-outline">
                     List your business
                   </Link>
                 </div>
