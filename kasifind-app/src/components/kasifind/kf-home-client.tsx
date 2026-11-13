@@ -443,9 +443,6 @@ export function KfHomeClient({
         <div className="kf-hero-bg" aria-hidden />
         <p className="kf-hero-kicker">Find local. Support local. Grow local.</p>
         <h1 className="kf-hero-title mt-2">Your next great local find is closer than you think.</h1>
-        <p className="kf-hero-lead">
-          Discover trusted local services, skilled artisans and businesses around you.
-        </p>
         {providerListCta ? (
           <div className="kf-hero-provider-cta kf-animate-in">
             <KfProviderListingActions
@@ -465,24 +462,7 @@ export function KfHomeClient({
         {locationPill}
       </section>
 
-      {usesBrowseMode ? (
-        <div className="kf-card kf-browse-location-hint kf-animate-in p-4" role="status">
-          <p className="text-sm font-semibold text-[var(--kf-charcoal)]">
-            Browsing all areas — add a location to sort by distance
-          </p>
-          <p className="mt-1 text-sm text-[var(--kf-muted)]">
-            Tap <strong>{locationModeLabel(location)}</strong> above or{" "}
-            <button
-              type="button"
-              className="kf-link font-semibold underline"
-              onClick={() => openLocationSheet("menu")}
-            >
-              choose how to search
-            </button>
-            . Your exact GPS is never shown on listings.
-          </p>
-        </div>
-      ) : usesApproximateDistance ? (
+      {usesApproximateDistance ? (
         <div className="kf-alert-info kf-animate-in" role="status">
           <strong>Searching near {location.label}</strong> — not live GPS. Open{" "}
           <button type="button" className="kf-link font-semibold underline" onClick={() => openLocationSheet("menu")}>
