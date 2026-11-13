@@ -234,6 +234,10 @@ export default async function KasiFindProviderPage({ params }: Props) {
         directionsUrl={directionsUrl}
       />
 
+      <div id="kf-listing-map" className="mt-8 kf-animate-in">
+        <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
+      </div>
+
       <section className="mt-8 kf-animate-in">
         <h2 className="kf-section-title">Work gallery</h2>
         <p className="kf-section-sub mt-1">
@@ -258,16 +262,14 @@ export default async function KasiFindProviderPage({ params }: Props) {
         )}
       </section>
 
-      {!ownerPreview ? (
-        <KfListingNearbySection listingId={listing.id} categorySlug={primaryCategory?.slug ?? null} />
-      ) : null}
-
-      {!ownerPreview && browseCategories.length > 0 ? (
-        <KfListingCategoryStrip categories={browseCategories} listingId={listing.id} />
-      ) : null}
-
-      <div id="kf-listing-map">
-        <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
+      <div className="kf-card mt-8 overflow-hidden kf-animate-in">
+        <KfListingContactFooter
+          listingId={listing.id}
+          displayName={listing.displayName}
+          waUrl={waUrl}
+          callPhone={listing.phone}
+          directionsUrl={directionsUrl}
+        />
       </div>
 
       <section id="kf-listing-reviews" className="kf-card mt-8 p-6 kf-animate-in">
@@ -305,18 +307,16 @@ export default async function KasiFindProviderPage({ params }: Props) {
         )}
       </section>
 
+      {!ownerPreview ? (
+        <KfListingNearbySection listingId={listing.id} categorySlug={primaryCategory?.slug ?? null} />
+      ) : null}
+
+      {!ownerPreview && browseCategories.length > 0 ? (
+        <KfListingCategoryStrip categories={browseCategories} listingId={listing.id} />
+      ) : null}
+
       <div className="mt-6">
         <KfReportForm listingId={listing.id} />
-      </div>
-
-      <div className="kf-card mt-8 overflow-hidden kf-animate-in">
-        <KfListingContactFooter
-          listingId={listing.id}
-          displayName={listing.displayName}
-          waUrl={waUrl}
-          callPhone={listing.phone}
-          directionsUrl={directionsUrl}
-        />
       </div>
     </article>
   );
