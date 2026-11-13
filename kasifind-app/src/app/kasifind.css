@@ -2957,15 +2957,11 @@ body.kf-listing-flow-active .kf-header {
 
 body.kf-listing-flow-active main.admin-main {
   flex: 1 1 auto;
-  /* Flex height budget: grow to fill viewport but let tall wizard steps scroll here */
   min-height: 0;
   height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   max-width: none;
   margin: 0;
   padding: 0;
@@ -3047,49 +3043,81 @@ body.kf-listing-flow-active main.admin-main {
   justify-content: center;
 }
 
-/* Classic mobile wizard: fixed Next/Back bar + scroll the main column (works on Android WebView) */
-body.kf-listing-flow-active .kf-listing-page-classic {
-  flex: none;
-  min-height: auto;
-  padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+/*
+ * R-C01 mobile wizard layout: 3-row grid (head | scroll body | foot).
+ * One scroll owner (.kf-listing-flow-body); Next/Back always in the foot row.
+ */
+body.kf-listing-flow-active .kf-listing-page-flow.kf-listing-page-classic {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  align-content: stretch;
+}
+
+body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-head {
+  grid-row: 1;
+}
+
+body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-body.kf-classic-wizard-body {
+  grid-row: 2;
+  min-height: 0;
+  display: block;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-foot {
+  grid-row: 3;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  padding-top: 0.35rem;
+  padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
+  background: rgba(249, 250, 247, 0.98);
+  border-top: 1px solid var(--kf-border);
+  box-shadow: 0 -4px 16px rgba(15, 77, 58, 0.06);
+}
+
+body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-classic-wizard-body .kf-wizard-card {
   display: block;
   flex: none;
   min-height: auto;
   max-height: none;
-}
-
-body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-body.kf-classic-wizard-body {
-  display: block;
-  flex: none;
-  min-height: auto;
   overflow: visible;
 }
 
-body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-foot {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 45;
-  margin: 0;
-  padding: var(--kf-space-3) var(--kf-space-4);
-  padding-bottom: max(var(--kf-space-3), env(safe-area-inset-bottom, 0px));
-  background: rgba(249, 250, 247, 0.98);
-  border-top: 1px solid var(--kf-border);
-  box-shadow: 0 -8px 24px rgba(15, 77, 58, 0.1);
-  backdrop-filter: blur(10px);
-}
-
-body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-classic-wizard-body .kf-wizard-card,
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-wizard-step-panel {
   display: block;
   flex: none;
   min-height: auto;
   max-height: none;
   overflow: visible;
+}
+
+@media (max-width: 639px) {
+  body.kf-listing-flow-active
+    .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded)
+    #kf-step-services:not([hidden])
+    .kf-wizard-category-grid {
+    max-height: min(40dvh, 17.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 0.2rem;
+  }
 }
 
 /* Map step only (not when hidden in DOM on other steps) */

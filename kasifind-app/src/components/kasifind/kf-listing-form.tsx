@@ -148,14 +148,26 @@ export function KfListingForm({
   }, [activeStep]);
 
   const scrollActiveStepPanel = () => {
-    const main = flowBodyRef.current?.closest("main");
-    main?.scrollTo({ top: 0, behavior: "auto" });
     flowBodyRef.current?.scrollTo({ top: 0, behavior: "auto" });
-    const form = formRef.current;
-    if (!form) return;
-    const panel = form.querySelector<HTMLElement>(`[data-wizard-step="${activeStep}"]`);
-    panel?.scrollTo({ top: 0, behavior: "auto" });
   };
+
+  useEffect(() => {
+    if (adminAssist) return undefined;
+    const scrollRoot = flowBodyRef.current;
+    if (!scrollRoot) return undefined;
+
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (!target.matches("input:not([type=hidden]), textarea, select")) return;
+      window.setTimeout(() => {
+        target.scrollIntoView({ block: "center", behavior: "auto" });
+      }, 280);
+    };
+
+    scrollRoot.addEventListener("focusin", onFocusIn);
+    return () => scrollRoot.removeEventListener("focusin", onFocusIn);
+  }, [activeStep, adminAssist]);
 
   const goToStep = (index: number) => {
     if (index < 0 || index > LAST_STEP) return;
