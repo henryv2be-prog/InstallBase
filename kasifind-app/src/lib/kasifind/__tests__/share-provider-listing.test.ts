@@ -18,14 +18,19 @@ test("listingPublicUrl strips trailing slash on origin", () => {
   );
 });
 
-test("buildListingShareMessage includes business name only", () => {
-  const message = buildListingShareMessage("Sipho Steel");
-  assert.match(message, /Sipho Steel/);
+test("buildListingShareMessage customer voice includes business name only", () => {
+  const message = buildListingShareMessage("Sipho Steel", "customer");
+  assert.match(message, /Check out Sipho Steel/);
   assert.doesNotMatch(message, /https?:\/\//);
 });
 
+test("buildListingShareMessage provider voice", () => {
+  const message = buildListingShareMessage("Sipho Steel", "provider");
+  assert.match(message, /Hi — find Sipho Steel/);
+});
+
 test("buildListingShareText includes name and single link line", () => {
-  const text = buildListingShareText("Sipho Steel", "https://kasifind.example/providers/x");
+  const text = buildListingShareText("Sipho Steel", "https://kasifind.example/providers/x", "customer");
   assert.match(text, /Sipho Steel/);
   assert.match(text, /https:\/\/kasifind\.example\/providers\/x$/);
   assert.equal((text.match(/https:\/\/kasifind\.example\/providers\/x/g) ?? []).length, 1);

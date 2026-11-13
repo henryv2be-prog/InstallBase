@@ -6,6 +6,7 @@ import { assignListingContactCtaPhrases } from "@/lib/kasifind/contact-cta-phras
 
 type Props = {
   listingId: string;
+  displayName: string;
   waUrl: string | null;
   callPhone: string;
   directionsUrl: string | null;
@@ -29,8 +30,18 @@ function hasContactActions(
   return canWhatsApp || canCall || canDirections;
 }
 
+function shouldShowFooter(
+  waUrl: string | null,
+  callPhone: string,
+  directionsUrl: string | null,
+  listingId: string
+): boolean {
+  return hasContactActions(waUrl, callPhone, directionsUrl) || Boolean(listingId);
+}
+
 export function KfListingContactFooter({
   listingId,
+  displayName,
   waUrl,
   callPhone,
   directionsUrl,
@@ -43,13 +54,14 @@ export function KfListingContactFooter({
   );
   const label = contactCtaLabel ?? fallbackLabel;
 
-  if (!hasContactActions(waUrl, callPhone, directionsUrl)) return null;
+  if (!shouldShowFooter(waUrl, callPhone, directionsUrl, listingId)) return null;
 
   return (
     <div className={`kf-provider-card-footer${className ? ` ${className}` : ""}`}>
       {label ? <p className="kf-provider-card-footer-label">{label}</p> : null}
       <KfInlineContactActions
         listingId={listingId}
+        displayName={displayName}
         waUrl={waUrl}
         callPhone={callPhone}
         directionsUrl={directionsUrl}
