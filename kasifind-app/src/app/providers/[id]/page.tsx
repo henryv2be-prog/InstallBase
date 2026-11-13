@@ -21,7 +21,6 @@ import { KfProviderLocationMap } from "@/components/kasifind/kf-provider-locatio
 import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-display";
 import { KfListingNearbySection } from "@/components/kasifind/kf-listing-nearby-section";
 import { KfListingCategoryStrip } from "@/components/kasifind/kf-listing-category-strip";
-import { KfListingSecondaryLinks } from "@/components/kasifind/kf-listing-secondary-links";
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { buildListingOgDescription } from "@/lib/kasifind/listing-og";
 import { listingPublicPath, listingPublicUrl } from "@/lib/kasifind/share-provider-listing";
@@ -233,13 +232,6 @@ export default async function KasiFindProviderPage({ params }: Props) {
         waUrl={waUrl}
         callPhone={listing.phone}
         directionsUrl={directionsUrl}
-      />
-
-      <KfListingSecondaryLinks
-        listingId={listing.id}
-        displayName={listing.displayName}
-        hasReviews={listing.reviews.length > 0}
-        hasMap
       />
 
       <section className="mt-8 kf-animate-in">
