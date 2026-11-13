@@ -7,6 +7,7 @@ import {
   BarChart3,
   Home,
   LayoutDashboard,
+  LogIn,
   LogOut,
   Map,
   HandHelping,
@@ -15,25 +16,27 @@ import {
 } from "lucide-react";
 import { KF_ADMIN_NAV_LINKS } from "@/lib/kasifind/admin-nav-links";
 
+function mobileNavClass(active?: boolean) {
+  return `kf-mobile-nav-link${active ? " kf-mobile-nav-link--active" : ""}`;
+}
+
 function NavButton({
   href,
   label,
   icon: Icon,
   active,
-  primary,
   onNavigate,
 }: {
   href: string;
   label: string;
   icon: LucideIcon;
   active?: boolean;
-  primary?: boolean;
   onNavigate: () => void;
 }) {
   return (
     <Link
       href={href}
-      className={`kf-btn w-full${primary ? " kf-btn-primary" : " kf-btn-outline"}${active ? " kf-mobile-nav-link--active" : ""}`}
+      className={mobileNavClass(active)}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
     >
@@ -75,7 +78,6 @@ export function KfMobileNavMenu({
             label="Edit my listing"
             icon={Store}
             active={isListingEditor}
-            primary
             onNavigate={onClose}
           />
           <NavButton
@@ -99,12 +101,9 @@ export function KfMobileNavMenu({
             href="/register"
             label="List your business"
             icon={PlusCircle}
-            primary
             onNavigate={onClose}
           />
-          <Link href="/login" className="kf-btn kf-btn-outline w-full" onClick={onClose}>
-            Provider sign in
-          </Link>
+          <NavButton href="/login" label="Provider sign in" icon={LogIn} onNavigate={onClose} />
         </section>
       )}
 
@@ -129,11 +128,11 @@ export function KfMobileNavMenu({
       {signedIn ? (
         <button
           type="button"
-          className="kf-btn kf-btn-ghost w-full text-[var(--kf-charcoal)]"
+          className={mobileNavClass()}
           onClick={onSignOut}
           disabled={signingOut}
         >
-          <LogOut className="h-4 w-4" aria-hidden />
+          <LogOut className="h-4 w-4 shrink-0" aria-hidden />
           {signingOut ? "Signing out…" : "Log out"}
         </button>
       ) : null}
@@ -143,14 +142,14 @@ export function KfMobileNavMenu({
 
 function AdminMobileLinks({ pathname, onClose }: { pathname: string; onClose: () => void }) {
   return (
-    <div className="mt-2 flex flex-col gap-1.5">
+    <div className="kf-mobile-admin-links">
       {KF_ADMIN_NAV_LINKS.map(({ href, label, icon: Icon, exact }) => {
         const active = exact ? pathname === href : pathname.startsWith(href);
         return (
           <Link
             key={href}
             href={href}
-            className={`kf-btn kf-btn-outline w-full text-sm${active ? " kf-mobile-admin-link--active" : ""}`}
+            className={mobileNavClass(active)}
             onClick={onClose}
             aria-current={active ? "page" : undefined}
           >
