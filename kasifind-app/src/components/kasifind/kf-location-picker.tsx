@@ -72,52 +72,6 @@ export function KfLocationPicker({
       <input type="hidden" name="locationConfirmed" value={pinPlaced ? "true" : "false"} readOnly />
       <input type="hidden" name="hideExactLocation" value={hideExactLocation ? "true" : "false"} />
 
-      <fieldset className="space-y-2">
-        <legend className="kf-label">On your public map</legend>
-        <label
-          className={`flex cursor-pointer items-start gap-3 rounded-lg border p-2.5 ${
-            hideExactLocation
-              ? "border-[var(--kf-orange)] bg-[var(--kf-orange-soft)]"
-              : "border-[var(--kf-border)]"
-          }`}
-        >
-          <input
-            type="radio"
-            name="locationVisibilityChoice"
-            className="mt-1"
-            checked={hideExactLocation}
-            onChange={chooseApproximate}
-          />
-          <span>
-            <span className="block text-sm font-semibold text-[var(--kf-charcoal)]">
-              Approximate area
-            </span>
-            <span className="mt-0.5 block text-xs text-[var(--kf-muted)]">~1 km circle on the map.</span>
-          </span>
-        </label>
-        <label
-          className={`flex cursor-pointer items-start gap-3 rounded-lg border p-2.5 ${
-            !hideExactLocation
-              ? "border-[var(--kf-orange)] bg-[var(--kf-orange-soft)]"
-              : "border-[var(--kf-border)]"
-          }`}
-        >
-          <input
-            type="radio"
-            name="locationVisibilityChoice"
-            className="mt-1"
-            checked={!hideExactLocation}
-            onChange={chooseExact}
-          />
-          <span>
-            <span className="block text-sm font-semibold text-[var(--kf-charcoal)]">Exact pin</span>
-            <span className="mt-0.5 block text-xs text-[var(--kf-muted)]">
-              GPS pin — we ask when you choose this.
-            </span>
-          </span>
-        </label>
-      </fieldset>
-
       <KfLocationMap
         latitude={latitude}
         longitude={longitude}
@@ -149,15 +103,53 @@ export function KfLocationPicker({
 
       {!pinPlaced ? (
         <p className="kf-help m-0 text-center" role="status">
-          {hideExactLocation
-            ? "Tap the map or use My location to continue."
-            : "Allow GPS or tap the map to place your pin."}
+          {hideExactLocation ? "Tap the map or use My location." : "Allow GPS or tap the map."}
         </p>
-      ) : (
-        <p className="kf-help m-0 text-center text-[var(--kf-forest)]" role="status">
-          Pin set — you can tap Next.
-        </p>
-      )}
+      ) : null}
+
+      <fieldset className="space-y-2">
+        <legend className="kf-label">On your public map</legend>
+        <label
+          className={`flex cursor-pointer items-start gap-3 rounded-lg border p-2.5 ${
+            hideExactLocation
+              ? "border-[var(--kf-orange)] bg-[var(--kf-orange-soft)]"
+              : "border-[var(--kf-border)]"
+          }`}
+        >
+          <input
+            type="radio"
+            name="locationVisibilityChoice"
+            className="mt-1"
+            checked={hideExactLocation}
+            onChange={chooseApproximate}
+          />
+          <span>
+            <span className="block text-sm font-semibold text-[var(--kf-charcoal)]">
+              Approximate area
+            </span>
+            <span className="mt-0.5 block text-xs text-[var(--kf-muted)]">~1 km circle.</span>
+          </span>
+        </label>
+        <label
+          className={`flex cursor-pointer items-start gap-3 rounded-lg border p-2.5 ${
+            !hideExactLocation
+              ? "border-[var(--kf-orange)] bg-[var(--kf-orange-soft)]"
+              : "border-[var(--kf-border)]"
+          }`}
+        >
+          <input
+            type="radio"
+            name="locationVisibilityChoice"
+            className="mt-1"
+            checked={!hideExactLocation}
+            onChange={chooseExact}
+          />
+          <span>
+            <span className="block text-sm font-semibold text-[var(--kf-charcoal)]">Exact pin</span>
+            <span className="mt-0.5 block text-xs text-[var(--kf-muted)]">Uses GPS when selected.</span>
+          </span>
+        </label>
+      </fieldset>
     </div>
   );
 }
