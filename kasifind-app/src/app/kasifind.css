@@ -281,7 +281,29 @@
   justify-content: stretch;
   padding: 0;
   background: transparent;
-  pointer-events: none;
+  pointer-events: auto;
+}
+
+.kf-category-flash-skip {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top, 0px));
+  right: max(0.75rem, env(safe-area-inset-right, 0px));
+  z-index: 3;
+  min-height: var(--kf-touch-min);
+  padding: 0.5rem 0.9rem;
+  font-size: var(--kf-text-sm);
+  font-weight: 700;
+  color: var(--kf-charcoal);
+  background: color-mix(in srgb, var(--kf-glass) 92%, white);
+  border: 1px solid var(--kf-border-strong);
+  border-radius: var(--kf-radius-full);
+  box-shadow: var(--kf-shadow-sm);
+  cursor: pointer;
+}
+
+.kf-category-flash-skip:focus-visible {
+  outline: 2px solid var(--kf-orange);
+  outline-offset: 2px;
 }
 
 /** Matches `.kf-root.kf-tech-bg` so status bars / letterbox feel like the normal page. */
@@ -3697,6 +3719,23 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   gap: 0.5rem;
 }
 
+.kf-active-filters-label {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: var(--kf-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--kf-muted);
+}
+
+@media (min-width: 480px) {
+  .kf-active-filters-label {
+    flex: 0 0 auto;
+    margin-right: 0.25rem;
+  }
+}
+
 .kf-filter-chip {
   display: inline-flex;
   align-items: center;
@@ -4206,7 +4245,7 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
 
 .kf-category-tile {
   min-height: var(--kf-touch-min);
-  min-width: 5.5rem;
+  min-width: 6.25rem;
 }
 
 .kf-btn:active:not(:disabled) {
