@@ -112,7 +112,7 @@ export function KfHeader({
               Admin
             </Link>
           ) : null}
-          <Link href={listingCtaHref} className="kf-btn kf-btn-primary text-sm">
+          <Link href={listingCtaHref} className="kf-btn kf-btn-outline text-sm">
             <PlusCircle className="h-4 w-4" aria-hidden />
             {listingCtaLabel}
           </Link>
