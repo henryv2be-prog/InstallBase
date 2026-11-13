@@ -21,7 +21,6 @@ import { KfProviderLocationMap } from "@/components/kasifind/kf-provider-locatio
 import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-display";
 import { KfListingNearbySection } from "@/components/kasifind/kf-listing-nearby-section";
 import { KfListingCategoryStrip } from "@/components/kasifind/kf-listing-category-strip";
-import { KfListingSecondaryLinks } from "@/components/kasifind/kf-listing-secondary-links";
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { buildListingOgDescription } from "@/lib/kasifind/listing-og";
 import { listingPublicPath, listingPublicUrl } from "@/lib/kasifind/share-provider-listing";
@@ -235,25 +234,6 @@ export default async function KasiFindProviderPage({ params }: Props) {
         directionsUrl={directionsUrl}
       />
 
-      <KfListingSecondaryLinks
-        listingId={listing.id}
-        displayName={listing.displayName}
-        hasReviews={listing.reviews.length > 0}
-        hasMap
-      />
-
-      {!ownerPreview ? (
-        <KfListingNearbySection listingId={listing.id} categorySlug={primaryCategory?.slug ?? null} />
-      ) : null}
-
-      {!ownerPreview && browseCategories.length > 0 ? (
-        <KfListingCategoryStrip categories={browseCategories} listingId={listing.id} />
-      ) : null}
-
-      <div id="kf-listing-map">
-        <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
-      </div>
-
       <section className="mt-8 kf-animate-in">
         <h2 className="kf-section-title">Work gallery</h2>
         <p className="kf-section-sub mt-1">
@@ -277,6 +257,18 @@ export default async function KasiFindProviderPage({ params }: Props) {
           </div>
         )}
       </section>
+
+      {!ownerPreview ? (
+        <KfListingNearbySection listingId={listing.id} categorySlug={primaryCategory?.slug ?? null} />
+      ) : null}
+
+      {!ownerPreview && browseCategories.length > 0 ? (
+        <KfListingCategoryStrip categories={browseCategories} listingId={listing.id} />
+      ) : null}
+
+      <div id="kf-listing-map">
+        <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
+      </div>
 
       <section id="kf-listing-reviews" className="kf-card mt-8 p-6 kf-animate-in">
         <h2 className="kf-section-title">Community reviews</h2>
