@@ -2930,19 +2930,11 @@
 }
 
 /* Listing wizard — one screen per step on mobile (no page scroll) */
-html:has(body.kf-listing-flow-active) {
-  height: 100%;
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
 body.kf-listing-flow-active.kf-root {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  max-height: 100dvh;
+  height: 100dvh;
   overflow: hidden;
-  overscroll-behavior: none;
 }
 
 body.kf-listing-flow-active .kf-footer {
@@ -3058,27 +3050,26 @@ body.kf-listing-flow-active main.admin-main {
 body.kf-listing-flow-active .kf-listing-page-flow.kf-listing-page-classic {
   flex: 1 1 auto;
   min-height: 0;
-  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   flex: 1 1 auto;
   min-height: 0;
-  height: 100%;
   max-height: 100%;
+  align-content: stretch;
 }
 
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-head {
-  flex-shrink: 0;
+  grid-row: 1;
 }
 
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-body.kf-classic-wizard-body {
-  flex: 1 1 0;
+  grid-row: 2;
   min-height: 0;
   display: block;
   overflow-x: hidden;
@@ -3089,8 +3080,10 @@ body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-f
 }
 
 body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) .kf-listing-flow-foot {
-  flex-shrink: 0;
+  grid-row: 3;
+  position: relative;
   z-index: 2;
+  flex-shrink: 0;
   padding-top: 0.35rem;
   padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
   background: rgba(249, 250, 247, 0.98);
@@ -3099,11 +3092,13 @@ body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-f
 }
 
 @media (max-width: 639px) {
-  body.kf-listing-flow-active {
+  /* Location step only: pin nav if map stack would push it off-screen */
+  body.kf-listing-flow-active:has(#kf-step-location:not([hidden]))
+    .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded) {
     --kf-wizard-foot-h: calc(3.75rem + env(safe-area-inset-bottom, 0px));
   }
 
-  body.kf-listing-flow-active
+  body.kf-listing-flow-active:has(#kf-step-location:not([hidden]))
     .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded)
     .kf-listing-flow-foot {
     position: fixed;
@@ -3114,32 +3109,17 @@ body.kf-listing-flow-active .kf-listing-flow.kf-classic-wizard:not(.kf-listing-f
     margin: 0;
     padding-left: var(--kf-space-4);
     padding-right: var(--kf-space-4);
-    padding-top: 0.4rem;
-    padding-bottom: max(0.4rem, env(safe-area-inset-bottom, 0px));
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
 
-  body.kf-listing-flow-active
+  body.kf-listing-flow-active:has(#kf-step-location:not([hidden]))
     .kf-listing-flow.kf-classic-wizard:not(.kf-listing-flow--embedded)
     .kf-listing-flow-body.kf-classic-wizard-body {
     padding-bottom: var(--kf-wizard-foot-h);
   }
 
-  body.kf-listing-flow-active .kf-classic-wizard-head .kf-stepper {
-    padding: 0.3rem 0.25rem;
-  }
-
-  body.kf-listing-flow-active .kf-wizard-step-banner {
-    margin-top: 0.2rem;
-    padding: 0.25rem 0.45rem;
-  }
-
-  body.kf-listing-flow-active .kf-wizard-step-heading {
-    font-size: var(--kf-text-sm);
-  }
-
-  body.kf-listing-flow-active .kf-wizard-step-lead--compact {
+  body.kf-listing-flow-active:has(#kf-step-location:not([hidden])) .kf-wizard-step-lead--compact {
     margin-bottom: 0.5rem;
     font-size: 0.7rem;
   }
@@ -3598,8 +3578,7 @@ body.kf-listing-flow-active .kf-listing-flow-account {
 }
 
 body.kf-listing-flow-active .kf-classic-wizard-body {
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .kf-classic-wizard-body .kf-wizard-card {
