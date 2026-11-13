@@ -37,6 +37,7 @@ export function KfProviderListingActions({
         listingId,
         displayName: displayName ?? "My listing",
         origin: window.location.origin,
+        audience: "provider",
       });
       if (result.mode === "clipboard") {
         toast.success("Listing link copied — paste it in WhatsApp, SMS, or email.");

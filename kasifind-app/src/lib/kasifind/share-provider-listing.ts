@@ -7,14 +7,26 @@ export function listingPublicUrl(listingId: string, origin: string): string {
   return `${base}${listingPublicPath(listingId)}`;
 }
 
-export function buildListingShareMessage(displayName: string): string {
-  const name = displayName.trim() || "my business";
-  return `Hi — find ${name} on KasiFind (local services near you):`;
+export type ListingShareAudience = "provider" | "customer";
+
+export function buildListingShareMessage(
+  displayName: string,
+  audience: ListingShareAudience = "customer"
+): string {
+  const name = displayName.trim() || (audience === "provider" ? "my business" : "this listing");
+  if (audience === "provider") {
+    return `Hi — find ${name} on KasiFind (local services near you):`;
+  }
+  return `Check out ${name} on KasiFind (local services near you):`;
 }
 
 /** Clipboard / paste targets: one block with a single link line */
-export function buildListingShareText(displayName: string, publicUrl: string): string {
-  return `${buildListingShareMessage(displayName)}\n${publicUrl}`;
+export function buildListingShareText(
+  displayName: string,
+  publicUrl: string,
+  audience: ListingShareAudience = "customer"
+): string {
+  return `${buildListingShareMessage(displayName, audience)}\n${publicUrl}`;
 }
 
 export type ShareProviderListingResult =
@@ -26,10 +38,12 @@ export async function shareProviderListing(input: {
   listingId: string;
   displayName: string;
   origin: string;
+  audience?: ListingShareAudience;
 }): Promise<ShareProviderListingResult> {
+  const audience = input.audience ?? "provider";
   const url = listingPublicUrl(input.listingId, input.origin);
-  const text = buildListingShareText(input.displayName, url);
-  const shareMessage = buildListingShareMessage(input.displayName);
+  const text = buildListingShareText(input.displayName, url, audience);
+  const shareMessage = buildListingShareMessage(input.displayName, audience);
 
   if (typeof navigator !== "undefined" && navigator.share) {
     try {

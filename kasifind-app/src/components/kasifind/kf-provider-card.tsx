@@ -117,6 +117,7 @@ export function KfProviderCard({
       </Link>
       <KfListingContactFooter
         listingId={p.id}
+        displayName={p.displayName}
         waUrl={waUrl}
         callPhone={callPhone}
         directionsUrl={directionsUrl}

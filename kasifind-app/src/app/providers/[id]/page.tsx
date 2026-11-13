@@ -237,6 +237,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
       <div className="kf-card mt-8 overflow-hidden kf-animate-in">
         <KfListingContactFooter
           listingId={listing.id}
+          displayName={listing.displayName}
           waUrl={waUrl}
           callPhone={listing.phone}
           directionsUrl={directionsUrl}
