@@ -32,6 +32,12 @@ import { KfListingWizardSummary } from "@/components/kasifind/kf-listing-wizard-
 import { KfPublishSuccessScreen } from "@/components/kasifind/kf-publish-success-screen";
 import { useListingAssistance } from "@/components/kasifind/kf-listing-assistance-provider";
 import { readCompletenessFromListingForm } from "@/lib/kasifind/listing-assistance-prompt";
+import {
+  applyGuestListingDraft,
+  readGuestListingDraft,
+  writeGuestListingDraftFromForm,
+} from "@/lib/kasifind/guest-listing-draft";
+import { KfGuestListingRegisterPanel } from "@/components/kasifind/kf-guest-listing-register-panel";
 import { useKfToast } from "@/components/kasifind/kf-toast";
 import type { KfCategory } from "@/components/kasifind/types";
 
@@ -98,11 +104,13 @@ export function KfListingForm({
   categories,
   listing,
   userEmail,
+  guestMode = false,
   adminAssist,
 }: {
   categories: KfCategory[];
   listing: ListingData | null;
   userEmail: string;
+  guestMode?: boolean;
   adminAssist?: { assistanceRequestId: string };
 }) {
   const router = useRouter();
@@ -133,6 +141,14 @@ export function KfListingForm({
     document.body.classList.add("kf-listing-flow-active");
     return () => document.body.classList.remove("kf-listing-flow-active");
   }, [adminAssist]);
+
+  useEffect(() => {
+    if (!guestMode || listing?.listingId) return;
+    const form = formRef.current;
+    if (!form) return;
+    const draft = readGuestListingDraft();
+    if (draft) applyGuestListingDraft(form, draft);
+  }, [guestMode, listing?.listingId]);
 
   useEffect(() => {
     requestAnimationFrame(scrollActiveStepPanel);
@@ -174,6 +190,10 @@ export function KfListingForm({
 
   const persistDraftIfNeeded = async (form: HTMLFormElement): Promise<boolean> => {
     if (listing?.listingId) return true;
+    if (guestMode) {
+      writeGuestListingDraftFromForm(form);
+      return true;
+    }
     const confirmed =
       (form.querySelector('input[name="locationConfirmed"]') as HTMLInputElement | null)?.value ===
       "true";
@@ -210,7 +230,7 @@ export function KfListingForm({
 
     const advance = () => goToStep(Math.min(activeStep + 1, LAST_STEP));
 
-    if (!listing?.listingId && activeStep >= 1) {
+    if ((!listing?.listingId && activeStep >= 1) || (guestMode && !listing?.listingId && activeStep >= 1)) {
       startTransition(async () => {
         const ok = await persistDraftIfNeeded(form);
         if (ok) advance();
@@ -517,6 +537,15 @@ export function KfListingForm({
           className={stepPanelClass(activeStep === 3)}
           hidden={activeStep !== 3}
         >
+          {guestMode && !listing?.listingId ? (
+            <>
+              <p className="kf-wizard-step-lead">
+                Almost there — save your listing to your account, then add photos.
+              </p>
+              <KfGuestListingRegisterPanel formRef={formRef} onRegistered={() => router.refresh()} />
+            </>
+          ) : (
+            <>
           <p className="kf-wizard-step-lead">
             Add your business photo and examples of your work — customers decide with their eyes.
           </p>
@@ -577,6 +606,8 @@ export function KfListingForm({
               title="Complete location first"
               description="Go back to Location and set your area on the map, then tap Next — we will save a draft automatically so you can upload photos here."
             />
+          )}
+            </>
           )}
         </section>
 

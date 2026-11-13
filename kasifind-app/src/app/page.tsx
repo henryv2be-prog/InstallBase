@@ -36,7 +36,7 @@ export default async function KasiFindHomePage() {
       };
     } else {
       providerListCta = {
-        href: "/register",
+        href: "/account/listing",
         label: "List your business — it's free",
         hint: "Reach neighbours searching for your trade on KasiFind.",
       };

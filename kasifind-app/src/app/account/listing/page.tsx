@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { getKasiFindSessionUser } from "@/lib/kasifind/session";
@@ -9,8 +8,6 @@ import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
 import { KfListingAssistanceProvider } from "@/components/kasifind/kf-listing-assistance-provider";
 import { canProviderSubmitListingAssistance } from "@/lib/kasifind/listing-assistance-status";
 import { getProviderListingAssistanceRequest } from "@/lib/kasifind/listing-assistance";
-import { loginPathWithNext } from "@/lib/kasifind/auth-redirect";
-
 export const dynamic = "force-dynamic";
 
 export default async function KfListingEditorPage() {
@@ -23,10 +20,30 @@ export default async function KfListingEditorPage() {
   }
 
   const user = await getKasiFindSessionUser();
-  if (!user) redirect(loginPathWithNext("/account/listing"));
 
-  const [categories, listing, assistanceRequest] = await Promise.all([
-    listKfCategories(),
+  const categories = await listKfCategories();
+
+  if (!user) {
+    return (
+      <Suspense fallback={null}>
+        <div className="kf-listing-page-flow kf-listing-page-classic">
+          <KfListingForm
+            guestMode
+            categories={categories.map((c) => ({
+              id: c.id,
+              slug: c.slug,
+              name: c.name,
+              children: c.children.map((ch) => ({ id: ch.id, slug: ch.slug, name: ch.name })),
+            }))}
+            listing={null}
+            userEmail=""
+          />
+        </div>
+      </Suspense>
+    );
+  }
+
+  const [listing, assistanceRequest] = await Promise.all([
     getListingForUser(user.id),
     getProviderListingAssistanceRequest(user.id),
   ]);
