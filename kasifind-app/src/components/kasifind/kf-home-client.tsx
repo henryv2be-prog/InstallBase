@@ -227,18 +227,31 @@ export function KfHomeClient({
     );
   }, [openLocationSheet, switchToBrowseMode]);
 
+  type RunSearchOpts = {
+    preferAutoExpand?: boolean;
+    query?: string;
+    categorySlug?: string | null;
+    radiusKm?: number;
+    radiusMode?: KfRadiusMode;
+  };
+
   const runSearch = useCallback(
-    async (opts?: { preferAutoExpand?: boolean }) => {
+    async (opts?: RunSearchOpts) => {
       if (!dbConfigured) {
         setError("KasiFind database is not configured on this server.");
         return;
       }
+      const q = (opts?.query !== undefined ? opts.query : query).trim();
+      const cat = opts?.categorySlug !== undefined ? opts.categorySlug : categorySlug;
+      const km = opts?.radiusKm ?? radiusKm;
+      const mode = opts?.radiusMode ?? radiusMode;
+
       const generation = ++searchGenerationRef.current;
       setLoading(true);
       setError(null);
       try {
-        const params = new URLSearchParams({ q: query.trim() });
-        if (categorySlug) params.set("category", categorySlug);
+        const params = new URLSearchParams({ q });
+        if (cat) params.set("category", cat);
 
         if (location.mode === "browse") {
           params.set("browse", "1");
@@ -246,10 +259,10 @@ export function KfHomeClient({
         } else {
           const useAutoExpand =
             opts?.preferAutoExpand === true ||
-            (opts?.preferAutoExpand !== false && radiusMode === "auto");
+            (opts?.preferAutoExpand !== false && mode === "auto");
           params.set("lat", String(location.lat));
           params.set("lng", String(location.lng));
-          params.set("radiusKm", String(radiusKm));
+          params.set("radiusKm", String(km));
           params.set("autoExpand", useAutoExpand ? "1" : "0");
         }
 
@@ -267,13 +280,13 @@ export function KfHomeClient({
         } else {
           setSearchMeta({
             expanded: Boolean(data.expanded),
-            radiusKm: data.radiusKm ?? radiusKm,
+            radiusKm: data.radiusKm ?? km,
             includesSurroundingAreas: Boolean(data.includesSurroundingAreas),
             coverageExhausted: Boolean(data.coverageExhausted),
           });
         }
         trackKfEvent("SEARCH", {
-          query: query.trim() || undefined,
+          query: q || undefined,
           regionLabel: location.mode === "browse" ? "Nationwide (no location)" : location.label,
         });
       } catch {
@@ -288,7 +301,7 @@ export function KfHomeClient({
   const clearAllFilters = useCallback(() => {
     setQuery("");
     setCategorySlug(null);
-    void runSearch({ preferAutoExpand: true });
+    void runSearch({ preferAutoExpand: true, query: "", categorySlug: null });
   }, [runSearch]);
 
   useEffect(() => {
@@ -488,7 +501,7 @@ export function KfHomeClient({
                 aria-label="Clear search text"
                 onClick={() => {
                   setQuery("");
-                  void runSearch({ preferAutoExpand: true });
+                  void runSearch({ preferAutoExpand: true, query: "" });
                 }}
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
@@ -504,7 +517,7 @@ export function KfHomeClient({
                 aria-label="Clear category filter"
                 onClick={() => {
                   setCategorySlug(null);
-                  void runSearch({ preferAutoExpand: true });
+                  void runSearch({ preferAutoExpand: true, categorySlug: null });
                 }}
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
@@ -591,7 +604,7 @@ export function KfHomeClient({
                     return;
                   }
                   setRadiusMode("auto");
-                  void runSearch({ preferAutoExpand: true });
+                  void runSearch({ preferAutoExpand: true, radiusMode: "auto" });
                 }}
                 className={`kf-chip kf-radius-chip ${radiusMode === "auto" ? "kf-chip-active" : ""}`}
               >
@@ -609,7 +622,11 @@ export function KfHomeClient({
                     }
                     setRadiusMode("fixed");
                     setRadiusKm(r);
-                    void runSearch({ preferAutoExpand: false });
+                    void runSearch({
+                      preferAutoExpand: false,
+                      radiusKm: r,
+                      radiusMode: "fixed",
+                    });
                   }}
                   className={`kf-chip kf-radius-chip ${radiusMode === "fixed" && radiusKm === r ? "kf-chip-active" : ""}`}
                 >
@@ -662,7 +679,7 @@ export function KfHomeClient({
               role="listitem"
               onClick={() => {
                 setCategorySlug(null);
-                void runSearch();
+                void runSearch({ categorySlug: null });
               }}
               className={`kf-category-tile ${!categorySlug ? "kf-category-tile-active" : ""}`}
             >
@@ -680,7 +697,7 @@ export function KfHomeClient({
                   role="listitem"
                   onClick={() => {
                     setCategorySlug(c.slug);
-                    void runSearch();
+                    void runSearch({ categorySlug: c.slug });
                   }}
                   className={`kf-category-tile ${categorySlug === c.slug ? "kf-category-tile-active" : ""}`}
                 >
@@ -735,7 +752,7 @@ export function KfHomeClient({
                       className="kf-btn kf-btn-primary"
                       onClick={() => {
                         setRadiusMode("auto");
-                        void runSearch({ preferAutoExpand: true });
+                        void runSearch({ preferAutoExpand: true, radiusMode: "auto" });
                       }}
                     >
                       Try auto search
