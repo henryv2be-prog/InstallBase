@@ -424,7 +424,9 @@ export function KfListingForm({
           className={stepPanelClass(activeStep === 1)}
           hidden={activeStep !== 1}
         >
-          <p className="kf-wizard-step-lead">Pick how you appear on the map, then set your pin.</p>
+          <p className="kf-wizard-step-lead kf-wizard-step-lead--compact">
+            Set your pin on the map, then choose what customers see.
+          </p>
           <div className="kf-wizard-fields kf-listing-flow-stack kf-listing-flow-stack--map">
             <label className="kf-label">
               Neighbourhood / landmark (shown publicly)
