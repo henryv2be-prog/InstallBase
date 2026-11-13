@@ -320,7 +320,9 @@ export function KfHomeClient({
         }
         if (status.state === "denied") {
           writeLocationConsent("denied");
-          setLocation({ mode: "browse", label: BROWSE_LOCATION_LABEL });
+          setLocation((prev) =>
+            prev.mode === "gps" ? { mode: "browse", label: BROWSE_LOCATION_LABEL } : prev
+          );
           return;
         }
       };

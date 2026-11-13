@@ -4,6 +4,8 @@ import { DISCOVERY_RADIUS_RINGS_KM } from "@/lib/kasifind/discovery-config";
 
 const KEY_V3 = "kf_discovery_state_v3";
 const KEY_V2 = "kf_discovery_state_v2";
+/** Survives new tabs/sessions — anonymous users keep search area until they change it. */
+const KEY_LOCATION_PERSIST = "kf_discovery_location_v1";
 
 export type KfRadiusMode = "auto" | "fixed";
 
@@ -60,19 +62,73 @@ function normalizeState(raw: Partial<KfDiscoveryState> | null): KfDiscoveryState
   };
 }
 
+export function readPersistedDiscoveryLocation(): KfDiscoveryLocation | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(KEY_LOCATION_PERSIST);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as unknown;
+    if (!isValidDiscoveryLocation(parsed)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function writePersistedDiscoveryLocation(location: KfDiscoveryLocation): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(KEY_LOCATION_PERSIST, JSON.stringify(location));
+  } catch {
+    /* ignore */
+  }
+}
+
 export function readDiscoveryState(): KfDiscoveryState | null {
   if (typeof window === "undefined") return null;
   try {
     const rawV3 = sessionStorage.getItem(KEY_V3);
     if (rawV3) {
-      return normalizeState(JSON.parse(rawV3) as Partial<KfDiscoveryState>);
+      const normalized = normalizeState(JSON.parse(rawV3) as Partial<KfDiscoveryState>);
+      if (normalized && !normalized.location) {
+        const persisted = readPersistedDiscoveryLocation();
+        if (persisted) {
+          return { ...normalized, location: persisted };
+        }
+      }
+      return normalized;
     }
     const rawV2 = sessionStorage.getItem(KEY_V2);
     if (rawV2) {
       const parsed = JSON.parse(rawV2) as Partial<KfDiscoveryState>;
-      return normalizeState({ ...parsed, radiusMode: parsed.radiusMode ?? "auto" });
+      const normalized = normalizeState({
+        ...parsed,
+        radiusMode: parsed.radiusMode ?? "auto",
+      });
+      if (normalized && !normalized.location) {
+        const persisted = readPersistedDiscoveryLocation();
+        if (persisted) return { ...normalized, location: persisted };
+      }
+      return normalized;
     }
-    return readLegacyDiscoveryState();
+    const legacy = readLegacyDiscoveryState();
+    if (legacy && !legacy.location) {
+      const persisted = readPersistedDiscoveryLocation();
+      if (persisted) return { ...legacy, location: persisted };
+    }
+    if (legacy) return legacy;
+
+    const persisted = readPersistedDiscoveryLocation();
+    if (persisted) {
+      return {
+        query: "",
+        radiusKm: normalizeDiscoveryRadiusKm(5),
+        radiusMode: "auto",
+        categorySlug: null,
+        location: persisted,
+      };
+    }
+    return null;
   } catch {
     return null;
   }
@@ -112,6 +168,9 @@ export function writeDiscoveryState(state: KfDiscoveryState): void {
         radiusKm: normalizeDiscoveryRadiusKm(state.radiusKm),
       })
     );
+    if (state.location) {
+      writePersistedDiscoveryLocation(state.location);
+    }
   } catch {
     /* ignore */
   }

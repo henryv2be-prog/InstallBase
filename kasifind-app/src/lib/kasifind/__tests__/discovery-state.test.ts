@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   isValidDiscoveryLocation,
   readDiscoveryState,
+  readPersistedDiscoveryLocation,
   writeDiscoveryState,
 } from "@/lib/kasifind/discovery-state";
 
@@ -20,9 +21,11 @@ test("isValidDiscoveryLocation accepts gps and manual coords", () => {
 });
 
 test("writeDiscoveryState round-trips location in sessionStorage", () => {
-  const storage = new Map<string, string>();
+  const session = new Map<string, string>();
+  const local = new Map<string, string>();
   const originalWindow = globalThis.window;
-  const original = globalThis.sessionStorage;
+  const originalSession = globalThis.sessionStorage;
+  const originalLocal = globalThis.localStorage;
   Object.defineProperty(globalThis, "window", {
     configurable: true,
     value: globalThis,
@@ -30,12 +33,24 @@ test("writeDiscoveryState round-trips location in sessionStorage", () => {
   Object.defineProperty(globalThis, "sessionStorage", {
     configurable: true,
     value: {
-      getItem: (k: string) => storage.get(k) ?? null,
+      getItem: (k: string) => session.get(k) ?? null,
       setItem: (k: string, v: string) => {
-        storage.set(k, v);
+        session.set(k, v);
       },
       removeItem: (k: string) => {
-        storage.delete(k);
+        session.delete(k);
+      },
+    },
+  });
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      getItem: (k: string) => local.get(k) ?? null,
+      setItem: (k: string, v: string) => {
+        local.set(k, v);
+      },
+      removeItem: (k: string) => {
+        local.delete(k);
       },
     },
   });
@@ -56,10 +71,92 @@ test("writeDiscoveryState round-trips location in sessionStorage", () => {
       lng: 28.2,
       label: "Near me",
     });
+    assert.deepEqual(readPersistedDiscoveryLocation(), read?.location ?? null);
   } finally {
     Object.defineProperty(globalThis, "sessionStorage", {
       configurable: true,
-      value: original,
+      value: originalSession,
+    });
+    Object.defineProperty(globalThis, "localStorage", {
+      configurable: true,
+      value: originalLocal,
+    });
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: originalWindow,
+    });
+  }
+});
+
+test("readDiscoveryState restores location from localStorage when session has no coords", () => {
+  const session = new Map<string, string>();
+  const local = new Map<string, string>();
+  const originalWindow = globalThis.window;
+  const originalSession = globalThis.sessionStorage;
+  const originalLocal = globalThis.localStorage;
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: globalThis,
+  });
+  Object.defineProperty(globalThis, "sessionStorage", {
+    configurable: true,
+    value: {
+      getItem: (k: string) => session.get(k) ?? null,
+      setItem: (k: string, v: string) => {
+        session.set(k, v);
+      },
+      removeItem: (k: string) => {
+        session.delete(k);
+      },
+    },
+  });
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      getItem: (k: string) => local.get(k) ?? null,
+      setItem: (k: string, v: string) => {
+        local.set(k, v);
+      },
+      removeItem: (k: string) => {
+        local.delete(k);
+      },
+    },
+  });
+  try {
+    local.set(
+      "kf_discovery_location_v1",
+      JSON.stringify({
+        mode: "manual",
+        lat: -26,
+        lng: 28,
+        label: "Roodepoort",
+      })
+    );
+    session.set(
+      "kf_discovery_state_v3",
+      JSON.stringify({
+        query: "",
+        radiusKm: 5,
+        radiusMode: "auto",
+        categorySlug: null,
+        location: null,
+      })
+    );
+    const read = readDiscoveryState();
+    assert.deepEqual(read?.location, {
+      mode: "manual",
+      lat: -26,
+      lng: 28,
+      label: "Roodepoort",
+    });
+  } finally {
+    Object.defineProperty(globalThis, "sessionStorage", {
+      configurable: true,
+      value: originalSession,
+    });
+    Object.defineProperty(globalThis, "localStorage", {
+      configurable: true,
+      value: originalLocal,
     });
     Object.defineProperty(globalThis, "window", {
       configurable: true,
