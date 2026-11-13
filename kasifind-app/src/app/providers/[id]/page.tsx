@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
@@ -18,10 +19,56 @@ import { KfListingProfileContactBar } from "@/components/kasifind/kf-listing-pro
 import { KfTrackListingView } from "@/components/kasifind/kf-track-listing-view";
 import { KfProviderLocationMap } from "@/components/kasifind/kf-provider-location-map";
 import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-display";
+import { KfListingNearbySection } from "@/components/kasifind/kf-listing-nearby-section";
+import { KfListingCategoryStrip } from "@/components/kasifind/kf-listing-category-strip";
+import { KfListingSecondaryLinks } from "@/components/kasifind/kf-listing-secondary-links";
+import { listKfCategories } from "@/lib/kasifind/categories";
+import { buildListingOgDescription } from "@/lib/kasifind/listing-og";
+import { listingPublicPath, listingPublicUrl } from "@/lib/kasifind/share-provider-listing";
 
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  if (!isKasiFindDbConfigured()) {
+    return { title: "KasiFind" };
+  }
+  const { id } = await params;
+  const resolved = await resolveProviderListingPage(id, null);
+  if (!resolved) {
+    return { title: "Listing not found" };
+  }
+  const { listing } = resolved;
+  const headerStore = await headers();
+  const siteOrigin = siteOriginFromHeaders(headerStore);
+  const canonical = siteOrigin ? listingPublicUrl(listing.id, siteOrigin) : listingPublicPath(listing.id);
+  const description = buildListingOgDescription(listing.description, listing.locationLabel);
+  const rawImage = listing.profileImageUrl ?? listing.photos[0] ?? "/icons/icon-512.png";
+  const imageUrl = publicAssetUrl(rawImage, siteOrigin);
+  const title = `${listing.displayName} | KasiFind`;
+
+  return {
+    title: listing.displayName,
+    description,
+    alternates: canonical.startsWith("http") ? { canonical } : undefined,
+    openGraph: {
+      title,
+      description,
+      url: canonical.startsWith("http") ? canonical : undefined,
+      siteName: "KasiFind",
+      locale: "en_ZA",
+      type: "website",
+      images: [{ url: imageUrl, alt: listing.displayName }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
+  };
+}
 
 export default async function KasiFindProviderPage({ params }: Props) {
   if (!isKasiFindDbConfigured()) {
@@ -53,6 +100,13 @@ export default async function KasiFindProviderPage({ params }: Props) {
     listing.locationLabel,
     userAgent
   );
+  const browseCategories =
+    !ownerPreview && isKasiFindDbConfigured()
+      ? await listKfCategories().then((rows) =>
+          rows.map((c) => ({ id: c.id, slug: c.slug, name: c.name }))
+        )
+      : [];
+  const primaryCategory = listing.categories[0];
 
   return (
     <article className="pb-8">
@@ -100,6 +154,9 @@ export default async function KasiFindProviderPage({ params }: Props) {
             <h1 className="text-2xl font-bold tracking-tight text-[var(--kf-charcoal)]">
               {listing.displayName}
             </h1>
+            {primaryCategory ? (
+              <p className="mt-1 text-sm font-semibold text-[var(--kf-forest)]">{primaryCategory.name}</p>
+            ) : null}
             <p className="mt-2 flex items-center justify-center gap-1 text-sm text-[var(--kf-muted)] sm:justify-start">
               <MapPin className="h-4 w-4 shrink-0" aria-hidden />
               {listing.locationLabel}
@@ -178,7 +235,24 @@ export default async function KasiFindProviderPage({ params }: Props) {
         directionsUrl={directionsUrl}
       />
 
-      <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
+      <KfListingSecondaryLinks
+        listingId={listing.id}
+        displayName={listing.displayName}
+        hasReviews={listing.reviews.length > 0}
+        hasMap
+      />
+
+      {!ownerPreview ? (
+        <KfListingNearbySection listingId={listing.id} categorySlug={primaryCategory?.slug ?? null} />
+      ) : null}
+
+      {!ownerPreview && browseCategories.length > 0 ? (
+        <KfListingCategoryStrip categories={browseCategories} listingId={listing.id} />
+      ) : null}
+
+      <div id="kf-listing-map">
+        <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
+      </div>
 
       <section className="mt-8 kf-animate-in">
         <h2 className="kf-section-title">Work gallery</h2>
@@ -204,7 +278,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
         )}
       </section>
 
-      <section className="kf-card mt-8 p-6 kf-animate-in">
+      <section id="kf-listing-reviews" className="kf-card mt-8 p-6 kf-animate-in">
         <h2 className="kf-section-title">Community reviews</h2>
         <p className="mt-1 text-xs text-[var(--kf-muted)]">
           KasiFind is growing — honest reviews from real customers help build trust over time.

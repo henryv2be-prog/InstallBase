@@ -11,6 +11,12 @@ export function formatAdminEventTypeLabel(eventType: KfAnalyticsEventType): stri
     case "LISTING_CLICK_CALL":
     case "LISTING_CLICK_DIRECTIONS":
       return formatKfContactClickLabel(eventType);
+    case "LISTING_SHARE":
+      return "Listing shared";
+    case "LISTING_NEARBY_SECTION_VIEW":
+      return "Nearby section viewed";
+    case "LISTING_DISCOVERY_CLICK":
+      return "Opened from listing discovery";
     case "SEARCH":
       return "Search";
     case "CATEGORY_BROWSE":

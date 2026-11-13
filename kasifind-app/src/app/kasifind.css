@@ -5308,6 +5308,117 @@ main.admin-main:has(.kf-activity-map-page) {
   animation-delay: 0.3s;
 }
 
+/* Listing page — nearby discovery & secondary actions */
+.kf-listing-nearby-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.kf-listing-nearby-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem;
+  border-radius: var(--kf-radius-lg);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-ivory);
+  text-decoration: none;
+  min-height: 4.5rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.kf-listing-nearby-card:hover {
+  border-color: color-mix(in srgb, var(--kf-forest) 28%, var(--kf-border));
+  box-shadow: 0 4px 14px rgba(15, 77, 58, 0.08);
+}
+
+.kf-listing-nearby-thumb {
+  width: 3.25rem;
+  height: 3.25rem;
+  flex-shrink: 0;
+  border-radius: var(--kf-radius-md);
+  overflow: hidden;
+  background: var(--kf-stone);
+}
+
+.kf-listing-nearby-thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--kf-forest);
+  background: color-mix(in srgb, var(--kf-stone) 65%, var(--kf-ivory));
+}
+
+.kf-listing-nearby-card.kf-skeleton {
+  min-height: 4.5rem;
+  animation: kf-loader-pulse 1.4s ease-in-out infinite;
+}
+
+.kf-listing-secondary-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.kf-listing-secondary-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-ivory);
+  color: var(--kf-charcoal);
+  text-decoration: none;
+}
+
+.kf-listing-secondary-link:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--kf-forest) 35%, var(--kf-border));
+  color: var(--kf-forest);
+}
+
+.kf-listing-secondary-link:disabled {
+  opacity: 0.6;
+}
+
+.kf-listing-category-scroll {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.kf-listing-category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--kf-border);
+  background: white;
+  color: var(--kf-charcoal);
+  text-decoration: none;
+}
+
+.kf-listing-category-chip:hover {
+  border-color: var(--kf-forest);
+  color: var(--kf-forest);
+}
+
 @keyframes kf-loader-dot {
   0%,
   80%,

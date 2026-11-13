@@ -5,6 +5,7 @@ import { MessageCircle, Navigation, Phone, Share2 } from "lucide-react";
 import { trackKfEvent } from "@/lib/kasifind/track-client";
 import { useKfToast } from "@/components/kasifind/kf-toast";
 import { shareProviderListing } from "@/lib/kasifind/share-provider-listing";
+import { markListingEntry } from "@/lib/kasifind/listing-page-attribution";
 
 type Props = {
   listingId: string;
@@ -39,12 +40,15 @@ export function KfInlineContactActions({
   const onShare = useCallback(async () => {
     setSharing(true);
     try {
+      markListingEntry("share");
       const result = await shareProviderListing({
         listingId,
         displayName,
         origin: window.location.origin,
         audience: "customer",
       });
+      if (result.mode === "cancelled") return;
+      trackKfEvent("LISTING_SHARE", { listingId, query: "audience:customer" });
       if (result.mode === "clipboard") {
         toast.success("Listing link copied — paste it anywhere.");
       } else if (result.mode === "native_share") {

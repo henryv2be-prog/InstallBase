@@ -1,0 +1,4 @@
+-- Listing landing / share growth funnel events
+ALTER TYPE "KfAnalyticsEventType" ADD VALUE IF NOT EXISTS 'LISTING_SHARE';
+ALTER TYPE "KfAnalyticsEventType" ADD VALUE IF NOT EXISTS 'LISTING_NEARBY_SECTION_VIEW';
+ALTER TYPE "KfAnalyticsEventType" ADD VALUE IF NOT EXISTS 'LISTING_DISCOVERY_CLICK';
