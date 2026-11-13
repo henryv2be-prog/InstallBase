@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "KasiFind",
     short_name: "KasiFind",
-    description: "Find local. Support local. Discover trusted services near you.",
+    description: "Find local. Support local. Grow local. Discover trusted services near you.",
     start_url: "/",
     scope: "/",
     display: "standalone",
