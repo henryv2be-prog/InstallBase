@@ -16,7 +16,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "KasiFind — Find local. Support local.",
+    default: "KasiFind — Find local. Support local. Grow local.",
     template: "%s | KasiFind",
   },
   description:

@@ -441,7 +441,7 @@ export function KfHomeClient({
       <div className="kf-home-search-stack">
       <section className="kf-hero kf-animate-in">
         <div className="kf-hero-bg" aria-hidden />
-        <p className="kf-hero-kicker">Find local. Support local.</p>
+        <p className="kf-hero-kicker">Find local. Support local. Grow local.</p>
         <h1 className="kf-hero-title mt-2">Your next great local find is closer than you think.</h1>
         <p className="kf-hero-lead">
           Discover trusted local services, skilled artisans and businesses around you.

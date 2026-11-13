@@ -81,7 +81,7 @@ export function KfHeader({
               Kasi<span className="kf-text-gradient">Find</span>
             </div>
             {!isHome && !isListingFlow ? (
-              <p className="kf-tagline truncate">Find local. Support local.</p>
+              <p className="kf-tagline truncate">Find local. Support local. Grow local.</p>
             ) : null}
           </div>
         </Link>
