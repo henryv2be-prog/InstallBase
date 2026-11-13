@@ -10,7 +10,6 @@ import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
 import { useListingContactCtaLabels } from "@/components/kasifind/use-listing-contact-cta-labels";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { trackKfEvent } from "@/lib/kasifind/track-client";
-import { KfLocationConsentDialog } from "@/components/kasifind/kf-location-consent-dialog";
 import {
   clearLocationConsent,
   readLocationConsent,
@@ -93,7 +92,6 @@ export function KfHomeClient({
     label: BROWSE_LOCATION_LABEL,
   });
   const [locating, setLocating] = useState(false);
-  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [radiusKm, setRadiusKm] = useState<number>(5);
   const [radiusMode, setRadiusMode] = useState<KfRadiusMode>("auto");
@@ -192,24 +190,15 @@ export function KfHomeClient({
     setLocation({ mode: "browse", label: BROWSE_LOCATION_LABEL });
   }, []);
 
-  const dismissLocationPrompt = useCallback(() => {
-    writeLocationConsent("dismissed");
-    switchToBrowseMode();
-    setLocationDialogOpen(false);
-  }, [switchToBrowseMode]);
-
   const openLocationSheet = useCallback((view: "menu" | "area" = "menu") => {
     setLocationSheetView(view);
     setLocationSheetOpen(true);
   }, []);
 
-  const requestNearMeRef = useRef<() => void>(() => undefined);
-
   const requestNearMe = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setError("Your browser does not support location. Search for an area instead.");
       openLocationSheet("area");
-      setLocationDialogOpen(false);
       return;
     }
     setLocating(true);
@@ -225,7 +214,6 @@ export function KfHomeClient({
         });
         setLocationSheetOpen(false);
         setLocating(false);
-        setLocationDialogOpen(false);
       },
       (err) => {
         if (err.code === 1) {
@@ -234,17 +222,10 @@ export function KfHomeClient({
         switchToBrowseMode();
         openLocationSheet("area");
         setLocating(false);
-        setLocationDialogOpen(false);
       },
       { enableHighAccuracy: false, timeout: 12000, maximumAge: 300_000 }
     );
   }, [openLocationSheet, switchToBrowseMode]);
-
-  requestNearMeRef.current = requestNearMe;
-
-  const confirmLocationFromDialog = useCallback(() => {
-    requestNearMe();
-  }, [requestNearMe]);
 
   const runSearch = useCallback(
     async (opts?: { preferAutoExpand?: boolean }) => {
@@ -303,6 +284,12 @@ export function KfHomeClient({
     },
     [categorySlug, dbConfigured, location, query, radiusKm, radiusMode]
   );
+
+  const clearAllFilters = useCallback(() => {
+    setQuery("");
+    setCategorySlug(null);
+    void runSearch({ preferAutoExpand: true });
+  }, [runSearch]);
 
   useEffect(() => {
     if (!categorySlug || !dbConfigured) return;
@@ -416,14 +403,6 @@ export function KfHomeClient({
           onComplete={dismissCategoryFlash}
         />
       ) : null}
-      <KfLocationConsentDialog
-        open={locationDialogOpen}
-        subtle
-        busy={locating}
-        onClose={dismissLocationPrompt}
-        onConfirm={confirmLocationFromDialog}
-        onChooseArea={() => openLocationSheet("area")}
-      />
       <KfLocationSheet
         open={locationSheetOpen}
         onClose={() => {
@@ -487,43 +466,21 @@ export function KfHomeClient({
       </section>
 
       {usesBrowseMode ? (
-        <div className="kf-card kf-animate-in p-4" role="status">
-          <p className="text-sm font-semibold text-[var(--kf-charcoal)]">Browse all listings</p>
+        <div className="kf-card kf-browse-location-hint kf-animate-in p-4" role="status">
+          <p className="text-sm font-semibold text-[var(--kf-charcoal)]">
+            Browsing all areas — add a location to sort by distance
+          </p>
           <p className="mt-1 text-sm text-[var(--kf-muted)]">
-            No location needed — showing published businesses from all areas (featured first).
-          </p>
-          <p className="mt-3 text-sm font-semibold text-[var(--kf-charcoal)]">
-            Find businesses near you
-          </p>
-          <p className="mt-0.5 text-sm text-[var(--kf-muted)]">
-            Allow KasiFind to show businesses closest to your current location.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {geolocationAvailable ? (
-              <button
-                type="button"
-                className="kf-btn kf-btn-primary text-sm"
-                disabled={locating}
-                onClick={() => requestNearMe()}
-              >
-                Use my current location
-              </button>
-            ) : null}
+            Tap <strong>{locationModeLabel(location)}</strong> above or{" "}
             <button
               type="button"
-              className="kf-btn kf-btn-outline text-sm"
-              onClick={() => openLocationSheet("area")}
-            >
-              Search for your area
-            </button>
-            <button
-              type="button"
-              className="kf-btn kf-btn-ghost text-sm"
+              className="kf-link font-semibold underline"
               onClick={() => openLocationSheet("menu")}
             >
-              More location options
+              choose how to search
             </button>
-          </div>
+            . Your exact GPS is never shown on listings.
+          </p>
         </div>
       ) : usesApproximateDistance ? (
         <div className="kf-alert-info kf-animate-in" role="status">
@@ -537,9 +494,10 @@ export function KfHomeClient({
 
       {hasActiveFilters ? (
         <div className="kf-active-filters kf-animate-in" aria-label="Active search filters">
+          <p className="kf-active-filters-label">Filtering results</p>
           {query.trim() ? (
             <span className="kf-filter-chip">
-              Search: &ldquo;{query.trim()}&rdquo;
+              &ldquo;{query.trim()}&rdquo;
               <button
                 type="button"
                 className="kf-filter-chip-dismiss"
@@ -568,6 +526,11 @@ export function KfHomeClient({
                 <X className="h-3.5 w-3.5" aria-hidden />
               </button>
             </span>
+          ) : null}
+          {query.trim() && activeCategoryName ? (
+            <button type="button" className="kf-filter-clear-all" onClick={clearAllFilters}>
+              Clear all
+            </button>
           ) : null}
         </div>
       ) : null}

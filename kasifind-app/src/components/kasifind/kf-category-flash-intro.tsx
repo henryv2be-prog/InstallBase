@@ -19,7 +19,7 @@ type Props = {
 type IntroPhase = "preload" | "montage" | "hero" | "fade";
 
 /**
- * Cinematic first-visit intro: accelerating montage (~1.7s), hero + brand (~0.75s), fade (~2s).
+ * Session intro: shorter montage, hero + brand, fade — skip available immediately.
  */
 export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
   const onCompleteRef = useRef(onComplete);
@@ -38,6 +38,10 @@ export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
     markCategoryFlashIntroPlayed();
     onCompleteRef.current();
   }, []);
+
+  const skipIntro = useCallback(() => {
+    finish();
+  }, [finish]);
 
   const { montageSlides, heroSlide } = useMemo(
     () => splitMontageAndHero(playableSlides),
@@ -130,10 +134,21 @@ export function KfCategoryFlashIntro({ slides, onComplete }: Props) {
         phase === "fade" ? " kf-category-flash--reveal" : ""
       }`}
       style={phase === "fade" ? { animationDuration: `${fadeMs}ms` } : undefined}
-      role="presentation"
-      aria-hidden
+      role="dialog"
+      aria-modal="true"
+      aria-label="KasiFind introduction"
     >
-      <div className="kf-category-flash-inner">
+      {phase !== "preload" ? (
+        <button
+          type="button"
+          className="kf-category-flash-skip"
+          onClick={skipIntro}
+          aria-label="Skip intro and search now"
+        >
+          Skip to search
+        </button>
+      ) : null}
+      <div className="kf-category-flash-inner" aria-hidden>
         {phase === "preload" ? (
           <div className="kf-category-flash-loader" aria-hidden />
         ) : visibleSlide ? (
