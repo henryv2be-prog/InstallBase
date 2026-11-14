@@ -131,7 +131,6 @@ export default async function KasiFindProviderPage({ params }: Props) {
             <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
             Local listing
           </span>
-          <span>Contact via WhatsApp or call — no booking fees</span>
         </div>
         <div className="relative bg-[var(--kf-stone)] p-6 sm:flex sm:gap-6">
           {listing.profileImageUrl ? (
