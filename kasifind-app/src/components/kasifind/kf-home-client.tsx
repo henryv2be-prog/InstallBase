@@ -29,7 +29,12 @@ import {
   radiusChipLabel,
 } from "@/lib/kasifind/discovery-display";
 import { BROWSE_LISTING_LIMIT } from "@/lib/kasifind/discovery-config";
+import { KfLocationConsentDialog } from "@/components/kasifind/kf-location-consent-dialog";
 import { KfLocationSheet } from "@/components/kasifind/kf-location-sheet";
+import {
+  KF_LOCATION_CONSENT_AFTER_INTRO_MS,
+  shouldDeferHomeLocationConsentPrompt,
+} from "@/lib/kasifind/location-consent-prompt-timing";
 import type { GeocodeHit } from "@/lib/kasifind/geocode-utils";
 import { KfCategoryFlashIntro } from "@/components/kasifind/kf-category-flash-intro";
 import {
@@ -109,6 +114,7 @@ export function KfHomeClient({
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
   const [locationSheetView, setLocationSheetView] = useState<"menu" | "area">("menu");
   const [filtersHydrated, setFiltersHydrated] = useState(false);
@@ -198,6 +204,12 @@ export function KfHomeClient({
     setLocation({ mode: "browse", label: BROWSE_LOCATION_LABEL });
   }, []);
 
+  const dismissLocationPrompt = useCallback(() => {
+    writeLocationConsent("dismissed");
+    switchToBrowseMode();
+    setLocationDialogOpen(false);
+  }, [switchToBrowseMode]);
+
   const openLocationSheet = useCallback((view: "menu" | "area" = "menu") => {
     setLocationSheetView(view);
     setLocationSheetOpen(true);
@@ -206,6 +218,7 @@ export function KfHomeClient({
   const requestNearMe = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setError("Your browser does not support location. Search for an area instead.");
+      setLocationDialogOpen(false);
       openLocationSheet("area");
       return;
     }
@@ -221,6 +234,7 @@ export function KfHomeClient({
           label: GPS_LOCATION_LABEL,
         });
         setLocationSheetOpen(false);
+        setLocationDialogOpen(false);
         setLocating(false);
       },
       (err) => {
@@ -229,6 +243,7 @@ export function KfHomeClient({
         }
         switchToBrowseMode();
         openLocationSheet("area");
+        setLocationDialogOpen(false);
         setLocating(false);
       },
       { enableHighAccuracy: false, timeout: 12000, maximumAge: 300_000 }
@@ -326,6 +341,21 @@ export function KfHomeClient({
     void runSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when location source changes
   }, [dbConfigured, filtersHydrated, location]);
+
+  useEffect(() => {
+    if (!dbConfigured) return;
+    if (shouldDeferHomeLocationConsentPrompt(introGate)) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+
+    const consent = readLocationConsent();
+    if (consent === "dismissed" || consent === "denied" || consent === "granted") return;
+
+    const timer = window.setTimeout(() => {
+      setLocationDialogOpen(true);
+    }, KF_LOCATION_CONSENT_AFTER_INTRO_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [dbConfigured, introGate]);
 
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.permissions?.query) return;
@@ -457,6 +487,13 @@ export function KfHomeClient({
           onComplete={dismissCategoryFlash}
         />
       ) : null}
+      <KfLocationConsentDialog
+        open={locationDialogOpen}
+        busy={locating}
+        onClose={dismissLocationPrompt}
+        onConfirm={() => requestNearMe()}
+        onChooseArea={() => openLocationSheet("area")}
+      />
       <KfLocationSheet
         open={locationSheetOpen}
         onClose={() => {
