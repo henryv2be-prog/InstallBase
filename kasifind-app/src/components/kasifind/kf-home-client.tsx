@@ -22,6 +22,7 @@ import {
   type KfRadiusMode,
 } from "@/lib/kasifind/discovery-state";
 import { useDiscoveryScrollRestore } from "@/components/kasifind/use-discovery-scroll-restore";
+import { useDebouncedValue } from "@/components/kasifind/use-debounced-value";
 import {
   DISCOVERY_RADIUS_CHIPS_KM,
   formatDiscoveryResultsSubtitle,
@@ -127,6 +128,8 @@ export function KfHomeClient({
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const searchGenerationRef = useRef(0);
+  const lastLiveQueryRef = useRef<string | null>(null);
+  const debouncedQuery = useDebouncedValue(query, 400);
   const [searchHasRun, setSearchHasRun] = useState(false);
   const slidesEligibleForIntro =
     categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES;
@@ -368,6 +371,7 @@ export function KfHomeClient({
 
   const clearAllFilters = useCallback(() => {
     setQuery("");
+    lastLiveQueryRef.current = "";
     setCategorySlug(null);
     void runSearch({ preferAutoExpand: true, query: "", categorySlug: null });
   }, [runSearch]);
@@ -383,6 +387,17 @@ export function KfHomeClient({
     void runSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when location source changes
   }, [dbConfigured, filtersHydrated, location]);
+
+  useEffect(() => {
+    if (!dbConfigured || !filtersHydrated) return;
+    if (lastLiveQueryRef.current === null) {
+      lastLiveQueryRef.current = debouncedQuery;
+      return;
+    }
+    if (lastLiveQueryRef.current === debouncedQuery) return;
+    lastLiveQueryRef.current = debouncedQuery;
+    void runSearch({ query: debouncedQuery, preferAutoExpand: true });
+  }, [dbConfigured, debouncedQuery, filtersHydrated, runSearch]);
 
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.permissions?.query) return;
@@ -518,6 +533,7 @@ export function KfHomeClient({
                 aria-label="Clear search text"
                 onClick={() => {
                   setQuery("");
+                  lastLiveQueryRef.current = "";
                   void runSearch({ preferAutoExpand: true, query: "" });
                 }}
               >
@@ -549,47 +565,59 @@ export function KfHomeClient({
         </div>
       ) : null}
 
-      <form
-        className="kf-hero-search-card kf-animate-in space-y-4"
-        style={{ animationDelay: "60ms" }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          void runSearch();
-        }}
-        role="search"
-        aria-label="Find local services"
-      >
-        <p className="kf-hero-search-title">Find a local service</p>
-        <KfDiscoveryScopeSwitch
-          scope={discoveryScope}
-          locating={locating}
-          areaHint={manualAreaHint}
-          onSelect={handleScopeSelect}
-        />
-        <div className="kf-search-shell">
-          <Search className="h-5 w-5 shrink-0 text-[var(--kf-forest)]" aria-hidden />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Steel gates, plumber, mechanic…"
-            className="kf-search-input"
-            autoComplete="off"
-            enterKeyHint="search"
-            aria-label="Search for a service"
+      <div className="kf-home-search-sticky">
+        <form
+          className="kf-hero-search-card kf-hero-search-card--sticky kf-animate-in"
+          style={{ animationDelay: "60ms" }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            lastLiveQueryRef.current = query;
+            void runSearch({ preferAutoExpand: true });
+          }}
+          role="search"
+          aria-label="Find local services"
+        >
+          <p className="kf-hero-search-title">Find a local service</p>
+          <KfDiscoveryScopeSwitch
+            scope={discoveryScope}
+            locating={locating}
+            areaHint={manualAreaHint}
+            onSelect={handleScopeSelect}
           />
-          {query ? (
-            <button
-              type="button"
-              className="kf-btn kf-btn-ghost min-h-[2.25rem] px-2"
-              aria-label="Clear search"
-              onClick={() => setQuery("")}
-            >
-              <X className="h-5 w-5" />
-            </button>
-          ) : null}
-        </div>
+          <div className="kf-search-shell">
+            <Search className="h-5 w-5 shrink-0 text-[var(--kf-forest)]" aria-hidden />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Steel gates, plumber, mechanic…"
+              className="kf-search-input"
+              autoComplete="off"
+              enterKeyHint="search"
+              aria-label="Search for a service"
+            />
+            {query ? (
+              <button
+                type="button"
+                className="kf-btn kf-btn-ghost min-h-[2.25rem] px-2"
+                aria-label="Clear search"
+                onClick={() => {
+                  setQuery("");
+                  lastLiveQueryRef.current = "";
+                  void runSearch({ preferAutoExpand: true, query: "" });
+                }}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            ) : null}
+          </div>
+          <p className="kf-live-search-hint" aria-live="polite">
+            {loading ? "Updating results…" : "Results update as you type."}
+          </p>
+        </form>
+      </div>
 
+      <div className="kf-hero-search-extras">
         <details
           className={`kf-radius-disclosure${usesBrowseMode ? " kf-radius-disclosure--disabled" : ""}`}
         >
@@ -668,21 +696,7 @@ export function KfHomeClient({
             </div>
           </div>
         </details>
-
-        <button type="submit" disabled={loading} className="kf-btn kf-btn-primary w-full text-base">
-          {loading ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-              Searching…
-            </>
-          ) : (
-            <>
-              <Search className="h-5 w-5" aria-hidden />
-              {usesBrowseMode ? "Search all listings" : "Search nearby"}
-            </>
-          )}
-        </button>
-      </form>
+      </div>
 
       {providerListCta ? (
         <div className="kf-home-provider-cta kf-animate-in">
