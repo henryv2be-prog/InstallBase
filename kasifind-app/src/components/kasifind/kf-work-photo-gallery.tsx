@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, Loader2, X, ZoomIn } from "lucide-react";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
+import { bindPhotoLightboxPageLock } from "@/components/kasifind/kf-photo-lightbox-lock";
+import { KfPhotoLightboxZoomImage } from "@/components/kasifind/kf-photo-lightbox-zoom-image";
 
 export type KfWorkPhotoItem = {
   id?: string;
@@ -53,11 +55,7 @@ export function KfWorkPhotoGallery({
 
   useEffect(() => {
     if (openIndex === null) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
+    return bindPhotoLightboxPageLock();
   }, [openIndex]);
 
   useEffect(() => {
@@ -159,14 +157,11 @@ export function KfWorkPhotoGallery({
                     </p>
                   </>
                 ) : null}
-                <div className="kf-photo-lightbox-image-wrap">
-                  <KfListingImage
-                    src={active.src}
-                    alt={active.alt ?? "Work photo"}
-                    className="kf-photo-lightbox-image"
-                    priority
-                  />
-                </div>
+                <KfPhotoLightboxZoomImage
+                  src={active.src}
+                  alt={active.alt ?? "Work photo"}
+                  resetKey={`${openIndex}:${active.src}`}
+                />
               </div>
             </div>,
             document.body
