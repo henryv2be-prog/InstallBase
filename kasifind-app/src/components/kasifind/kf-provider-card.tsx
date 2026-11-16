@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { ChevronRight } from "lucide-react";
-import {
-  KfListingRatingDisplay,
-  KfProviderRatingFloat,
-} from "@/components/kasifind/kf-listing-rating-display";
+import { Navigation } from "lucide-react";
+import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-display";
 import type { KfSearchResult } from "@/components/kasifind/types";
 import { KfProviderCardGallery } from "@/components/kasifind/kf-provider-card-gallery";
 import { collectListingCardPhotoUrls } from "@/lib/kasifind/listing-card-photos";
-import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
+import {
+  formatDistanceKmClient,
+  hasValidDistanceKm,
+} from "@/components/kasifind/format-distance";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { useKfListingImpression } from "@/components/kasifind/use-kf-listing-impression";
 import { KfListingContactFooter } from "@/components/kasifind/kf-listing-contact-footer";
@@ -63,13 +63,17 @@ export function KfProviderCard({
     [p.photoUrls, p.profileImageUrl]
   );
   const servicesPreview = p.services.slice(0, 3).map((s) => s.name).join(" · ");
+  const descriptionPreview = p.description.trim();
+  const bodyPreview = descriptionPreview || servicesPreview;
   const primaryCategory = p.categories[0]?.name;
   const hasRating = p.reviewCount > 0 && p.averageRating !== null;
+  const showDistance = hasValidDistanceKm(p.distanceKm);
+
   return (
     <li
       ref={impressionRef}
       data-kf-listing-id={p.id}
-      className="kf-card kf-card-interactive kf-glow-border kf-provider-card overflow-hidden"
+      className="kf-card kf-card-interactive kf-provider-card overflow-hidden"
     >
       <Link
         href={`/providers/${p.id}`}
@@ -86,31 +90,29 @@ export function KfProviderCard({
             displayName={p.displayName}
             priority={index < 4}
           />
-          {primaryCategory ? (
-            <span className="kf-provider-category-badge">{primaryCategory}</span>
+          {primaryCategory || showDistance ? (
+            <div className="kf-provider-media-badges">
+              {primaryCategory ? (
+                <span className="kf-provider-category-badge">{primaryCategory}</span>
+              ) : null}
+              {showDistance ? (
+                <span className="kf-provider-distance-badge" title="Distance from your search area">
+                  <Navigation className="kf-provider-distance-badge-icon" aria-hidden />
+                  {formatDistanceKmClient(p.distanceKm)}
+                </span>
+              ) : null}
+            </div>
           ) : null}
-          {hasRating ? (
-            <KfProviderRatingFloat
-              averageRating={p.averageRating!}
-              reviewCount={p.reviewCount}
-            />
-          ) : null}
-          <span className="kf-provider-view-hint">
-            View profile
-            <ChevronRight className="h-3 w-3" aria-hidden />
-          </span>
         </div>
-        <div className="kf-animate-in p-4" style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}>
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-base font-bold leading-tight text-[var(--kf-charcoal)] group-hover:text-[var(--kf-forest)]">
-              {p.displayName}
-            </h3>
-            <span className="kf-distance-badge" title="Distance from your search area">
-              {formatDistanceKmClient(p.distanceKm)}
-            </span>
-          </div>
+        <div
+          className="kf-provider-card-body kf-animate-in"
+          style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+        >
+          <h3 className="kf-provider-card-title group-hover:text-[var(--kf-forest)]">
+            {p.displayName}
+          </h3>
           {hasRating ? (
-            <div className="mt-2">
+            <div className="kf-provider-card-rating">
               <KfListingRatingDisplay
                 averageRating={p.averageRating!}
                 reviewCount={p.reviewCount}
@@ -118,13 +120,11 @@ export function KfProviderCard({
               />
             </div>
           ) : (
-            <p className="kf-rating-unrated mt-2">No reviews yet</p>
+            <p className="kf-provider-card-unrated">No reviews yet</p>
           )}
-          <p className="mt-1.5 line-clamp-1 text-xs text-[var(--kf-muted)]">{p.locationLabel}</p>
-          {servicesPreview ? (
-            <p className="mt-2 line-clamp-2 text-sm leading-snug text-[var(--kf-text)]">
-              {servicesPreview}
-            </p>
+          <p className="kf-provider-card-location">{p.locationLabel}</p>
+          {bodyPreview ? (
+            <p className="kf-provider-card-description">{bodyPreview}</p>
           ) : null}
         </div>
       </Link>
