@@ -77,6 +77,8 @@ export function discoveryScrollLooksRestored(
   return rect.top >= -SCROLL_TOLERANCE_PX && rect.bottom <= viewH + SCROLL_TOLERANCE_PX;
 }
 
+const SCROLL_TOP_DELAYS_MS = [0, 50, 150, 400, 800] as const;
+
 /** Scroll the discovery homepage to the top after filter/search updates. */
 export function scrollDiscoveryToTop(): void {
   if (typeof window === "undefined") return;
@@ -87,6 +89,39 @@ export function scrollDiscoveryToTop(): void {
 
   scrollTop();
   window.requestAnimationFrame(scrollTop);
+}
+
+/** Keep scroll at top while result layout settles (beats late restore/layout shifts). */
+export function scheduleScrollDiscoveryToTop(): () => void {
+  if (typeof window === "undefined") return () => undefined;
+
+  const canSetRestoration =
+    typeof history !== "undefined" && "scrollRestoration" in history;
+  const prevRestoration = canSetRestoration ? history.scrollRestoration : null;
+  if (canSetRestoration) history.scrollRestoration = "manual";
+
+  const timers: number[] = [];
+  let done = false;
+
+  const scrollTop = () => {
+    if (done) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  };
+
+  scrollTop();
+  window.requestAnimationFrame(scrollTop);
+
+  for (const delay of SCROLL_TOP_DELAYS_MS) {
+    timers.push(window.setTimeout(scrollTop, delay));
+  }
+
+  return () => {
+    done = true;
+    for (const id of timers) window.clearTimeout(id);
+    if (canSetRestoration && prevRestoration !== null) {
+      history.scrollRestoration = prevRestoration;
+    }
+  };
 }
 
 export function applyDiscoveryScroll(bookmark: DiscoveryScrollBookmark): void {
