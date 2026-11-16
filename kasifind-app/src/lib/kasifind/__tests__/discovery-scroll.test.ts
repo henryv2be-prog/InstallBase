@@ -6,6 +6,7 @@ import {
   consumeDiscoveryScroll,
   readDiscoveryScroll,
   saveDiscoveryScroll,
+  scheduleScrollDiscoveryToTop,
   scrollDiscoveryToTop,
 } from "@/lib/kasifind/discovery-scroll";
 
@@ -74,6 +75,39 @@ test("scrollDiscoveryToTop scrolls to 0", () => {
   try {
     scrollDiscoveryToTop();
     assert.deepEqual(scrollCalls, [0, 0]);
+  } finally {
+    Object.defineProperty(globalThis, "window", { configurable: true, value: originalWindow });
+  }
+});
+
+test("scheduleScrollDiscoveryToTop scrolls to 0 on delayed attempts", () => {
+  const scrollCalls: number[] = [];
+  const originalWindow = globalThis.window;
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: {
+      ...globalThis,
+      scrollTo: (opts: { top: number }) => {
+        scrollCalls.push(opts.top);
+      },
+      requestAnimationFrame: (fn: FrameRequestCallback) => {
+        fn(0);
+        return 0;
+      },
+      setTimeout: (fn: () => void, _ms?: number) => {
+        fn();
+        return 0;
+      },
+      clearTimeout: () => undefined,
+      history: { scrollRestoration: "auto" },
+    },
+  });
+
+  try {
+    const cancel = scheduleScrollDiscoveryToTop();
+    assert.ok(scrollCalls.length >= 2);
+    assert.ok(scrollCalls.every((y) => y === 0));
+    cancel();
   } finally {
     Object.defineProperty(globalThis, "window", { configurable: true, value: originalWindow });
   }

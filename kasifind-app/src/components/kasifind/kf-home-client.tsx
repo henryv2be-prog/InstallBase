@@ -18,10 +18,7 @@ import {
   type KfRadiusMode,
 } from "@/lib/kasifind/discovery-state";
 import { useDiscoveryScrollRestore } from "@/components/kasifind/use-discovery-scroll-restore";
-import {
-  readDiscoveryScroll,
-  scrollDiscoveryToTop,
-} from "@/lib/kasifind/discovery-scroll";
+import { scheduleScrollDiscoveryToTop } from "@/lib/kasifind/discovery-scroll";
 import { useDebouncedValue } from "@/components/kasifind/use-debounced-value";
 import { useHomeSearchBarPin } from "@/components/kasifind/use-home-search-bar-pin";
 import {
@@ -129,6 +126,7 @@ export function KfHomeClient({
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const searchGenerationRef = useRef(0);
+  const scrollToTopCancelRef = useRef<(() => void) | null>(null);
   const lastLiveQueryRef = useRef<string | null>(null);
   const searchPinAnchorRef = useRef<HTMLDivElement>(null);
   const searchBarRef = useRef<HTMLDivElement>(null);
@@ -173,7 +171,7 @@ export function KfHomeClient({
     setFiltersHydrated(true);
   }, []);
 
-  useDiscoveryScrollRestore({
+  const { cancelPendingRestore } = useDiscoveryScrollRestore({
     ready: filtersHydrated,
     loading,
     hasSearchRun: searchHasRun,
@@ -348,6 +346,12 @@ export function KfHomeClient({
       const mode = opts?.radiusMode ?? radiusMode;
 
       const generation = ++searchGenerationRef.current;
+      const userDrivenScrollToTop = opts?.scrollToTop !== false;
+      if (userDrivenScrollToTop) {
+        cancelPendingRestore();
+        scrollToTopCancelRef.current?.();
+        scrollToTopCancelRef.current = null;
+      }
       setLoading(true);
       setError(null);
       try {
@@ -395,13 +399,15 @@ export function KfHomeClient({
       } finally {
         if (generation === searchGenerationRef.current) {
           setSearchHasRun(true);
-          const shouldScrollToTop = opts?.scrollToTop !== false && !readDiscoveryScroll();
-          if (shouldScrollToTop) scrollDiscoveryToTop();
+          if (userDrivenScrollToTop) {
+            scrollToTopCancelRef.current?.();
+            scrollToTopCancelRef.current = scheduleScrollDiscoveryToTop();
+          }
         }
         setLoading(false);
       }
     },
-    [categorySlug, dbConfigured, location, query, radiusKm, radiusMode]
+    [cancelPendingRestore, categorySlug, dbConfigured, location, query, radiusKm, radiusMode]
   );
 
   const clearAllFilters = useCallback(() => {
