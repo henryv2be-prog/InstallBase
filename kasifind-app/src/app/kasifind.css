@@ -4611,6 +4611,11 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   pointer-events: none;
 }
 
+html.kf-photo-lightbox-open,
+html.kf-photo-lightbox-open body {
+  overscroll-behavior: none;
+}
+
 .kf-photo-lightbox {
   position: fixed;
   inset: 0;
@@ -4618,6 +4623,7 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: none;
   padding: max(0.5rem, env(safe-area-inset-top, 0)) max(0.5rem, env(safe-area-inset-right, 0))
     max(0.5rem, env(safe-area-inset-bottom, 0)) max(0.5rem, env(safe-area-inset-left, 0));
 }
@@ -4706,6 +4712,19 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   justify-content: center;
 }
 
+.kf-photo-lightbox-image-wrap--zoomable {
+  touch-action: none;
+  overflow: hidden;
+}
+
+.kf-photo-lightbox-image-scaler {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  will-change: transform;
+}
+
 .kf-photo-lightbox-image {
   max-width: 100%;
   max-height: min(78dvh, 36rem);
@@ -4713,6 +4732,8 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   height: auto;
   object-fit: contain;
   border-radius: var(--kf-radius-md);
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 /* —— Activity Map (listing coverage) —— */
