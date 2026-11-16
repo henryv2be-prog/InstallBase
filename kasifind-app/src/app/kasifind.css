@@ -4090,36 +4090,134 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   cursor: pointer;
 }
 
+.kf-provider-card {
+  background: var(--kf-surface);
+  border: 1px solid var(--kf-border);
+  box-shadow: var(--kf-shadow-sm);
+}
+
+.kf-provider-card:hover {
+  border-color: color-mix(in srgb, var(--kf-forest) 20%, var(--kf-border));
+  box-shadow: var(--kf-shadow-md);
+}
+
 .kf-provider-card .kf-provider-media {
   position: relative;
 }
 
-.kf-provider-category-badge {
+.kf-provider-card .kf-provider-media::after {
+  display: none;
+}
+
+.kf-provider-media-badges {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  z-index: 2;
-  max-width: calc(100% - 1rem);
-  padding: 0.2rem 0.5rem;
-  font-size: 0.65rem;
+  top: 0.55rem;
+  left: 0.55rem;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  max-width: calc(100% - 1.1rem);
+  pointer-events: none;
+}
+
+.kf-provider-category-badge {
+  max-width: 100%;
+  padding: 0.28rem 0.55rem;
+  font-size: 0.68rem;
   font-weight: 700;
+  line-height: 1.2;
   color: var(--kf-charcoal);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   border-radius: var(--kf-radius-full);
-  box-shadow: var(--kf-shadow-sm);
+  box-shadow: 0 2px 8px rgba(15, 23, 20, 0.12);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.kf-distance-badge {
-  flex-shrink: 0;
-  padding: 0.2rem 0.5rem;
-  font-size: var(--kf-text-xs);
+.kf-provider-distance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  max-width: 100%;
+  padding: 0.28rem 0.55rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: var(--kf-forest);
-  background: var(--kf-yellow-soft);
+  line-height: 1.2;
+  color: #fff;
+  background: rgba(15, 23, 20, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: var(--kf-radius-full);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.kf-provider-distance-badge-icon {
+  flex-shrink: 0;
+  width: 0.85rem;
+  height: 0.85rem;
+  opacity: 0.95;
+}
+
+.kf-provider-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.85rem 1rem 0.95rem;
+}
+
+.kf-provider-card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--kf-charcoal);
+}
+
+.kf-provider-card-rating {
+  margin-top: 0.1rem;
+}
+
+.kf-provider-card-rating .kf-rating-highlight {
+  padding: 0;
+  font-size: var(--kf-text-xs);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  gap: 0.3rem;
+}
+
+.kf-provider-card-rating .kf-rating-score {
+  font-size: 0.95rem;
+}
+
+.kf-provider-card-unrated {
+  margin: 0;
+  font-size: var(--kf-text-xs);
+  font-weight: 600;
+  color: var(--kf-muted);
+}
+
+.kf-provider-card-location {
+  margin: 0;
+  font-size: var(--kf-text-xs);
+  line-height: 1.35;
+  color: var(--kf-muted);
+}
+
+.kf-provider-card-description {
+  margin: 0.15rem 0 0;
+  font-size: var(--kf-text-sm);
+  line-height: 1.45;
+  color: var(--kf-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .kf-rating-pill {
@@ -4230,20 +4328,16 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   border-radius: var(--kf-radius-full);
 }
 
-/* Search card footer — visually tied to listing body, not the next card’s photo. */
+/* Search card footer — contact row beneath listing info */
 .kf-provider-card-footer {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
   gap: 0.625rem 0.75rem;
-  padding: 0.625rem 1rem 0.875rem;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--kf-forest) 5%, var(--kf-surface)) 0%,
-    color-mix(in srgb, var(--kf-forest) 10%, var(--kf-stone)) 100%
-  );
-  border-top: 1px solid color-mix(in srgb, var(--kf-forest) 16%, var(--kf-border));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  padding: 0.55rem 0.75rem 0.8rem;
+  background: var(--kf-surface);
+  border-top: 1px solid var(--kf-border);
+  box-shadow: none;
 }
 
 .kf-provider-card-footer-label {
