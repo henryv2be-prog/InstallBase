@@ -16,6 +16,7 @@ import { KfReviewForm } from "@/components/kasifind/kf-review-form";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
 import { KfListingContactFooter } from "@/components/kasifind/kf-listing-contact-footer";
 import { KfTrackListingView } from "@/components/kasifind/kf-track-listing-view";
+import { KfListingPageScrollTop } from "@/components/kasifind/kf-listing-page-scroll-top";
 import { KfProviderLocationMap } from "@/components/kasifind/kf-provider-location-map";
 import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-display";
 import { KfListingNearbySection } from "@/components/kasifind/kf-listing-nearby-section";
@@ -108,6 +109,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
 
   return (
     <article className="pb-8">
+      <KfListingPageScrollTop listingId={listing.id} />
       <KfTrackListingView listingId={listing.id} />
       <Link
         href={ownerPreview ? "/account/listing" : "/"}

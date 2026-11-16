@@ -51,9 +51,16 @@ export function KfLocationMap({
 
       const map = L.map(containerRef.current, {
         scrollWheelZoom: interactive,
-        dragging: true,
-        touchZoom: true,
+        dragging: interactive,
+        touchZoom: interactive,
+        doubleClickZoom: interactive,
+        boxZoom: interactive,
+        keyboard: false,
       });
+
+      const mapEl = map.getContainer();
+      mapEl.removeAttribute("tabindex");
+      mapEl.setAttribute("aria-hidden", "true");
 
       tilesRef.current = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution:
