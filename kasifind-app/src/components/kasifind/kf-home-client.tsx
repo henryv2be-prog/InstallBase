@@ -128,6 +128,8 @@ export function KfHomeClient({
   const searchGenerationRef = useRef(0);
   const scrollToTopCancelRef = useRef<(() => void) | null>(null);
   const lastLiveQueryRef = useRef<string | null>(null);
+  /** False until debounced query has caught up after filter hydration (avoids false live search on back). */
+  const liveQueryCatchUpRef = useRef(false);
   const searchPinAnchorRef = useRef<HTMLDivElement>(null);
   const searchBarRef = useRef<HTMLDivElement>(null);
   const debouncedQuery = useDebouncedValue(query, 400);
@@ -150,6 +152,9 @@ export function KfHomeClient({
 
   useEffect(() => {
     const saved = readDiscoveryState();
+    const restoredQuery = saved?.query ?? "";
+    lastLiveQueryRef.current = restoredQuery;
+    liveQueryCatchUpRef.current = false;
     if (saved) {
       setQuery(saved.query);
       setRadiusKm(saved.radiusKm);
@@ -431,14 +436,23 @@ export function KfHomeClient({
 
   useEffect(() => {
     if (!dbConfigured || !filtersHydrated) return;
-    if (lastLiveQueryRef.current === null) {
-      lastLiveQueryRef.current = debouncedQuery;
+
+    if (!liveQueryCatchUpRef.current) {
+      if (debouncedQuery !== query) return;
+      const caughtUp = debouncedQuery;
+      const editedWhileCatchingUp = caughtUp !== lastLiveQueryRef.current;
+      lastLiveQueryRef.current = caughtUp;
+      liveQueryCatchUpRef.current = true;
+      if (editedWhileCatchingUp) {
+        void runSearch({ query: caughtUp, preferAutoExpand: true });
+      }
       return;
     }
+
     if (lastLiveQueryRef.current === debouncedQuery) return;
     lastLiveQueryRef.current = debouncedQuery;
     void runSearch({ query: debouncedQuery, preferAutoExpand: true });
-  }, [dbConfigured, debouncedQuery, filtersHydrated, runSearch]);
+  }, [dbConfigured, debouncedQuery, filtersHydrated, query, runSearch]);
 
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.permissions?.query) return;
