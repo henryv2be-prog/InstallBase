@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe2, LocateFixed, MapPin, Search, X } from "lucide-react";
+import { Globe2, LocateFixed, MapPin, Search, ShieldCheck, X } from "lucide-react";
 import { KfAreaSearchPicker } from "@/components/kasifind/kf-area-search-picker";
 import type { GeocodeHit } from "@/lib/kasifind/geocode-utils";
 import type { KfDiscoveryLocation } from "@/lib/kasifind/discovery-state";
@@ -39,9 +39,14 @@ export function KfLocationSheet({
 
   return (
     <div className="kf-location-sheet-root" role="presentation">
-      <button type="button" className="kf-dialog-backdrop" aria-label="Close" onClick={onClose} />
+      <button
+        type="button"
+        className="kf-dialog-backdrop kf-dialog-backdrop--solid"
+        aria-label="Close"
+        onClick={onClose}
+      />
       <div
-        className="kf-location-sheet-panel kf-animate-in"
+        className="kf-location-sheet-panel kf-dialog-panel--solid kf-animate-in"
         role="dialog"
         aria-modal="true"
         aria-labelledby="kf-location-sheet-title"
@@ -64,6 +69,21 @@ export function KfLocationSheet({
         </div>
 
         {view === "menu" ? (
+          <>
+          {permissionDenied ? (
+            <div className="kf-location-sheet-callout kf-location-sheet-callout--warn" role="status">
+              Location is blocked in your browser settings. Search an area or browse all listings, or
+              allow location for this site in your phone settings and try again.
+            </div>
+          ) : (
+            <div className="kf-location-sheet-callout" role="note">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-[var(--kf-forest)]" aria-hidden />
+              <span>
+                Your exact GPS is never shown on provider profiles — only used to sort nearby results on
+                your device.
+              </span>
+            </div>
+          )}
           <div className="kf-location-sheet-actions">
             {geolocationAvailable ? (
               <button
@@ -106,6 +126,7 @@ export function KfLocationSheet({
               </span>
             </button>
           </div>
+          </>
         ) : (
           <div className="mt-3">
             <button
@@ -123,19 +144,6 @@ export function KfLocationSheet({
               }}
             />
           </div>
-        )}
-
-        {permissionDenied ? (
-          <p className="kf-location-sheet-foot">
-            Location is blocked in your browser settings. You can still search an area or browse all
-            listings. To use GPS, allow location for this site in your phone&apos;s settings, then
-            tap <strong>Use my current location</strong>.
-          </p>
-        ) : (
-          <p className="kf-location-sheet-foot">
-            Your exact GPS is never shown on provider profiles — it is only used to sort nearby
-            results on your device.
-          </p>
         )}
       </div>
     </div>
