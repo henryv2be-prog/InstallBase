@@ -19,7 +19,7 @@ export function sanitizeAuthNextPath(
 }
 
 export function loginPathWithNext(destinationPath: string): string {
-  const safe = sanitizeAuthNextPath(destinationPath, "/account");
+  const safe = sanitizeAuthNextPath(destinationPath, "/");
   return `/login?next=${encodeURIComponent(safe)}`;
 }
 
