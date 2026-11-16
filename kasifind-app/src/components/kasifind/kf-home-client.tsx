@@ -132,8 +132,34 @@ export function KfHomeClient({
   const liveQueryCatchUpRef = useRef(false);
   const searchPinAnchorRef = useRef<HTMLDivElement>(null);
   const searchBarRef = useRef<HTMLDivElement>(null);
+  const suppressSearchBarHideRef = useRef(false);
+  const suppressSearchBarHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedQuery = useDebouncedValue(query, 400);
-  const searchBarPin = useHomeSearchBarPin(searchPinAnchorRef, searchBarRef);
+
+  const holdSearchBarVisible = useCallback(() => {
+    suppressSearchBarHideRef.current = true;
+    if (suppressSearchBarHideTimerRef.current !== null) {
+      window.clearTimeout(suppressSearchBarHideTimerRef.current);
+    }
+    suppressSearchBarHideTimerRef.current = window.setTimeout(() => {
+      suppressSearchBarHideRef.current = false;
+      suppressSearchBarHideTimerRef.current = null;
+    }, 950);
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (suppressSearchBarHideTimerRef.current !== null) {
+        window.clearTimeout(suppressSearchBarHideTimerRef.current);
+      }
+    },
+    []
+  );
+
+  const searchBarPin = useHomeSearchBarPin(searchPinAnchorRef, searchBarRef, {
+    suppressHideRef: suppressSearchBarHideRef,
+    keepVisible: loading,
+  });
   const [searchHasRun, setSearchHasRun] = useState(false);
   const slidesEligibleForIntro =
     categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES;
@@ -353,6 +379,7 @@ export function KfHomeClient({
       const generation = ++searchGenerationRef.current;
       const userDrivenScrollToTop = opts?.scrollToTop !== false;
       if (userDrivenScrollToTop) {
+        holdSearchBarVisible();
         cancelPendingRestore();
         scrollToTopCancelRef.current?.();
         scrollToTopCancelRef.current = null;
@@ -405,6 +432,7 @@ export function KfHomeClient({
         if (generation === searchGenerationRef.current) {
           setSearchHasRun(true);
           if (userDrivenScrollToTop) {
+            holdSearchBarVisible();
             scrollToTopCancelRef.current?.();
             scrollToTopCancelRef.current = scheduleScrollDiscoveryToTop();
           }
@@ -412,7 +440,7 @@ export function KfHomeClient({
         setLoading(false);
       }
     },
-    [cancelPendingRestore, categorySlug, dbConfigured, location, query, radiusKm, radiusMode]
+    [cancelPendingRestore, categorySlug, dbConfigured, holdSearchBarVisible, location, query, radiusKm, radiusMode]
   );
 
   const clearAllFilters = useCallback(() => {
