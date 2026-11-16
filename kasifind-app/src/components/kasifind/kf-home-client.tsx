@@ -32,6 +32,7 @@ import {
   KfDiscoveryScopeSwitch,
   type DiscoverySearchScope,
 } from "@/components/kasifind/kf-discovery-scope-switch";
+import { KfLocationConsentDialog } from "@/components/kasifind/kf-location-consent-dialog";
 import { KfLocationSheet } from "@/components/kasifind/kf-location-sheet";
 import type { GeocodeHit } from "@/lib/kasifind/geocode-utils";
 import { KfCategoryFlashIntro } from "@/components/kasifind/kf-category-flash-intro";
@@ -122,6 +123,7 @@ export function KfHomeClient({
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const searchGenerationRef = useRef(0);
@@ -232,6 +234,7 @@ export function KfHomeClient({
           label: GPS_LOCATION_LABEL,
         });
         setLocationSheetOpen(false);
+        setLocationDialogOpen(false);
         setLocating(false);
       },
       (err) => {
@@ -239,11 +242,36 @@ export function KfHomeClient({
           writeLocationConsent("denied");
           setError("Location blocked — choose Set location or Nationwide.");
         }
+        setLocationDialogOpen(false);
         setLocating(false);
       },
       { enableHighAccuracy: false, timeout: 12000, maximumAge: 300_000 }
     );
   }, [openAreaPicker]);
+
+  const dismissLocationPrompt = useCallback(() => {
+    writeLocationConsent("dismissed");
+    switchToBrowseMode();
+    setLocationDialogOpen(false);
+  }, [switchToBrowseMode]);
+
+  const startNearMeWithConsent = useCallback(() => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setError("Your browser does not support location. Pick an area under Set location.");
+      openAreaPicker();
+      return;
+    }
+    const consent = readLocationConsent();
+    if (consent === "granted") {
+      requestNearMe();
+      return;
+    }
+    if (consent === "denied") {
+      setError("Location blocked — choose Set location or Nationwide.");
+      return;
+    }
+    setLocationDialogOpen(true);
+  }, [openAreaPicker, requestNearMe]);
 
   const handleScopeSelect = useCallback(
     (scope: DiscoverySearchScope) => {
@@ -251,15 +279,16 @@ export function KfHomeClient({
         writeLocationConsent("dismissed");
         switchToBrowseMode();
         setLocationSheetOpen(false);
+        setLocationDialogOpen(false);
         return;
       }
       if (scope === "near") {
-        requestNearMe();
+        startNearMeWithConsent();
         return;
       }
       openAreaPicker();
     },
-    [openAreaPicker, requestNearMe, switchToBrowseMode]
+    [openAreaPicker, startNearMeWithConsent, switchToBrowseMode]
   );
 
   type RunSearchOpts = {
@@ -443,6 +472,16 @@ export function KfHomeClient({
           onComplete={dismissCategoryFlash}
         />
       ) : null}
+      <KfLocationConsentDialog
+        open={locationDialogOpen}
+        busy={locating}
+        onClose={dismissLocationPrompt}
+        onConfirm={() => requestNearMe()}
+        onChooseArea={() => {
+          setLocationDialogOpen(false);
+          openAreaPicker();
+        }}
+      />
       <KfLocationSheet
         open={locationSheetOpen}
         areaOnly
