@@ -1,7 +1,9 @@
 export const CATEGORY_FLASH_SESSION_KEY = "kf-category-flash-v6";
 
 /** Soft fade from ivory veil into homepage (first visit per session). */
-export const HOME_LANDING_FADE_MS = 1100;
+export const HOME_LANDING_FADE_MS = 1500;
+export const HOME_LANDING_VEIL_SESSION_KEY = "kf-home-landing-veil-v1";
+export const HOME_LANDING_VEIL_PAINT_HOLD_MS = 120;
 
 export const CATEGORY_FLASH_MIN_SLIDES = 1;
 
@@ -54,6 +56,24 @@ export function buildCinematicMontageSchedule(montageFrameCount: number): Cinema
   durations[durations.length - 1] = Math.max(48, durations[durations.length - 1]! + drift);
 
   return durations.map((durationMs, slideIndex) => ({ slideIndex, durationMs }));
+}
+
+export function shouldPlayHomeLandingVeil(): boolean {
+  if (typeof window === "undefined") return false;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+  try {
+    return sessionStorage.getItem(HOME_LANDING_VEIL_SESSION_KEY) !== "1";
+  } catch {
+    return false;
+  }
+}
+
+export function markHomeLandingVeilPlayed(): void {
+  try {
+    sessionStorage.setItem(HOME_LANDING_VEIL_SESSION_KEY, "1");
+  } catch {
+    /* ignore */
+  }
 }
 
 export function shouldPlayCategoryFlashIntro(): boolean {

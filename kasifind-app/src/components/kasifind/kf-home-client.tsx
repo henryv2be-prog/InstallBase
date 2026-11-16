@@ -36,8 +36,9 @@ import { KfLocationSheet } from "@/components/kasifind/kf-location-sheet";
 import type { GeocodeHit } from "@/lib/kasifind/geocode-utils";
 import {
   HOME_LANDING_FADE_MS,
-  markCategoryFlashIntroPlayed,
-  shouldPlayCategoryFlashIntro,
+  HOME_LANDING_VEIL_PAINT_HOLD_MS,
+  markHomeLandingVeilPlayed,
+  shouldPlayHomeLandingVeil,
 } from "@/lib/kasifind/category-flash-intro";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
@@ -143,7 +144,7 @@ export function KfHomeClient({
     suppressSearchBarHideTimerRef.current = window.setTimeout(() => {
       suppressSearchBarHideRef.current = false;
       suppressSearchBarHideTimerRef.current = null;
-    }, 950);
+    }, 1200);
   }, []);
 
   useEffect(
@@ -160,24 +161,20 @@ export function KfHomeClient({
     keepVisible: loading,
   });
   const [searchHasRun, setSearchHasRun] = useState(false);
-  const [landingVeil, setLandingVeil] = useState<LandingVeilPhase>(() =>
-    shouldPlayCategoryFlashIntro() ? "pending" : "off"
-  );
+  const [landingVeil, setLandingVeil] = useState<LandingVeilPhase>("off");
+
+  useLayoutEffect(() => {
+    if (!shouldPlayHomeLandingVeil()) return;
+    setLandingVeil("pending");
+  }, []);
 
   useLayoutEffect(() => {
     if (landingVeil !== "pending") return;
-    if (!shouldPlayCategoryFlashIntro()) {
-      setLandingVeil("off");
-      return;
-    }
-    const startFade = () => {
-      markCategoryFlashIntroPlayed();
+    const paintHold = window.setTimeout(() => {
+      markHomeLandingVeilPlayed();
       setLandingVeil("fading");
-    };
-    const raf = requestAnimationFrame(() => {
-      requestAnimationFrame(startFade);
-    });
-    return () => cancelAnimationFrame(raf);
+    }, HOME_LANDING_VEIL_PAINT_HOLD_MS);
+    return () => window.clearTimeout(paintHold);
   }, [landingVeil]);
 
   useEffect(() => {

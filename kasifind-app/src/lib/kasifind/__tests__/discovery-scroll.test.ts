@@ -87,6 +87,7 @@ function installResultsScrollMocks(opts: {
     value: {
       ...globalThis,
       scrollY,
+      matchMedia: () => ({ matches: false }),
       scrollTo: (opts: { top: number }) => {
         scrollCalls.push(opts.top);
       },
@@ -157,7 +158,7 @@ test("scrollDiscoveryToTop scrolls to measured results Y", () => {
   const mocks = installResultsScrollMocks({ scrollY: 0, listingTop: 400 });
   try {
     scrollDiscoveryToTop();
-    assert.deepEqual(mocks.scrollCalls, [194, 194]);
+    assert.deepEqual(mocks.scrollCalls, [194]);
   } finally {
     mocks.restore();
   }
@@ -167,7 +168,7 @@ test("scheduleScrollDiscoveryToTop scrolls to results on delayed attempts", () =
   const mocks = installResultsScrollMocks({ scrollY: 0, listingTop: 400 });
   try {
     const cancel = scheduleScrollDiscoveryToTop();
-    assert.ok(mocks.scrollCalls.length >= 2);
+    assert.equal(mocks.scrollCalls.length, 3);
     assert.ok(mocks.scrollCalls.every((y) => y === 194));
     cancel();
   } finally {
