@@ -125,8 +125,8 @@ export default async function KasiFindProviderPage({ params }: Props) {
         </div>
       ) : null}
 
-      <header className="kf-card mt-4 overflow-hidden kf-animate-in">
-        <div className="kf-trust-strip">
+      <header className="kf-card kf-listing-page-hero mt-4 overflow-hidden kf-animate-in">
+        <div className="kf-trust-strip kf-listing-page-hero-trust">
           <span className="kf-trust-pill">
             <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
             Local listing
@@ -138,7 +138,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
             alt={listing.displayName}
           />
         ) : null}
-        <div className="relative bg-[var(--kf-stone)] p-6">
+        <div className="kf-listing-hero-identity relative bg-[var(--kf-stone)]">
           {!listing.profileImageUrl ? (
             <div className="kf-business-avatar-placeholder mx-auto sm:mx-0" aria-hidden>
               <Building2 className="h-8 w-8 opacity-80" />
@@ -148,20 +148,20 @@ export default async function KasiFindProviderPage({ params }: Props) {
             </div>
           ) : null}
           <div
-            className={`min-w-0 flex-1 text-center sm:text-left${!listing.profileImageUrl ? " mt-4" : ""}`}
+            className={`kf-listing-hero-meta min-w-0 flex-1 text-center sm:text-left${
+              !listing.profileImageUrl ? " kf-listing-hero-meta--with-placeholder" : ""
+            }`}
           >
-            <h1 className="text-2xl font-bold tracking-tight text-[var(--kf-charcoal)]">
-              {listing.displayName}
-            </h1>
+            <h1 className="kf-listing-hero-title">{listing.displayName}</h1>
             {primaryCategory ? (
-              <p className="mt-1 text-sm font-semibold text-[var(--kf-forest)]">{primaryCategory.name}</p>
+              <p className="kf-listing-hero-category">{primaryCategory.name}</p>
             ) : null}
-            <p className="mt-2 flex items-center justify-center gap-1 text-sm text-[var(--kf-muted)] sm:justify-start">
-              <MapPin className="h-4 w-4 shrink-0" aria-hidden />
+            <p className="kf-listing-hero-location">
+              <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
               {listing.locationLabel}
             </p>
             {listing.reviewCount > 0 && listing.averageRating !== null ? (
-              <div className="mt-3 flex justify-center sm:justify-start">
+              <div className="kf-listing-hero-rating">
                 <KfListingRatingDisplay
                   averageRating={listing.averageRating}
                   reviewCount={listing.reviewCount}
@@ -170,16 +170,16 @@ export default async function KasiFindProviderPage({ params }: Props) {
                 />
               </div>
             ) : (
-              <div className="mt-3 flex flex-col items-center gap-2 sm:items-start">
+              <div className="kf-listing-hero-unrated">
                 <p className="kf-rating-unrated">Not yet rated</p>
-                <p className="kf-early-badge">
-                  <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                <p className="kf-early-badge kf-early-badge--listing">
+                  <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
                   New on KasiFind — be among the first to leave a review
                 </p>
               </div>
             )}
             {(listing.priceHint || listing.hoursNote) && (
-              <dl className="mt-4 space-y-1 text-sm">
+              <dl className="kf-listing-hero-hours space-y-0.5 text-sm">
                 {listing.priceHint ? (
                   <div>
                     <dt className="inline font-semibold text-[var(--kf-charcoal)]">Pricing: </dt>
