@@ -97,14 +97,8 @@ export function KfListingAssistanceProvider({
   useEffect(() => {
     if (searchParams.get("help") === "1") {
       router.replace("/account/listing-support");
-      return;
     }
-    if (!hasListing || !canSubmit || activeRequest) return;
-    if (typeof window === "undefined") return;
-    if (window.localStorage.getItem(LISTING_ASSISTANCE_ENTRY_DISMISS_KEY) === "1") return;
-    setMode("entry");
-    setDialogOpen(true);
-  }, [activeRequest, canSubmit, hasListing, searchParams, router]);
+  }, [searchParams, router]);
 
   const closeDialog = (choice: PublishChoice = "cancel") => {
     setDialogOpen(false);
