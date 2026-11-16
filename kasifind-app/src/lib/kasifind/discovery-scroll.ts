@@ -77,6 +77,18 @@ export function discoveryScrollLooksRestored(
   return rect.top >= -SCROLL_TOLERANCE_PX && rect.bottom <= viewH + SCROLL_TOLERANCE_PX;
 }
 
+/** Scroll the discovery homepage to the top after filter/search updates. */
+export function scrollDiscoveryToTop(): void {
+  if (typeof window === "undefined") return;
+
+  const scrollTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  };
+
+  scrollTop();
+  window.requestAnimationFrame(scrollTop);
+}
+
 export function applyDiscoveryScroll(bookmark: DiscoveryScrollBookmark): void {
   if (typeof window === "undefined") return;
 

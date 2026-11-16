@@ -18,6 +18,10 @@ import {
   type KfRadiusMode,
 } from "@/lib/kasifind/discovery-state";
 import { useDiscoveryScrollRestore } from "@/components/kasifind/use-discovery-scroll-restore";
+import {
+  readDiscoveryScroll,
+  scrollDiscoveryToTop,
+} from "@/lib/kasifind/discovery-scroll";
 import { useDebouncedValue } from "@/components/kasifind/use-debounced-value";
 import { useHomeSearchBarPin } from "@/components/kasifind/use-home-search-bar-pin";
 import {
@@ -328,6 +332,8 @@ export function KfHomeClient({
     categorySlug?: string | null;
     radiusKm?: number;
     radiusMode?: KfRadiusMode;
+    /** Scroll to top when results land (default true). Set false for background refresh / scroll restore. */
+    scrollToTop?: boolean;
   };
 
   const runSearch = useCallback(
@@ -389,6 +395,8 @@ export function KfHomeClient({
       } finally {
         if (generation === searchGenerationRef.current) {
           setSearchHasRun(true);
+          const shouldScrollToTop = opts?.scrollToTop !== false && !readDiscoveryScroll();
+          if (shouldScrollToTop) scrollDiscoveryToTop();
         }
         setLoading(false);
       }
@@ -411,7 +419,7 @@ export function KfHomeClient({
 
   useEffect(() => {
     if (!dbConfigured || !filtersHydrated) return;
-    void runSearch();
+    void runSearch({ scrollToTop: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when location source changes
   }, [dbConfigured, filtersHydrated, location]);
 
