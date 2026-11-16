@@ -58,11 +58,6 @@ export function KfDiscoveryScopeSwitch({
           <MapPin className="inline h-3 w-3" aria-hidden /> Searching in <strong>{areaHint}</strong>
         </p>
       ) : null}
-      {scope === "near" && !locating ? (
-        <p className="kf-scope-switch-hint kf-scope-switch-hint--muted">
-          Sorted by distance from your device. GPS is not shown on listings.
-        </p>
-      ) : null}
     </div>
   );
 }
