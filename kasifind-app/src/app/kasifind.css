@@ -2414,10 +2414,107 @@
   }
 }
 
+.kf-listing-page-hero .kf-listing-page-hero-trust {
+  padding: 0.4rem 0.85rem;
+}
+
+.kf-listing-hero-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem 0.95rem;
+}
+
+.kf-listing-hero-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.kf-listing-hero-meta--with-placeholder {
+  margin-top: 0.65rem;
+}
+
+@media (min-width: 640px) {
+  .kf-listing-hero-meta {
+    align-items: flex-start;
+  }
+}
+
+.kf-listing-hero-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+  color: var(--kf-charcoal);
+}
+
+.kf-listing-hero-category {
+  margin: 0;
+  font-size: var(--kf-text-sm);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--kf-forest);
+}
+
+.kf-listing-hero-location {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  margin: 0;
+  font-size: var(--kf-text-sm);
+  line-height: 1.3;
+  color: var(--kf-muted);
+}
+
+@media (min-width: 640px) {
+  .kf-listing-hero-location {
+    justify-content: flex-start;
+  }
+}
+
+.kf-listing-hero-rating,
+.kf-listing-hero-unrated {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.1rem 0 0;
+}
+
+@media (min-width: 640px) {
+  .kf-listing-hero-rating,
+  .kf-listing-hero-unrated {
+    align-items: flex-start;
+  }
+}
+
+.kf-listing-hero-unrated .kf-rating-unrated {
+  margin: 0;
+  padding: 0.15rem 0.45rem;
+}
+
+.kf-early-badge--listing {
+  margin-top: 0;
+  text-align: left;
+}
+
+.kf-listing-hero-rating .kf-rating-highlight--hero {
+  padding: 0.35rem 0.65rem;
+}
+
+.kf-listing-hero-hours {
+  margin: 0.25rem 0 0;
+  width: 100%;
+}
+
 .kf-listing-profile-hero {
   width: 100%;
   aspect-ratio: 16 / 10;
-  max-height: min(52vw, 17.5rem);
+  max-height: min(48vw, 15.5rem);
   background: var(--kf-stone);
   overflow: hidden;
 }
@@ -2448,8 +2545,16 @@
 
 @media (min-width: 640px) {
   .kf-listing-profile-hero {
-    max-height: 20rem;
+    max-height: 17.5rem;
     aspect-ratio: 21 / 9;
+  }
+
+  .kf-listing-hero-title {
+    font-size: 1.5rem;
+  }
+
+  .kf-listing-hero-identity {
+    padding: 0.85rem 1.15rem 1rem;
   }
 
   .kf-listing-profile-hero--contain .kf-listing-profile-hero-img {

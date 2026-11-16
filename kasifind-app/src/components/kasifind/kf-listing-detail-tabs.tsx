@@ -97,7 +97,7 @@ export function KfListingDetailTabs({
   };
 
   return (
-    <section className="kf-card mt-8 overflow-hidden kf-animate-in" aria-labelledby={`${baseId}-heading`}>
+    <section className="kf-card mt-5 overflow-hidden kf-animate-in" aria-labelledby={`${baseId}-heading`}>
       <h2 id={`${baseId}-heading`} className="sr-only">
         Business details
       </h2>
