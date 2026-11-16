@@ -656,9 +656,6 @@ export function KfHomeClient({
               </button>
             ) : null}
           </div>
-          <p className="kf-live-search-hint" aria-live="polite">
-            {loading ? "Updating results…" : "Results update as you type."}
-          </p>
         </form>
       </div>
 

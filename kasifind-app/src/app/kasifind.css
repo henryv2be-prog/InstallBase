@@ -2159,7 +2159,9 @@
 }
 
 .kf-home-search-sticky--pinned.kf-home-search-sticky--hidden {
-  transform: translateY(calc(-100% - 0.35rem));
+  transform: translateY(
+    calc(-100% - var(--kf-header-h) - env(safe-area-inset-top, 0px) - 0.5rem)
+  );
   pointer-events: none;
 }
 
@@ -2179,13 +2181,6 @@
 
 .kf-hero-search-card--sticky .kf-scope-switch-wrap {
   margin-top: var(--kf-space-2);
-}
-
-.kf-live-search-hint {
-  margin: 0.35rem 0 0;
-  font-size: 0.68rem;
-  line-height: 1.35;
-  color: var(--kf-muted);
 }
 
 .kf-hero-search-extras {
