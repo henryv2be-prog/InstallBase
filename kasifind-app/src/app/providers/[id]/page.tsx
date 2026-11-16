@@ -10,7 +10,7 @@ import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
 import { publicAssetUrl, siteOriginFromHeaders } from "@/lib/kasifind/public-asset-url";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
-import { KfListingImage } from "@/components/kasifind/kf-listing-image";
+import { KfListingProfileHero } from "@/components/kasifind/kf-listing-profile-hero";
 import { KfWorkPhotoGallery } from "@/components/kasifind/kf-work-photo-gallery";
 import { KfReviewForm } from "@/components/kasifind/kf-review-form";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
@@ -131,23 +131,24 @@ export default async function KasiFindProviderPage({ params }: Props) {
             Local listing
           </span>
         </div>
-        <div className="relative bg-[var(--kf-stone)] p-6 sm:flex sm:gap-6">
-          {listing.profileImageUrl ? (
-            <KfListingImage
-              src={publicAssetUrl(listing.profileImageUrl, siteOrigin)}
-              alt=""
-              className="mx-auto h-28 w-28 rounded-xl object-cover ring-2 ring-white sm:mx-0"
-              priority
-            />
-          ) : (
+        {listing.profileImageUrl ? (
+          <KfListingProfileHero
+            src={publicAssetUrl(listing.profileImageUrl, siteOrigin)}
+            alt={listing.displayName}
+          />
+        ) : null}
+        <div className="relative bg-[var(--kf-stone)] p-6">
+          {!listing.profileImageUrl ? (
             <div className="kf-business-avatar-placeholder mx-auto sm:mx-0" aria-hidden>
               <Building2 className="h-8 w-8 opacity-80" />
               <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-[var(--kf-muted)]">
                 Local business
               </span>
             </div>
-          )}
-          <div className="mt-4 min-w-0 flex-1 text-center sm:mt-0 sm:text-left">
+          ) : null}
+          <div
+            className={`min-w-0 flex-1 text-center sm:text-left${!listing.profileImageUrl ? " mt-4" : ""}`}
+          >
             <h1 className="text-2xl font-bold tracking-tight text-[var(--kf-charcoal)]">
               {listing.displayName}
             </h1>
