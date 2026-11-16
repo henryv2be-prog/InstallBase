@@ -23,6 +23,11 @@ test("loginPathWithNext encodes next query", () => {
   assert.match(path, /listing-support/);
 });
 
+test("loginPathWithNext defaults to home when next is invalid", () => {
+  const path = loginPathWithNext("");
+  assert.match(path, /^\/login\?next=%2F$/);
+});
+
 test("registerPathWithNext encodes next query", () => {
   const path = registerPathWithNext("/account/listing");
   assert.match(path, /^\/register\?next=/);

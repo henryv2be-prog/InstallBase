@@ -29,7 +29,10 @@ export function KfAuthForm({
             toast.error(result.error);
             return;
           }
-          const landingHref = sanitizeAuthNextPath(nextPath, "/account");
+          const landingHref = sanitizeAuthNextPath(
+            nextPath,
+            mode === "login" ? "/" : "/account"
+          );
           router.push(landingHref);
           router.refresh();
         });
