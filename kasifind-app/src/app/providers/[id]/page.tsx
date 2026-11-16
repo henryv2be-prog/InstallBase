@@ -113,6 +113,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
       <KfTrackListingView listingId={listing.id} />
       <Link
         href={ownerPreview ? "/account/listing" : "/"}
+        scroll={false}
         className="kf-link inline-flex items-center gap-1 text-sm kf-animate-in"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden />

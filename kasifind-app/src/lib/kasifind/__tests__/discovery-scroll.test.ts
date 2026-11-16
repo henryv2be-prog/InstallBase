@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   applyDiscoveryScroll,
+  clearDiscoveryScroll,
   consumeDiscoveryScroll,
+  readDiscoveryScroll,
   saveDiscoveryScroll,
 } from "@/lib/kasifind/discovery-scroll";
 
@@ -37,9 +39,11 @@ test("saveDiscoveryScroll round-trips via consume", () => {
 
   try {
     saveDiscoveryScroll("listing-1");
+    assert.deepEqual(readDiscoveryScroll(), { listingId: "listing-1", y: 420 });
     const first = consumeDiscoveryScroll();
     assert.deepEqual(first, { listingId: "listing-1", y: 420 });
-    assert.equal(consumeDiscoveryScroll(), null);
+    assert.equal(readDiscoveryScroll(), null);
+    clearDiscoveryScroll();
   } finally {
     Object.defineProperty(globalThis, "window", { configurable: true, value: originalWindow });
     Object.defineProperty(globalThis, "sessionStorage", {
