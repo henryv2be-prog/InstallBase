@@ -528,7 +528,7 @@ export function KfHomeClient({
   }
 
   return (
-    <div className="kf-home-landing pb-4">
+    <div className="kf-home-landing pb-2">
       {introGate === "pending" && slidesEligibleForIntro ? (
         <div className="kf-category-flash kf-category-flash--page-veil" aria-hidden role="presentation" />
       ) : null}
@@ -823,7 +823,11 @@ export function KfHomeClient({
 
       {error ? <div className="kf-alert-error">{error}</div> : null}
 
-      <section aria-live="polite" className="kf-home-results kf-animate-in">
+      <section
+        id="kf-discovery-results"
+        aria-live="polite"
+        className="kf-home-results kf-animate-in"
+      >
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
             <h2 className="kf-section-title">
@@ -836,7 +840,7 @@ export function KfHomeClient({
           </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-3">
           {loading && results.length === 0 ? (
             <ResultSkeletons />
           ) : results.length === 0 ? (

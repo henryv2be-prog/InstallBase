@@ -78,20 +78,41 @@ export function discoveryScrollLooksRestored(
 }
 
 const SCROLL_TOP_DELAYS_MS = [0, 50, 150, 400, 800] as const;
+export const DISCOVERY_RESULTS_ANCHOR_ID = "kf-discovery-results";
+const RESULTS_SCROLL_GAP_PX = 8;
 
-/** Scroll the discovery homepage to the top after filter/search updates. */
-export function scrollDiscoveryToTop(): void {
-  if (typeof window === "undefined") return;
-
-  const scrollTop = () => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  };
-
-  scrollTop();
-  window.requestAnimationFrame(scrollTop);
+export function resolveDiscoveryScrollTarget(): HTMLElement | null {
+  if (typeof document === "undefined") return null;
+  const firstListing = document.querySelector<HTMLElement>("[data-kf-listing-id]");
+  if (firstListing) return firstListing;
+  return document.getElementById(DISCOVERY_RESULTS_ANCHOR_ID);
 }
 
-/** Keep scroll at top while result layout settles (beats late restore/layout shifts). */
+/** Y offset so the first result (or results heading) sits just under the header. */
+export function measureDiscoveryResultsScrollY(): number {
+  if (typeof window === "undefined") return 0;
+  const el = resolveDiscoveryScrollTarget();
+  if (!el) return 0;
+  const root = document.documentElement;
+  const headerRem = parseFloat(getComputedStyle(root).getPropertyValue("--kf-header-h")) || 3.25;
+  const headerPx = headerRem * (parseFloat(getComputedStyle(root).fontSize) || 16);
+  const rect = el.getBoundingClientRect();
+  return Math.max(0, Math.round(rect.top + window.scrollY - headerPx - RESULTS_SCROLL_GAP_PX));
+}
+
+function scrollDiscoveryToResultsOnce(): void {
+  const y = measureDiscoveryResultsScrollY();
+  window.scrollTo({ top: y, left: 0, behavior: "auto" });
+}
+
+/** Scroll to the first listing (or results block) after filter/search updates. */
+export function scrollDiscoveryToTop(): void {
+  if (typeof window === "undefined") return;
+  scrollDiscoveryToResultsOnce();
+  window.requestAnimationFrame(scrollDiscoveryToResultsOnce);
+}
+
+/** Keep scroll on results while layout settles (beats late restore/layout shifts). */
 export function scheduleScrollDiscoveryToTop(): () => void {
   if (typeof window === "undefined") return () => undefined;
 
@@ -103,16 +124,16 @@ export function scheduleScrollDiscoveryToTop(): () => void {
   const timers: number[] = [];
   let done = false;
 
-  const scrollTop = () => {
+  const scrollToResults = () => {
     if (done) return;
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    scrollDiscoveryToResultsOnce();
   };
 
-  scrollTop();
-  window.requestAnimationFrame(scrollTop);
+  scrollToResults();
+  window.requestAnimationFrame(scrollToResults);
 
   for (const delay of SCROLL_TOP_DELAYS_MS) {
-    timers.push(window.setTimeout(scrollTop, delay));
+    timers.push(window.setTimeout(scrollToResults, delay));
   }
 
   return () => {

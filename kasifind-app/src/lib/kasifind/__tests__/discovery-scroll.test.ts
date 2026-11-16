@@ -4,6 +4,8 @@ import {
   applyDiscoveryScroll,
   clearDiscoveryScroll,
   consumeDiscoveryScroll,
+  DISCOVERY_RESULTS_ANCHOR_ID,
+  measureDiscoveryResultsScrollY,
   readDiscoveryScroll,
   saveDiscoveryScroll,
   scheduleScrollDiscoveryToTop,
@@ -55,38 +57,27 @@ test("saveDiscoveryScroll round-trips via consume", () => {
   }
 });
 
-test("scrollDiscoveryToTop scrolls to 0", () => {
+function installResultsScrollMocks(opts: { scrollY?: number; anchorTop?: number; listingTop?: number }) {
+  const scrollY = opts.scrollY ?? 120;
+  const anchorTop = opts.anchorTop ?? 640;
+  const listingTop = opts.listingTop ?? 520;
   const scrollCalls: number[] = [];
+
+  const listingEl = {
+    getBoundingClientRect: () => ({ top: listingTop }),
+  };
+  const anchorEl = {
+    getBoundingClientRect: () => ({ top: anchorTop }),
+  };
+
   const originalWindow = globalThis.window;
+  const originalDocument = globalThis.document;
+
   Object.defineProperty(globalThis, "window", {
     configurable: true,
     value: {
       ...globalThis,
-      scrollTo: (opts: { top: number }) => {
-        scrollCalls.push(opts.top);
-      },
-      requestAnimationFrame: (fn: FrameRequestCallback) => {
-        fn(0);
-        return 0;
-      },
-    },
-  });
-
-  try {
-    scrollDiscoveryToTop();
-    assert.deepEqual(scrollCalls, [0, 0]);
-  } finally {
-    Object.defineProperty(globalThis, "window", { configurable: true, value: originalWindow });
-  }
-});
-
-test("scheduleScrollDiscoveryToTop scrolls to 0 on delayed attempts", () => {
-  const scrollCalls: number[] = [];
-  const originalWindow = globalThis.window;
-  Object.defineProperty(globalThis, "window", {
-    configurable: true,
-    value: {
-      ...globalThis,
+      scrollY,
       scrollTo: (opts: { top: number }) => {
         scrollCalls.push(opts.top);
       },
@@ -103,13 +94,66 @@ test("scheduleScrollDiscoveryToTop scrolls to 0 on delayed attempts", () => {
     },
   });
 
+  Object.defineProperty(globalThis, "document", {
+    configurable: true,
+    value: {
+      querySelector: (sel: string) => (sel.includes("data-kf-listing-id") ? listingEl : null),
+      getElementById: (id: string) => (id === DISCOVERY_RESULTS_ANCHOR_ID ? anchorEl : null),
+      documentElement: {
+        style: {},
+      },
+    },
+  });
+
+  Object.defineProperty(globalThis, "getComputedStyle", {
+    configurable: true,
+    value: () => ({
+      getPropertyValue: (name: string) => {
+        if (name === "--kf-header-h") return "3.25";
+        if (name === "font-size") return "16px";
+        return "";
+      },
+      fontSize: "16px",
+    }),
+  });
+
+  return {
+    scrollCalls,
+    restore() {
+      Object.defineProperty(globalThis, "window", { configurable: true, value: originalWindow });
+      Object.defineProperty(globalThis, "document", { configurable: true, value: originalDocument });
+    },
+  };
+}
+
+test("measureDiscoveryResultsScrollY prefers first listing card", () => {
+  const mocks = installResultsScrollMocks({ scrollY: 100, listingTop: 520 });
+  try {
+    assert.equal(measureDiscoveryResultsScrollY(), 560);
+  } finally {
+    mocks.restore();
+  }
+});
+
+test("scrollDiscoveryToTop scrolls to measured results Y", () => {
+  const mocks = installResultsScrollMocks({ scrollY: 0, listingTop: 400 });
+  try {
+    scrollDiscoveryToTop();
+    assert.deepEqual(mocks.scrollCalls, [340, 340]);
+  } finally {
+    mocks.restore();
+  }
+});
+
+test("scheduleScrollDiscoveryToTop scrolls to results on delayed attempts", () => {
+  const mocks = installResultsScrollMocks({ scrollY: 0, listingTop: 400 });
   try {
     const cancel = scheduleScrollDiscoveryToTop();
-    assert.ok(scrollCalls.length >= 2);
-    assert.ok(scrollCalls.every((y) => y === 0));
+    assert.ok(mocks.scrollCalls.length >= 2);
+    assert.ok(mocks.scrollCalls.every((y) => y === 340));
     cancel();
   } finally {
-    Object.defineProperty(globalThis, "window", { configurable: true, value: originalWindow });
+    mocks.restore();
   }
 });
 
