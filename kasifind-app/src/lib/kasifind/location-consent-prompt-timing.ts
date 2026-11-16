@@ -1,8 +1,8 @@
-/** Homepage intro gate — defer location consent until cinematic intro finishes. */
-export type KfHomeIntroGate = "pending" | "play" | "off";
+/** Homepage landing veil — defer location consent until fade-in finishes. */
+export type KfHomeIntroGate = "pending" | "fading" | "off";
 
 export function shouldDeferHomeLocationConsentPrompt(introGate: KfHomeIntroGate): boolean {
-  return introGate === "pending" || introGate === "play";
+  return introGate === "pending" || introGate === "fading";
 }
 
 /** Brief pause after intro veil clears so the prompt appears over the homepage. */

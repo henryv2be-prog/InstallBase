@@ -271,7 +271,37 @@
   line-height: 1.2;
 }
 
-/* —— Cinematic category flash intro (first visit per session) —— */
+/* —— Home landing veil (first visit per session) —— */
+.kf-home-landing-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+}
+
+.kf-home-landing-veil--reveal {
+  animation: kf-home-landing-veil-reveal 1100ms ease-out forwards;
+}
+
+@keyframes kf-home-landing-veil-reveal {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kf-home-landing-veil--reveal {
+    animation: none;
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* —— Cinematic category flash intro (legacy / optional) —— */
 .kf-category-flash {
   position: fixed;
   inset: 0;
