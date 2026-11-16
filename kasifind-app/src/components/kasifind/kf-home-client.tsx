@@ -21,11 +21,7 @@ import {
   type KfDiscoveryLocation,
   type KfRadiusMode,
 } from "@/lib/kasifind/discovery-state";
-import {
-  applyDiscoveryScroll,
-  consumeDiscoveryScroll,
-  type DiscoveryScrollBookmark,
-} from "@/lib/kasifind/discovery-scroll";
+import { useDiscoveryScrollRestore } from "@/components/kasifind/use-discovery-scroll-restore";
 import {
   DISCOVERY_RADIUS_CHIPS_KM,
   formatDiscoveryResultsSubtitle,
@@ -117,7 +113,7 @@ export function KfHomeClient({
   const [locationSheetView, setLocationSheetView] = useState<"menu" | "area">("menu");
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const searchGenerationRef = useRef(0);
-  const scrollRestoreRef = useRef<DiscoveryScrollBookmark | null>(null);
+  const [searchHasRun, setSearchHasRun] = useState(false);
   const slidesEligibleForIntro =
     categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES;
   const [introGate, setIntroGate] = useState<"pending" | "play" | "off">(() =>
@@ -153,9 +149,14 @@ export function KfHomeClient({
         }
       }
     }
-    scrollRestoreRef.current = consumeDiscoveryScroll();
     setFiltersHydrated(true);
   }, []);
+
+  useDiscoveryScrollRestore({
+    ready: filtersHydrated,
+    loading,
+    hasSearchRun: searchHasRun,
+  });
 
   useEffect(() => {
     if (!filtersHydrated) return;
@@ -299,6 +300,9 @@ export function KfHomeClient({
       } catch {
         setError("Network error. Check your connection and try again.");
       } finally {
+        if (generation === searchGenerationRef.current) {
+          setSearchHasRun(true);
+        }
         setLoading(false);
       }
     },
@@ -322,16 +326,6 @@ export function KfHomeClient({
     void runSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when location source changes
   }, [dbConfigured, filtersHydrated, location]);
-
-  useLayoutEffect(() => {
-    const bookmark = scrollRestoreRef.current;
-    if (!bookmark || !filtersHydrated) return;
-    if (loading) return;
-    scrollRestoreRef.current = null;
-    applyDiscoveryScroll(bookmark);
-    const late = window.setTimeout(() => applyDiscoveryScroll(bookmark), 350);
-    return () => window.clearTimeout(late);
-  }, [filtersHydrated, loading, results.length]);
 
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.permissions?.query) return;

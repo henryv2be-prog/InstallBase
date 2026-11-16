@@ -74,8 +74,10 @@ export function KfProviderCard({
       <Link
         href={`/providers/${p.id}`}
         className="block group"
-        onClick={() => {
-          if (preserveDiscoveryScroll) saveDiscoveryScroll(p.id);
+        scroll={false}
+        onPointerDown={(e) => {
+          if (!preserveDiscoveryScroll || e.button !== 0) return;
+          saveDiscoveryScroll(p.id);
         }}
       >
         <div className="kf-provider-media">
