@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from "react";
 import {
   alternateListingImageSrc,
   resolveListingImageSrc,
@@ -12,6 +12,7 @@ type Props = {
   className?: string;
   /** Load immediately (search cards, hero photos). */
   priority?: boolean;
+  onLoad?: (event: SyntheticEvent<HTMLImageElement>) => void;
 };
 
 function withCacheBust(url: string): string {
@@ -52,7 +53,7 @@ function useShouldLoadImage(priority: boolean) {
   return { ref, shouldLoad };
 }
 
-export function KfListingImage({ src, alt, className, priority = false }: Props) {
+export function KfListingImage({ src, alt, className, priority = false, onLoad }: Props) {
   const originalSrc = src.trim();
   const { ref, shouldLoad } = useShouldLoadImage(priority);
   const [currentSrc, setCurrentSrc] = useState(() =>
@@ -122,6 +123,7 @@ export function KfListingImage({ src, alt, className, priority = false }: Props)
         decoding="async"
         referrerPolicy="same-origin"
         onError={onError}
+        onLoad={onLoad}
       />
     </div>
   );
