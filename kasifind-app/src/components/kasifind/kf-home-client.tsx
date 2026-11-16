@@ -34,11 +34,10 @@ import {
 import { KfLocationConsentDialog } from "@/components/kasifind/kf-location-consent-dialog";
 import { KfLocationSheet } from "@/components/kasifind/kf-location-sheet";
 import type { GeocodeHit } from "@/lib/kasifind/geocode-utils";
-import { KfCategoryFlashIntro } from "@/components/kasifind/kf-category-flash-intro";
 import {
-  CATEGORY_FLASH_MIN_SLIDES,
+  HOME_LANDING_FADE_MS,
+  markCategoryFlashIntroPlayed,
   shouldPlayCategoryFlashIntro,
-  type CategoryFlashSlide,
 } from "@/lib/kasifind/category-flash-intro";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
@@ -93,13 +92,13 @@ export type KfProviderListCta = {
   shareEnabled?: boolean;
 };
 
+type LandingVeilPhase = "pending" | "fading" | "off";
+
 export function KfHomeClient({
   dbConfigured,
-  categoryFlashSlides = [],
   providerListCta = null,
 }: {
   dbConfigured: boolean;
-  categoryFlashSlides?: CategoryFlashSlide[];
   providerListCta?: KfProviderListCta | null;
 }) {
   const [location, setLocation] = useState<LocationState>({
@@ -161,20 +160,31 @@ export function KfHomeClient({
     keepVisible: loading,
   });
   const [searchHasRun, setSearchHasRun] = useState(false);
-  const slidesEligibleForIntro =
-    categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES;
-  const [introGate, setIntroGate] = useState<"pending" | "play" | "off">(() =>
-    slidesEligibleForIntro ? "pending" : "off"
+  const [landingVeil, setLandingVeil] = useState<LandingVeilPhase>(() =>
+    shouldPlayCategoryFlashIntro() ? "pending" : "off"
   );
-  const dismissCategoryFlash = useCallback(() => setIntroGate("off"), []);
 
   useLayoutEffect(() => {
-    if (!slidesEligibleForIntro) {
-      setIntroGate("off");
+    if (landingVeil !== "pending") return;
+    if (!shouldPlayCategoryFlashIntro()) {
+      setLandingVeil("off");
       return;
     }
-    setIntroGate(shouldPlayCategoryFlashIntro() ? "play" : "off");
-  }, [slidesEligibleForIntro]);
+    const startFade = () => {
+      markCategoryFlashIntroPlayed();
+      setLandingVeil("fading");
+    };
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(startFade);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [landingVeil]);
+
+  useEffect(() => {
+    if (landingVeil !== "fading") return;
+    const timer = window.setTimeout(() => setLandingVeil("off"), HOME_LANDING_FADE_MS);
+    return () => window.clearTimeout(timer);
+  }, [landingVeil]);
 
   useEffect(() => {
     const saved = readDiscoveryState();
@@ -557,13 +567,13 @@ export function KfHomeClient({
 
   return (
     <div className="kf-home-landing pb-2">
-      {introGate === "pending" && slidesEligibleForIntro ? (
-        <div className="kf-category-flash kf-category-flash--page-veil" aria-hidden role="presentation" />
-      ) : null}
-      {introGate === "play" ? (
-        <KfCategoryFlashIntro
-          slides={categoryFlashSlides}
-          onComplete={dismissCategoryFlash}
+      {landingVeil !== "off" ? (
+        <div
+          className={`kf-home-landing-veil kf-category-flash--page-veil${
+            landingVeil === "fading" ? " kf-home-landing-veil--reveal" : ""
+          }`}
+          aria-hidden
+          role="presentation"
         />
       ) : null}
       <KfLocationConsentDialog

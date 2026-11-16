@@ -1,5 +1,8 @@
 export const CATEGORY_FLASH_SESSION_KEY = "kf-category-flash-v6";
 
+/** Soft fade from ivory veil into homepage (first visit per session). */
+export const HOME_LANDING_FADE_MS = 1100;
+
 export const CATEGORY_FLASH_MIN_SLIDES = 1;
 
 /** ~2.5s cinematic sequence (montage + hero + landing fade) — keep search reachable quickly. */

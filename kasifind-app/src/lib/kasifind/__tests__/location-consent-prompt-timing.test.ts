@@ -5,9 +5,9 @@ import {
   shouldDeferHomeLocationConsentPrompt,
 } from "../location-consent-prompt-timing";
 
-test("location consent waits until intro montage and logo fade complete", () => {
+test("location consent waits until landing veil fade completes", () => {
   assert.equal(shouldDeferHomeLocationConsentPrompt("pending"), true);
-  assert.equal(shouldDeferHomeLocationConsentPrompt("play"), true);
+  assert.equal(shouldDeferHomeLocationConsentPrompt("fading"), true);
   assert.equal(shouldDeferHomeLocationConsentPrompt("off"), false);
 });
 
