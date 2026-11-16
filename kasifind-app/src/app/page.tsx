@@ -23,10 +23,10 @@ export default async function KasiFindHomePage() {
     if (user) {
       const listing = await getListingForUser(user.id).catch(() => null);
       providerListCta = {
-        href: "/account/listing",
-        label: listing ? "Manage your listing" : "Create your free listing",
+        href: "/account",
+        label: listing ? "My business hub" : "Create your free listing",
         hint: listing
-          ? "Update photos, services, and publish from your dashboard."
+          ? "View insights, edit your listing, and share with customers."
           : "Set up in minutes — no company registration required.",
         listingId: listing?.id ?? null,
         displayName: listing?.displayName ?? null,

@@ -8,7 +8,14 @@ import { countMissingLocalUploads } from "@/lib/kasifind/upload-asset";
 import { KfListingAssistanceProvider } from "@/components/kasifind/kf-listing-assistance-provider";
 import { canProviderSubmitListingAssistance } from "@/lib/kasifind/listing-assistance-status";
 import { getProviderListingAssistanceRequest } from "@/lib/kasifind/listing-assistance";
+import { loginPathWithNext } from "@/lib/kasifind/auth-redirect";
+import { KfProviderHubNav } from "@/components/kasifind/kf-provider-hub-nav";
+
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Edit listing",
+};
 
 export default async function KfListingEditorPage() {
   if (!isKasiFindDbConfigured()) {
@@ -20,7 +27,6 @@ export default async function KfListingEditorPage() {
   }
 
   const user = await getKasiFindSessionUser();
-
   const categories = await listKfCategories();
 
   if (!user) {
@@ -87,6 +93,7 @@ export default async function KfListingEditorPage() {
         currentRequest={assistanceRequest}
       >
         <div className="kf-listing-page-flow kf-listing-page-classic">
+          <KfProviderHubNav />
           {missingPhotoCount > 0 ? (
             <div className="kf-alert-info kf-listing-flow-alert" role="status">
               <strong>

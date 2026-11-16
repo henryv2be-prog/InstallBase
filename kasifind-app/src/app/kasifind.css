@@ -1907,6 +1907,48 @@
   color: #fff;
 }
 
+.kf-provider-hub-nav {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding: 0.2rem;
+  margin-bottom: 0.25rem;
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-surface);
+  border: 1px solid var(--kf-border);
+  -webkit-overflow-scrolling: touch;
+}
+
+.kf-provider-hub-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1 1 auto;
+  justify-content: center;
+  min-width: 5.5rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--kf-radius-md);
+  color: var(--kf-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.kf-provider-hub-nav-link:hover {
+  color: var(--kf-forest);
+  background: color-mix(in srgb, var(--kf-forest) 8%, white);
+}
+
+.kf-provider-hub-nav-link--active {
+  color: var(--kf-forest);
+  background: color-mix(in srgb, var(--kf-forest) 12%, white);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kf-forest) 22%, var(--kf-border));
+}
+
 .kf-status-chip {
   display: inline-flex;
   align-items: center;

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { getKasiFindSessionUser } from "@/lib/kasifind/session";
@@ -7,6 +6,7 @@ import { getProviderListingAssistanceRequest } from "@/lib/kasifind/listing-assi
 import { canProviderSubmitListingAssistance } from "@/lib/kasifind/listing-assistance-status";
 import { KfListingSupportPanel } from "@/components/kasifind/kf-listing-support-panel";
 import { loginPathWithNext } from "@/lib/kasifind/auth-redirect";
+import { KfProviderHubNav } from "@/components/kasifind/kf-provider-hub-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -35,11 +35,9 @@ export default async function ListingSupportPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <Link href="/account/insights" className="text-sm underline text-[var(--kf-muted)]">
-        ← Back to insights
-      </Link>
+      <KfProviderHubNav />
       <p className="text-xs font-semibold uppercase tracking-wider text-[var(--kf-muted)]">
-        Provider services
+        Business hub
       </p>
       <h1 className="text-2xl font-bold tracking-tight text-[var(--kf-charcoal)]">Listing support</h1>
       <KfListingSupportPanel
