@@ -5,6 +5,21 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 const HEADER_OFFSET_PX = 52;
 const SCROLL_DELTA_HIDE = 18;
 const SCROLL_TOP_REVEAL = 48;
+const SCROLL_BLUR_THRESHOLD_PX = 6;
+const TOUCH_SCROLL_BLUR_PX = 10;
+
+function blurSearchFieldInBar(bar: HTMLElement | null): void {
+  if (!bar || typeof document === "undefined") return;
+  const active = document.activeElement;
+  if (!active || !bar.contains(active)) return;
+  if (
+    active instanceof HTMLInputElement ||
+    active instanceof HTMLTextAreaElement ||
+    active instanceof HTMLSelectElement
+  ) {
+    active.blur();
+  }
+}
 
 type PinState = {
   pinned: boolean;
@@ -99,6 +114,14 @@ export function useHomeSearchBarPin(
       setPinned(isPinned);
       const delta = y - lastScrollY.current;
 
+      if (
+        !shouldBlockHideForSearch() &&
+        Math.abs(delta) >= SCROLL_BLUR_THRESHOLD_PX &&
+        interactionLockRef.current
+      ) {
+        blurSearchFieldInBar(barRef.current);
+      }
+
       if (shouldBlockHideForSearch()) {
         setHidden(false);
         lastScrollY.current = y;
@@ -133,6 +156,26 @@ export function useHomeSearchBarPin(
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
 
+    let touchStartY = 0;
+    const onTouchStart = (event: TouchEvent) => {
+      touchStartY = event.touches[0]?.clientY ?? 0;
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      if (shouldBlockHideForSearch() || !interactionLockRef.current) return;
+      const y = event.touches[0]?.clientY ?? touchStartY;
+      if (Math.abs(y - touchStartY) >= TOUCH_SCROLL_BLUR_PX) {
+        blurSearchFieldInBar(barRef.current);
+      }
+    };
+    const onWheel = () => {
+      if (shouldBlockHideForSearch() || !interactionLockRef.current) return;
+      blurSearchFieldInBar(barRef.current);
+    };
+
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("wheel", onWheel, { passive: true });
+
     const viewport = window.visualViewport;
     const onViewportChange = () => {
       lastScrollY.current = window.scrollY;
@@ -144,6 +187,9 @@ export function useHomeSearchBarPin(
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("wheel", onWheel);
       viewport?.removeEventListener("resize", onViewportChange);
       viewport?.removeEventListener("scroll", onViewportChange);
     };
