@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 
 const HEADER_OFFSET_PX = 52;
-const SCROLL_DELTA_HIDE = 12;
+const SCROLL_DELTA_HIDE = 18;
 const SCROLL_TOP_REVEAL = 48;
 
 type PinState = {
@@ -12,15 +12,24 @@ type PinState = {
   placeholderHeight: number;
 };
 
+type PinOptions = {
+  /** When true, keep the pinned bar visible (e.g. during live search / programmatic scroll). */
+  suppressHideRef?: RefObject<boolean>;
+  /** Keep visible while live search is in flight. */
+  keepVisible?: boolean;
+};
+
 export function useHomeSearchBarPin(
   anchorRef: RefObject<HTMLElement | null>,
-  barRef: RefObject<HTMLElement | null>
+  barRef: RefObject<HTMLElement | null>,
+  options?: PinOptions
 ): PinState {
   const [pinned, setPinned] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [placeholderHeight, setPlaceholderHeight] = useState(0);
   const lastScrollY = useRef(0);
   const pinStartY = useRef<number | null>(null);
+  const interactionLockRef = useRef(false);
 
   useEffect(() => {
     const measureBar = () => {
@@ -28,8 +37,53 @@ export function useHomeSearchBarPin(
     };
     measureBar();
     window.addEventListener("resize", measureBar);
-    return () => window.removeEventListener("resize", measureBar);
+    const bar = barRef.current;
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined" && bar
+        ? new ResizeObserver(measureBar)
+        : null;
+    resizeObserver?.observe(bar);
+    return () => {
+      window.removeEventListener("resize", measureBar);
+      resizeObserver?.disconnect();
+    };
   }, [barRef]);
+
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement
+      ) {
+        interactionLockRef.current = true;
+        setHidden(false);
+      }
+    };
+
+    const onFocusOut = (event: FocusEvent) => {
+      const next = event.relatedTarget;
+      if (!next || !bar.contains(next as Node)) {
+        interactionLockRef.current = false;
+      }
+    };
+
+    bar.addEventListener("focusin", onFocusIn);
+    bar.addEventListener("focusout", onFocusOut);
+    return () => {
+      bar.removeEventListener("focusin", onFocusIn);
+      bar.removeEventListener("focusout", onFocusOut);
+    };
+  }, [barRef]);
+
+  const shouldKeepVisible = () =>
+    interactionLockRef.current ||
+    Boolean(options?.keepVisible) ||
+    Boolean(options?.suppressHideRef?.current);
 
   useEffect(() => {
     const resolvePinStart = () => {
@@ -46,6 +100,12 @@ export function useHomeSearchBarPin(
 
       setPinned(isPinned);
 
+      if (shouldKeepVisible()) {
+        setHidden(false);
+        lastScrollY.current = y;
+        return;
+      }
+
       if (y < SCROLL_TOP_REVEAL) {
         setHidden(false);
       } else if (isPinned) {
@@ -59,19 +119,36 @@ export function useHomeSearchBarPin(
       lastScrollY.current = y;
     };
 
-    resolvePinStart();
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", () => {
+    const onResize = () => {
       pinStartY.current = null;
       resolvePinStart();
       onScroll();
-    });
+    };
+
+    resolvePinStart();
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+
+    const viewport = window.visualViewport;
+    const onViewportChange = () => {
+      lastScrollY.current = window.scrollY;
+      if (shouldKeepVisible()) setHidden(false);
+    };
+    viewport?.addEventListener("resize", onViewportChange);
+    viewport?.addEventListener("scroll", onViewportChange);
 
     return () => {
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      viewport?.removeEventListener("resize", onViewportChange);
+      viewport?.removeEventListener("scroll", onViewportChange);
     };
-  }, [anchorRef, barRef]);
+  }, [anchorRef, barRef, options?.keepVisible, options?.suppressHideRef]);
+
+  useEffect(() => {
+    if (options?.keepVisible) setHidden(false);
+  }, [options?.keepVisible]);
 
   return { pinned, hidden, placeholderHeight };
 }
