@@ -132,7 +132,7 @@ export function KfHomeClient({
   const searchPinAnchorRef = useRef<HTMLDivElement>(null);
   const searchBarRef = useRef<HTMLDivElement>(null);
   const suppressSearchBarHideRef = useRef(false);
-  const suppressSearchBarHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const suppressSearchBarHideTimerRef = useRef<number | null>(null);
   const debouncedQuery = useDebouncedValue(query, 400);
 
   const holdSearchBarVisible = useCallback(() => {
