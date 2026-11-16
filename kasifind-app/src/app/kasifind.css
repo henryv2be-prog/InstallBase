@@ -4705,6 +4705,120 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   pointer-events: none;
 }
 
+/* —— Listing detail tabs —— */
+.kf-listing-tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.kf-listing-tabs-scroll {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem 0.65rem 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid var(--kf-border);
+  scrollbar-width: none;
+}
+
+.kf-listing-tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.kf-listing-tab {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: var(--kf-touch-min);
+  padding: 0.45rem 0.85rem;
+  font-family: inherit;
+  font-size: var(--kf-text-sm);
+  font-weight: 600;
+  color: var(--kf-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--kf-radius-md) var(--kf-radius-md) 0 0;
+  cursor: pointer;
+  transition:
+    color var(--kf-duration) var(--kf-ease),
+    background var(--kf-duration) var(--kf-ease);
+}
+
+.kf-listing-tab:hover {
+  color: var(--kf-charcoal);
+  background: color-mix(in srgb, var(--kf-stone) 65%, transparent);
+}
+
+.kf-listing-tab:focus-visible {
+  outline: 2px solid var(--kf-orange);
+  outline-offset: 2px;
+}
+
+.kf-listing-tab--active {
+  color: var(--kf-forest);
+  background: color-mix(in srgb, var(--kf-forest) 8%, var(--kf-surface));
+  box-shadow: inset 0 -2px 0 var(--kf-orange);
+}
+
+.kf-listing-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--kf-forest);
+  background: var(--kf-forest-soft);
+  border-radius: var(--kf-radius-full);
+}
+
+.kf-listing-tab-panel {
+  padding: 1rem 1rem 1.25rem;
+}
+
+.kf-listing-tab-panel[hidden] {
+  display: none;
+}
+
+.kf-listing-service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kf-listing-service-item {
+  padding: 0.65rem 0.85rem;
+  font-size: var(--kf-text-sm);
+  font-weight: 600;
+  color: var(--kf-text);
+  background: var(--kf-ivory);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+}
+
+@media (min-width: 640px) {
+  .kf-listing-tabs-scroll {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .kf-listing-tab-panel {
+    padding: 1.15rem 1.25rem 1.35rem;
+  }
+
+  .kf-listing-service-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+}
+
 html.kf-photo-lightbox-open,
 html.kf-photo-lightbox-open body {
   overscroll-behavior: none;

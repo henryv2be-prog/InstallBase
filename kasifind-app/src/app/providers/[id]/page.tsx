@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Building2, MapPin, MessageSquare, ShieldCheck, Sparkles, Star } from "lucide-react";
-import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
+import { ArrowLeft, Building2, MapPin, ShieldCheck, Sparkles } from "lucide-react";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { resolveProviderListingPage } from "@/lib/kasifind/listing-public";
 import { getKasiFindSessionUser } from "@/lib/kasifind/session";
@@ -11,8 +10,7 @@ import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
 import { publicAssetUrl, siteOriginFromHeaders } from "@/lib/kasifind/public-asset-url";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { KfListingProfileHero } from "@/components/kasifind/kf-listing-profile-hero";
-import { KfWorkPhotoGallery } from "@/components/kasifind/kf-work-photo-gallery";
-import { KfReviewForm } from "@/components/kasifind/kf-review-form";
+import { KfListingDetailTabs } from "@/components/kasifind/kf-listing-detail-tabs";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
 import { KfListingContactFooter } from "@/components/kasifind/kf-listing-contact-footer";
 import { KfTrackListingView } from "@/components/kasifind/kf-track-listing-view";
@@ -199,62 +197,29 @@ export default async function KasiFindProviderPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="border-t border-[var(--kf-border)] p-6">
-          <div className="flex flex-wrap gap-2">
-            {listing.categories.map((c) => (
-              <span key={c.slug} className="kf-chip">
-                {c.name}
-              </span>
-            ))}
-          </div>
-
-          <p className="mt-4 whitespace-pre-wrap leading-relaxed text-[var(--kf-text)]">
-            {listing.description}
-          </p>
-
-          {listing.services.length > 0 && (
-            <ul className="mt-4 flex flex-wrap gap-2">
-              {listing.services.map((s) => (
-                <li
-                  key={s.name}
-                  className="rounded-md border border-[var(--kf-border)] bg-[var(--kf-ivory)] px-3 py-1.5 text-sm font-medium"
-                >
-                  {s.name}
-                </li>
-              ))}
-            </ul>
-          )}
-
-        </div>
       </header>
+
+      <KfListingDetailTabs
+        listingId={listing.id}
+        ownerPreview={ownerPreview}
+        description={listing.description}
+        categories={listing.categories}
+        services={listing.services}
+        photos={listing.photos.map((url, i) => ({
+          src: publicAssetUrl(url, siteOrigin),
+          alt: `Work sample ${i + 1} from ${listing.displayName}`,
+        }))}
+        reviews={listing.reviews.map((r) => ({
+          id: r.id,
+          rating: r.rating,
+          body: r.body,
+          authorName: r.authorName,
+        }))}
+      />
 
       <div id="kf-listing-map" className="mt-8 kf-animate-in">
         <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
       </div>
-
-      <section className="mt-8 kf-animate-in">
-        <h2 className="kf-section-title">Work gallery</h2>
-        <p className="kf-section-sub mt-1">
-          Tap a photo to enlarge{listing.photos.length > 1 ? " and swipe between shots" : ""}.
-        </p>
-        {listing.photos.length > 0 ? (
-          <KfWorkPhotoGallery
-            className="mt-4"
-            priorityFirst
-            photos={listing.photos.map((url, i) => ({
-              src: publicAssetUrl(url, siteOrigin),
-              alt: `Work sample ${i + 1} from ${listing.displayName}`,
-            }))}
-          />
-        ) : (
-          <div className="mt-4">
-            <KfEmptyState
-              title="No work photos yet"
-              description="This provider has not uploaded gallery photos. You can still message them to ask for examples of past jobs."
-            />
-          </div>
-        )}
-      </section>
 
       <div className="kf-card mt-8 overflow-hidden kf-animate-in">
         <KfListingContactFooter
@@ -265,41 +230,6 @@ export default async function KasiFindProviderPage({ params }: Props) {
           directionsUrl={directionsUrl}
         />
       </div>
-
-      <section id="kf-listing-reviews" className="kf-card mt-8 p-6 kf-animate-in">
-        <h2 className="kf-section-title">Community reviews</h2>
-        <p className="mt-1 text-xs text-[var(--kf-muted)]">
-          KasiFind is growing — honest reviews from real customers help build trust over time.
-        </p>
-        <ul className="mt-4 space-y-4">
-          {listing.reviews.length === 0 ? (
-            <li>
-              <KfEmptyState
-                icon={<MessageSquare className="h-6 w-6" aria-hidden />}
-                title="Be the first to review"
-                description="Used this provider? Your experience helps others in the community. There is no pressure — only share if you have genuinely worked with them."
-              />
-            </li>
-          ) : (
-            listing.reviews.map((r) => (
-              <li key={r.id} className="border-t border-[var(--kf-border)] pt-4 first:border-0 first:pt-0">
-                <p className="flex items-center gap-1 text-sm font-semibold">
-                  <Star className="h-3.5 w-3.5 fill-[var(--kf-ochre)] text-[var(--kf-ochre)]" aria-hidden />
-                  {r.rating}/5 · {r.authorName ?? "Community member"}
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--kf-text)]">{r.body}</p>
-              </li>
-            ))
-          )}
-        </ul>
-        {ownerPreview ? (
-          <p className="mt-4 text-sm text-[var(--kf-muted)]">
-            Reviews open once your listing is live for everyone.
-          </p>
-        ) : (
-          <KfReviewForm listingId={listing.id} />
-        )}
-      </section>
 
       {!ownerPreview ? (
         <KfListingNearbySection listingId={listing.id} categorySlug={primaryCategory?.slug ?? null} />
