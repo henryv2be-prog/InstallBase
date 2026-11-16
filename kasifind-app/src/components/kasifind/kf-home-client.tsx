@@ -22,6 +22,11 @@ import {
   type KfRadiusMode,
 } from "@/lib/kasifind/discovery-state";
 import {
+  applyDiscoveryScroll,
+  consumeDiscoveryScroll,
+  type DiscoveryScrollBookmark,
+} from "@/lib/kasifind/discovery-scroll";
+import {
   DISCOVERY_RADIUS_CHIPS_KM,
   formatDiscoveryResultsSubtitle,
   locationModeLabel,
@@ -112,6 +117,7 @@ export function KfHomeClient({
   const [locationSheetView, setLocationSheetView] = useState<"menu" | "area">("menu");
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const searchGenerationRef = useRef(0);
+  const scrollRestoreRef = useRef<DiscoveryScrollBookmark | null>(null);
   const slidesEligibleForIntro =
     categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES;
   const [introGate, setIntroGate] = useState<"pending" | "play" | "off">(() =>
@@ -147,6 +153,7 @@ export function KfHomeClient({
         }
       }
     }
+    scrollRestoreRef.current = consumeDiscoveryScroll();
     setFiltersHydrated(true);
   }, []);
 
@@ -315,6 +322,16 @@ export function KfHomeClient({
     void runSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when location source changes
   }, [dbConfigured, filtersHydrated, location]);
+
+  useLayoutEffect(() => {
+    const bookmark = scrollRestoreRef.current;
+    if (!bookmark || !filtersHydrated) return;
+    if (loading) return;
+    scrollRestoreRef.current = null;
+    applyDiscoveryScroll(bookmark);
+    const late = window.setTimeout(() => applyDiscoveryScroll(bookmark), 350);
+    return () => window.clearTimeout(late);
+  }, [filtersHydrated, loading, results.length]);
 
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.permissions?.query) return;
@@ -795,6 +812,7 @@ export function KfHomeClient({
                   index={i}
                   impressionScopeKey={impressionScopeKey}
                   contactCtaLabel={contactCtaLabels.get(p.id)}
+                  preserveDiscoveryScroll
                 />
               ))}
             </ul>

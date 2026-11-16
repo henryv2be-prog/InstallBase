@@ -15,6 +15,7 @@ import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp
 import { useKfListingImpression } from "@/components/kasifind/use-kf-listing-impression";
 import { KfListingContactFooter } from "@/components/kasifind/kf-listing-contact-footer";
 import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
+import { saveDiscoveryScroll } from "@/lib/kasifind/discovery-scroll";
 
 type Props = {
   provider: KfSearchResult;
@@ -24,6 +25,8 @@ type Props = {
   impressionScopeKey?: string | null;
   /** Playful footer line; omit to hide footer label only when no contact row. */
   contactCtaLabel?: string;
+  /** When set, remember homepage scroll so back from the listing restores this card. */
+  preserveDiscoveryScroll?: boolean;
 };
 
 function phoneDigits(phone: string): string {
@@ -40,6 +43,7 @@ export function KfProviderCard({
   index = 0,
   impressionScopeKey = null,
   contactCtaLabel,
+  preserveDiscoveryScroll = false,
 }: Props) {
   const impressionRef = useKfListingImpression(p.id, impressionScopeKey);
   const waPhone = (p.whatsapp || p.phone || "").trim();
@@ -64,9 +68,16 @@ export function KfProviderCard({
   return (
     <li
       ref={impressionRef}
+      data-kf-listing-id={p.id}
       className="kf-card kf-card-interactive kf-glow-border kf-provider-card overflow-hidden"
     >
-      <Link href={`/providers/${p.id}`} className="block group">
+      <Link
+        href={`/providers/${p.id}`}
+        className="block group"
+        onClick={() => {
+          if (preserveDiscoveryScroll) saveDiscoveryScroll(p.id);
+        }}
+      >
         <div className="kf-provider-media">
           <KfProviderCardGallery
             photos={cardPhotos}
