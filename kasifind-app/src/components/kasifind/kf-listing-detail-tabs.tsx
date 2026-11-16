@@ -89,6 +89,11 @@ export function KfListingDetailTabs({
     }
   }, []);
 
+  useEffect(() => {
+    const tabEl = document.getElementById(`${baseId}-tab-${activeTab}`);
+    tabEl?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+  }, [activeTab, baseId]);
+
   const counts: Record<KfListingDetailTab, number | null> = {
     about: null,
     services: services.length > 0 ? services.length : null,
@@ -97,7 +102,10 @@ export function KfListingDetailTabs({
   };
 
   return (
-    <section className="kf-card mt-5 overflow-hidden kf-animate-in" aria-labelledby={`${baseId}-heading`}>
+    <section
+      className="kf-card kf-listing-detail-tabs-card mt-3 kf-animate-in sm:mt-4"
+      aria-labelledby={`${baseId}-heading`}
+    >
       <h2 id={`${baseId}-heading`} className="sr-only">
         Business details
       </h2>

@@ -125,7 +125,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
         </div>
       ) : null}
 
-      <header className="kf-card kf-listing-page-hero mt-4 overflow-hidden kf-animate-in">
+      <header className="kf-card kf-listing-page-hero mt-3 overflow-hidden kf-animate-in sm:mt-4">
         <div className="kf-trust-strip kf-listing-page-hero-trust">
           <span className="kf-trust-pill">
             <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
