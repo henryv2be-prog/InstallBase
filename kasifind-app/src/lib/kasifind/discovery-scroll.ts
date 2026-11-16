@@ -77,7 +77,7 @@ export function discoveryScrollLooksRestored(
   return rect.top >= -SCROLL_TOLERANCE_PX && rect.bottom <= viewH + SCROLL_TOLERANCE_PX;
 }
 
-const SCROLL_TOP_DELAYS_MS = [0, 50, 150, 400, 800] as const;
+const SCROLL_SMOOTH_CORRECT_MS = [720, 1150] as const;
 export const DISCOVERY_RESULTS_ANCHOR_ID = "kf-discovery-results";
 export const DISCOVERY_SEARCH_BAR_ID = "kf-home-search-sticky";
 const RESULTS_SCROLL_GAP_PX = 6;
@@ -112,19 +112,24 @@ export function measureDiscoveryResultsScrollY(): number {
   return Math.max(0, Math.round(rect.top + window.scrollY - stackPx - RESULTS_SCROLL_GAP_PX));
 }
 
-function scrollDiscoveryToResultsOnce(): void {
+function scrollDiscoveryToResults(behavior: ScrollBehavior = "auto"): void {
   const y = measureDiscoveryResultsScrollY();
-  window.scrollTo({ top: y, left: 0, behavior: "auto" });
+  window.scrollTo({ top: y, left: 0, behavior });
+}
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 /** Scroll to the first listing (or results block) after filter/search updates. */
 export function scrollDiscoveryToTop(): void {
   if (typeof window === "undefined") return;
-  scrollDiscoveryToResultsOnce();
-  window.requestAnimationFrame(scrollDiscoveryToResultsOnce);
+  const behavior = prefersReducedMotion() ? "auto" : "smooth";
+  scrollDiscoveryToResults(behavior);
 }
 
-/** Keep scroll on results while layout settles (beats late restore/layout shifts). */
+/** Smooth scroll to results, with light auto corrections after layout settles. */
 export function scheduleScrollDiscoveryToTop(): () => void {
   if (typeof window === "undefined") return () => undefined;
 
@@ -136,16 +141,15 @@ export function scheduleScrollDiscoveryToTop(): () => void {
   const timers: number[] = [];
   let done = false;
 
-  const scrollToResults = () => {
+  const run = (behavior: ScrollBehavior) => {
     if (done) return;
-    scrollDiscoveryToResultsOnce();
+    scrollDiscoveryToResults(behavior);
   };
 
-  scrollToResults();
-  window.requestAnimationFrame(scrollToResults);
+  run(prefersReducedMotion() ? "auto" : "smooth");
 
-  for (const delay of SCROLL_TOP_DELAYS_MS) {
-    timers.push(window.setTimeout(scrollToResults, delay));
+  for (const delay of SCROLL_SMOOTH_CORRECT_MS) {
+    timers.push(window.setTimeout(() => run("auto"), delay));
   }
 
   return () => {

@@ -275,12 +275,13 @@
 .kf-home-landing-veil {
   position: fixed;
   inset: 0;
-  z-index: 45;
+  z-index: 60;
   pointer-events: none;
+  opacity: 1;
 }
 
 .kf-home-landing-veil--reveal {
-  animation: kf-home-landing-veil-reveal 1100ms ease-out forwards;
+  animation: kf-home-landing-veil-reveal 1400ms ease-in-out forwards;
 }
 
 @keyframes kf-home-landing-veil-reveal {
