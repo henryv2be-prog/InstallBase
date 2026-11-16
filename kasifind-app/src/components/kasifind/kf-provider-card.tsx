@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { Navigation } from "lucide-react";
+import { Building2, MapPin, Navigation } from "lucide-react";
 import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-display";
 import type { KfSearchResult } from "@/components/kasifind/types";
 import { KfProviderCardGallery } from "@/components/kasifind/kf-provider-card-gallery";
+import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { collectListingCardPhotoUrls } from "@/lib/kasifind/listing-card-photos";
 import {
   formatDistanceKmClient,
@@ -21,11 +22,8 @@ type Props = {
   provider: KfSearchResult;
   serviceHint: string;
   index?: number;
-  /** Changes when search results / filters change; drives impression dedupe. */
   impressionScopeKey?: string | null;
-  /** Playful footer line; omit to hide footer label only when no contact row. */
   contactCtaLabel?: string;
-  /** When set, remember homepage scroll so back from the listing restores this card. */
   preserveDiscoveryScroll?: boolean;
 };
 
@@ -68,12 +66,13 @@ export function KfProviderCard({
   const primaryCategory = p.categories[0]?.name;
   const hasRating = p.reviewCount > 0 && p.averageRating !== null;
   const showDistance = hasValidDistanceKm(p.distanceKm);
+  const profileSrc = p.profileImageUrl?.trim() || cardPhotos[0] || null;
 
   return (
     <li
       ref={impressionRef}
       data-kf-listing-id={p.id}
-      className="kf-card kf-card-interactive kf-provider-card overflow-hidden"
+      className="kf-card kf-card-interactive kf-glow-border kf-provider-card overflow-hidden"
     >
       <Link
         href={`/providers/${p.id}`}
@@ -84,48 +83,66 @@ export function KfProviderCard({
           saveDiscoveryScroll(p.id);
         }}
       >
-        <div className="kf-provider-media">
+        <div className="kf-provider-media kf-provider-media--cover">
           <KfProviderCardGallery
             photos={cardPhotos}
             displayName={p.displayName}
             priority={index < 4}
           />
-          {primaryCategory || showDistance ? (
-            <div className="kf-provider-media-badges">
-              {primaryCategory ? (
-                <span className="kf-provider-category-badge">{primaryCategory}</span>
-              ) : null}
-              {showDistance ? (
-                <span className="kf-provider-distance-badge" title="Distance from your search area">
-                  <Navigation className="kf-provider-distance-badge-icon" aria-hidden />
-                  {formatDistanceKmClient(p.distanceKm)}
-                </span>
-              ) : null}
-            </div>
+          {showDistance ? (
+            <span className="kf-provider-distance-badge" title="Distance from your search area">
+              <Navigation className="kf-provider-distance-badge-icon" aria-hidden />
+              {formatDistanceKmClient(p.distanceKm)}
+            </span>
           ) : null}
         </div>
-        <div
-          className="kf-provider-card-body kf-animate-in"
-          style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
-        >
-          <h3 className="kf-provider-card-title group-hover:text-[var(--kf-forest)]">
-            {p.displayName}
-          </h3>
-          {hasRating ? (
-            <div className="kf-provider-card-rating">
-              <KfListingRatingDisplay
-                averageRating={p.averageRating!}
-                reviewCount={p.reviewCount}
-                variant="card"
+
+        <div className="kf-provider-card-body-wrap">
+          <div
+            className={`kf-provider-card-avatar${profileSrc ? "" : " kf-provider-card-avatar--placeholder"}`}
+            aria-hidden
+          >
+            {profileSrc ? (
+              <KfListingImage
+                src={profileSrc}
+                alt=""
+                className="kf-provider-card-avatar-img"
+                priority={index < 4}
               />
-            </div>
-          ) : (
-            <p className="kf-provider-card-unrated">No reviews yet</p>
-          )}
-          <p className="kf-provider-card-location">{p.locationLabel}</p>
-          {bodyPreview ? (
-            <p className="kf-provider-card-description">{bodyPreview}</p>
-          ) : null}
+            ) : (
+              <Building2 className="h-6 w-6 text-[var(--kf-muted)]" />
+            )}
+          </div>
+
+          <div
+            className="kf-provider-card-body kf-animate-in"
+            style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+          >
+            <h3 className="kf-provider-card-title group-hover:text-[var(--kf-forest)]">
+              {p.displayName}
+            </h3>
+            {primaryCategory ? (
+              <p className="kf-provider-card-category">{primaryCategory}</p>
+            ) : null}
+            {hasRating ? (
+              <div className="kf-provider-card-rating">
+                <KfListingRatingDisplay
+                  averageRating={p.averageRating!}
+                  reviewCount={p.reviewCount}
+                  variant="card"
+                />
+              </div>
+            ) : (
+              <p className="kf-provider-card-unrated">No reviews yet</p>
+            )}
+            <p className="kf-provider-card-location">
+              <MapPin className="kf-provider-card-location-icon" aria-hidden />
+              <span>{p.locationLabel}</span>
+            </p>
+            {bodyPreview ? (
+              <p className="kf-provider-card-description">{bodyPreview}</p>
+            ) : null}
+          </div>
         </div>
       </Link>
       <KfListingContactFooter
