@@ -29,10 +29,7 @@ export function KfAuthForm({
             toast.error(result.error);
             return;
           }
-          const landingHref =
-            mode === "register"
-              ? sanitizeAuthNextPath(nextPath, "/account/listing")
-              : sanitizeAuthNextPath(nextPath, "/");
+          const landingHref = sanitizeAuthNextPath(nextPath, "/account");
           router.push(landingHref);
           router.refresh();
         });

@@ -11,7 +11,7 @@ export default async function KfRegisterPage({ searchParams }: Props) {
   const nextPath = resolved.next ?? null;
   const loginHref =
     nextPath && nextPath.length > 0
-      ? loginPathWithNext(sanitizeAuthNextPath(nextPath, "/account/listing"))
+      ? loginPathWithNext(sanitizeAuthNextPath(nextPath, "/account"))
       : "/login";
 
   return (

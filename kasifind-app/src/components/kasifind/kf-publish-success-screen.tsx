@@ -28,8 +28,8 @@ export function KfPublishSuccessScreen({ listingId }: { listingId: string | null
             Preview listing
           </Link>
         ) : null}
-        <Link href="/account/listing" className="kf-btn kf-btn-primary w-full sm:w-auto">
-          Back to your listing
+        <Link href="/account" className="kf-btn kf-btn-primary w-full sm:w-auto">
+          Open business hub
         </Link>
         <Link href="/" className="kf-btn kf-btn-ghost w-full sm:w-auto">
           <Home className="h-4 w-4" aria-hidden />

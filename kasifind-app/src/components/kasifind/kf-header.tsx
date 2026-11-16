@@ -41,10 +41,7 @@ export function KfHeader({
   const isActivityMap = pathname.startsWith("/activity-map");
   const isAdmin = user?.role === "ADMIN";
   const signedIn = Boolean(user);
-  const isListingFlow =
-    pathname.startsWith("/account/listing") ||
-    pathname.startsWith("/account/insights") ||
-    pathname.startsWith("/account/listing-support");
+  const isListingFlow = pathname.startsWith("/account");
   const adminMobileMenu = isAdmin && pathname.startsWith("/admin");
   const desktopNavClass = adminMobileMenu ? "hidden lg:flex" : "hidden sm:flex";
   const mobileMenuBtnClass = adminMobileMenu ? "lg:hidden" : "sm:hidden";
@@ -68,8 +65,8 @@ export function KfHeader({
     pathname.startsWith("/activity-map") ||
     publishedListingCount === null;
 
-  const listingCtaHref = "/account/listing";
-  const listingCtaLabel = signedIn ? "My listing" : "List your business";
+  const listingCtaHref = signedIn ? "/account" : "/register";
+  const listingCtaLabel = signedIn ? "My business" : "List your business";
 
   return (
     <header className="kf-header">
@@ -96,16 +93,6 @@ export function KfHeader({
               <Map className="h-4 w-4" aria-hidden />
               Activity Map
             </Link>
-          ) : null}
-          {signedIn ? (
-            <>
-              <Link href="/account/insights" className="kf-btn kf-btn-outline text-sm">
-                Insights
-              </Link>
-              <Link href="/account/listing-support" className="kf-btn kf-btn-outline text-sm">
-                Listing support
-              </Link>
-            </>
           ) : null}
           {isAdmin ? (
             <Link href="/admin" className="kf-btn kf-btn-outline text-sm">

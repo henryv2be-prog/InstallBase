@@ -19,11 +19,11 @@ export function sanitizeAuthNextPath(
 }
 
 export function loginPathWithNext(destinationPath: string): string {
-  const safe = sanitizeAuthNextPath(destinationPath, "/account/listing");
+  const safe = sanitizeAuthNextPath(destinationPath, "/account");
   return `/login?next=${encodeURIComponent(safe)}`;
 }
 
 export function registerPathWithNext(destinationPath: string): string {
-  const safe = sanitizeAuthNextPath(destinationPath, "/account/listing");
+  const safe = sanitizeAuthNextPath(destinationPath, "/account");
   return `/register?next=${encodeURIComponent(safe)}`;
 }

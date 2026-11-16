@@ -62,8 +62,9 @@ export function KfMobileNavMenu({
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isActivityMap = pathname.startsWith("/activity-map");
+  const isHub =
+    pathname === "/account" || pathname.startsWith("/account/insights");
   const isListingEditor = pathname === "/account/listing";
-  const isInsights = pathname.startsWith("/account/insights");
   const isListingSupport = pathname.startsWith("/account/listing-support");
   const onAdmin = pathname.startsWith("/admin");
 
@@ -73,6 +74,13 @@ export function KfMobileNavMenu({
 
       {signedIn ? (
         <section className="kf-mobile-nav-section" aria-label="Your business">
+          <NavButton
+            href="/account/insights"
+            label="Business hub"
+            icon={BarChart3}
+            active={isHub}
+            onNavigate={onClose}
+          />
           <NavButton
             href="/account/listing"
             label="Edit my listing"
@@ -85,13 +93,6 @@ export function KfMobileNavMenu({
             label="Listing support"
             icon={HandHelping}
             active={isListingSupport}
-            onNavigate={onClose}
-          />
-          <NavButton
-            href="/account/insights"
-            label="Listing insights"
-            icon={BarChart3}
-            active={isInsights}
             onNavigate={onClose}
           />
         </section>

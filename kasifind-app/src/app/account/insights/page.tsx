@@ -18,8 +18,13 @@ import {
 } from "@/components/kasifind/kf-listing-assistance-provider";
 import { KfProviderListingActions } from "@/components/kasifind/kf-provider-listing-actions";
 import { loginPathWithNext } from "@/lib/kasifind/auth-redirect";
+import { KfProviderHubNav } from "@/components/kasifind/kf-provider-hub-nav";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Business hub",
+};
 
 export default async function ProviderInsightsPage() {
   if (!isKasiFindDbConfigured()) {
@@ -63,10 +68,11 @@ export default async function ProviderInsightsPage() {
       currentRequest={assistanceRequest}
     >
       <div className="space-y-5">
+        <KfProviderHubNav />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-[var(--kf-muted)]">
-              Your listing
+              Business hub
             </p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-[var(--kf-charcoal)]">
               {listing.displayName}
@@ -131,12 +137,20 @@ export default async function ProviderInsightsPage() {
           }
           layout="inline"
         />
-        <Link
-          href={`/providers/${listing.id}`}
-          className="text-sm font-semibold text-[var(--kf-forest)] underline underline-offset-2"
-        >
-          View public listing
-        </Link>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <Link
+            href={`/providers/${listing.id}`}
+            className="text-sm font-semibold text-[var(--kf-forest)] underline underline-offset-2"
+          >
+            View public listing
+          </Link>
+          <Link
+            href="/account/listing-support"
+            className="text-sm font-semibold text-[var(--kf-muted)] underline underline-offset-2"
+          >
+            Listing support
+          </Link>
+        </div>
       </div>
     </KfListingAssistanceProvider>
     </Suspense>
