@@ -80,10 +80,8 @@ export function useHomeSearchBarPin(
     };
   }, [barRef]);
 
-  const shouldKeepVisible = () =>
-    interactionLockRef.current ||
-    Boolean(options?.keepVisible) ||
-    Boolean(options?.suppressHideRef?.current);
+  const shouldBlockHideForSearch = () =>
+    Boolean(options?.keepVisible) || Boolean(options?.suppressHideRef?.current);
 
   useEffect(() => {
     const resolvePinStart = () => {
@@ -99,8 +97,9 @@ export function useHomeSearchBarPin(
       const isPinned = y > pinAt;
 
       setPinned(isPinned);
+      const delta = y - lastScrollY.current;
 
-      if (shouldKeepVisible()) {
+      if (shouldBlockHideForSearch()) {
         setHidden(false);
         lastScrollY.current = y;
         return;
@@ -109,9 +108,13 @@ export function useHomeSearchBarPin(
       if (y < SCROLL_TOP_REVEAL) {
         setHidden(false);
       } else if (isPinned) {
-        const delta = y - lastScrollY.current;
-        if (delta > SCROLL_DELTA_HIDE) setHidden(true);
-        else if (delta < -SCROLL_DELTA_HIDE) setHidden(false);
+        if (delta > SCROLL_DELTA_HIDE) {
+          setHidden(true);
+        } else if (delta < -SCROLL_DELTA_HIDE) {
+          setHidden(false);
+        } else if (interactionLockRef.current) {
+          setHidden(false);
+        }
       } else {
         setHidden(false);
       }
@@ -133,7 +136,7 @@ export function useHomeSearchBarPin(
     const viewport = window.visualViewport;
     const onViewportChange = () => {
       lastScrollY.current = window.scrollY;
-      if (shouldKeepVisible()) setHidden(false);
+      if (shouldBlockHideForSearch() || interactionLockRef.current) setHidden(false);
     };
     viewport?.addEventListener("resize", onViewportChange);
     viewport?.addEventListener("scroll", onViewportChange);
