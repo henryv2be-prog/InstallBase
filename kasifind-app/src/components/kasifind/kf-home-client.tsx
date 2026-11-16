@@ -31,10 +31,6 @@ import {
 import { BROWSE_LISTING_LIMIT } from "@/lib/kasifind/discovery-config";
 import { KfLocationConsentDialog } from "@/components/kasifind/kf-location-consent-dialog";
 import { KfLocationSheet } from "@/components/kasifind/kf-location-sheet";
-import {
-  KF_LOCATION_CONSENT_AFTER_INTRO_MS,
-  shouldDeferHomeLocationConsentPrompt,
-} from "@/lib/kasifind/location-consent-prompt-timing";
 import type { GeocodeHit } from "@/lib/kasifind/geocode-utils";
 import { KfCategoryFlashIntro } from "@/components/kasifind/kf-category-flash-intro";
 import {
@@ -250,6 +246,20 @@ export function KfHomeClient({
     );
   }, [openLocationSheet, switchToBrowseMode]);
 
+  const startLocalGpsSearch = useCallback(() => {
+    const consent = readLocationConsent();
+    if (consent === "granted") {
+      requestNearMe();
+      return;
+    }
+    if (consent === "denied") {
+      openLocationSheet("menu");
+      return;
+    }
+    setLocationSheetOpen(false);
+    setLocationDialogOpen(true);
+  }, [openLocationSheet, requestNearMe]);
+
   type RunSearchOpts = {
     preferAutoExpand?: boolean;
     query?: string;
@@ -341,21 +351,6 @@ export function KfHomeClient({
     void runSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when location source changes
   }, [dbConfigured, filtersHydrated, location]);
-
-  useEffect(() => {
-    if (!dbConfigured) return;
-    if (shouldDeferHomeLocationConsentPrompt(introGate)) return;
-    if (typeof navigator === "undefined" || !navigator.geolocation) return;
-
-    const consent = readLocationConsent();
-    if (consent === "dismissed" || consent === "denied" || consent === "granted") return;
-
-    const timer = window.setTimeout(() => {
-      setLocationDialogOpen(true);
-    }, KF_LOCATION_CONSENT_AFTER_INTRO_MS);
-
-    return () => window.clearTimeout(timer);
-  }, [dbConfigured, introGate]);
 
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.permissions?.query) return;
@@ -506,9 +501,7 @@ export function KfHomeClient({
         permissionDenied={readLocationConsent() === "denied"}
         view={locationSheetView}
         onViewChange={setLocationSheetView}
-        onUseGps={() => {
-          requestNearMe();
-        }}
+        onUseGps={startLocalGpsSearch}
         onBrowseAll={() => {
           writeLocationConsent("dismissed");
           switchToBrowseMode();
