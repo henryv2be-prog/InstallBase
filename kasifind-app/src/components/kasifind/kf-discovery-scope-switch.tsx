@@ -8,7 +8,6 @@ type Props = {
   scope: DiscoverySearchScope;
   locating?: boolean;
   areaHint?: string | null;
-  nearDisabled?: boolean;
   onSelect: (scope: DiscoverySearchScope) => void;
 };
 
@@ -27,7 +26,6 @@ export function KfDiscoveryScopeSwitch({
   scope,
   locating = false,
   areaHint,
-  nearDisabled = false,
   onSelect,
 }: Props) {
   return (
@@ -36,14 +34,13 @@ export function KfDiscoveryScopeSwitch({
         {SEGMENTS.map((seg) => {
           const active = scope === seg.id;
           const Icon = seg.icon;
-          const disabled = seg.id === "near" && (nearDisabled || locating);
           return (
             <button
               key={seg.id}
               type="button"
               className={`kf-scope-switch-seg${active ? " kf-scope-switch-seg--active" : ""}`}
               aria-pressed={active}
-              disabled={disabled}
+              aria-busy={seg.id === "near" && locating ? true : undefined}
               onClick={() => onSelect(seg.id)}
             >
               {seg.id === "near" && locating ? (

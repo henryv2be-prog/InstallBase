@@ -256,6 +256,7 @@ export function KfHomeClient({
   }, [switchToBrowseMode]);
 
   const startNearMeWithConsent = useCallback(() => {
+    if (locating) return;
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setError("Your browser does not support location. Pick an area under Set location.");
       openAreaPicker();
@@ -271,7 +272,7 @@ export function KfHomeClient({
       return;
     }
     setLocationDialogOpen(true);
-  }, [openAreaPicker, requestNearMe]);
+  }, [locating, openAreaPicker, requestNearMe]);
 
   const handleScopeSelect = useCallback(
     (scope: DiscoverySearchScope) => {
@@ -423,8 +424,6 @@ export function KfHomeClient({
     };
   }, []);
 
-  const geolocationAvailable =
-    typeof navigator !== "undefined" && Boolean(navigator.geolocation);
   const radiusSummaryLabel = radiusMode === "auto" ? radiusChipLabel("auto") : radiusChipLabel(radiusKm);
 
   const discoveryScope = discoveryScopeFromLocation(location, locating, locationSheetOpen);
@@ -565,7 +564,6 @@ export function KfHomeClient({
           scope={discoveryScope}
           locating={locating}
           areaHint={manualAreaHint}
-          nearDisabled={!geolocationAvailable}
           onSelect={handleScopeSelect}
         />
         <div className="kf-search-shell">
