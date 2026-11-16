@@ -19,6 +19,7 @@ import {
 } from "@/lib/kasifind/discovery-state";
 import { useDiscoveryScrollRestore } from "@/components/kasifind/use-discovery-scroll-restore";
 import { useDebouncedValue } from "@/components/kasifind/use-debounced-value";
+import { useHomeSearchBarPin } from "@/components/kasifind/use-home-search-bar-pin";
 import {
   DISCOVERY_RADIUS_CHIPS_KM,
   formatDiscoveryResultsSubtitle,
@@ -125,7 +126,10 @@ export function KfHomeClient({
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const searchGenerationRef = useRef(0);
   const lastLiveQueryRef = useRef<string | null>(null);
+  const searchPinAnchorRef = useRef<HTMLDivElement>(null);
+  const searchBarRef = useRef<HTMLDivElement>(null);
   const debouncedQuery = useDebouncedValue(query, 400);
+  const searchBarPin = useHomeSearchBarPin(searchPinAnchorRef, searchBarRef);
   const [searchHasRun, setSearchHasRun] = useState(false);
   const slidesEligibleForIntro =
     categoryFlashSlides.length >= CATEGORY_FLASH_MIN_SLIDES;
@@ -585,7 +589,20 @@ export function KfHomeClient({
         </div>
       ) : null}
 
-      <div className="kf-home-search-sticky">
+      <div ref={searchPinAnchorRef} className="kf-home-search-pin-anchor" aria-hidden />
+      {searchBarPin.pinned && searchBarPin.placeholderHeight > 0 ? (
+        <div
+          className="kf-home-search-placeholder"
+          style={{ height: searchBarPin.placeholderHeight }}
+          aria-hidden
+        />
+      ) : null}
+      <div
+        ref={searchBarRef}
+        className={`kf-home-search-sticky kf-home-search-sticky--inner${
+          searchBarPin.pinned ? " kf-home-search-sticky--pinned" : ""
+        }${searchBarPin.pinned && searchBarPin.hidden ? " kf-home-search-sticky--hidden" : ""}`}
+      >
         <form
           className="kf-hero-search-card kf-hero-search-card--sticky kf-animate-in"
           style={{ animationDelay: "60ms" }}
