@@ -10,9 +10,7 @@ import {
   LogIn,
   LogOut,
   Map,
-  HandHelping,
   PlusCircle,
-  Store,
 } from "lucide-react";
 import { KF_ADMIN_NAV_LINKS } from "@/lib/kasifind/admin-nav-links";
 
@@ -62,10 +60,7 @@ export function KfMobileNavMenu({
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isActivityMap = pathname.startsWith("/activity-map");
-  const isHub =
-    pathname === "/account" || pathname.startsWith("/account/insights");
-  const isListingEditor = pathname === "/account/listing";
-  const isListingSupport = pathname.startsWith("/account/listing-support");
+  const isHub = pathname === "/account" || pathname.startsWith("/account/");
   const onAdmin = pathname.startsWith("/admin");
 
   return (
@@ -79,20 +74,6 @@ export function KfMobileNavMenu({
             label="Business hub"
             icon={BarChart3}
             active={isHub}
-            onNavigate={onClose}
-          />
-          <NavButton
-            href="/account/listing"
-            label="Edit my listing"
-            icon={Store}
-            active={isListingEditor}
-            onNavigate={onClose}
-          />
-          <NavButton
-            href="/account/listing-support"
-            label="Listing support"
-            icon={HandHelping}
-            active={isListingSupport}
             onNavigate={onClose}
           />
         </section>
