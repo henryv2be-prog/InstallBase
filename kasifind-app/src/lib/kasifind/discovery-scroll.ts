@@ -79,7 +79,21 @@ export function discoveryScrollLooksRestored(
 
 const SCROLL_TOP_DELAYS_MS = [0, 50, 150, 400, 800] as const;
 export const DISCOVERY_RESULTS_ANCHOR_ID = "kf-discovery-results";
-const RESULTS_SCROLL_GAP_PX = 8;
+export const DISCOVERY_SEARCH_BAR_ID = "kf-home-search-sticky";
+const RESULTS_SCROLL_GAP_PX = 6;
+
+function measureHeaderStackPx(): number {
+  if (typeof document === "undefined") return 0;
+  const root = document.documentElement;
+  const headerRem = parseFloat(getComputedStyle(root).getPropertyValue("--kf-header-h")) || 3.25;
+  const headerPx = headerRem * (parseFloat(getComputedStyle(root).fontSize) || 16);
+  const bar =
+    document.getElementById(DISCOVERY_SEARCH_BAR_ID) ??
+    document.querySelector<HTMLElement>(".kf-home-search-sticky");
+  const barPx = bar?.offsetHeight ?? 0;
+  const safeTop = Math.max(0, Math.round(window.visualViewport?.offsetTop ?? 0));
+  return headerPx + barPx + safeTop;
+}
 
 export function resolveDiscoveryScrollTarget(): HTMLElement | null {
   if (typeof document === "undefined") return null;
@@ -88,16 +102,14 @@ export function resolveDiscoveryScrollTarget(): HTMLElement | null {
   return document.getElementById(DISCOVERY_RESULTS_ANCHOR_ID);
 }
 
-/** Y offset so the first result (or results heading) sits just under the header. */
+/** Y offset so the first result sits under the fixed header + sticky search bar. */
 export function measureDiscoveryResultsScrollY(): number {
   if (typeof window === "undefined") return 0;
   const el = resolveDiscoveryScrollTarget();
   if (!el) return 0;
-  const root = document.documentElement;
-  const headerRem = parseFloat(getComputedStyle(root).getPropertyValue("--kf-header-h")) || 3.25;
-  const headerPx = headerRem * (parseFloat(getComputedStyle(root).fontSize) || 16);
+  const stackPx = measureHeaderStackPx();
   const rect = el.getBoundingClientRect();
-  return Math.max(0, Math.round(rect.top + window.scrollY - headerPx - RESULTS_SCROLL_GAP_PX));
+  return Math.max(0, Math.round(rect.top + window.scrollY - stackPx - RESULTS_SCROLL_GAP_PX));
 }
 
 function scrollDiscoveryToResultsOnce(): void {

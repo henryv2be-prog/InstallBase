@@ -5,6 +5,7 @@ import {
   clearDiscoveryScroll,
   consumeDiscoveryScroll,
   DISCOVERY_RESULTS_ANCHOR_ID,
+  DISCOVERY_SEARCH_BAR_ID,
   measureDiscoveryResultsScrollY,
   readDiscoveryScroll,
   saveDiscoveryScroll,
@@ -57,10 +58,16 @@ test("saveDiscoveryScroll round-trips via consume", () => {
   }
 });
 
-function installResultsScrollMocks(opts: { scrollY?: number; anchorTop?: number; listingTop?: number }) {
+function installResultsScrollMocks(opts: {
+  scrollY?: number;
+  anchorTop?: number;
+  listingTop?: number;
+  searchBarHeight?: number;
+}) {
   const scrollY = opts.scrollY ?? 120;
   const anchorTop = opts.anchorTop ?? 640;
   const listingTop = opts.listingTop ?? 520;
+  const searchBarHeight = opts.searchBarHeight ?? 148;
   const scrollCalls: number[] = [];
 
   const listingEl = {
@@ -72,6 +79,8 @@ function installResultsScrollMocks(opts: { scrollY?: number; anchorTop?: number;
 
   const originalWindow = globalThis.window;
   const originalDocument = globalThis.document;
+
+  const searchBarEl = { offsetHeight: searchBarHeight };
 
   Object.defineProperty(globalThis, "window", {
     configurable: true,
@@ -91,14 +100,23 @@ function installResultsScrollMocks(opts: { scrollY?: number; anchorTop?: number;
       },
       clearTimeout: () => undefined,
       history: { scrollRestoration: "auto" },
+      visualViewport: { offsetTop: 0 },
     },
   });
 
   Object.defineProperty(globalThis, "document", {
     configurable: true,
     value: {
-      querySelector: (sel: string) => (sel.includes("data-kf-listing-id") ? listingEl : null),
-      getElementById: (id: string) => (id === DISCOVERY_RESULTS_ANCHOR_ID ? anchorEl : null),
+      querySelector: (sel: string) => {
+        if (sel.includes("data-kf-listing-id")) return listingEl;
+        if (sel.includes("kf-home-search-sticky")) return searchBarEl;
+        return null;
+      },
+      getElementById: (id: string) => {
+        if (id === DISCOVERY_RESULTS_ANCHOR_ID) return anchorEl;
+        if (id === DISCOVERY_SEARCH_BAR_ID) return searchBarEl;
+        return null;
+      },
       documentElement: {
         style: {},
       },
@@ -129,7 +147,7 @@ function installResultsScrollMocks(opts: { scrollY?: number; anchorTop?: number;
 test("measureDiscoveryResultsScrollY prefers first listing card", () => {
   const mocks = installResultsScrollMocks({ scrollY: 100, listingTop: 520 });
   try {
-    assert.equal(measureDiscoveryResultsScrollY(), 560);
+    assert.equal(measureDiscoveryResultsScrollY(), 414);
   } finally {
     mocks.restore();
   }
@@ -139,7 +157,7 @@ test("scrollDiscoveryToTop scrolls to measured results Y", () => {
   const mocks = installResultsScrollMocks({ scrollY: 0, listingTop: 400 });
   try {
     scrollDiscoveryToTop();
-    assert.deepEqual(mocks.scrollCalls, [340, 340]);
+    assert.deepEqual(mocks.scrollCalls, [194, 194]);
   } finally {
     mocks.restore();
   }
@@ -150,7 +168,7 @@ test("scheduleScrollDiscoveryToTop scrolls to results on delayed attempts", () =
   try {
     const cancel = scheduleScrollDiscoveryToTop();
     assert.ok(mocks.scrollCalls.length >= 2);
-    assert.ok(mocks.scrollCalls.every((y) => y === 340));
+    assert.ok(mocks.scrollCalls.every((y) => y === 194));
     cancel();
   } finally {
     mocks.restore();

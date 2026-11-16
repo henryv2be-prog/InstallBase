@@ -626,6 +626,7 @@ export function KfHomeClient({
         />
       ) : null}
       <div
+        id="kf-home-search-sticky"
         ref={searchBarRef}
         className={`kf-home-search-sticky kf-home-search-sticky--inner${
           searchBarPin.pinned ? " kf-home-search-sticky--pinned" : ""
