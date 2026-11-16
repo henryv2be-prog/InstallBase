@@ -10,11 +10,7 @@ import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
 import { useListingContactCtaLabels } from "@/components/kasifind/use-listing-contact-cta-labels";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { trackKfEvent } from "@/lib/kasifind/track-client";
-import {
-  clearLocationConsent,
-  readLocationConsent,
-  writeLocationConsent,
-} from "@/lib/kasifind/location-consent-storage";
+import { readLocationConsent, writeLocationConsent } from "@/lib/kasifind/location-consent-storage";
 import {
   readDiscoveryState,
   writeDiscoveryState,
@@ -258,6 +254,11 @@ export function KfHomeClient({
     setLocationDialogOpen(false);
   }, [switchToBrowseMode]);
 
+  const confirmNearMeFromDialog = useCallback(() => {
+    writeLocationConsent("granted");
+    requestNearMe();
+  }, [requestNearMe]);
+
   const startNearMeWithConsent = useCallback(() => {
     if (locating) return;
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -274,13 +275,35 @@ export function KfHomeClient({
       setError("Location blocked — choose Set location or Nationwide.");
       return;
     }
-    setLocationDialogOpen(true);
+
+    const openDialog = () => setLocationDialogOpen(true);
+
+    if (navigator.permissions?.query) {
+      void navigator.permissions
+        .query({ name: "geolocation" })
+        .then((status) => {
+          if (status.state === "granted") {
+            writeLocationConsent("granted");
+            requestNearMe();
+            return;
+          }
+          if (status.state === "denied") {
+            writeLocationConsent("denied");
+            setError("Location blocked — choose Set location or Nationwide.");
+            return;
+          }
+          openDialog();
+        })
+        .catch(() => openDialog());
+      return;
+    }
+
+    openDialog();
   }, [locating, openAreaPicker, requestNearMe]);
 
   const handleScopeSelect = useCallback(
     (scope: DiscoverySearchScope) => {
       if (scope === "nationwide") {
-        writeLocationConsent("dismissed");
         switchToBrowseMode();
         setLocationSheetOpen(false);
         setLocationDialogOpen(false);
@@ -423,9 +446,6 @@ export function KfHomeClient({
         }
       };
       onPermissionChange = () => {
-        if (status.state === "prompt" && readLocationConsent() === "granted") {
-          clearLocationConsent();
-        }
         syncPermission();
       };
       syncPermission();
@@ -490,7 +510,7 @@ export function KfHomeClient({
         open={locationDialogOpen}
         busy={locating}
         onClose={dismissLocationPrompt}
-        onConfirm={() => requestNearMe()}
+        onConfirm={confirmNearMeFromDialog}
         onChooseArea={() => {
           setLocationDialogOpen(false);
           openAreaPicker();
