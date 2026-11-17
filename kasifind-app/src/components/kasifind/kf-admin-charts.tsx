@@ -75,7 +75,9 @@ export function KfAdminCharts({ charts }: { charts: AdminDashboardStats["charts"
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div className="kf-admin-chart-card">
-        <h3 className="kf-admin-chart-title">Impressions, profile views & clicks (14 days)</h3>
+        <h3 className="kf-admin-chart-title">
+          Impressions, profile views, clicks & unique visitors (14 days)
+        </h3>
         {activityData.length === 0 ? (
           <p className="kf-admin-empty-chart">No activity recorded yet.</p>
         ) : (
@@ -84,10 +86,23 @@ export function KfAdminCharts({ charts }: { charts: AdminDashboardStats["charts"
               <LineChart data={activityData} margin={chartMargin}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(15, 77, 58, 0.12)" />
                 <XAxis dataKey="label" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
+                <YAxis
+                  yAxisId="events"
+                  allowDecimals={false}
+                  tick={{ fontSize: 11 }}
+                  width={32}
+                />
+                <YAxis
+                  yAxisId="visitors"
+                  orientation="right"
+                  allowDecimals={false}
+                  tick={{ fontSize: 11 }}
+                  width={36}
+                />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line
+                  yAxisId="events"
                   type="monotone"
                   dataKey="impressions"
                   stroke="#95d5b2"
@@ -96,6 +111,7 @@ export function KfAdminCharts({ charts }: { charts: AdminDashboardStats["charts"
                   name="Impressions"
                 />
                 <Line
+                  yAxisId="events"
                   type="monotone"
                   dataKey="views"
                   stroke="#0F4D3A"
@@ -104,12 +120,23 @@ export function KfAdminCharts({ charts }: { charts: AdminDashboardStats["charts"
                   name="Profile views"
                 />
                 <Line
+                  yAxisId="events"
                   type="monotone"
                   dataKey="clicks"
                   stroke="#FF8A00"
                   strokeWidth={2}
                   dot={false}
                   name="Clicks"
+                />
+                <Line
+                  yAxisId="visitors"
+                  type="monotone"
+                  dataKey="uniqueVisitors"
+                  stroke="#5B6EAE"
+                  strokeWidth={2}
+                  strokeDasharray="4 3"
+                  dot={false}
+                  name="Unique visitors"
                 />
               </LineChart>
             </ResponsiveContainer>
