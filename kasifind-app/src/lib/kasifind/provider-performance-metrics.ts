@@ -1,5 +1,6 @@
 import "server-only";
 import { LISTING_CONTACT_CLICK_TYPES } from "@/lib/kasifind/contact-click-display";
+import { withAnalyticsAudience } from "@/lib/kasifind/analytics-audience";
 import { getKasiFindPrisma } from "@/lib/kasifind/prisma";
 import {
   analyticsCreatedAtFilter,
@@ -25,7 +26,7 @@ export async function getProviderPerformanceReportMetrics(
   if (!listing) return null;
 
   const createdAt = analyticsCreatedAtFilter(period);
-  const listingWhere = { listingId, createdAt };
+  const listingWhere = withAnalyticsAudience({ listingId, createdAt });
 
   const [impressions, profileViews, contactClicks, directionsClicks, reviewAgg] = await Promise.all([
     kf.kfAnalyticsEvent.count({

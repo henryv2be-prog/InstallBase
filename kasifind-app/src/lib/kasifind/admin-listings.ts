@@ -1,4 +1,5 @@
 import "server-only";
+import { withAnalyticsAudience } from "@/lib/kasifind/analytics-audience";
 import { getKasiFindPrisma } from "@/lib/kasifind/prisma";
 
 export async function getAdminListingsPage(options: {
@@ -47,26 +48,32 @@ export async function getAdminListingsPage(options: {
     ? await kf.kfAnalyticsEvent.groupBy({
         by: ["listingId"],
         _count: { _all: true },
-        where: { listingId: { in: ids }, eventType: "LISTING_IMPRESSION" },
+        where: withAnalyticsAudience({
+          listingId: { in: ids },
+          eventType: "LISTING_IMPRESSION",
+        }),
       })
     : [];
   const viewCounts = ids.length
     ? await kf.kfAnalyticsEvent.groupBy({
         by: ["listingId"],
         _count: { _all: true },
-        where: { listingId: { in: ids }, eventType: "LISTING_VIEW" },
+        where: withAnalyticsAudience({
+          listingId: { in: ids },
+          eventType: "LISTING_VIEW",
+        }),
       })
     : [];
   const clickCounts = ids.length
     ? await kf.kfAnalyticsEvent.groupBy({
         by: ["listingId"],
         _count: { _all: true },
-        where: {
+        where: withAnalyticsAudience({
           listingId: { in: ids },
           eventType: {
             in: ["LISTING_CLICK_WHATSAPP", "LISTING_CLICK_CALL", "LISTING_CLICK_DIRECTIONS"],
           },
-        },
+        }),
       })
     : [];
 
@@ -111,18 +118,22 @@ export async function getAdminListingDetail(id: string) {
   if (!listing) return null;
 
   const [impressions, views, clicks, recentEvents] = await Promise.all([
-    kf.kfAnalyticsEvent.count({ where: { listingId: id, eventType: "LISTING_IMPRESSION" } }),
-    kf.kfAnalyticsEvent.count({ where: { listingId: id, eventType: "LISTING_VIEW" } }),
     kf.kfAnalyticsEvent.count({
-      where: {
+      where: withAnalyticsAudience({ listingId: id, eventType: "LISTING_IMPRESSION" }),
+    }),
+    kf.kfAnalyticsEvent.count({
+      where: withAnalyticsAudience({ listingId: id, eventType: "LISTING_VIEW" }),
+    }),
+    kf.kfAnalyticsEvent.count({
+      where: withAnalyticsAudience({
         listingId: id,
         eventType: {
           in: ["LISTING_CLICK_WHATSAPP", "LISTING_CLICK_CALL", "LISTING_CLICK_DIRECTIONS"],
         },
-      },
+      }),
     }),
     kf.kfAnalyticsEvent.findMany({
-      where: { listingId: id },
+      where: withAnalyticsAudience({ listingId: id }),
       orderBy: { createdAt: "desc" },
       take: 20,
       include: { user: { select: { email: true, name: true } } },
