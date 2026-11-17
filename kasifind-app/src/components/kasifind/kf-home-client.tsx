@@ -644,7 +644,7 @@ export function KfHomeClient({
             areaHint={manualAreaHint}
             onSelect={handleScopeSelect}
           />
-          <div className="kf-search-shell">
+          <div className="kf-search-shell kf-search-shell--home-row">
             <Search className="h-5 w-5 shrink-0 text-[var(--kf-forest)]" aria-hidden />
             <input
               type="search"
@@ -659,17 +659,20 @@ export function KfHomeClient({
             {query ? (
               <button
                 type="button"
-                className="kf-btn kf-btn-ghost min-h-[2.25rem] px-2"
+                className="kf-btn kf-btn-ghost kf-search-inline-clear"
                 aria-label="Clear search"
                 onClick={() => setQuery("")}
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             ) : null}
+            <button
+              type="submit"
+              className="kf-btn kf-btn-primary kf-home-search-submit"
+            >
+              Search
+            </button>
           </div>
-          <button type="submit" className="kf-btn kf-btn-primary kf-home-search-submit">
-            Search
-          </button>
         </form>
       </div>
 
