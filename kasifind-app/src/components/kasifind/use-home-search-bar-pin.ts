@@ -4,8 +4,6 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 
 const HEADER_OFFSET_PX = 52;
 const SCROLL_DELTA_HIDE = 18;
-/** While the query field is focused, require a larger scroll before hiding (keyboard / viewport jitter). */
-const SCROLL_DELTA_HIDE_WHILE_TYPING = 40;
 const SCROLL_TOP_REVEAL = 48;
 
 type PinState = {
@@ -53,21 +51,19 @@ export function useHomeSearchBarPin(
     const bar = barRef.current;
     if (!bar) return;
 
+    const isSearchQueryTarget = (node: EventTarget | null) =>
+      node instanceof HTMLInputElement && node.classList.contains("kf-search-input");
+
     const onFocusIn = (event: FocusEvent) => {
-      const target = event.target;
-      if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement
-      ) {
-        interactionLockRef.current = true;
-        setHidden(false);
-      }
+      if (!isSearchQueryTarget(event.target)) return;
+      interactionLockRef.current = true;
+      setHidden(false);
     };
 
     const onFocusOut = (event: FocusEvent) => {
+      if (!isSearchQueryTarget(event.target)) return;
       const next = event.relatedTarget;
-      if (!next || !bar.contains(next as Node)) {
+      if (!isSearchQueryTarget(next)) {
         interactionLockRef.current = false;
       }
     };
@@ -103,16 +99,15 @@ export function useHomeSearchBarPin(
         return;
       }
 
-      const hideThreshold = interactionLockRef.current
-        ? SCROLL_DELTA_HIDE_WHILE_TYPING
-        : SCROLL_DELTA_HIDE;
-
       if (y < SCROLL_TOP_REVEAL) {
         setHidden(false);
       } else if (isPinned) {
         const delta = y - lastScrollY.current;
-        if (delta > hideThreshold) setHidden(true);
-        else if (delta < -SCROLL_DELTA_HIDE) setHidden(false);
+        if (delta > SCROLL_DELTA_HIDE) {
+          if (!interactionLockRef.current) setHidden(true);
+        } else if (delta < -SCROLL_DELTA_HIDE) {
+          setHidden(false);
+        }
       } else {
         setHidden(false);
       }
