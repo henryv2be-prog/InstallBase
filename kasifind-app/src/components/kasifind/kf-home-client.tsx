@@ -443,7 +443,8 @@ export function KfHomeClient({
   const clearAllFilters = useCallback(() => {
     setQuery("");
     setCategorySlug(null);
-  }, []);
+    void runSearch({ preferAutoExpand: true, query: "", categorySlug: null });
+  }, [runSearch]);
 
   useEffect(() => {
     if (!categorySlug || !dbConfigured) return;
@@ -598,7 +599,10 @@ export function KfHomeClient({
                 type="button"
                 className="kf-filter-chip-dismiss"
                 aria-label="Clear category filter"
-                onClick={() => setCategorySlug(null)}
+                onClick={() => {
+                  setCategorySlug(null);
+                  void runSearch({ preferAutoExpand: true, categorySlug: null });
+                }}
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
               </button>
@@ -741,7 +745,12 @@ export function KfHomeClient({
             <button
               type="button"
               role="listitem"
-              onClick={() => setCategorySlug(null)}
+              onClick={() => {
+                if (categorySlug !== null) {
+                  setCategorySlug(null);
+                  void runSearch({ preferAutoExpand: true, categorySlug: null });
+                }
+              }}
               className={`kf-category-tile ${!categorySlug ? "kf-category-tile-active" : ""}`}
             >
               <span className="kf-category-icon">
@@ -756,7 +765,10 @@ export function KfHomeClient({
                   key={c.id}
                   type="button"
                   role="listitem"
-                  onClick={() => setCategorySlug(c.slug)}
+                  onClick={() => {
+                    setCategorySlug(c.slug);
+                    void runSearch({ preferAutoExpand: true, categorySlug: c.slug });
+                  }}
                   className={`kf-category-tile ${categorySlug === c.slug ? "kf-category-tile-active" : ""}`}
                 >
                   <span className="kf-category-icon">
