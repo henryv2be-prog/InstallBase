@@ -87,7 +87,7 @@ function ResultSkeletons() {
 export type KfProviderListCta = {
   href: string;
   label: string;
-  hint: string;
+  hint: string | null;
   listingId?: string | null;
   displayName?: string | null;
   shareEnabled?: boolean;
@@ -816,7 +816,6 @@ export function KfHomeClient({
       {categories.length > 0 ? (
         <section className="kf-home-categories kf-animate-in">
           <h2 className="kf-section-title">Browse by category</h2>
-          <p className="kf-section-sub">Tap a trade to filter nearby results.</p>
           <div className="kf-category-scroll" role="list">
             <button
               type="button"

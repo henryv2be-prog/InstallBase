@@ -33,7 +33,7 @@ test("formatDiscoveryResultsSubtitle for browse does not imply distance sort", (
     searchMeta: { browse: true },
   });
   assert.match(out.primary, /featured first/i);
-  assert.match(out.secondary ?? "", /not sorted by distance/i);
+  assert.equal(out.secondary, null);
 });
 
 test("formatDiscoveryResultsSubtitle respects fixed radius copy", () => {
