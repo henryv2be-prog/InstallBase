@@ -67,6 +67,7 @@ export function KfProviderCard({
   const hasRating = p.reviewCount > 0 && p.averageRating !== null;
   const showDistance = hasValidDistanceKm(p.distanceKm);
   const profileSrc = p.profileImageUrl?.trim() || cardPhotos[0] || null;
+  const hasListingMedia = cardPhotos.length > 0;
 
   return (
     <li
@@ -83,10 +84,13 @@ export function KfProviderCard({
           saveDiscoveryScroll(p.id);
         }}
       >
-        <div className="kf-provider-media kf-provider-media--cover">
+        <div
+          className={`kf-provider-media kf-provider-media--cover${hasListingMedia ? "" : " kf-provider-media--empty"}`}
+        >
           <KfProviderCardGallery
             photos={cardPhotos}
             displayName={p.displayName}
+            categoryName={primaryCategory}
             priority={index < 4}
           />
           {showDistance ? (
@@ -97,22 +101,26 @@ export function KfProviderCard({
           ) : null}
         </div>
 
-        <div className="kf-provider-card-body-wrap">
-          <div
-            className={`kf-provider-card-avatar${profileSrc ? "" : " kf-provider-card-avatar--placeholder"}`}
-            aria-hidden
-          >
-            {profileSrc ? (
-              <KfListingImage
-                src={profileSrc}
-                alt=""
-                className="kf-provider-card-avatar-img"
-                priority={index < 4}
-              />
-            ) : (
-              <Building2 className="h-6 w-6 text-[var(--kf-muted)]" />
-            )}
-          </div>
+        <div
+          className={`kf-provider-card-body-wrap${hasListingMedia ? "" : " kf-provider-card-body-wrap--no-media"}`}
+        >
+          {hasListingMedia ? (
+            <div
+              className={`kf-provider-card-avatar${profileSrc ? "" : " kf-provider-card-avatar--placeholder"}`}
+              aria-hidden
+            >
+              {profileSrc ? (
+                <KfListingImage
+                  src={profileSrc}
+                  alt=""
+                  className="kf-provider-card-avatar-img"
+                  priority={index < 4}
+                />
+              ) : (
+                <Building2 className="h-6 w-6 text-[var(--kf-muted)]" />
+              )}
+            </div>
+          ) : null}
 
           <div
             className="kf-provider-card-body kf-animate-in"

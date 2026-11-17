@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Camera } from "lucide-react";
 import {
   alternateListingImageSrc,
   resolveListingImageSrc,
 } from "@/lib/kasifind/resolve-listing-image-src";
+import { listingDisplayMonogram } from "@/lib/kasifind/listing-display-monogram";
 
 const SLIDE_MS = 3000;
 const FADE_MS = 550;
@@ -13,6 +15,7 @@ type Props = {
   photos: readonly string[];
   priority?: boolean;
   displayName: string;
+  categoryName?: string | null;
 };
 
 function resolvedSrc(url: string): string {
@@ -22,7 +25,12 @@ function resolvedSrc(url: string): string {
   );
 }
 
-export function KfProviderCardGallery({ photos, priority = false, displayName }: Props) {
+export function KfProviderCardGallery({
+  photos,
+  priority = false,
+  displayName,
+  categoryName = null,
+}: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [inView, setInView] = useState(priority);
@@ -107,9 +115,23 @@ export function KfProviderCardGallery({ photos, priority = false, displayName }:
   );
 
   if (visiblePhotos.length === 0) {
+    const monogram = listingDisplayMonogram(displayName);
+    const label = displayName.trim() || "Local provider";
     return (
-      <div className="kf-provider-thumb-placeholder">
-        <span className="font-semibold text-[var(--kf-muted)]">No photo yet</span>
+      <div
+        className="kf-provider-thumb-placeholder"
+        role="img"
+        aria-label={`${label} — no photos yet`}
+      >
+        <span className="kf-provider-thumb-placeholder__monogram" aria-hidden>
+          {monogram}
+        </span>
+        <Camera className="kf-provider-thumb-placeholder__icon" aria-hidden />
+        <p className="kf-provider-thumb-placeholder__title">{label}</p>
+        <p className="kf-provider-thumb-placeholder__hint">Photos coming soon</p>
+        {categoryName ? (
+          <span className="kf-provider-thumb-placeholder__category">{categoryName}</span>
+        ) : null}
       </div>
     );
   }
