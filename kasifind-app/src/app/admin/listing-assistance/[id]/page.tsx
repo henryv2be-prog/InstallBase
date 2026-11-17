@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { KfAdminAssistanceControls } from "@/components/kasifind/kf-admin-assistance-controls";
+import { KfAdminAssistanceImages } from "@/components/kasifind/kf-admin-assistance-images";
 import { KfListingForm } from "@/components/kasifind/kf-listing-form";
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { formatKfDateTime } from "@/lib/kasifind/format-datetime";
-import { getAdminAssistanceRequestDetail } from "@/lib/kasifind/listing-assistance";
+import {
+  getAdminAssistanceRequestDetail,
+} from "@/lib/kasifind/listing-assistance";
+import { getAssistanceListingImagesBundle } from "@/lib/kasifind/listing-assistance-images";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +16,10 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function AdminListingAssistanceDetailPage({ params }: Props) {
   const { id } = await params;
-  const [request, categories] = await Promise.all([
+  const [request, categories, imageBundle] = await Promise.all([
     getAdminAssistanceRequestDetail(id),
     listKfCategories(),
+    getAssistanceListingImagesBundle(id),
   ]);
   if (!request) notFound();
 
@@ -83,6 +88,16 @@ export default async function AdminListingAssistanceDetailPage({ params }: Props
         />
       </section>
 
+      <KfAdminAssistanceImages
+        requestId={request.id}
+        displayName={listing.displayName}
+        images={(imageBundle?.images ?? []).map((img) => ({
+          imageKey: img.imageKey,
+          label: img.label,
+          url: img.url,
+        }))}
+      />
+
       {request.statusEvents.length > 0 ? (
         <section className="kf-card p-5">
           <h3 className="font-semibold">Status history</h3>
@@ -141,8 +156,8 @@ export default async function AdminListingAssistanceDetailPage({ params }: Props
       <section>
         <h3 className="kf-admin-section-title">Edit listing for provider</h3>
         <p className="mb-4 text-sm text-[var(--kf-muted)]">
-          Uses the same editor as providers. Changes save to their live listing and are recorded in the audit
-          log above.
+          Uses the same editor as providers. After you fix photos offline, upload them here (profile and
+          work photos). Changes save to their live listing and are recorded in the audit log above.
         </p>
         <KfListingForm
           categories={categories.map((c) => ({
