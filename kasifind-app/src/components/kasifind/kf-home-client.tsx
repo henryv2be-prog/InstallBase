@@ -42,6 +42,8 @@ import {
 } from "@/lib/kasifind/category-flash-intro";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
+/** Wait for a typing pause before live search + scroll (reduces jumpiness on first keys). */
+const HOME_LIVE_SEARCH_DEBOUNCE_MS = 850;
 const BROWSE_LOCATION_LABEL = "Browsing all areas";
 const GPS_LOCATION_LABEL = "Near me";
 
@@ -134,7 +136,7 @@ export function KfHomeClient({
   const searchBarRef = useRef<HTMLDivElement>(null);
   const suppressSearchBarHideRef = useRef(false);
   const suppressSearchBarHideTimerRef = useRef<number | null>(null);
-  const debouncedQuery = useDebouncedValue(query, 400);
+  const debouncedQuery = useDebouncedValue(query, HOME_LIVE_SEARCH_DEBOUNCE_MS);
 
   const holdSearchBarVisible = useCallback(() => {
     suppressSearchBarHideRef.current = true;
