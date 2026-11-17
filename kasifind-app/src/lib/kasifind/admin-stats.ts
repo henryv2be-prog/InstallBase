@@ -90,14 +90,23 @@ export async function getAdminDashboardStats() {
 
   const dailyActivity = await kf.kfAnalyticsEvent.findMany({
     where: { createdAt: { gte: daysAgo(14) } },
-    select: { eventType: true, createdAt: true },
+    select: { eventType: true, createdAt: true, visitorId: true },
     orderBy: { createdAt: "asc" },
   });
 
-  const dailyMap = new Map<string, { impressions: number; views: number; clicks: number }>();
+  const dailyMap = new Map<
+    string,
+    { impressions: number; views: number; clicks: number; visitors: Set<string> }
+  >();
   for (const row of dailyActivity) {
     const key = kfDateKeyInSast(row.createdAt);
-    const bucket = dailyMap.get(key) ?? { impressions: 0, views: 0, clicks: 0 };
+    const bucket = dailyMap.get(key) ?? {
+      impressions: 0,
+      views: 0,
+      clicks: 0,
+      visitors: new Set<string>(),
+    };
+    if (row.visitorId) bucket.visitors.add(row.visitorId);
     if (row.eventType === "LISTING_IMPRESSION") bucket.impressions += 1;
     else if (row.eventType === "LISTING_VIEW") bucket.views += 1;
     else if (isListingClickEvent(row.eventType)) bucket.clicks += 1;
@@ -108,6 +117,7 @@ export async function getAdminDashboardStats() {
     impressions: v.impressions,
     views: v.views,
     clicks: v.clicks,
+    uniqueVisitors: v.visitors.size,
   }));
 
   const signups = await kf.kfUser.findMany({
