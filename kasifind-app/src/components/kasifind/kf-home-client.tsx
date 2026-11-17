@@ -152,7 +152,6 @@ export function KfHomeClient({
 
   const searchBarPin = useHomeSearchBarPin(searchPinAnchorRef, searchBarRef, {
     suppressHideRef: suppressSearchBarHideRef,
-    keepVisible: loading,
   });
   const [searchHasRun, setSearchHasRun] = useState(false);
   const [landingVeil, setLandingVeil] = useState<LandingVeilPhase>("off");
@@ -444,8 +443,7 @@ export function KfHomeClient({
   const clearAllFilters = useCallback(() => {
     setQuery("");
     setCategorySlug(null);
-    void runSearch({ preferAutoExpand: true, query: "", categorySlug: null });
-  }, [runSearch]);
+  }, []);
 
   useEffect(() => {
     if (!categorySlug || !dbConfigured) return;
@@ -567,7 +565,6 @@ export function KfHomeClient({
           });
           setLocationSheetOpen(false);
           setError(null);
-          void runSearch({ preferAutoExpand: true });
         }}
         areaSearchInitialQuery={location.mode === "manual" ? location.label : ""}
       />
@@ -588,10 +585,7 @@ export function KfHomeClient({
                 type="button"
                 className="kf-filter-chip-dismiss"
                 aria-label="Clear search text"
-                onClick={() => {
-                  setQuery("");
-                  void runSearch({ preferAutoExpand: true, query: "" });
-                }}
+                onClick={() => setQuery("")}
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
               </button>
@@ -604,10 +598,7 @@ export function KfHomeClient({
                 type="button"
                 className="kf-filter-chip-dismiss"
                 aria-label="Clear category filter"
-                onClick={() => {
-                  setCategorySlug(null);
-                  void runSearch({ preferAutoExpand: true, categorySlug: null });
-                }}
+                onClick={() => setCategorySlug(null)}
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
               </button>
@@ -670,10 +661,7 @@ export function KfHomeClient({
                 type="button"
                 className="kf-btn kf-btn-ghost min-h-[2.25rem] px-2"
                 aria-label="Clear search"
-                onClick={() => {
-                  setQuery("");
-                  void runSearch({ preferAutoExpand: true, query: "" });
-                }}
+                onClick={() => setQuery("")}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -702,10 +690,7 @@ export function KfHomeClient({
               <div className="kf-radius-chips" role="group" aria-label="Search radius">
                 <button
                   type="button"
-                  onClick={() => {
-                    setRadiusMode("auto");
-                    void runSearch({ preferAutoExpand: true, radiusMode: "auto" });
-                  }}
+                  onClick={() => setRadiusMode("auto")}
                   className={`kf-chip kf-radius-chip ${radiusMode === "auto" ? "kf-chip-active" : ""}`}
                 >
                   Auto
@@ -717,11 +702,6 @@ export function KfHomeClient({
                     onClick={() => {
                       setRadiusMode("fixed");
                       setRadiusKm(r);
-                      void runSearch({
-                        preferAutoExpand: false,
-                        radiusKm: r,
-                        radiusMode: "fixed",
-                      });
                     }}
                     className={`kf-chip kf-radius-chip ${radiusMode === "fixed" && radiusKm === r ? "kf-chip-active" : ""}`}
                   >
@@ -758,10 +738,7 @@ export function KfHomeClient({
             <button
               type="button"
               role="listitem"
-              onClick={() => {
-                setCategorySlug(null);
-                void runSearch({ categorySlug: null });
-              }}
+              onClick={() => setCategorySlug(null)}
               className={`kf-category-tile ${!categorySlug ? "kf-category-tile-active" : ""}`}
             >
               <span className="kf-category-icon">
@@ -776,10 +753,7 @@ export function KfHomeClient({
                   key={c.id}
                   type="button"
                   role="listitem"
-                  onClick={() => {
-                    setCategorySlug(c.slug);
-                    void runSearch({ categorySlug: c.slug });
-                  }}
+                  onClick={() => setCategorySlug(c.slug)}
                   className={`kf-category-tile ${categorySlug === c.slug ? "kf-category-tile-active" : ""}`}
                 >
                   <span className="kf-category-icon">
