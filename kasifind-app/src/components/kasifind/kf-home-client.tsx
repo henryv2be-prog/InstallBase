@@ -19,7 +19,6 @@ import {
 } from "@/lib/kasifind/discovery-state";
 import { useDiscoveryScrollRestore } from "@/components/kasifind/use-discovery-scroll-restore";
 import { scheduleScrollDiscoveryToTop } from "@/lib/kasifind/discovery-scroll";
-import { useDebouncedValue } from "@/components/kasifind/use-debounced-value";
 import { useHomeSearchBarPin } from "@/components/kasifind/use-home-search-bar-pin";
 import {
   DISCOVERY_RADIUS_CHIPS_KM,
@@ -42,8 +41,6 @@ import {
 } from "@/lib/kasifind/category-flash-intro";
 
 const DEFAULT_CENTER = { lat: -26.2041, lng: 28.0473 };
-/** Wait for a typing pause before live search + scroll (reduces jumpiness on first keys). */
-const HOME_LIVE_SEARCH_DEBOUNCE_MS = 850;
 const BROWSE_LOCATION_LABEL = "Browsing all areas";
 const GPS_LOCATION_LABEL = "Near me";
 
@@ -129,15 +126,10 @@ export function KfHomeClient({
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const searchGenerationRef = useRef(0);
   const scrollToTopCancelRef = useRef<(() => void) | null>(null);
-  const lastLiveQueryRef = useRef<string | null>(null);
-  /** False until debounced query has caught up after filter hydration (avoids false live search on back). */
-  const liveQueryCatchUpRef = useRef(false);
   const searchPinAnchorRef = useRef<HTMLDivElement>(null);
   const searchBarRef = useRef<HTMLDivElement>(null);
   const suppressSearchBarHideRef = useRef(false);
   const suppressSearchBarHideTimerRef = useRef<number | null>(null);
-  const debouncedQuery = useDebouncedValue(query, HOME_LIVE_SEARCH_DEBOUNCE_MS);
-
   const holdSearchBarVisible = useCallback(() => {
     suppressSearchBarHideRef.current = true;
     if (suppressSearchBarHideTimerRef.current !== null) {
@@ -187,9 +179,6 @@ export function KfHomeClient({
 
   useEffect(() => {
     const saved = readDiscoveryState();
-    const restoredQuery = saved?.query ?? "";
-    lastLiveQueryRef.current = restoredQuery;
-    liveQueryCatchUpRef.current = false;
     if (saved) {
       setQuery(saved.query);
       setRadiusKm(saved.radiusKm);
@@ -454,7 +443,6 @@ export function KfHomeClient({
 
   const clearAllFilters = useCallback(() => {
     setQuery("");
-    lastLiveQueryRef.current = "";
     setCategorySlug(null);
     void runSearch({ preferAutoExpand: true, query: "", categorySlug: null });
   }, [runSearch]);
@@ -470,26 +458,6 @@ export function KfHomeClient({
     void runSearch({ scrollToTop: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when location source changes
   }, [dbConfigured, filtersHydrated, location]);
-
-  useEffect(() => {
-    if (!dbConfigured || !filtersHydrated) return;
-
-    if (!liveQueryCatchUpRef.current) {
-      if (debouncedQuery !== query) return;
-      const caughtUp = debouncedQuery;
-      const editedWhileCatchingUp = caughtUp !== lastLiveQueryRef.current;
-      lastLiveQueryRef.current = caughtUp;
-      liveQueryCatchUpRef.current = true;
-      if (editedWhileCatchingUp) {
-        void runSearch({ query: caughtUp, preferAutoExpand: true });
-      }
-      return;
-    }
-
-    if (lastLiveQueryRef.current === debouncedQuery) return;
-    lastLiveQueryRef.current = debouncedQuery;
-    void runSearch({ query: debouncedQuery, preferAutoExpand: true });
-  }, [dbConfigured, debouncedQuery, filtersHydrated, query, runSearch]);
 
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.permissions?.query) return;
@@ -622,7 +590,6 @@ export function KfHomeClient({
                 aria-label="Clear search text"
                 onClick={() => {
                   setQuery("");
-                  lastLiveQueryRef.current = "";
                   void runSearch({ preferAutoExpand: true, query: "" });
                 }}
               >
@@ -674,7 +641,6 @@ export function KfHomeClient({
           style={{ animationDelay: "60ms" }}
           onSubmit={(e) => {
             e.preventDefault();
-            lastLiveQueryRef.current = query;
             void runSearch({ preferAutoExpand: true });
           }}
           role="search"
@@ -706,7 +672,6 @@ export function KfHomeClient({
                 aria-label="Clear search"
                 onClick={() => {
                   setQuery("");
-                  lastLiveQueryRef.current = "";
                   void runSearch({ preferAutoExpand: true, query: "" });
                 }}
               >
@@ -714,6 +679,9 @@ export function KfHomeClient({
               </button>
             ) : null}
           </div>
+          <button type="submit" className="kf-btn kf-btn-primary kf-home-search-submit">
+            Search
+          </button>
         </form>
       </div>
 

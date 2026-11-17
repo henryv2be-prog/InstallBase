@@ -2253,6 +2253,13 @@
   margin-top: var(--kf-space-2);
 }
 
+.kf-home-search-submit {
+  width: 100%;
+  margin-top: var(--kf-space-2);
+  min-height: var(--kf-touch-min);
+  font-weight: 700;
+}
+
 .kf-hero-search-extras {
   display: flex;
   flex-direction: column;
