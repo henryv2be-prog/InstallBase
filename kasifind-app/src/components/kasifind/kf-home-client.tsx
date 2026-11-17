@@ -715,86 +715,54 @@ export function KfHomeClient({
         </form>
       </div>
 
-      <div className="kf-hero-search-extras">
-        <details
-          className={`kf-radius-disclosure${usesBrowseMode ? " kf-radius-disclosure--disabled" : ""}`}
-        >
-          <summary className="kf-radius-disclosure-summary">
-            <SlidersHorizontal className="h-4 w-4 shrink-0 text-[var(--kf-forest)]" aria-hidden />
-            <span>
-              Search distance: <strong>{usesBrowseMode ? "—" : radiusSummaryLabel}</strong>
-            </span>
-            <ChevronDown className="kf-radius-disclosure-chevron h-4 w-4 shrink-0" aria-hidden />
-          </summary>
-          <div className={`kf-radius-field${usesBrowseMode ? " kf-radius-field--disabled" : ""}`}>
-            {usesBrowseMode ? (
-              <p className="text-xs text-[var(--kf-muted)]">
-                Choose{" "}
-                <button
-                  type="button"
-                  className="kf-link font-semibold underline"
-                  onClick={() => handleScopeSelect("near")}
-                >
-                  Near me
-                </button>{" "}
-                or{" "}
-                <button
-                  type="button"
-                  className="kf-link font-semibold underline"
-                  onClick={() => handleScopeSelect("area")}
-                >
-                  Set location
-                </button>{" "}
-                to filter by distance.
-              </p>
-            ) : (
+      {!usesBrowseMode ? (
+        <div className="kf-hero-search-extras">
+          <details className="kf-radius-disclosure">
+            <summary className="kf-radius-disclosure-summary">
+              <SlidersHorizontal className="h-4 w-4 shrink-0 text-[var(--kf-forest)]" aria-hidden />
+              <span>
+                Search distance: <strong>{radiusSummaryLabel}</strong>
+              </span>
+              <ChevronDown className="kf-radius-disclosure-chevron h-4 w-4 shrink-0" aria-hidden />
+            </summary>
+            <div className="kf-radius-field">
               <p className="text-xs text-[var(--kf-muted)]">
                 Auto expands gently if there aren&apos;t many listings nearby (up to 50 km).
               </p>
-            )}
-            <div className="kf-radius-chips" role="group" aria-label="Search radius">
-              <button
-                type="button"
-                disabled={usesBrowseMode}
-                onClick={() => {
-                  if (usesBrowseMode) {
-                    handleScopeSelect("near");
-                    return;
-                  }
-                  setRadiusMode("auto");
-                  void runSearch({ preferAutoExpand: true, radiusMode: "auto" });
-                }}
-                className={`kf-chip kf-radius-chip ${radiusMode === "auto" ? "kf-chip-active" : ""}`}
-              >
-                Auto
-              </button>
-              {DISCOVERY_RADIUS_CHIPS_KM.map((r) => (
+              <div className="kf-radius-chips" role="group" aria-label="Search radius">
                 <button
-                  key={r}
                   type="button"
-                  disabled={usesBrowseMode}
                   onClick={() => {
-                    if (usesBrowseMode) {
-                      handleScopeSelect("near");
-                      return;
-                    }
-                    setRadiusMode("fixed");
-                    setRadiusKm(r);
-                    void runSearch({
-                      preferAutoExpand: false,
-                      radiusKm: r,
-                      radiusMode: "fixed",
-                    });
+                    setRadiusMode("auto");
+                    void runSearch({ preferAutoExpand: true, radiusMode: "auto" });
                   }}
-                  className={`kf-chip kf-radius-chip ${radiusMode === "fixed" && radiusKm === r ? "kf-chip-active" : ""}`}
+                  className={`kf-chip kf-radius-chip ${radiusMode === "auto" ? "kf-chip-active" : ""}`}
                 >
-                  {r} km
+                  Auto
                 </button>
-              ))}
+                {DISCOVERY_RADIUS_CHIPS_KM.map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => {
+                      setRadiusMode("fixed");
+                      setRadiusKm(r);
+                      void runSearch({
+                        preferAutoExpand: false,
+                        radiusKm: r,
+                        radiusMode: "fixed",
+                      });
+                    }}
+                    className={`kf-chip kf-radius-chip ${radiusMode === "fixed" && radiusKm === r ? "kf-chip-active" : ""}`}
+                  >
+                    {r} km
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        </details>
-      </div>
+          </details>
+        </div>
+      ) : null}
 
       {providerListCta ? (
         <div className="kf-home-provider-cta kf-animate-in">
