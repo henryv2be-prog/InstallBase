@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 
 const HEADER_OFFSET_PX = 52;
 const SCROLL_DELTA_HIDE = 18;
+/** While the query field is focused, require a larger scroll before hiding (keyboard / viewport jitter). */
+const SCROLL_DELTA_HIDE_WHILE_TYPING = 40;
 const SCROLL_TOP_REVEAL = 48;
 
 type PinState = {
@@ -78,8 +80,7 @@ export function useHomeSearchBarPin(
     };
   }, [barRef]);
 
-  const shouldBlockHide = () =>
-    interactionLockRef.current || Boolean(options?.suppressHideRef?.current);
+  const isHideSuppressed = () => Boolean(options?.suppressHideRef?.current);
 
   useEffect(() => {
     const resolvePinStart = () => {
@@ -96,17 +97,21 @@ export function useHomeSearchBarPin(
 
       setPinned(isPinned);
 
-      if (shouldBlockHide()) {
+      if (isHideSuppressed()) {
         setHidden(false);
         lastScrollY.current = y;
         return;
       }
 
+      const hideThreshold = interactionLockRef.current
+        ? SCROLL_DELTA_HIDE_WHILE_TYPING
+        : SCROLL_DELTA_HIDE;
+
       if (y < SCROLL_TOP_REVEAL) {
         setHidden(false);
       } else if (isPinned) {
         const delta = y - lastScrollY.current;
-        if (delta > SCROLL_DELTA_HIDE) setHidden(true);
+        if (delta > hideThreshold) setHidden(true);
         else if (delta < -SCROLL_DELTA_HIDE) setHidden(false);
       } else {
         setHidden(false);
@@ -129,7 +134,7 @@ export function useHomeSearchBarPin(
     const viewport = window.visualViewport;
     const onViewportChange = () => {
       lastScrollY.current = window.scrollY;
-      if (shouldBlockHide()) setHidden(false);
+      if (isHideSuppressed() || interactionLockRef.current) setHidden(false);
     };
     viewport?.addEventListener("resize", onViewportChange);
     viewport?.addEventListener("scroll", onViewportChange);
