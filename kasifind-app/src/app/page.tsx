@@ -11,7 +11,7 @@ export default async function KasiFindHomePage() {
   let providerListCta: {
     href: string;
     label: string;
-    hint: string;
+    hint: string | null;
     listingId?: string | null;
     displayName?: string | null;
     shareEnabled?: boolean;
@@ -23,9 +23,7 @@ export default async function KasiFindHomePage() {
       providerListCta = {
         href: "/account",
         label: listing ? "My business hub" : "Create your free listing",
-        hint: listing
-          ? "View insights, edit your listing, and share with customers."
-          : "Set up in minutes — no company registration required.",
+        hint: listing ? null : "Set up in minutes — no company registration required.",
         listingId: listing?.id ?? null,
         displayName: listing?.displayName ?? null,
         shareEnabled: listing
