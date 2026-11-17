@@ -39,9 +39,11 @@ export async function readVisitorIdFromCookies(): Promise<string | null> {
 }
 
 export async function recordAnalyticsEvent(input: TrackEventInput): Promise<void> {
+  const sessionUser = await getKasiFindSessionUser();
+  if (sessionUser?.role === "ADMIN") return;
+
   const kf = getKasiFindPrisma();
   const visitorId = await getOrCreateVisitorId(input.visitorId);
-  const sessionUser = await getKasiFindSessionUser();
 
   if (sessionUser) {
     await kf.kfUser.update({

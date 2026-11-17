@@ -1,4 +1,5 @@
 import "server-only";
+import { withAnalyticsAudience } from "@/lib/kasifind/analytics-audience";
 import { getKasiFindPrisma } from "@/lib/kasifind/prisma";
 import {
   formatKfClickIdentity,
@@ -21,10 +22,10 @@ export async function getListingContactClickLog(
   const kf = getKasiFindPrisma();
 
   const rows = await kf.kfAnalyticsEvent.findMany({
-    where: {
+    where: withAnalyticsAudience({
       listingId,
       eventType: { in: [...LISTING_CONTACT_CLICK_TYPES] },
-    },
+    }),
     orderBy: { createdAt: "desc" },
     take: limit,
     include: {

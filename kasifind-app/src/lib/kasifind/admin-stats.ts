@@ -2,6 +2,7 @@ import "server-only";
 import { kfDateKeyInSast } from "@/lib/kasifind/format-datetime";
 import { getKasiFindPrisma } from "@/lib/kasifind/prisma";
 import { isListingClickEvent } from "@/lib/kasifind/analytics";
+import { withAnalyticsAudience } from "@/lib/kasifind/analytics-audience";
 
 function daysAgo(n: number) {
   const d = new Date();
@@ -44,44 +45,44 @@ export async function getAdminDashboardStats() {
     kf.kfAnalyticsEvent.groupBy({
       by: ["eventType"],
       _count: { _all: true },
-      where: { eventType: "LISTING_IMPRESSION" },
+      where: withAnalyticsAudience({ eventType: "LISTING_IMPRESSION" }),
     }),
     kf.kfAnalyticsEvent.groupBy({
       by: ["eventType"],
       _count: { _all: true },
-      where: { eventType: "LISTING_VIEW" },
+      where: withAnalyticsAudience({ eventType: "LISTING_VIEW" }),
     }),
   ]);
   const totalImpressions = impressionEvents[0]?._count._all ?? 0;
   const totalViews = viewEvents[0]?._count._all ?? 0;
 
   const clicks = await kf.kfAnalyticsEvent.findMany({
-    where: {
+    where: withAnalyticsAudience({
       eventType: {
         in: ["LISTING_CLICK_WHATSAPP", "LISTING_CLICK_CALL", "LISTING_CLICK_DIRECTIONS"],
       },
-    },
+    }),
     select: { eventType: true, createdAt: true, userId: true },
   });
   const totalClicks = clicks.length;
 
   const impressionsLast7 = await kf.kfAnalyticsEvent.count({
-    where: { eventType: "LISTING_IMPRESSION", createdAt: { gte: weekAgo } },
+    where: withAnalyticsAudience({ eventType: "LISTING_IMPRESSION", createdAt: { gte: weekAgo } }),
   });
   const impressionsLast30 = await kf.kfAnalyticsEvent.count({
-    where: { eventType: "LISTING_IMPRESSION", createdAt: { gte: monthAgo } },
+    where: withAnalyticsAudience({ eventType: "LISTING_IMPRESSION", createdAt: { gte: monthAgo } }),
   });
   const viewsLast7 = await kf.kfAnalyticsEvent.count({
-    where: { eventType: "LISTING_VIEW", createdAt: { gte: weekAgo } },
+    where: withAnalyticsAudience({ eventType: "LISTING_VIEW", createdAt: { gte: weekAgo } }),
   });
   const viewsLast30 = await kf.kfAnalyticsEvent.count({
-    where: { eventType: "LISTING_VIEW", createdAt: { gte: monthAgo } },
+    where: withAnalyticsAudience({ eventType: "LISTING_VIEW", createdAt: { gte: monthAgo } }),
   });
   const clicksLast7 = clicks.filter((c) => c.createdAt >= weekAgo).length;
   const clicksLast30 = clicks.filter((c) => c.createdAt >= monthAgo).length;
 
   const registeredViews = await kf.kfAnalyticsEvent.count({
-    where: { eventType: "LISTING_VIEW", userId: { not: null } },
+    where: withAnalyticsAudience({ eventType: "LISTING_VIEW", userId: { not: null } }),
   });
   const anonymousViews = totalViews - registeredViews;
 
@@ -89,7 +90,7 @@ export async function getAdminDashboardStats() {
   const anonymousClicks = totalClicks - registeredClicks;
 
   const dailyActivity = await kf.kfAnalyticsEvent.findMany({
-    where: { createdAt: { gte: daysAgo(14) } },
+    where: withAnalyticsAudience({ createdAt: { gte: daysAgo(14) } }),
     select: { eventType: true, createdAt: true, visitorId: true },
     orderBy: { createdAt: "asc" },
   });
@@ -135,7 +136,7 @@ export async function getAdminDashboardStats() {
   const topListingsRaw = await kf.kfAnalyticsEvent.groupBy({
     by: ["listingId"],
     _count: { _all: true },
-    where: { eventType: "LISTING_IMPRESSION", listingId: { not: null } },
+    where: withAnalyticsAudience({ eventType: "LISTING_IMPRESSION", listingId: { not: null } }),
     orderBy: { _count: { listingId: "desc" } },
     take: 8,
   });
@@ -158,10 +159,10 @@ export async function getAdminDashboardStats() {
   const categoryClicks = await kf.kfAnalyticsEvent.groupBy({
     by: ["categoryId"],
     _count: { _all: true },
-    where: {
+    where: withAnalyticsAudience({
       categoryId: { not: null },
       eventType: { in: ["CATEGORY_BROWSE", "SEARCH"] },
-    },
+    }),
     orderBy: { _count: { categoryId: "desc" } },
     take: 8,
   });
@@ -181,7 +182,7 @@ export async function getAdminDashboardStats() {
   const regionRows = await kf.kfAnalyticsEvent.groupBy({
     by: ["regionLabel"],
     _count: { _all: true },
-    where: { regionLabel: { not: null }, createdAt: { gte: monthAgo } },
+    where: withAnalyticsAudience({ regionLabel: { not: null }, createdAt: { gte: monthAgo } }),
     orderBy: { _count: { regionLabel: "desc" } },
     take: 6,
   });
@@ -191,6 +192,7 @@ export async function getAdminDashboardStats() {
   }));
 
   const recentActivity = await kf.kfAnalyticsEvent.findMany({
+    where: withAnalyticsAudience(),
     orderBy: { createdAt: "desc" },
     take: 25,
     include: {

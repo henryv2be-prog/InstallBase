@@ -1,6 +1,7 @@
 import "server-only";
 import type { KfAnalyticsEventType } from "@/generated/prisma/enums";
 import { KfAnalyticsEventType as EventTypes } from "@/generated/prisma/enums";
+import { withAnalyticsAudience } from "@/lib/kasifind/analytics-audience";
 import { getKasiFindPrisma } from "@/lib/kasifind/prisma";
 
 const VALID_EVENT_TYPES = new Set<string>(Object.values(EventTypes));
@@ -43,7 +44,7 @@ export async function getAdminEventsPage(options: {
     });
   }
 
-  const where = and.length > 0 ? { AND: and } : {};
+  const where = withAnalyticsAudience(and.length > 0 ? { AND: and } : {});
 
   const [total, rows] = await Promise.all([
     kf.kfAnalyticsEvent.count({ where }),
