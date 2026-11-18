@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { KfAdminAssistanceDetail } from "@/components/kasifind/admin/kf-admin-assistance-detail";
 import { KfAdminAssistanceQueue } from "@/components/kasifind/admin/kf-admin-assistance-queue";
 import { KfAdminAssistanceWorkspace } from "@/components/kasifind/admin/kf-admin-assistance-workspace";
+import { buildAdminAssistanceIndexHref } from "@/lib/kasifind/admin-assistance-nav";
 import { loadAdminAssistanceWorkspace } from "@/lib/kasifind/admin-assistance-page-data";
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { getAdminAssistanceRequestDetail } from "@/lib/kasifind/listing-assistance";
@@ -37,6 +38,7 @@ export default async function AdminListingAssistanceDetailPage({ params, searchP
   return (
     <KfAdminAssistanceWorkspace
       activeRequestId={id}
+      mobileBackHref={buildAdminAssistanceIndexHref(listParams)}
       queue={
         <KfAdminAssistanceQueue
           summary={summary}

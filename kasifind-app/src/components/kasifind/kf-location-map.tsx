@@ -41,48 +41,72 @@ export function KfLocationMap({
   onChangeRef.current = onLocationChange;
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return undefined;
+
     let cancelled = false;
 
-    void (async () => {
-      const leaflet = await import("leaflet");
-      await import("leaflet/dist/leaflet.css");
-      const L = leaflet.default;
-      if (cancelled || !containerRef.current || mapRef.current) return;
-
-      const map = L.map(containerRef.current, {
-        scrollWheelZoom: interactive,
-        dragging: interactive,
-        touchZoom: interactive,
-        doubleClickZoom: interactive,
-        boxZoom: interactive,
-        keyboard: false,
-      });
-
-      const mapEl = map.getContainer();
-      mapEl.removeAttribute("tabindex");
-      mapEl.setAttribute("aria-hidden", "true");
-
-      tilesRef.current = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      }).addTo(map);
-
-      mapRef.current = map;
-      if (!cancelled) setMapReady(true);
-
-      requestAnimationFrame(() => map.invalidateSize());
-      window.setTimeout(() => map.invalidateSize(), 200);
-    })();
-
-    return () => {
-      cancelled = true;
+    const teardownMap = () => {
       setMapReady(false);
       mapRef.current?.remove();
       mapRef.current = null;
       tilesRef.current = null;
       markerRef.current = null;
       circleRef.current = null;
+    };
+
+    const setupMap = () => {
+      void (async () => {
+        const leaflet = await import("leaflet");
+        await import("leaflet/dist/leaflet.css");
+        const L = leaflet.default;
+        if (cancelled || !containerRef.current || mapRef.current) return;
+
+        const map = L.map(containerRef.current, {
+          scrollWheelZoom: interactive,
+          dragging: interactive,
+          touchZoom: interactive,
+          doubleClickZoom: interactive,
+          boxZoom: interactive,
+          keyboard: false,
+        });
+
+        const mapEl = map.getContainer();
+        mapEl.removeAttribute("tabindex");
+        mapEl.setAttribute("aria-hidden", "true");
+
+        tilesRef.current = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 19,
+        }).addTo(map);
+
+        mapRef.current = map;
+        if (!cancelled) setMapReady(true);
+
+        requestAnimationFrame(() => map.invalidateSize());
+        window.setTimeout(() => map.invalidateSize(), 200);
+      })();
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.some((entry) => entry.isIntersecting);
+        if (visible) {
+          setupMap();
+        } else {
+          teardownMap();
+        }
+      },
+      { threshold: 0.01 }
+    );
+
+    observer.observe(container);
+
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+      teardownMap();
     };
   }, [interactive]);
 

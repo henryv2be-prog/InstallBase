@@ -4120,6 +4120,57 @@
     max-height: none;
     overflow: visible;
   }
+
+  .kf-admin-master-detail-workspace:not(.kf-admin-master-detail-workspace--detail)
+    .kf-admin-master-detail-placeholder {
+    display: none;
+  }
+
+  .kf-admin-master-detail-workspace--detail .kf-admin-master-detail-workspace__grid,
+  .kf-admin-assistance-workspace--detail .kf-admin-assistance-workspace__grid {
+    display: block;
+  }
+
+  .kf-admin-master-detail-workspace__detail,
+  .kf-admin-assistance-workspace__detail {
+    overflow: visible;
+    min-height: auto;
+  }
+
+  .kf-admin-master-detail-mobile-back {
+    display: inline-flex;
+    margin-bottom: var(--kf-space-3);
+    font-size: var(--kf-text-sm);
+    font-weight: 600;
+    text-decoration: underline;
+    color: var(--kf-forest);
+  }
+
+  .kf-admin-listings-detail__pinned,
+  .kf-admin-assistance-detail__pinned,
+  .kf-admin-providers-detail__pinned,
+  .kf-admin-moderation-detail__pinned {
+    position: static;
+  }
+
+  .kf-admin-listings-detail .kf-listing-flow--embedded,
+  .kf-admin-assistance-detail .kf-listing-flow--embedded {
+    display: block;
+    flex: none;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .kf-admin-listings-detail .kf-listing-flow--embedded .kf-listing-flow-body,
+  .kf-admin-assistance-detail .kf-listing-flow--embedded .kf-listing-flow-body {
+    display: block;
+    flex: none;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+    justify-content: flex-start;
+  }
 }
 
 @media (min-width: 1024px) {

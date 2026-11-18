@@ -2,7 +2,7 @@ import Link from "next/link";
 import { KfAdminMasterDetailWorkspace } from "@/components/kasifind/admin/kf-admin-master-detail-workspace";
 import { KfAdminModerationDetail } from "@/components/kasifind/admin/kf-admin-moderation-detail";
 import { KfAdminModerationQueue } from "@/components/kasifind/admin/kf-admin-moderation-queue";
-import { buildAdminModerationItemHref } from "@/lib/kasifind/admin-moderation-nav";
+import { buildAdminModerationIndexHref, buildAdminModerationItemHref } from "@/lib/kasifind/admin-moderation-nav";
 import { loadAdminModerationWorkspace } from "@/lib/kasifind/admin-moderation-page-data";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +20,7 @@ export default async function AdminModerationPage({ searchParams }: Props) {
       title="Moderation"
       description="Pending listings, user reports, and a read-only view of community reviews — in one workspace."
       activeId={selectedId}
+      mobileBackHref={selectedId ? buildAdminModerationIndexHref(listParams) : undefined}
       queue={
         <KfAdminModerationQueue
           tab={listParams.tab ?? "pending"}

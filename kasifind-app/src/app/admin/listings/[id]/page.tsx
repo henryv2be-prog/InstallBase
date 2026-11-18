@@ -3,6 +3,7 @@ import { KfAdminListingsDetail } from "@/components/kasifind/admin/kf-admin-list
 import { KfAdminListingsQueue } from "@/components/kasifind/admin/kf-admin-listings-queue";
 import { KfAdminMasterDetailWorkspace } from "@/components/kasifind/admin/kf-admin-master-detail-workspace";
 import { getAdminListingDetail } from "@/lib/kasifind/admin-listings";
+import { buildAdminListingsIndexHref } from "@/lib/kasifind/admin-listings-nav";
 import { loadAdminListingsWorkspace } from "@/lib/kasifind/admin-listings-page-data";
 import { listKfCategories } from "@/lib/kasifind/categories";
 
@@ -32,6 +33,7 @@ export default async function AdminListingDetailPage({ params, searchParams }: P
       title="Listings"
       description="Browse, moderate, and edit listings without losing your place in the queue."
       activeId={id}
+      mobileBackHref={buildAdminListingsIndexHref(listParams)}
       queue={
         <KfAdminListingsQueue
           rows={data.rows}
