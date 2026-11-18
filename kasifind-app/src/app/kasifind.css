@@ -3645,6 +3645,7 @@
   padding: 0;
   max-height: 22rem;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .kf-admin-inbox-feed__item {
@@ -3777,9 +3778,6 @@
   border: 1px solid var(--kf-border);
   background: var(--kf-surface);
   box-shadow: 0 2px 12px rgba(15, 23, 20, 0.04);
-  max-height: calc(100vh - 9rem);
-  position: sticky;
-  top: var(--kf-space-4);
 }
 
 .kf-admin-assistance-queue__title {
@@ -3814,6 +3812,7 @@
   margin: 0;
   padding: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
@@ -4100,9 +4099,36 @@
   border: 1px solid var(--kf-border);
   background: var(--kf-surface);
   box-shadow: 0 2px 12px rgba(15, 23, 20, 0.04);
-  max-height: calc(100vh - 9rem);
-  position: sticky;
-  top: var(--kf-space-4);
+}
+
+/* Admin workspace queues: one page scroll on mobile; nested scroll only on desktop split view */
+@media (max-width: 1023px) {
+  .kf-admin-assistance-queue,
+  .kf-admin-master-detail-queue {
+    position: static;
+    max-height: none;
+  }
+
+  .kf-admin-assistance-queue__list,
+  .kf-admin-master-detail-queue__list {
+    overflow: visible;
+    flex: none;
+    min-height: auto;
+  }
+
+  .kf-admin-inbox-feed {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kf-admin-assistance-queue,
+  .kf-admin-master-detail-queue {
+    position: sticky;
+    top: var(--kf-space-4);
+    max-height: calc(100dvh - 10rem);
+  }
 }
 
 .kf-admin-master-detail-queue__head {
@@ -4150,6 +4176,7 @@
   margin: 0;
   padding: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
