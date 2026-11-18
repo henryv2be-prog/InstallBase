@@ -4103,10 +4103,19 @@
 
 /* Admin workspace queues: one page scroll on mobile; nested scroll only on desktop split view */
 @media (max-width: 1023px) {
+  .kf-admin-shell,
+  .kf-admin-shell__content,
+  .kf-admin-page {
+    overflow: visible;
+    min-height: auto;
+    touch-action: pan-y;
+  }
+
   .kf-admin-assistance-queue,
   .kf-admin-master-detail-queue {
     position: static;
     max-height: none;
+    touch-action: pan-y;
   }
 
   .kf-admin-assistance-queue__list,
@@ -4170,6 +4179,21 @@
     max-height: none;
     overflow: visible;
     justify-content: flex-start;
+  }
+
+  .kf-listing-flow--embedded-unfold .kf-wizard-step-panel {
+    scroll-margin-top: calc(var(--kf-header-h) + 0.5rem);
+    padding-bottom: var(--kf-space-4);
+    margin-bottom: var(--kf-space-4);
+    border-bottom: 1px solid var(--kf-border);
+  }
+
+  .kf-listing-flow--embedded-unfold .kf-listing-flow-head .kf-wizard-step-banner {
+    display: none;
+  }
+
+  .kf-listing-flow-foot--admin-unfold {
+    display: none;
   }
 }
 

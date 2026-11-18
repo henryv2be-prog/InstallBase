@@ -68,6 +68,26 @@ type ListingData = {
 
 const LAST_STEP = LISTING_FORM_STEPS.length - 1;
 
+const ADMIN_MOBILE_MQ = "(max-width: 1023px)";
+
+function useAdminMobileUnfold(adminEmbedded: boolean) {
+  const [unfold, setUnfold] = useState(false);
+
+  useEffect(() => {
+    if (!adminEmbedded) {
+      setUnfold(false);
+      return undefined;
+    }
+    const mq = window.matchMedia(ADMIN_MOBILE_MQ);
+    const sync = () => setUnfold(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, [adminEmbedded]);
+
+  return unfold;
+}
+
 function stepPanelClass(active: boolean) {
   return active ? "kf-form-section kf-wizard-step-panel" : "kf-form-section";
 }
@@ -123,6 +143,7 @@ export function KfListingForm({
   const router = useRouter();
   const listingAssistance = useListingAssistance();
   const adminEmbedded = Boolean(adminAssist || adminEdit);
+  const adminMobileUnfold = useAdminMobileUnfold(adminEmbedded);
   const upsertListing = adminAssist
     ? kfAdminAssistedUpsertListing
     : adminEdit
@@ -150,6 +171,7 @@ export function KfListingForm({
   const [locatingPublish, setLocatingPublish] = useState(false);
   const [removingPhotoId, setRemovingPhotoId] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState(0);
+  const stepIsHidden = (step: number) => !adminMobileUnfold && activeStep !== step;
 
   const defaultServices = listing?.services.join("\n") ?? "Steel gates\nWelding\nSecurity gates";
   const formBusy = pending || locatingPublish || savingDraft;
@@ -171,9 +193,10 @@ export function KfListingForm({
   }, [guestMode, listing?.listingId]);
 
   useEffect(() => {
+    if (adminEmbedded) return;
     requestAnimationFrame(scrollActiveStepPanel);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- scroll after step DOM updates
-  }, [activeStep]);
+  }, [activeStep, adminEmbedded]);
 
   useEffect(() => {
     if (activeStep !== 1) return;
@@ -310,6 +333,17 @@ export function KfListingForm({
           return;
         }
       }
+    } else if (adminEmbedded && adminMobileUnfold) {
+      for (let step = 0; step < LAST_STEP; step += 1) {
+        if (!validateWizardStep(form, step, toast.error)) {
+          goToStep(step);
+          document.getElementById(LISTING_FORM_STEPS[step]?.id)?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+          return;
+        }
+      }
     } else if (!validateWizardStep(form, activeStep, toast.error)) {
       return;
     }
@@ -362,14 +396,21 @@ export function KfListingForm({
 
   return (
     <div
-      className={`kf-listing-flow kf-classic-wizard${adminEmbedded ? " kf-listing-flow--embedded" : ""}`}
+      className={`kf-listing-flow kf-classic-wizard${adminEmbedded ? " kf-listing-flow--embedded" : ""}${adminMobileUnfold ? " kf-listing-flow--embedded-unfold" : ""}`}
       data-active-step={activeStep}
     >
       <header className="kf-listing-flow-head kf-classic-wizard-head">
         <KfFormStepper
           steps={LISTING_FORM_STEPS}
           activeIndex={activeStep}
+          unlockAllSteps={adminMobileUnfold}
           onStepClick={(index) => {
+            if (adminMobileUnfold) {
+              goToStep(index);
+              const el = document.getElementById(LISTING_FORM_STEPS[index]?.id);
+              el?.scrollIntoView({ behavior: "smooth", block: "start" });
+              return;
+            }
             if (index <= activeStep) goToStep(index);
           }}
         />
@@ -412,7 +453,7 @@ export function KfListingForm({
           id="kf-step-business"
           data-wizard-step="0"
           className={stepPanelClass(activeStep === 0)}
-          hidden={activeStep !== 0}
+          hidden={stepIsHidden(0)}
         >
           <p className="kf-wizard-step-lead">How neighbours will recognise your business.</p>
           <div className="kf-wizard-fields">
@@ -468,7 +509,7 @@ export function KfListingForm({
           id="kf-step-location"
           data-wizard-step="1"
           className={stepPanelClass(activeStep === 1)}
-          hidden={activeStep !== 1}
+          hidden={stepIsHidden(1)}
         >
           <p className="kf-wizard-step-lead kf-wizard-step-lead--compact">
             Set your pin on the map, then choose what customers see.
@@ -499,7 +540,7 @@ export function KfListingForm({
           id="kf-step-services"
           data-wizard-step="2"
           className={stepPanelClass(activeStep === 2)}
-          hidden={activeStep !== 2}
+          hidden={stepIsHidden(2)}
         >
           <p className="kf-wizard-step-lead">Pick categories and list what you offer — search uses these words.</p>
           <div className="kf-wizard-fields">
@@ -560,7 +601,7 @@ export function KfListingForm({
           id="kf-step-photos"
           data-wizard-step="3"
           className={stepPanelClass(activeStep === 3)}
-          hidden={activeStep !== 3}
+          hidden={stepIsHidden(3)}
         >
           {guestMode && !listing?.listingId ? (
             <>
@@ -643,7 +684,7 @@ export function KfListingForm({
           id="kf-step-publish"
           data-wizard-step="4"
           className={stepPanelClass(activeStep === LAST_STEP)}
-          hidden={activeStep !== LAST_STEP}
+          hidden={stepIsHidden(LAST_STEP)}
         >
           <p className="kf-wizard-step-lead">
             Review everything, save a draft, or submit for moderation.
@@ -689,7 +730,10 @@ export function KfListingForm({
         </form>
       </div>
 
-      <footer className="kf-listing-flow-foot kf-classic-wizard-foot">
+      <footer
+        className={`kf-listing-flow-foot kf-classic-wizard-foot${adminMobileUnfold ? " kf-listing-flow-foot--admin-unfold" : ""}`}
+        hidden={adminMobileUnfold ? true : undefined}
+      >
         <nav className="kf-wizard-nav kf-listing-flow-nav" aria-label="Listing steps">
           {activeStep > 0 && activeStep < LAST_STEP ? (
             <button
