@@ -87,6 +87,7 @@ export function KfAdminAssistanceQueue({
                   href={href}
                   className={`kf-admin-assistance-queue__item${active ? " kf-admin-assistance-queue__item--active" : ""}`}
                   aria-current={active ? "true" : undefined}
+                  draggable={false}
                 >
                   <span className="kf-admin-assistance-queue__item-top">
                     <span className="kf-admin-assistance-queue__business">{r.businessName}</span>

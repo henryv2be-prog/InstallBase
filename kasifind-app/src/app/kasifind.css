@@ -4101,33 +4101,59 @@
   box-shadow: 0 2px 12px rgba(15, 23, 20, 0.04);
 }
 
-/* Admin workspace queues: one page scroll on mobile; nested scroll only on desktop split view */
+/* Admin workspace queues on mobile: scroll inside the list (iOS fails to pan the page through link rows) */
 @media (max-width: 1023px) {
-  .kf-admin-shell,
-  .kf-admin-shell__content,
-  .kf-admin-page {
-    overflow: visible;
-    min-height: auto;
-    touch-action: pan-y;
-  }
-
   .kf-admin-assistance-queue,
   .kf-admin-master-detail-queue {
     position: static;
     max-height: none;
-    touch-action: pan-y;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .kf-admin-assistance-queue__head,
+  .kf-admin-assistance-queue__filters,
+  .kf-admin-assistance-queue__pager,
+  .kf-admin-master-detail-queue__head,
+  .kf-admin-master-detail-queue__filters,
+  .kf-admin-master-detail-queue__pager,
+  .kf-admin-master-detail-queue__back {
+    flex-shrink: 0;
   }
 
   .kf-admin-assistance-queue__list,
   .kf-admin-master-detail-queue__list {
-    overflow: visible;
-    flex: none;
-    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1 1 auto;
+    min-height: 10rem;
+    max-height: calc(
+      100dvh - var(--kf-header-h) - var(--kf-admin-mobile-bar-h) - env(safe-area-inset-bottom, 0px) - 13.5rem
+    );
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+  }
+
+  .kf-admin-master-detail-queue__item,
+  .kf-admin-assistance-queue__item {
+    touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .kf-admin-inbox-feed {
-    max-height: none;
-    overflow: visible;
+    max-height: calc(
+      100dvh - var(--kf-header-h) - var(--kf-admin-mobile-bar-h) - env(safe-area-inset-bottom, 0px) - 12rem
+    );
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
   }
 
   .kf-admin-master-detail-workspace:not(.kf-admin-master-detail-workspace--detail)

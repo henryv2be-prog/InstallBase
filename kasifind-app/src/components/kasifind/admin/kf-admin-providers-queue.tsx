@@ -94,6 +94,7 @@ export function KfAdminProvidersQueue({
                   href={buildAdminProvidersDetailHref(row.id, listParams)}
                   className={`kf-admin-master-detail-queue__item${active ? " kf-admin-master-detail-queue__item--active" : ""}`}
                   aria-current={active ? "true" : undefined}
+                  draggable={false}
                 >
                   <span className="kf-admin-master-detail-queue__item-top">
                     <span className="kf-admin-master-detail-queue__primary">{row.name ?? row.email}</span>
