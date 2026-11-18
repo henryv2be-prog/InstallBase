@@ -1,12 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Camera } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 import {
   alternateListingImageSrc,
   resolveListingImageSrc,
 } from "@/lib/kasifind/resolve-listing-image-src";
-import { listingDisplayMonogram } from "@/lib/kasifind/listing-display-monogram";
 
 const SLIDE_MS = 3000;
 const FADE_MS = 550;
@@ -29,7 +28,6 @@ export function KfProviderCardGallery({
   photos,
   priority = false,
   displayName,
-  categoryName = null,
 }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -115,23 +113,17 @@ export function KfProviderCardGallery({
   );
 
   if (visiblePhotos.length === 0) {
-    const monogram = listingDisplayMonogram(displayName);
     const label = displayName.trim() || "Local provider";
     return (
       <div
         className="kf-provider-thumb-placeholder"
         role="img"
-        aria-label={`${label} — no photos yet`}
+        aria-label={`${label} — no photo yet`}
       >
-        <span className="kf-provider-thumb-placeholder__monogram" aria-hidden>
-          {monogram}
-        </span>
-        <Camera className="kf-provider-thumb-placeholder__icon" aria-hidden />
-        <p className="kf-provider-thumb-placeholder__title">{label}</p>
-        <p className="kf-provider-thumb-placeholder__hint">Photos coming soon</p>
-        {categoryName ? (
-          <span className="kf-provider-thumb-placeholder__category">{categoryName}</span>
-        ) : null}
+        <div className="kf-provider-thumb-placeholder__icon-wrap" aria-hidden>
+          <ImageIcon className="kf-provider-thumb-placeholder__icon" />
+        </div>
+        <p className="kf-provider-thumb-placeholder__label">No photo yet</p>
       </div>
     );
   }
