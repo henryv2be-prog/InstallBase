@@ -10,15 +10,8 @@ import {
   filterReachableUploadUrls,
   resolvePublicUploadUrl,
 } from "@/lib/kasifind/upload-asset";
-import {
-  BROWSE_LISTING_LIMIT,
-  DISCOVERY_MAX_RADIUS_KM,
-  GEO_SEARCH_RESULT_LIMIT,
-} from "@/lib/kasifind/discovery-config";
-import {
-  filterHitsWithinRadius,
-  planProgressiveDiscovery,
-} from "@/lib/kasifind/progressive-discovery";
+import { BROWSE_LISTING_LIMIT, GEO_SEARCH_RESULT_LIMIT } from "@/lib/kasifind/discovery-config";
+import { planProgressiveDiscovery } from "@/lib/kasifind/progressive-discovery";
 import {
   getPublicMapLocation,
   type PublicMapLocation,
@@ -175,15 +168,18 @@ async function finalizeSearchHits(
 async function fetchScoredGeoListings(input: {
   query: string;
   center: GeoPoint;
-  maxRadiusKm: number;
+  maxRadiusKm?: number;
   categorySlug?: string | null;
 }): Promise<ScoredListingRow[]> {
   const tokens = tokenizeSearchQuery(input.query);
-  const box = boundingBox(input.center, input.maxRadiusKm);
+  const geo =
+    input.maxRadiusKm !== undefined
+      ? boundingBox(input.center, input.maxRadiusKm)
+      : undefined;
   const listings = await fetchListingCandidates({
     query: input.query,
     categorySlug: input.categorySlug,
-    geo: box,
+    geo,
   });
 
   return listings
@@ -267,9 +263,11 @@ export type ProgressiveSearchResult = {
   includesSurroundingAreas: boolean;
   localListingCount: number;
   coverageExhausted: boolean;
+  /** Auto mode: every match, ordered nearest → farthest (no km cap). */
+  unboundedDistance?: boolean;
 };
 
-/** Geo search up to max radius; results ordered closest-first (sparse-area hints via plan). */
+/** Auto geo search: all matching listings by distance; fixed-radius uses searchProviders. */
 export async function searchWithProgressiveFallback(input: {
   query: string;
   center: GeoPoint;
@@ -282,18 +280,19 @@ export async function searchWithProgressiveFallback(input: {
   const scoredRaw = await fetchScoredGeoListings({
     query: input.query,
     center: input.center,
-    maxRadiusKm: DISCOVERY_MAX_RADIUS_KM,
     categorySlug: input.categorySlug,
   });
 
-  const plan = planProgressiveDiscovery(scoredRaw.map((h) => h.distanceKm));
-  const withinOuter = filterHitsWithinRadius(scoredRaw, plan.outerRadiusKm);
-  const sorted = sortSearchHits(withinOuter, { hasQuery, useDistance: true });
+  const plan = planProgressiveDiscovery(scoredRaw.map((h) => h.distanceKm), {
+    unbounded: true,
+  });
+  const sorted = sortSearchHits(scoredRaw, { hasQuery, useDistance: true });
   const results = await finalizeSearchHits(sorted, limit);
 
   return {
     results,
-    radiusKm: plan.outerRadiusKm,
+    radiusKm: 0,
+    unboundedDistance: true,
     expanded: plan.includesSurroundingAreas,
     includesSurroundingAreas: plan.includesSurroundingAreas,
     localListingCount: plan.localListingCount,
