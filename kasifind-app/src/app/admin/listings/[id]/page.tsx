@@ -1,185 +1,50 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  kfAdminDeleteListingAction,
-  kfAdminModerateListingAction,
-  kfAdminSetListingFeaturedAction,
-} from "@/lib/kasifind/admin-actions";
+import { KfAdminListingsDetail } from "@/components/kasifind/admin/kf-admin-listings-detail";
+import { KfAdminListingsQueue } from "@/components/kasifind/admin/kf-admin-listings-queue";
+import { KfAdminMasterDetailWorkspace } from "@/components/kasifind/admin/kf-admin-master-detail-workspace";
 import { getAdminListingDetail } from "@/lib/kasifind/admin-listings";
-import {
-  formatKfClickIdentity,
-  getListingContactClickLog,
-} from "@/lib/kasifind/contact-click-log";
-import { KfContactClickLog } from "@/components/kasifind/kf-contact-click-log";
-import { formatKfDateTime } from "@/lib/kasifind/format-datetime";
-import { KfAdminDeleteButton } from "@/components/kasifind/kf-admin-delete-button";
+import { loadAdminListingsWorkspace } from "@/lib/kasifind/admin-listings-page-data";
+import { listKfCategories } from "@/lib/kasifind/categories";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
-export default async function AdminListingDetailPage({ params }: Props) {
+export default async function AdminListingDetailPage({ params, searchParams }: Props) {
   const { id } = await params;
-  const data = await getAdminListingDetail(id);
-  if (!data) notFound();
+  const sp = await searchParams;
 
-  const { listing, metrics, recentEvents } = data;
-  const contactClickLog = await getListingContactClickLog(id, { limit: 200 });
+  const [workspace, detail, categories] = await Promise.all([
+    loadAdminListingsWorkspace(sp),
+    getAdminListingDetail(id),
+    listKfCategories(),
+  ]);
+
+  if (!detail) notFound();
+
+  const { data, listParams } = workspace;
 
   return (
-    <div className="space-y-6">
-      <Link href="/admin/listings" className="text-sm underline">
-        ← All listings
-      </Link>
-
-      <header className="kf-card p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-bold">{listing.displayName}</h2>
-            <p className="text-sm text-[var(--kf-muted)]">
-              {listing.user.email} · {listing.locationLabel}
-            </p>
-            <p className="mt-2 text-sm">
-              Status <strong>{listing.status}</strong> · Moderation{" "}
-              <strong>{listing.moderationStatus}</strong>
-              {listing.featured ? " · Featured" : ""}
-            </p>
-          </div>
-          <Link href={`/providers/${listing.id}`} className="kf-btn kf-btn-outline text-sm">
-            Public / preview URL
-          </Link>
-        </div>
-      </header>
-
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="kf-admin-stat-card">
-          <p className="kf-admin-stat-label">Search impressions</p>
-          <p className="kf-admin-stat-value">{metrics.impressions}</p>
-          <p className="text-xs text-[var(--kf-muted)]">Card visible in results</p>
-        </div>
-        <div className="kf-admin-stat-card">
-          <p className="kf-admin-stat-label">Profile views</p>
-          <p className="kf-admin-stat-value">{metrics.views}</p>
-        </div>
-        <div className="kf-admin-stat-card">
-          <p className="kf-admin-stat-label">Contact clicks</p>
-          <p className="kf-admin-stat-value">{metrics.clicks}</p>
-        </div>
-        <div className="kf-admin-stat-card">
-          <p className="kf-admin-stat-label">Open & contact rates</p>
-          <p className="kf-admin-stat-value">
-            {metrics.profileOpenRate}% · {metrics.contactRate}%
-          </p>
-          <p className="text-xs text-[var(--kf-muted)]">Profile opens · contacts per profile view</p>
-        </div>
-      </section>
-
-      <section className="kf-card p-5">
-        <h3 className="font-semibold">Listing details</h3>
-        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed">{listing.description}</p>
-        <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="font-medium">Phone</dt>
-            <dd>{listing.phone}</dd>
-          </div>
-          <div>
-            <dt className="font-medium">WhatsApp</dt>
-            <dd>{listing.whatsapp ?? "—"}</dd>
-          </div>
-          <div>
-            <dt className="font-medium">Categories</dt>
-            <dd>{listing.categories.map((c) => c.category.name).join(", ") || "—"}</dd>
-          </div>
-          <div>
-            <dt className="font-medium">Services</dt>
-            <dd>{listing.services.map((s) => s.name).join(", ") || "—"}</dd>
-          </div>
-          <div>
-            <dt className="font-medium">Reviews / reports</dt>
-            <dd>
-              {listing._count.reviews} reviews · {listing._count.reports} reports
-            </dd>
-          </div>
-        </dl>
-      </section>
-
-      <section className="flex flex-wrap gap-2">
-        <form action={kfAdminModerateListingAction}>
-          <input type="hidden" name="listingId" value={listing.id} />
-          <input type="hidden" name="decision" value="APPROVED" />
-          <button type="submit" className="kf-btn kf-btn-primary">
-            Approve
-          </button>
-        </form>
-        <form action={kfAdminModerateListingAction}>
-          <input type="hidden" name="listingId" value={listing.id} />
-          <input type="hidden" name="decision" value="REJECTED" />
-          <button type="submit" className="kf-btn kf-btn-outline">
-            Reject
-          </button>
-        </form>
-        <form action={kfAdminSetListingFeaturedAction}>
-          <input type="hidden" name="listingId" value={listing.id} />
-          <input type="hidden" name="featured" value={listing.featured ? "false" : "true"} />
-          <button type="submit" className="kf-btn kf-btn-secondary">
-            {listing.featured ? "Remove feature" : "Feature listing"}
-          </button>
-        </form>
-        <KfAdminDeleteButton
-          action={kfAdminDeleteListingAction}
-          hiddenFields={{ listingId: listing.id }}
-          label="Delete listing"
-          confirmMessage="Delete this listing permanently?"
+    <KfAdminMasterDetailWorkspace
+      title="Listings"
+      description="Browse, moderate, and edit listings without losing your place in the queue."
+      activeId={id}
+      queue={
+        <KfAdminListingsQueue
+          rows={data.rows}
+          listParams={listParams}
+          selectedId={id}
+          total={data.total}
+          page={data.page}
+          pageSize={data.pageSize}
+          exportHref="/admin/export/listings"
         />
-      </section>
-
-      <section className="kf-card p-5">
-        <KfContactClickLog
-          rows={contactClickLog}
-          title="Contact click log"
-          emptyMessage="No WhatsApp, call, or directions taps recorded for this listing yet."
-        />
-      </section>
-
-      <section>
-        <h3 className="kf-admin-section-title">Recent events (all types)</h3>
-        <div className="kf-admin-table-wrap mt-2">
-          <table className="kf-admin-data-table">
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Event</th>
-                <th>Who</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentEvents.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="py-6 text-center text-sm text-[var(--kf-muted)]">
-                    No tracked events yet.
-                  </td>
-                </tr>
-              ) : (
-                recentEvents.map((e) => (
-                  <tr key={e.id}>
-                    <td className="text-xs">{formatKfDateTime(e.createdAt)}</td>
-                    <td className="text-sm">{e.eventType.replace(/_/g, " ")}</td>
-                    <td className="text-sm">
-                      {
-                        formatKfClickIdentity({
-                          userName: e.user?.name ?? null,
-                          userEmail: e.user?.email ?? null,
-                          visitorId: e.visitorId,
-                        }).label
-                      }
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
+      }
+    >
+      <KfAdminListingsDetail data={detail} categories={categories} />
+    </KfAdminMasterDetailWorkspace>
   );
 }

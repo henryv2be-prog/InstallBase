@@ -49,6 +49,7 @@ export async function kfAdminModerateListing(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/listings");
   revalidatePath(`/admin/listings/${listingId}`);
+  revalidatePath("/admin/users");
   revalidatePath("/");
   revalidatePath(`/providers/${listingId}`);
   return { success: true };
@@ -150,6 +151,7 @@ export async function kfAdminUpdateUser(formData: FormData) {
   await kf.kfUser.update({ where: { id: userId }, data });
   await audit(auth.user.id, "user.updated", userId, JSON.stringify(data));
   revalidatePath("/admin/users");
+  revalidatePath(`/admin/users/${userId}`);
   return { success: true };
 }
 

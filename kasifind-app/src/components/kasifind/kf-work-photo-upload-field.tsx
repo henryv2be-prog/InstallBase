@@ -25,6 +25,7 @@ type Props = {
   existingPhotoCount: number;
   disabled?: boolean;
   assistanceRequestId?: string;
+  adminEditListingId?: string;
   addListingPhoto: (formData: FormData) => Promise<AddPhotoResult>;
   onPhotoAttached: () => void;
 };
@@ -38,6 +39,7 @@ export function KfWorkPhotoUploadField({
   existingPhotoCount,
   disabled,
   assistanceRequestId,
+  adminEditListingId,
   addListingPhoto,
   onPhotoAttached,
 }: Props) {
@@ -74,6 +76,7 @@ export function KfWorkPhotoUploadField({
         const fd = new FormData();
         fd.set("url", uploaded.url);
         if (assistanceRequestId) fd.set("assistanceRequestId", assistanceRequestId);
+        if (adminEditListingId) fd.set("adminEditListingId", adminEditListingId);
         const add = await addListingPhoto(fd);
 
         if ("error" in add && add.error) {
@@ -87,7 +90,7 @@ export function KfWorkPhotoUploadField({
         pumpQueueRef.current();
       }
     },
-    [addListingPhoto, assistanceRequestId, onPhotoAttached, patchJob]
+    [addListingPhoto, adminEditListingId, assistanceRequestId, onPhotoAttached, patchJob]
   );
 
   const pumpQueue = useCallback(() => {

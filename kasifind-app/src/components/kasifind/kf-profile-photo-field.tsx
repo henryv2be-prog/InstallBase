@@ -9,6 +9,10 @@ import {
   kfSetListingProfileImage,
 } from "@/lib/kasifind/actions";
 import {
+  kfAdminDirectClearListingProfileImage,
+  kfAdminDirectSetListingProfileImage,
+} from "@/lib/kasifind/admin-listing-edit-actions";
+import {
   kfAdminAssistedClearListingProfileImage,
   kfAdminAssistedSetListingProfileImage,
 } from "@/lib/kasifind/listing-assistance-actions";
@@ -23,6 +27,7 @@ type Props = {
   /** When no listing exists yet, step-1 fields are read from this form to save a draft + photo. */
   wizardFormRef?: RefObject<HTMLFormElement | null>;
   assistanceRequestId?: string;
+  adminEditListingId?: string;
 };
 
 function validateStep0ForPhoto(form: HTMLFormElement, toastError: (msg: string) => void): boolean {
@@ -51,6 +56,7 @@ export function KfProfilePhotoField({
   disabled,
   wizardFormRef,
   assistanceRequestId,
+  adminEditListingId,
 }: Props) {
   const router = useRouter();
   const toast = useKfToast();
@@ -77,10 +83,13 @@ export function KfProfilePhotoField({
         const fd = new FormData();
         fd.set("url", data.url);
         if (assistanceRequestId) fd.set("assistanceRequestId", assistanceRequestId);
+        if (adminEditListingId) fd.set("adminEditListingId", adminEditListingId);
         startTransition(async () => {
           const result = assistanceRequestId
             ? await kfAdminAssistedSetListingProfileImage(fd)
-            : await kfSetListingProfileImage(fd);
+            : adminEditListingId
+              ? await kfAdminDirectSetListingProfileImage(fd)
+              : await kfSetListingProfileImage(fd);
           if ("error" in result && result.error) toast.error(result.error);
           else {
             toast.success("Business photo updated.");
@@ -139,9 +148,12 @@ export function KfProfilePhotoField({
                   startTransition(async () => {
                     const fd = new FormData();
                     if (assistanceRequestId) fd.set("assistanceRequestId", assistanceRequestId);
+                    if (adminEditListingId) fd.set("adminEditListingId", adminEditListingId);
                     const result = assistanceRequestId
                       ? await kfAdminAssistedClearListingProfileImage(fd)
-                      : await kfClearListingProfileImage();
+                      : adminEditListingId
+                        ? await kfAdminDirectClearListingProfileImage(fd)
+                        : await kfClearListingProfileImage();
                     if ("error" in result && result.error) toast.error(result.error);
                     else {
                       toast.success("Business photo removed.");

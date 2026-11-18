@@ -11,6 +11,11 @@ import {
   kfUpsertListing,
 } from "@/lib/kasifind/actions";
 import {
+  kfAdminDirectAddListingPhoto,
+  kfAdminDirectRemoveListingPhoto,
+  kfAdminDirectUpsertListing,
+} from "@/lib/kasifind/admin-listing-edit-actions";
+import {
   kfAdminAssistedAddListingPhoto,
   kfAdminAssistedRemoveListingPhoto,
   kfAdminAssistedUpsertListing,
@@ -106,18 +111,33 @@ export function KfListingForm({
   userEmail,
   guestMode = false,
   adminAssist,
+  adminEdit,
 }: {
   categories: KfCategory[];
   listing: ListingData | null;
   userEmail: string;
   guestMode?: boolean;
   adminAssist?: { assistanceRequestId: string };
+  adminEdit?: { listingId: string };
 }) {
   const router = useRouter();
   const listingAssistance = useListingAssistance();
-  const upsertListing = adminAssist ? kfAdminAssistedUpsertListing : kfUpsertListing;
-  const addListingPhoto = adminAssist ? kfAdminAssistedAddListingPhoto : kfAddListingPhoto;
-  const removeListingPhoto = adminAssist ? kfAdminAssistedRemoveListingPhoto : kfRemoveListingPhoto;
+  const adminEmbedded = Boolean(adminAssist || adminEdit);
+  const upsertListing = adminAssist
+    ? kfAdminAssistedUpsertListing
+    : adminEdit
+      ? kfAdminDirectUpsertListing
+      : kfUpsertListing;
+  const addListingPhoto = adminAssist
+    ? kfAdminAssistedAddListingPhoto
+    : adminEdit
+      ? kfAdminDirectAddListingPhoto
+      : kfAddListingPhoto;
+  const removeListingPhoto = adminAssist
+    ? kfAdminAssistedRemoveListingPhoto
+    : adminEdit
+      ? kfAdminDirectRemoveListingPhoto
+      : kfRemoveListingPhoto;
   const toast = useKfToast();
   const formRef = useRef<HTMLFormElement>(null);
   const flowBodyRef = useRef<HTMLDivElement>(null);
@@ -137,10 +157,10 @@ export function KfListingForm({
   const photoCount = listing?.photos.length ?? 0;
 
   useEffect(() => {
-    if (adminAssist) return undefined;
+    if (adminEmbedded) return undefined;
     document.body.classList.add("kf-listing-flow-active");
     return () => document.body.classList.remove("kf-listing-flow-active");
-  }, [adminAssist]);
+  }, [adminEmbedded]);
 
   useEffect(() => {
     if (!guestMode || listing?.listingId) return;
@@ -166,7 +186,7 @@ export function KfListingForm({
   };
 
   useEffect(() => {
-    if (adminAssist) return undefined;
+    if (adminEmbedded) return undefined;
     const scrollRoot = flowBodyRef.current;
     if (!scrollRoot) return undefined;
 
@@ -181,7 +201,7 @@ export function KfListingForm({
 
     scrollRoot.addEventListener("focusin", onFocusIn);
     return () => scrollRoot.removeEventListener("focusin", onFocusIn);
-  }, [activeStep, adminAssist]);
+  }, [activeStep, adminEmbedded]);
 
   const goToStep = (index: number) => {
     if (index < 0 || index > LAST_STEP) return;
@@ -211,6 +231,7 @@ export function KfListingForm({
     setSavingDraft(true);
     try {
       if (adminAssist) formData.set("assistanceRequestId", adminAssist.assistanceRequestId);
+      if (adminEdit) formData.set("adminEditListingId", adminEdit.listingId);
       const result = await upsertListing(formData);
       if ("error" in result && result.error) {
         toast.error(result.error);
@@ -247,6 +268,7 @@ export function KfListingForm({
     startTransition(async () => {
       const publish = formData.get("publish") === "true";
       if (adminAssist) formData.set("assistanceRequestId", adminAssist.assistanceRequestId);
+      if (adminEdit) formData.set("adminEditListingId", adminEdit.listingId);
       const result = await upsertListing(formData);
       if ("error" in result && result.error) {
         toast.error(result.error);
@@ -256,7 +278,7 @@ export function KfListingForm({
         "listingId" in result && typeof result.listingId === "string"
           ? result.listingId
           : listing?.listingId ?? null;
-      if (adminAssist) {
+      if (adminAssist || adminEdit) {
         toast.success("Listing updated for this provider.");
         router.refresh();
         return;
@@ -340,7 +362,7 @@ export function KfListingForm({
 
   return (
     <div
-      className={`kf-listing-flow kf-classic-wizard${adminAssist ? " kf-listing-flow--embedded" : ""}`}
+      className={`kf-listing-flow kf-classic-wizard${adminEmbedded ? " kf-listing-flow--embedded" : ""}`}
       data-active-step={activeStep}
     >
       <header className="kf-listing-flow-head kf-classic-wizard-head">
@@ -382,6 +404,9 @@ export function KfListingForm({
         >
         {adminAssist ? (
           <input type="hidden" name="assistanceRequestId" value={adminAssist.assistanceRequestId} />
+        ) : null}
+        {adminEdit ? (
+          <input type="hidden" name="adminEditListingId" value={adminEdit.listingId} />
         ) : null}
         <section
           id="kf-step-business"
@@ -558,6 +583,7 @@ export function KfListingForm({
                   disabled={formBusy}
                   wizardFormRef={formRef}
                   assistanceRequestId={adminAssist?.assistanceRequestId}
+                  adminEditListingId={adminEdit?.listingId}
                 />
               </div>
               {photoCount > 0 ? (
@@ -573,6 +599,7 @@ export function KfListingForm({
                         const fd = new FormData();
                         fd.set("photoId", photoId);
                         if (adminAssist) fd.set("assistanceRequestId", adminAssist.assistanceRequestId);
+                        if (adminEdit) fd.set("adminEditListingId", adminEdit.listingId);
                         const result = await removeListingPhoto(fd);
                         if ("error" in result && result.error) toast.error(result.error);
                         else {
@@ -596,6 +623,7 @@ export function KfListingForm({
                 existingPhotoCount={photoCount}
                 disabled={pending}
                 assistanceRequestId={adminAssist?.assistanceRequestId}
+                adminEditListingId={adminEdit?.listingId}
                 addListingPhoto={addListingPhoto}
                 onPhotoAttached={() => router.refresh()}
               />
@@ -707,7 +735,7 @@ export function KfListingForm({
             </button>
           )}
         </nav>
-        {adminAssist ? null : (
+        {adminEmbedded ? null : (
           <p className="kf-listing-flow-account">
             {userEmail}{" "}
             <button

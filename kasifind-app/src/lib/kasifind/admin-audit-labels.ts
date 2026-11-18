@@ -8,6 +8,7 @@ const ACTION_LABELS: Record<string, string> = {
   "listing.unfeatured": "Removed featured flag",
   "listing.unpublished": "Unpublished listing",
   "listing.deleted": "Deleted listing",
+  "listing.admin_edit": "Edited listing (admin)",
   "user.updated": "Updated user account",
   "user.deleted": "Deleted user account",
   "category.created": "Created category",
