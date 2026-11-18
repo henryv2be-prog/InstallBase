@@ -64,3 +64,59 @@ export async function getAdminUsersPage(options: {
     })),
   };
 }
+
+export async function getAdminUserDetail(userId: string) {
+  const kf = getKasiFindPrisma();
+  const user = await kf.kfUser.findUnique({
+    where: { id: userId },
+    include: {
+      listing: {
+        select: {
+          id: true,
+          displayName: true,
+          status: true,
+          moderationStatus: true,
+          featured: true,
+          locationLabel: true,
+          updatedAt: true,
+          _count: { select: { reviews: true, reports: true } },
+        },
+      },
+      listingAssistanceRequests: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { id: true, status: true, createdAt: true },
+      },
+    },
+  });
+  if (!user) return null;
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    suspended: user.suspended,
+    createdAt: user.createdAt.toISOString(),
+    lastSeenAt: user.lastSeenAt?.toISOString() ?? null,
+    listing: user.listing
+      ? {
+          id: user.listing.id,
+          displayName: user.listing.displayName,
+          status: user.listing.status,
+          moderationStatus: user.listing.moderationStatus,
+          featured: user.listing.featured,
+          locationLabel: user.listing.locationLabel,
+          updatedAt: user.listing.updatedAt.toISOString(),
+          reviewCount: user.listing._count.reviews,
+          reportCount: user.listing._count.reports,
+        }
+      : null,
+    latestAssistance: user.listingAssistanceRequests[0]
+      ? {
+          id: user.listingAssistanceRequests[0].id,
+          status: user.listingAssistanceRequests[0].status,
+          createdAt: user.listingAssistanceRequests[0].createdAt.toISOString(),
+        }
+      : null,
+  };
+}
