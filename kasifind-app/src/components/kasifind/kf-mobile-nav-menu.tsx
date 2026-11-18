@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   LogIn,
   LogOut,
-  Map,
   PlusCircle,
 } from "lucide-react";
 import { KF_ADMIN_NAV_LINKS } from "@/lib/kasifind/admin-nav-links";
@@ -59,7 +58,6 @@ export function KfMobileNavMenu({
 }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const isActivityMap = pathname.startsWith("/activity-map");
   const isHub = pathname === "/account" || pathname.startsWith("/account/");
   const onAdmin = pathname.startsWith("/admin");
 
@@ -91,13 +89,6 @@ export function KfMobileNavMenu({
 
       {isAdmin ? (
         <section className="kf-mobile-nav-section" aria-label="Admin">
-          <NavButton
-            href="/activity-map"
-            label="Activity map"
-            icon={Map}
-            active={isActivityMap}
-            onNavigate={onClose}
-          />
           <details className="kf-mobile-nav-details" open={onAdmin}>
             <summary className="kf-mobile-nav-summary">
               <LayoutDashboard className="inline h-4 w-4" aria-hidden /> Admin portal

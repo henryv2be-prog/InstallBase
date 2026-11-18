@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { KfAnalyticsEventType } from "@/generated/prisma/enums";
+import { KfAdminAnalyticsSubnav } from "@/components/kasifind/admin/kf-admin-analytics-subnav";
 import { getAdminEventsPage } from "@/lib/kasifind/admin-events";
 import { formatAdminEventTypeLabel } from "@/lib/kasifind/admin-event-labels";
 import { formatKfClickIdentity } from "@/lib/kasifind/contact-click-display";
@@ -28,14 +29,17 @@ export default async function AdminEventsPage({ searchParams }: Props) {
   };
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="kf-admin-section-title">Analytics events</h2>
-        <p className="text-sm text-[var(--kf-muted)]">
-          Search impressions, profile views, contact taps, searches, and category browses.{" "}
-          {data.total.toLocaleString()} matching event{data.total === 1 ? "" : "s"}.
-        </p>
-      </div>
+    <div className="kf-admin-page space-y-4">
+      <header className="space-y-3">
+        <div>
+          <h2 className="kf-admin-section-title">Analytics events</h2>
+          <p className="text-sm text-[var(--kf-muted)]">
+            Search impressions, profile views, contact taps, searches, and category browses.{" "}
+            {data.total.toLocaleString()} matching event{data.total === 1 ? "" : "s"}.
+          </p>
+        </div>
+        <KfAdminAnalyticsSubnav />
+      </header>
 
       <form method="get" className="kf-admin-filters">
         <input
