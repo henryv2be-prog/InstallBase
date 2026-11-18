@@ -116,6 +116,7 @@ export function KfHomeClient({
     expanded: boolean;
     radiusKm: number;
     browse?: boolean;
+    unboundedDistance?: boolean;
     includesSurroundingAreas?: boolean;
     coverageExhausted?: boolean;
   } | null>(null);
@@ -415,6 +416,7 @@ export function KfHomeClient({
           setSearchMeta({
             expanded: Boolean(data.expanded),
             radiusKm: data.radiusKm ?? km,
+            unboundedDistance: Boolean(data.unboundedDistance),
             includesSurroundingAreas: Boolean(data.includesSurroundingAreas),
             coverageExhausted: Boolean(data.coverageExhausted),
           });
@@ -692,7 +694,7 @@ export function KfHomeClient({
             </summary>
             <div className="kf-radius-field">
               <p className="text-xs text-[var(--kf-muted)]">
-                Auto shows all listings up to 50 km away, closest first. We note when few are very close by.
+                Auto lists every match from nearest to farthest — no distance cut-off.
               </p>
               <div className="kf-radius-chips" role="group" aria-label="Search radius">
                 <button
@@ -819,7 +821,9 @@ export function KfHomeClient({
               title="Nobody listed here yet"
               description={
                 searchMeta?.coverageExhausted
-                  ? "KasiFind is still growing here — nothing matched within about 50 km. Try another category, choose a different area, or browse all listings."
+                  ? radiusMode === "auto"
+                    ? "Nothing matched your search from your location. Try another category, choose a different area, or browse all listings."
+                    : "KasiFind is still growing here — nothing matched within your selected distance. Try another category, choose a different area, or browse all listings."
                   : usesBrowseMode
                     ? "No listings matched your filters nationwide. Try another category or clear your search."
                     : radiusMode === "fixed"

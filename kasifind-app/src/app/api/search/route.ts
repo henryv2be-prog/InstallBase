@@ -70,6 +70,7 @@ export async function GET(request: NextRequest) {
         query,
         center: { latitude: lat, longitude: lng },
         radiusKm: payload.radiusKm,
+        unboundedDistance: Boolean(payload.unboundedDistance),
         expanded: payload.expanded,
         includesSurroundingAreas: payload.includesSurroundingAreas,
         localListingCount: payload.localListingCount,

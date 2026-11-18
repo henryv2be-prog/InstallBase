@@ -14,15 +14,26 @@ test("locationModeLabel uses friendly mode names", () => {
   );
 });
 
-test("formatDiscoveryResultsSubtitle explains auto expansion", () => {
+test("formatDiscoveryResultsSubtitle explains auto unbounded distance", () => {
   const out = formatDiscoveryResultsSubtitle({
     location: { mode: "gps", lat: -26, lng: 28, label: "Near me" },
     radiusMode: "auto",
     selectedRadiusKm: 5,
-    searchMeta: { radiusKm: 50, includesSurroundingAreas: true },
+    searchMeta: { radiusKm: 0, unboundedDistance: true, includesSurroundingAreas: true },
   });
-  assert.match(out.primary, /50 km/);
+  assert.match(out.primary, /no distance limit/i);
   assert.ok(out.secondary?.includes("Not many businesses"));
+});
+
+test("formatDiscoveryResultsSubtitle auto without sparse hint", () => {
+  const out = formatDiscoveryResultsSubtitle({
+    location: { mode: "gps", lat: -26, lng: 28, label: "Near me" },
+    radiusMode: "auto",
+    selectedRadiusKm: 5,
+    searchMeta: { radiusKm: 0, unboundedDistance: true },
+  });
+  assert.match(out.primary, /nearest to farthest/i);
+  assert.equal(out.secondary, null);
 });
 
 test("formatDiscoveryResultsSubtitle for browse does not imply distance sort", () => {

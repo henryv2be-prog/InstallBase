@@ -81,3 +81,18 @@ test("accumulates all rings within outer edge (does not drop closer hits)", () =
 test("E — browse mode stays separate (no geo plan without coordinates)", () => {
   assert.equal(typeof planProgressiveDiscovery, "function");
 });
+
+test("G — unbounded auto: no outer cap, sparse hint when few locals", () => {
+  const distances = mockDistances({ within5: 2, between5and15: 8, beyond30: 40 });
+  const plan = planProgressiveDiscovery(distances, { unbounded: true });
+  assert.equal(plan.outerRadiusKm, null);
+  assert.equal(plan.totalWithinOuter, distances.length);
+  assert.equal(plan.includesSurroundingAreas, true);
+});
+
+test("H — unbounded auto: no sparse hint when enough locals", () => {
+  const distances = mockDistances({ within5: 10, beyond30: 20 });
+  const plan = planProgressiveDiscovery(distances, { unbounded: true });
+  assert.equal(plan.outerRadiusKm, null);
+  assert.equal(plan.includesSurroundingAreas, false);
+});

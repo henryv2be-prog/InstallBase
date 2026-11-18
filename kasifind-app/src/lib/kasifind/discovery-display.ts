@@ -6,6 +6,7 @@ export const DISCOVERY_RADIUS_CHIPS_KM = DISCOVERY_RADIUS_RINGS_KM;
 export type DiscoverySearchMeta = {
   browse?: boolean;
   radiusKm?: number;
+  unboundedDistance?: boolean;
   includesSurroundingAreas?: boolean;
   coverageExhausted?: boolean;
   localListingCount?: number;
@@ -48,6 +49,19 @@ export function formatDiscoveryResultsSubtitle(input: {
       : (searchMeta?.radiusKm ?? selectedRadiusKm);
 
   if (radiusMode === "auto") {
+    if (searchMeta?.unboundedDistance) {
+      if (searchMeta.includesSurroundingAreas) {
+        return {
+          primary: "Closest first · nearest to farthest (no distance limit)",
+          secondary:
+            "Not many businesses very close by — farther listings are included too.",
+        };
+      }
+      return {
+        primary: "Closest first · nearest to farthest (no distance limit)",
+        secondary: null,
+      };
+    }
     if (searchMeta?.includesSurroundingAreas) {
       return {
         primary: `Closest first · up to ${effectiveKm} km including surrounding areas`,
