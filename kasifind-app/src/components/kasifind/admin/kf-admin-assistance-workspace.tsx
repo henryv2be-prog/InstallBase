@@ -1,13 +1,15 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 type Props = {
   queue: ReactNode;
   children: ReactNode;
   /** When set, mobile shows detail pane and hides queue list. */
   activeRequestId: string | null;
+  mobileBackHref?: string;
 };
 
-export function KfAdminAssistanceWorkspace({ queue, children, activeRequestId }: Props) {
+export function KfAdminAssistanceWorkspace({ queue, children, activeRequestId, mobileBackHref }: Props) {
   return (
     <div
       className={`kf-admin-page kf-admin-assistance-workspace${activeRequestId ? " kf-admin-assistance-workspace--detail" : ""}`}
@@ -20,7 +22,14 @@ export function KfAdminAssistanceWorkspace({ queue, children, activeRequestId }:
       </header>
       <div className="kf-admin-assistance-workspace__grid">
         {queue}
-        <div className="kf-admin-assistance-workspace__detail">{children}</div>
+        <div className="kf-admin-assistance-workspace__detail">
+          {activeRequestId && mobileBackHref ? (
+            <Link href={mobileBackHref} className="kf-admin-master-detail-mobile-back lg:hidden">
+              ← Back to queue
+            </Link>
+          ) : null}
+          {children}
+        </div>
       </div>
     </div>
   );
