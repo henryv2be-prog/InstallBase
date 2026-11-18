@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ImageIcon } from "lucide-react";
+import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
 import {
   alternateListingImageSrc,
   resolveListingImageSrc,
@@ -118,12 +119,18 @@ export function KfProviderCardGallery({
       <div
         className="kf-provider-thumb-placeholder"
         role="img"
-        aria-label={`${label} — no photo yet`}
+        aria-label={`${label} — photos yet to come`}
       >
+        <div className="kf-provider-thumb-placeholder__brand" aria-hidden>
+          <span className="kf-provider-thumb-placeholder__brand-mark">
+            <KfBrandLogo />
+          </span>
+          <span className="kf-provider-thumb-placeholder__wordmark">KasiFind</span>
+        </div>
         <div className="kf-provider-thumb-placeholder__icon-wrap" aria-hidden>
           <ImageIcon className="kf-provider-thumb-placeholder__icon" />
         </div>
-        <p className="kf-provider-thumb-placeholder__label">No photo yet</p>
+        <p className="kf-provider-thumb-placeholder__label">Photos yet to come</p>
       </div>
     );
   }
