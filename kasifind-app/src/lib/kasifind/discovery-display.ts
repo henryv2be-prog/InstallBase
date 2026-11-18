@@ -55,14 +55,8 @@ export function formatDiscoveryResultsSubtitle(input: {
           "Not many businesses very close by — we've included nearby communities too.",
       };
     }
-    if (effectiveKm <= 5) {
-      return {
-        primary: "Closest first · within about 5 km",
-        secondary: null,
-      };
-    }
     return {
-      primary: `Closest first · within ${effectiveKm} km`,
+      primary: `Closest first · up to ${effectiveKm} km`,
       secondary: null,
     };
   }

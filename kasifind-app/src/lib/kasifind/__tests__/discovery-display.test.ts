@@ -19,9 +19,9 @@ test("formatDiscoveryResultsSubtitle explains auto expansion", () => {
     location: { mode: "gps", lat: -26, lng: 28, label: "Near me" },
     radiusMode: "auto",
     selectedRadiusKm: 5,
-    searchMeta: { radiusKm: 15, includesSurroundingAreas: true },
+    searchMeta: { radiusKm: 50, includesSurroundingAreas: true },
   });
-  assert.match(out.primary, /15 km/);
+  assert.match(out.primary, /50 km/);
   assert.ok(out.secondary?.includes("Not many businesses"));
 });
 
