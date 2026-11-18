@@ -20,9 +20,11 @@ type Props = {
   steps: KfFormStep[];
   activeIndex: number;
   onStepClick: (index: number) => void;
+  /** When true, every step is tappable (e.g. mobile admin single-page editor). */
+  unlockAllSteps?: boolean;
 };
 
-export function KfFormStepper({ steps, activeIndex, onStepClick }: Props) {
+export function KfFormStepper({ steps, activeIndex, onStepClick, unlockAllSteps = false }: Props) {
   return (
     <nav className="kf-stepper" aria-label="Listing progress">
       <ol className="kf-stepper-list">
@@ -33,11 +35,11 @@ export function KfFormStepper({ steps, activeIndex, onStepClick }: Props) {
             <li key={step.id} className="kf-stepper-item">
               <button
                 type="button"
-                className={`kf-stepper-btn${active ? " kf-stepper-btn--active" : ""}${done ? " kf-stepper-btn--done" : ""}${index > activeIndex ? " kf-stepper-btn--locked" : ""}`}
+                className={`kf-stepper-btn${active ? " kf-stepper-btn--active" : ""}${done ? " kf-stepper-btn--done" : ""}${!unlockAllSteps && index > activeIndex ? " kf-stepper-btn--locked" : ""}`}
                 onClick={() => onStepClick(index)}
                 aria-current={active ? "step" : undefined}
-                aria-disabled={index > activeIndex ? true : undefined}
-                disabled={index > activeIndex}
+                aria-disabled={!unlockAllSteps && index > activeIndex ? true : undefined}
+                disabled={!unlockAllSteps && index > activeIndex}
               >
                 <span className="kf-stepper-dot" aria-hidden>
                   {done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : index + 1}
