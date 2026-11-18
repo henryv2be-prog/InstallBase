@@ -15,12 +15,17 @@ type Props = {
   initialLatitude: number | null;
   initialLongitude: number | null;
   initialHideExactLocation: boolean;
+  /** When false, omit the Leaflet map (mobile admin page scroll). */
+  showMap?: boolean;
+  mapInteractive?: boolean;
 };
 
 export function KfLocationPicker({
   initialLatitude,
   initialLongitude,
   initialHideExactLocation,
+  showMap = true,
+  mapInteractive = true,
 }: Props) {
   const toast = useKfToast();
   const hasSavedPin =
@@ -72,15 +77,22 @@ export function KfLocationPicker({
       <input type="hidden" name="locationConfirmed" value={pinPlaced ? "true" : "false"} readOnly />
       <input type="hidden" name="hideExactLocation" value={hideExactLocation ? "true" : "false"} />
 
-      <KfLocationMap
-        latitude={latitude}
-        longitude={longitude}
-        pinPlaced={pinPlaced}
-        approximate={approximate}
-        radiusMeters={approximate && pinPlaced ? APPROXIMATE_MAP_RADIUS_M : null}
-        interactive
-        onLocationChange={applyPosition}
-      />
+      {showMap ? (
+        <KfLocationMap
+          latitude={latitude}
+          longitude={longitude}
+          pinPlaced={pinPlaced}
+          approximate={approximate}
+          radiusMeters={approximate && pinPlaced ? APPROXIMATE_MAP_RADIUS_M : null}
+          interactive={mapInteractive}
+          onLocationChange={applyPosition}
+        />
+      ) : (
+        <p className="kf-help m-0 rounded-lg border border-dashed border-[var(--kf-border)] bg-[var(--kf-ivory)] px-3 py-2 text-center text-xs">
+          Map hidden on small screens so you can scroll. Use <strong>My location</strong> or edit on desktop
+          to move the pin.
+        </p>
+      )}
 
       <button
         type="button"

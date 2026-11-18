@@ -531,6 +531,8 @@ export function KfListingForm({
                 initialLatitude={listing?.latitude ?? null}
                 initialLongitude={listing?.longitude ?? null}
                 initialHideExactLocation={listing?.hideExactLocation ?? true}
+                showMap={!adminMobileUnfold}
+                mapInteractive={!adminMobileUnfold}
               />
             </div>
           </div>
