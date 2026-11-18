@@ -1,5 +1,6 @@
 import {
   DISCOVERY_LOCAL_RADIUS_KM,
+  DISCOVERY_MAX_RADIUS_KM,
   DISCOVERY_MIN_LISTINGS_BEFORE_STOP,
   DISCOVERY_RADIUS_RINGS_KM,
 } from "@/lib/kasifind/discovery-config";
@@ -16,8 +17,8 @@ export type ProgressiveDiscoveryPlan = {
 };
 
 /**
- * Chooses how far to search given listing distances (km). Pure — used by search + tests.
- * Expands ring-by-ring while the cumulative count within the outer edge is below the minimum.
+ * Auto discovery: always return hits within the max ring (50 km), sorted closest-first by the caller.
+ * Ring-walk only decides sparse-area messaging (`includesSurroundingAreas`), not the search cap.
  */
 export function planProgressiveDiscovery(
   distancesKm: number[],
@@ -29,30 +30,29 @@ export function planProgressiveDiscovery(
   const ringsKm = options?.ringsKm ?? DISCOVERY_RADIUS_RINGS_KM;
   const minListings = options?.minListings ?? DISCOVERY_MIN_LISTINGS_BEFORE_STOP;
   const localRadiusKm = ringsKm[0] ?? DISCOVERY_LOCAL_RADIUS_KM;
+  const outerRadiusKm = ringsKm[ringsKm.length - 1] ?? DISCOVERY_MAX_RADIUS_KM;
 
   const finite = distancesKm.filter((d) => Number.isFinite(d) && d >= 0);
   const localListingCount = finite.filter((d) => d <= localRadiusKm).length;
+  const totalWithinOuter = finite.filter((d) => d <= outerRadiusKm).length;
 
-  let outerRadiusKm = localRadiusKm;
+  let sparseSatisfiedRing: number | null = null;
   for (const ring of ringsKm) {
-    outerRadiusKm = ring;
-    const totalWithinOuter = finite.filter((d) => d <= ring).length;
-    if (totalWithinOuter >= minListings) {
-      return {
-        outerRadiusKm,
-        localRadiusKm,
-        includesSurroundingAreas: outerRadiusKm > localRadiusKm,
-        localListingCount,
-        totalWithinOuter,
-      };
+    const within = finite.filter((d) => d <= ring).length;
+    if (within >= minListings) {
+      sparseSatisfiedRing = ring;
+      break;
     }
   }
 
-  const totalWithinOuter = finite.filter((d) => d <= outerRadiusKm).length;
+  const includesSurroundingAreas =
+    localListingCount < minListings &&
+    (sparseSatisfiedRing ?? outerRadiusKm) > localRadiusKm;
+
   return {
     outerRadiusKm,
     localRadiusKm,
-    includesSurroundingAreas: outerRadiusKm > localRadiusKm,
+    includesSurroundingAreas,
     localListingCount,
     totalWithinOuter,
   };

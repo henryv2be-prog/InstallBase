@@ -692,7 +692,7 @@ export function KfHomeClient({
             </summary>
             <div className="kf-radius-field">
               <p className="text-xs text-[var(--kf-muted)]">
-                Auto expands gently if there aren&apos;t many listings nearby (up to 50 km).
+                Auto shows all listings up to 50 km away, closest first. We note when few are very close by.
               </p>
               <div className="kf-radius-chips" role="group" aria-label="Search radius">
                 <button

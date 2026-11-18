@@ -269,7 +269,7 @@ export type ProgressiveSearchResult = {
   coverageExhausted: boolean;
 };
 
-/** Single-query progressive radius fallback (5 → 15 → 30 → 50 km). */
+/** Geo search up to max radius; results ordered closest-first (sparse-area hints via plan). */
 export async function searchWithProgressiveFallback(input: {
   query: string;
   center: GeoPoint;
