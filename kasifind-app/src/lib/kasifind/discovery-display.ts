@@ -42,7 +42,10 @@ export function formatDiscoveryResultsSubtitle(input: {
     };
   }
 
-  const effectiveKm = searchMeta?.radiusKm ?? selectedRadiusKm;
+  const effectiveKm =
+    radiusMode === "fixed"
+      ? selectedRadiusKm
+      : (searchMeta?.radiusKm ?? selectedRadiusKm);
 
   if (radiusMode === "auto") {
     if (searchMeta?.includesSurroundingAreas) {

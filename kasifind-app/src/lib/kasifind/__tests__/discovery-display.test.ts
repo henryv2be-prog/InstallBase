@@ -45,3 +45,13 @@ test("formatDiscoveryResultsSubtitle respects fixed radius copy", () => {
   });
   assert.match(out.primary, /30 km/);
 });
+
+test("formatDiscoveryResultsSubtitle fixed mode uses selected radius before stale search meta", () => {
+  const out = formatDiscoveryResultsSubtitle({
+    location: { mode: "gps", lat: -26, lng: 28, label: "Near me" },
+    radiusMode: "fixed",
+    selectedRadiusKm: 50,
+    searchMeta: { radiusKm: 5 },
+  });
+  assert.match(out.primary, /50 km/);
+});
