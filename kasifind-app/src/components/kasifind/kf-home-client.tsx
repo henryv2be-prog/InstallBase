@@ -697,7 +697,10 @@ export function KfHomeClient({
               <div className="kf-radius-chips" role="group" aria-label="Search radius">
                 <button
                   type="button"
-                  onClick={() => setRadiusMode("auto")}
+                  onClick={() => {
+                    setRadiusMode("auto");
+                    void runSearch({ preferAutoExpand: true, radiusMode: "auto" });
+                  }}
                   className={`kf-chip kf-radius-chip ${radiusMode === "auto" ? "kf-chip-active" : ""}`}
                 >
                   Auto
@@ -709,6 +712,11 @@ export function KfHomeClient({
                     onClick={() => {
                       setRadiusMode("fixed");
                       setRadiusKm(r);
+                      void runSearch({
+                        preferAutoExpand: false,
+                        radiusKm: r,
+                        radiusMode: "fixed",
+                      });
                     }}
                     className={`kf-chip kf-radius-chip ${radiusMode === "fixed" && radiusKm === r ? "kf-chip-active" : ""}`}
                   >
