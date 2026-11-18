@@ -55,12 +55,20 @@ export function KfLocationMap({
       circleRef.current = null;
     };
 
+    const isMapAllowed = () => {
+      const el = containerRef.current;
+      if (!el || el.offsetParent === null) return false;
+      if (el.closest("[hidden]")) return false;
+      return true;
+    };
+
     const setupMap = () => {
+      if (!isMapAllowed()) return;
       void (async () => {
         const leaflet = await import("leaflet");
         await import("leaflet/dist/leaflet.css");
         const L = leaflet.default;
-        if (cancelled || !containerRef.current || mapRef.current) return;
+        if (cancelled || !containerRef.current || mapRef.current || !isMapAllowed()) return;
 
         const map = L.map(containerRef.current, {
           scrollWheelZoom: interactive,

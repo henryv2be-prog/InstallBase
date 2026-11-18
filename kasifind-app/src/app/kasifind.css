@@ -4195,6 +4195,38 @@
   .kf-listing-flow-foot--admin-unfold {
     display: none;
   }
+
+  /* Avoid flex height traps that block vertical pan in the content column */
+  .kf-admin-listings-detail,
+  .kf-admin-assistance-detail {
+    display: block;
+    height: auto;
+    touch-action: pan-y;
+  }
+
+  .kf-listing-flow--embedded-unfold,
+  .kf-listing-flow--embedded-unfold .kf-listing-flow-head,
+  .kf-listing-flow--embedded-unfold .kf-listing-flow-body,
+  .kf-listing-flow--embedded-unfold .kf-wizard-card,
+  .kf-listing-flow--embedded-unfold form {
+    display: block;
+    flex: none;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    touch-action: pan-y;
+  }
+
+  .kf-listing-flow--embedded-unfold .kf-stepper {
+    position: static;
+    top: auto;
+  }
+
+  .kf-listing-flow--embedded .leaflet-container,
+  .kf-listing-flow--embedded .leaflet-pane {
+    touch-action: pan-y;
+  }
 }
 
 @media (min-width: 1024px) {
