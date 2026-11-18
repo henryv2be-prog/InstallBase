@@ -49,6 +49,7 @@ export async function kfAdminModerateListing(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/listings");
   revalidatePath(`/admin/listings/${listingId}`);
+  revalidatePath("/admin/reports");
   revalidatePath("/admin/users");
   revalidatePath("/");
   revalidatePath(`/providers/${listingId}`);
@@ -259,6 +260,7 @@ export async function kfAdminResolveReport(formData: FormData) {
   await audit(auth.user.id, "report.resolved", reportId);
 
   revalidatePath("/admin");
+  revalidatePath("/admin/reports");
   return { success: true };
 }
 
