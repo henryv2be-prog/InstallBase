@@ -2,6 +2,7 @@ import "server-only";
 import type { MetadataRoute } from "next";
 import { getKasiFindPrisma, isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { listKfCategorySlugsForSitemap } from "@/lib/kasifind/categories";
+import { SEO_LOCATION_HUBS } from "@/lib/kasifind/location-seo-hubs";
 import { buildSitemapEntries } from "@/lib/kasifind/seo-sitemap-core";
 import { getConfiguredSiteOrigin } from "@/lib/kasifind/site-config";
 
@@ -30,5 +31,6 @@ export async function buildKasiFindSitemap(): Promise<MetadataRoute.Sitemap> {
     fetchSitemapListingRows(),
     isKasiFindDbConfigured() ? listKfCategorySlugsForSitemap() : [],
   ]);
-  return buildSitemapEntries(origin, listings, categories);
+  const locationHubs = SEO_LOCATION_HUBS.map((hub) => ({ slug: hub.slug }));
+  return buildSitemapEntries(origin, listings, categories, locationHubs);
 }

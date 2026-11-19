@@ -27,6 +27,7 @@ export function getConfiguredSiteOrigin(): string | null {
 export const PUBLIC_SITEMAP_STATIC_PATHS = [
   "/",
   "/categories",
+  "/locations",
   "/about",
   "/privacy",
   "/terms",

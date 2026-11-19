@@ -59,12 +59,14 @@ const LISTING_INCLUDE = {
 async function fetchListingCandidates(input: {
   query: string;
   categorySlug?: string | null;
+  locationLabelContains?: string | null;
   geo?: ReturnType<typeof boundingBox>;
 }) {
   const kf = getKasiFindPrisma();
   const where = buildPublishedListingWhere({
     query: input.query,
     categorySlug: input.categorySlug,
+    locationLabelContains: input.locationLabelContains,
     geo: input.geo,
   });
 
@@ -251,6 +253,32 @@ export async function searchProvidersBrowse(input: {
     .filter((row): row is ScoredListingRow => row !== null);
 
   const sorted = sortSearchHits(scoredRaw, { hasQuery, useDistance: false });
+  const results = await finalizeSearchHits(sorted, limit);
+
+  return { results, radiusKm: 0, expanded: false, browse: true };
+}
+
+/** Nationwide browse filtered by public location label (SEO location hubs only). */
+export async function searchProvidersBrowseByLocationLabel(input: {
+  locationLabelContains: string;
+  limit?: number;
+}): Promise<{ results: ProviderSearchHit[]; radiusKm: 0; expanded: false; browse: true }> {
+  const limit = normalizeSearchResultLimit(input.limit, "browse");
+  const needle = input.locationLabelContains.trim();
+  if (!needle) {
+    return { results: [], radiusKm: 0, expanded: false, browse: true };
+  }
+
+  const listings = await fetchListingCandidates({
+    query: "",
+    locationLabelContains: needle,
+  });
+
+  const scoredRaw = listings
+    .map((listing) => mapListingToHit(listing, { tokens: [] }))
+    .filter((row): row is ScoredListingRow => row !== null);
+
+  const sorted = sortSearchHits(scoredRaw, { hasQuery: false, useDistance: false });
   const results = await finalizeSearchHits(sorted, limit);
 
   return { results, radiusKm: 0, expanded: false, browse: true };

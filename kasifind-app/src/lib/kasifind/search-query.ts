@@ -41,6 +41,8 @@ function tokenWhere(token: string): Prisma.KfProviderListingWhereInput {
 export function buildPublishedListingWhere(input: {
   query: string;
   categorySlug?: string | null;
+  /** SEO location hubs: match public locationLabel only (not full-text search). */
+  locationLabelContains?: string | null;
   geo?: {
     minLat: number;
     maxLat: number;
@@ -61,6 +63,13 @@ export function buildPublishedListingWhere(input: {
   if (input.categorySlug) {
     and.push({
       categories: { some: { category: { slug: input.categorySlug } } },
+    });
+  }
+
+  const locationNeedle = input.locationLabelContains?.trim();
+  if (locationNeedle) {
+    and.push({
+      locationLabel: { contains: locationNeedle, mode: "insensitive" },
     });
   }
 
