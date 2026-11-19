@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PlusCircle, ShieldCheck } from "lucide-react";
 import { loginPathWithNext, sanitizeAuthNextPath } from "@/lib/kasifind/auth-redirect";
+import { KF_PRIVATE_ROUTE_ROBOTS } from "@/lib/kasifind/seo-private-metadata";
+
+export const metadata: Metadata = {
+  title: "Register your business",
+  robots: KF_PRIVATE_ROUTE_ROBOTS,
+};
 
 type Props = {
   searchParams?: Promise<{ next?: string }>;

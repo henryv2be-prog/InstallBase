@@ -1,5 +1,3 @@
-import "server-only";
-
 export function truncateForMeta(text: string, max = 160): string {
   const trimmed = text.replace(/\s+/g, " ").trim();
   if (trimmed.length <= max) return trimmed;

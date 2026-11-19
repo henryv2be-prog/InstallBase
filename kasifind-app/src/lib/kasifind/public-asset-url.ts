@@ -1,10 +1,9 @@
+import { getConfiguredSiteOrigin } from "@/lib/kasifind/site-config";
+
 /** Turn `/uploads/...` paths into absolute URLs when a site origin is known. */
 export function publicAssetUrl(path: string, siteOrigin?: string | null): string {
   if (!path.startsWith("/")) return path;
-  const origin =
-    siteOrigin?.replace(/\/$/, "") ??
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-    process.env.AUTH_URL?.replace(/\/$/, "");
+  const origin = siteOrigin?.replace(/\/$/, "") ?? getConfiguredSiteOrigin() ?? undefined;
   if (!origin) return path;
   return `${origin}${path}`;
 }

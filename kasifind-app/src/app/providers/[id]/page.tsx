@@ -20,8 +20,11 @@ import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-
 import { KfListingNearbySection } from "@/components/kasifind/kf-listing-nearby-section";
 import { KfListingCategoryStrip } from "@/components/kasifind/kf-listing-category-strip";
 import { listKfCategories } from "@/lib/kasifind/categories";
+import { buildListingJsonLd } from "@/lib/kasifind/listing-json-ld";
 import { buildListingOgDescription } from "@/lib/kasifind/listing-og";
+import { getConfiguredSiteOrigin } from "@/lib/kasifind/site-config";
 import { listingPublicPath, listingPublicUrl } from "@/lib/kasifind/share-provider-listing";
+import { KfListingJsonLd } from "@/components/kasifind/kf-listing-json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -104,9 +107,28 @@ export default async function KasiFindProviderPage({ params }: Props) {
         )
       : [];
   const primaryCategory = listing.categories[0];
+  const configuredOrigin = getConfiguredSiteOrigin();
+  const jsonLdOrigin = siteOrigin ?? configuredOrigin;
+  const canonicalForJson =
+    siteOrigin != null
+      ? listingPublicUrl(listing.id, siteOrigin)
+      : configuredOrigin != null
+        ? listingPublicUrl(listing.id, configuredOrigin)
+        : listingPublicPath(listing.id);
+  const listingJsonLd =
+    !ownerPreview && jsonLdOrigin
+      ? buildListingJsonLd({
+          listing,
+          canonicalUrl: canonicalForJson.startsWith("http")
+            ? canonicalForJson
+            : `${jsonLdOrigin.replace(/\/$/, "")}${canonicalForJson}`,
+          siteOrigin: jsonLdOrigin,
+        })
+      : null;
 
   return (
     <article className="pb-8">
+      {listingJsonLd ? <KfListingJsonLd data={listingJsonLd} /> : null}
       <KfListingPageScrollTop listingId={listing.id} />
       <KfTrackListingView listingId={listing.id} />
       <Link
