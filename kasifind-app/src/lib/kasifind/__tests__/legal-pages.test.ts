@@ -46,6 +46,7 @@ test("site footer includes legal links", () => {
     "utf8"
   );
   assert.match(text, /\/categories/);
+  assert.match(text, /\/locations/);
   assert.match(text, /\/about/);
   assert.match(text, /\/privacy/);
   assert.match(text, /\/terms/);
