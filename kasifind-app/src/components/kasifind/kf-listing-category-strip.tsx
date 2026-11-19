@@ -2,11 +2,7 @@
 
 import Link from "next/link";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
-import {
-  readDiscoveryState,
-  readPersistedDiscoveryLocation,
-  writeDiscoveryState,
-} from "@/lib/kasifind/discovery-state";
+import { categoryPublicPath } from "@/lib/kasifind/category-public-path";
 import { markListingEntry } from "@/lib/kasifind/listing-page-attribution";
 import { trackKfEvent } from "@/lib/kasifind/track-client";
 
@@ -38,23 +34,10 @@ export function KfListingCategoryStrip({ categories, listingId }: Props) {
           return (
             <Link
               key={c.id}
-              href="/"
+              href={categoryPublicPath(c.slug)}
               role="listitem"
               className="kf-listing-category-chip"
               onClick={() => {
-                const saved = readDiscoveryState();
-                const location =
-                  saved?.location ??
-                  readPersistedDiscoveryLocation() ??
-                  ({ mode: "browse", label: "Browsing all areas" } as const);
-                const next = saved ?? {
-                  query: "",
-                  radiusKm: 5,
-                  radiusMode: "auto" as const,
-                  categorySlug: null,
-                  location,
-                };
-                writeDiscoveryState({ ...next, categorySlug: c.slug, location });
                 markListingEntry("category", listingId);
                 trackKfEvent("CATEGORY_BROWSE", { categoryId: c.id, regionLabel: `from:${listingId}` });
               }}

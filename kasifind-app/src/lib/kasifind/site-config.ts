@@ -26,6 +26,7 @@ export function getConfiguredSiteOrigin(): string | null {
 /** Paths included in the public sitemap (no trailing slashes). */
 export const PUBLIC_SITEMAP_STATIC_PATHS = [
   "/",
+  "/categories",
   "/about",
   "/privacy",
   "/terms",

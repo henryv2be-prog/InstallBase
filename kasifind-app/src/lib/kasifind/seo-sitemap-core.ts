@@ -9,6 +9,11 @@ export type SitemapListingRow = {
   moderationStatus: string;
 };
 
+export type SitemapCategoryRow = {
+  slug: string;
+  createdAt: Date;
+};
+
 /** Pure eligibility check for sitemap + tests. */
 export function isListingSitemapEligible(
   listing: Pick<SitemapListingRow, "status" | "moderationStatus">
@@ -18,7 +23,8 @@ export function isListingSitemapEligible(
 
 export function buildSitemapEntries(
   origin: string,
-  listings: SitemapListingRow[]
+  listings: SitemapListingRow[],
+  categories: SitemapCategoryRow[] = []
 ): MetadataRoute.Sitemap {
   const base = origin.replace(/\/$/, "");
   const staticEntries: MetadataRoute.Sitemap = PUBLIC_SITEMAP_STATIC_PATHS.map((path) => ({
@@ -36,5 +42,12 @@ export function buildSitemapEntries(
       priority: 0.8,
     }));
 
-  return [...staticEntries, ...listingEntries];
+  const categoryEntries: MetadataRoute.Sitemap = categories.map((category) => ({
+    url: `${base}/categories/${category.slug}`,
+    lastModified: category.createdAt,
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
+  return [...staticEntries, ...categoryEntries, ...listingEntries];
 }
