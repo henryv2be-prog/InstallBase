@@ -45,6 +45,7 @@ test("site footer includes legal links", () => {
     path.join(process.cwd(), "src/components/kasifind/kf-site-footer.tsx"),
     "utf8"
   );
+  assert.match(text, /\/categories/);
   assert.match(text, /\/about/);
   assert.match(text, /\/privacy/);
   assert.match(text, /\/terms/);

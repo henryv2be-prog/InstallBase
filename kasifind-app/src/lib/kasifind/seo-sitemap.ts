@@ -1,6 +1,7 @@
 import "server-only";
 import type { MetadataRoute } from "next";
 import { getKasiFindPrisma, isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
+import { listKfCategorySlugsForSitemap } from "@/lib/kasifind/categories";
 import { buildSitemapEntries } from "@/lib/kasifind/seo-sitemap-core";
 import { getConfiguredSiteOrigin } from "@/lib/kasifind/site-config";
 
@@ -25,6 +26,9 @@ export async function buildKasiFindSitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = getConfiguredSiteOrigin();
   if (!origin) return [];
 
-  const listings = await fetchSitemapListingRows();
-  return buildSitemapEntries(origin, listings);
+  const [listings, categories] = await Promise.all([
+    fetchSitemapListingRows(),
+    isKasiFindDbConfigured() ? listKfCategorySlugsForSitemap() : [],
+  ]);
+  return buildSitemapEntries(origin, listings, categories);
 }
