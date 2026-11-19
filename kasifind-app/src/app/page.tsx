@@ -1,9 +1,27 @@
+import type { Metadata } from "next";
 import { KfHomeClient } from "@/components/kasifind/kf-home-client";
 import { getListingForUser } from "@/lib/kasifind/provider-listing";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 
 export const dynamic = "force-dynamic";
+
+const homeTitle = "KasiFind — Find local. Support local. Grow local.";
+const homeDescription =
+  "Discover trusted local services, skilled artisans and businesses across South Africa.";
+
+export const metadata: Metadata = {
+  title: homeTitle,
+  description: homeDescription,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: homeTitle,
+    description: homeDescription,
+    url: "/",
+    type: "website",
+    locale: "en_ZA",
+  },
+};
 
 export default async function KasiFindHomePage() {
   const dbConfigured = isKasiFindDbConfigured();

@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { KfAuthForm } from "@/components/kasifind/kf-auth-form";
 import { registerPathWithNext, sanitizeAuthNextPath } from "@/lib/kasifind/auth-redirect";
+import { KF_PRIVATE_ROUTE_ROBOTS } from "@/lib/kasifind/seo-private-metadata";
+
+export const metadata: Metadata = {
+  title: "Provider sign in",
+  robots: KF_PRIVATE_ROUTE_ROBOTS,
+};
 
 type Props = {
   searchParams?: Promise<{ next?: string }>;

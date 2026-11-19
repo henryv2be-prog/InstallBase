@@ -5,6 +5,7 @@ import { KfAppShell } from "@/components/kasifind/kf-app-shell";
 import { KfHeaderAsync } from "@/components/kasifind/kf-header-async";
 import { KfHeaderLoaderFallback } from "@/components/kasifind/kf-page-loader";
 import { KfSiteFooter } from "@/components/kasifind/kf-site-footer";
+import { getConfiguredSiteOrigin } from "@/lib/kasifind/site-config";
 import "./globals.css";
 import "./kasifind.css";
 
@@ -14,14 +15,33 @@ const inter = Inter({
   display: "swap",
 });
 
+const siteOrigin = getConfiguredSiteOrigin();
+const defaultDescription =
+  "Discover trusted local services, skilled artisans and businesses across South Africa.";
+
 export const metadata: Metadata = {
+  metadataBase: siteOrigin ? new URL(siteOrigin) : undefined,
   title: {
     default: "KasiFind — Find local. Support local. Grow local.",
     template: "%s | KasiFind",
   },
-  description:
-    "Discover trusted local services, skilled artisans and businesses across South Africa.",
+  description: defaultDescription,
   applicationName: "KasiFind",
+  openGraph: {
+    type: "website",
+    locale: "en_ZA",
+    siteName: "KasiFind",
+    title: "KasiFind — Find local. Support local. Grow local.",
+    description: defaultDescription,
+    url: "/",
+    images: [{ url: "/icons/icon-512.png", width: 512, height: 512, alt: "KasiFind" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KasiFind — Find local. Support local. Grow local.",
+    description: defaultDescription,
+    images: ["/icons/icon-512.png"],
+  },
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
