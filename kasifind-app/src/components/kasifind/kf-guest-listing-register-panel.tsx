@@ -4,13 +4,19 @@ import { useTransition } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { kfRegisterProviderWithListing } from "@/lib/kasifind/actions";
 import { clearGuestListingDraft } from "@/lib/kasifind/guest-listing-draft";
+import {
+  attachGuestPendingPhotos,
+  type GuestPendingPhotos,
+} from "@/lib/kasifind/guest-listing-pending-photos";
 import { useKfToast } from "@/components/kasifind/kf-toast";
 
 export function KfGuestListingRegisterPanel({
   formRef,
+  pendingPhotos,
   onRegistered,
 }: {
   formRef: React.RefObject<HTMLFormElement | null>;
+  pendingPhotos?: GuestPendingPhotos;
   onRegistered: () => void;
 }) {
   const [pending, startTransition] = useTransition();
@@ -21,8 +27,8 @@ export function KfGuestListingRegisterPanel({
       <div className="flex items-start gap-2 text-sm text-[var(--kf-muted)]">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--kf-forest)]" aria-hidden />
         <p>
-          Your listing details are ready. Create a free account to add photos and publish — one listing
-          per email.
+          Your listing and photos are ready. Create a free account to save everything and publish — one
+          listing per email.
         </p>
       </div>
       <div>
@@ -98,8 +104,19 @@ export function KfGuestListingRegisterPanel({
               toast.error(result.error);
               return;
             }
+            if (pendingPhotos) {
+              const attach = await attachGuestPendingPhotos(pendingPhotos);
+              if (attach.error) {
+                toast.error(attach.error);
+                return;
+              }
+            }
             clearGuestListingDraft();
-            toast.success("Account created — add your photos next.");
+            toast.success(
+              pendingPhotos?.workFiles.length || pendingPhotos?.profileFile
+                ? "Account created — your photos are saved."
+                : "Account created — you can add photos anytime."
+            );
             onRegistered();
           });
         }}
