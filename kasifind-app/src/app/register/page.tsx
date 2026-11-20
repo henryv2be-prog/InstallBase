@@ -25,8 +25,8 @@ export default async function KfRegisterPage({ searchParams }: Props) {
     <div className="kf-auth-shell space-y-4 kf-animate-in">
       <h1 className="kf-hero-title text-2xl">List your business on KasiFind</h1>
       <p className="kf-section-sub">
-        Build your listing first — we only ask you to register when you are ready to add photos and
-        publish.
+        Build your listing and add photos first — we only ask you to register on the last step when you
+        are ready to publish.
       </p>
       <div className="kf-alert-info flex items-start gap-2 text-sm">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
@@ -43,8 +43,8 @@ export default async function KfRegisterPage({ searchParams }: Props) {
         <p className="font-semibold text-[var(--kf-charcoal)]">What happens next</p>
         <ul>
           <li>Guided steps — business info, location, and services</li>
-          <li>Create your account on the Photos step</li>
           <li>Add photos of your work to build trust</li>
+          <li>Create your free account when you publish</li>
           <li>Publish for review — usually live within 1–2 days</li>
         </ul>
       </div>

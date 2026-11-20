@@ -43,6 +43,8 @@ import {
   writeGuestListingDraftFromForm,
 } from "@/lib/kasifind/guest-listing-draft";
 import { KfGuestListingRegisterPanel } from "@/components/kasifind/kf-guest-listing-register-panel";
+import { KfGuestListingPhotosPanel } from "@/components/kasifind/kf-guest-listing-photos-panel";
+import type { GuestPendingPhotos } from "@/lib/kasifind/guest-listing-pending-photos";
 import { useKfToast } from "@/components/kasifind/kf-toast";
 import type { KfCategory } from "@/components/kasifind/types";
 
@@ -170,13 +172,22 @@ export function KfListingForm({
   );
   const [locatingPublish, setLocatingPublish] = useState(false);
   const [removingPhotoId, setRemovingPhotoId] = useState<string | null>(null);
+  const [guestPendingPhotos, setGuestPendingPhotos] = useState<GuestPendingPhotos>({
+    profileFile: null,
+    workFiles: [],
+  });
   const [activeStep, setActiveStep] = useState(0);
   const stepIsHidden = (step: number) => !adminMobileUnfold && activeStep !== step;
 
   const defaultServices = listing?.services.join("\n") ?? "Steel gates\nWelding\nSecurity gates";
   const formBusy = pending || locatingPublish || savingDraft;
   const currentStepMeta = LISTING_FORM_STEPS[activeStep];
-  const photoCount = listing?.photos.length ?? 0;
+  const photoCount =
+    listing?.photos.length ??
+    (guestMode && !listing?.listingId ? guestPendingPhotos.workFiles.length : 0);
+  const hasProfilePhoto =
+    Boolean(listing?.profileImageUrl) ||
+    (guestMode && !listing?.listingId && Boolean(guestPendingPhotos.profileFile));
 
   useEffect(() => {
     if (adminEmbedded) return undefined;
@@ -605,18 +616,13 @@ export function KfListingForm({
           className={stepPanelClass(activeStep === 3)}
           hidden={stepIsHidden(3)}
         >
-          {guestMode && !listing?.listingId ? (
-            <>
-              <p className="kf-wizard-step-lead">
-                Almost there — save your listing to your account, then add photos.
-              </p>
-              <KfGuestListingRegisterPanel formRef={formRef} onRegistered={() => router.refresh()} />
-            </>
-          ) : (
-            <>
           <p className="kf-wizard-step-lead">
             Add your business photo and examples of your work — customers decide with their eyes.
           </p>
+          {guestMode && !listing?.listingId ? (
+            <KfGuestListingPhotosPanel pending={guestPendingPhotos} onChange={setGuestPendingPhotos} />
+          ) : (
+            <>
           {listing?.listingId ? (
             <>
               <div className="kf-profile-photo-field--flow mb-4">
@@ -694,40 +700,51 @@ export function KfListingForm({
           <KfListingWizardSummary
             formRef={formRef}
             photoCount={photoCount}
-            hasProfilePhoto={Boolean(listing?.profileImageUrl)}
+            hasProfilePhoto={hasProfilePhoto}
           />
-          <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-            <button
-              type="submit"
-              name="publish"
-              value="false"
-              disabled={formBusy}
-              className="kf-btn kf-btn-outline min-h-[3rem] flex-1 text-base"
-            >
-              Save draft
-            </button>
-            <button
-              type="submit"
-              name="publish"
-              value="true"
-              disabled={formBusy}
-              className="kf-btn kf-btn-primary min-h-[3rem] flex-1 text-base"
-            >
-              {locatingPublish ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                  Getting location…
-                </>
-              ) : pending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                  Submitting…
-                </>
-              ) : (
-                "Publish for review"
-              )}
-            </button>
-          </div>
+          {guestMode && !listing?.listingId ? (
+            <div className="mt-6">
+              <KfGuestListingRegisterPanel
+                formRef={formRef}
+                pendingPhotos={guestPendingPhotos}
+                onRegistered={() => router.refresh()}
+              />
+            </div>
+          ) : null}
+          {guestMode && !listing?.listingId ? null : (
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+              <button
+                type="submit"
+                name="publish"
+                value="false"
+                disabled={formBusy}
+                className="kf-btn kf-btn-outline min-h-[3rem] flex-1 text-base"
+              >
+                Save draft
+              </button>
+              <button
+                type="submit"
+                name="publish"
+                value="true"
+                disabled={formBusy}
+                className="kf-btn kf-btn-primary min-h-[3rem] flex-1 text-base"
+              >
+                {locatingPublish ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    Getting location…
+                  </>
+                ) : pending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    Submitting…
+                  </>
+                ) : (
+                  "Publish for review"
+                )}
+              </button>
+            </div>
+          )}
         </section>
         </form>
       </div>
