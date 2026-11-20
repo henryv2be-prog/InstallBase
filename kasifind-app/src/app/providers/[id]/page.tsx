@@ -21,7 +21,7 @@ import { KfListingNearbySection } from "@/components/kasifind/kf-listing-nearby-
 import { KfListingCategoryStrip } from "@/components/kasifind/kf-listing-category-strip";
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { buildListingJsonLd } from "@/lib/kasifind/listing-json-ld";
-import { buildListingOgDescription } from "@/lib/kasifind/listing-og";
+import { buildListingOgDescription, pickListingOpenGraphImagePath } from "@/lib/kasifind/listing-og";
 import { getConfiguredSiteOrigin } from "@/lib/kasifind/site-config";
 import { listingPublicPath, listingPublicUrl } from "@/lib/kasifind/share-provider-listing";
 import { KfListingJsonLd } from "@/components/kasifind/kf-listing-json-ld";
@@ -44,7 +44,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const siteOrigin = siteOriginFromHeaders(headerStore);
   const canonical = siteOrigin ? listingPublicUrl(listing.id, siteOrigin) : listingPublicPath(listing.id);
   const description = buildListingOgDescription(listing.description, listing.locationLabel);
-  const rawImage = listing.profileImageUrl ?? listing.photos[0] ?? "/icons/icon-512.png";
+  const rawImage = pickListingOpenGraphImagePath({
+    photoUrls: listing.photos,
+    profileImageUrl: listing.profileImageUrl,
+  });
   const imageUrl = publicAssetUrl(rawImage, siteOrigin);
   const title = `${listing.displayName} | KasiFind`;
 
