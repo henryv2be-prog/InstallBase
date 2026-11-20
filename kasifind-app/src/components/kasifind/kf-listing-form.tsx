@@ -720,17 +720,17 @@ export function KfListingForm({
                 pendingPhotos={guestPendingPhotos}
                 publishIntent={guestPublishIntent}
                 onCancel={() => setGuestRegisterOpen(false)}
-                onComplete={({ listingId, published }) => {
+                onComplete={({ published }) => {
                   setGuestRegisterOpen(false);
                   setGuestPendingPhotos({ profileFile: null, workFiles: [] });
                   if (published) {
-                    setPublishedListingId(listingId);
-                    setPublishComplete(true);
-                    requestAnimationFrame(scrollActiveStepPanel);
-                    return;
+                    toast.success(
+                      "Submitted for review — we usually approve within 1–2 business days."
+                    );
+                  } else {
+                    toast.success("Draft saved — open your business hub anytime to edit or publish.");
                   }
-                  toast.success("Draft saved — pick up where you left off anytime.");
-                  router.refresh();
+                  router.push("/account/insights");
                 }}
               />
             </div>
