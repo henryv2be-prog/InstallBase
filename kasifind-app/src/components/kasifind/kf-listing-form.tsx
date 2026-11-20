@@ -176,6 +176,8 @@ export function KfListingForm({
     profileFile: null,
     workFiles: [],
   });
+  const [guestRegisterOpen, setGuestRegisterOpen] = useState(false);
+  const [guestPublishIntent, setGuestPublishIntent] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const stepIsHidden = (step: number) => !adminMobileUnfold && activeStep !== step;
 
@@ -395,6 +397,15 @@ export function KfListingForm({
     if (formData.get("locationConfirmed") !== "true") {
       toast.error("Set your location on the Location step before saving.");
       goToStep(1);
+      return;
+    }
+
+    if (guestMode && !listing?.listingId) {
+      setGuestPublishIntent(publish);
+      setGuestRegisterOpen(true);
+      requestAnimationFrame(() => {
+        document.getElementById("kf-guest-register-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
       return;
     }
 
@@ -702,22 +713,34 @@ export function KfListingForm({
             photoCount={photoCount}
             hasProfilePhoto={hasProfilePhoto}
           />
-          {guestMode && !listing?.listingId ? (
-            <div className="mt-6">
+          {guestMode && !listing?.listingId && guestRegisterOpen ? (
+            <div id="kf-guest-register-panel" className="mt-6">
               <KfGuestListingRegisterPanel
                 formRef={formRef}
                 pendingPhotos={guestPendingPhotos}
-                onRegistered={() => router.refresh()}
+                publishIntent={guestPublishIntent}
+                onCancel={() => setGuestRegisterOpen(false)}
+                onComplete={({ listingId, published }) => {
+                  setGuestRegisterOpen(false);
+                  setGuestPendingPhotos({ profileFile: null, workFiles: [] });
+                  if (published) {
+                    setPublishedListingId(listingId);
+                    setPublishComplete(true);
+                    requestAnimationFrame(scrollActiveStepPanel);
+                    return;
+                  }
+                  toast.success("Draft saved — pick up where you left off anytime.");
+                  router.refresh();
+                }}
               />
             </div>
-          ) : null}
-          {guestMode && !listing?.listingId ? null : (
+          ) : (
             <div className="mt-6 flex flex-col gap-2 sm:flex-row">
               <button
                 type="submit"
                 name="publish"
                 value="false"
-                disabled={formBusy}
+                disabled={formBusy || (guestMode && !listing?.listingId && guestRegisterOpen)}
                 className="kf-btn kf-btn-outline min-h-[3rem] flex-1 text-base"
               >
                 Save draft
@@ -726,7 +749,7 @@ export function KfListingForm({
                 type="submit"
                 name="publish"
                 value="true"
-                disabled={formBusy}
+                disabled={formBusy || (guestMode && !listing?.listingId && guestRegisterOpen)}
                 className="kf-btn kf-btn-primary min-h-[3rem] flex-1 text-base"
               >
                 {locatingPublish ? (

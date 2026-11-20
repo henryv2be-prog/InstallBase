@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
-import { kfRegisterProviderWithListing } from "@/lib/kasifind/actions";
+import { kfRegisterProviderWithListing, kfUpsertListing } from "@/lib/kasifind/actions";
 import { clearGuestListingDraft } from "@/lib/kasifind/guest-listing-draft";
 import {
   attachGuestPendingPhotos,
@@ -13,11 +13,15 @@ import { useKfToast } from "@/components/kasifind/kf-toast";
 export function KfGuestListingRegisterPanel({
   formRef,
   pendingPhotos,
-  onRegistered,
+  publishIntent,
+  onCancel,
+  onComplete,
 }: {
   formRef: React.RefObject<HTMLFormElement | null>;
   pendingPhotos?: GuestPendingPhotos;
-  onRegistered: () => void;
+  publishIntent: boolean;
+  onCancel: () => void;
+  onComplete: (result: { listingId: string; published: boolean }) => void;
 }) {
   const [pending, startTransition] = useTransition();
   const toast = useKfToast();
@@ -27,7 +31,7 @@ export function KfGuestListingRegisterPanel({
       <div className="flex items-start gap-2 text-sm text-[var(--kf-muted)]">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--kf-forest)]" aria-hidden />
         <p>
-          Your listing and photos are ready. Create a free account to save everything and publish — one
+          Create a free account to {publishIntent ? "publish your listing" : "save your draft"} — one
           listing per email.
         </p>
       </div>
@@ -65,11 +69,15 @@ export function KfGuestListingRegisterPanel({
         />
         <p className="kf-help">At least 8 characters.</p>
       </div>
-      <button
-        type="button"
-        disabled={pending}
-        className="kf-btn kf-btn-primary w-full"
-        onClick={() => {
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <button type="button" className="kf-btn kf-btn-outline flex-1" disabled={pending} onClick={onCancel}>
+          Back
+        </button>
+        <button
+          type="button"
+          disabled={pending}
+          className="kf-btn kf-btn-primary flex-1"
+          onClick={() => {
           const form = formRef.current;
           if (!form) return;
           for (let step = 0; step <= 2; step += 1) {
@@ -104,6 +112,12 @@ export function KfGuestListingRegisterPanel({
               toast.error(result.error);
               return;
             }
+            const listingId =
+              "listingId" in result && typeof result.listingId === "string" ? result.listingId : null;
+            if (!listingId) {
+              toast.error("Could not create your listing — try again.");
+              return;
+            }
             if (pendingPhotos) {
               const attach = await attachGuestPendingPhotos(pendingPhotos);
               if (attach.error) {
@@ -111,25 +125,34 @@ export function KfGuestListingRegisterPanel({
                 return;
               }
             }
+            let published = false;
+            if (publishIntent) {
+              const publishForm = new FormData(form);
+              publishForm.set("publish", "true");
+              const upsert = await kfUpsertListing(publishForm);
+              if ("error" in upsert && upsert.error) {
+                toast.error(upsert.error);
+                return;
+              }
+              published = true;
+            }
             clearGuestListingDraft();
-            toast.success(
-              pendingPhotos?.workFiles.length || pendingPhotos?.profileFile
-                ? "Account created — your photos are saved."
-                : "Account created — you can add photos anytime."
-            );
-            onRegistered();
+            onComplete({ listingId, published });
           });
         }}
       >
         {pending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            Creating account…
+            {publishIntent ? "Publishing…" : "Saving…"}
           </>
+        ) : publishIntent ? (
+          "Create account & publish"
         ) : (
-          "Create account & continue"
+          "Create account & save draft"
         )}
       </button>
+      </div>
     </div>
   );
 }
