@@ -103,7 +103,7 @@ export function KfGuestListingPhotosPanel({
               <button
                 type="button"
                 className="kf-profile-photo-remove"
-                aria-label="Remove business photo"
+                aria-label="Remove company logo or profile photo"
                 onClick={() => onChange({ ...pending, profileFile: null })}
               >
                 <X className="h-4 w-4" aria-hidden />
@@ -117,12 +117,12 @@ export function KfGuestListingPhotosPanel({
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="kf-label mb-1">Business photo</p>
+          <p className="kf-label mb-1">Company logo / profile photo</p>
           <p className="text-xs leading-relaxed text-[var(--kf-muted)]">
-            Your logo, storefront, or a clear photo of you at work.
+            Shown at the top of your listing — your logo, storefront, or a clear photo of you at work.
           </p>
           <label htmlFor={profileInputId} className="kf-btn kf-btn-outline mt-3 inline-flex cursor-pointer">
-            {pending.profileFile ? "Change business photo" : "Add business photo"}
+            {pending.profileFile ? "Change logo or profile photo" : "Add logo or profile photo"}
           </label>
           <input
             id={profileInputId}

@@ -628,7 +628,8 @@ export function KfListingForm({
           hidden={stepIsHidden(3)}
         >
           <p className="kf-wizard-step-lead">
-            Add your business photo and examples of your work — customers decide with their eyes.
+            Add your company logo or profile photo and examples of your work — customers decide with
+            their eyes.
           </p>
           {guestMode && !listing?.listingId ? (
             <KfGuestListingPhotosPanel pending={guestPendingPhotos} onChange={setGuestPendingPhotos} />

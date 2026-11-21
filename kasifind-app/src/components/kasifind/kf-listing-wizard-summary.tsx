@@ -87,7 +87,9 @@ export function KfListingWizardSummary({
         <dt>Photos</dt>
         <dd>
           {summary.photoCount} work photo{summary.photoCount === 1 ? "" : "s"}
-          {summary.hasProfilePhoto ? " · business photo added" : " · no business photo yet"}
+          {summary.hasProfilePhoto
+            ? " · logo or profile photo added"
+            : " · no logo or profile photo yet"}
         </dd>
       </div>
       {summary.photoCount === 0 && !summary.hasProfilePhoto ? (

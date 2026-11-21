@@ -10,7 +10,7 @@ export type ListingCompletenessInput = {
 
 export function getListingCompletenessGaps(input: ListingCompletenessInput): string[] {
   const gaps: string[] = [];
-  if (!input.hasProfilePhoto) gaps.push("a business photo");
+  if (!input.hasProfilePhoto) gaps.push("a company logo or profile photo");
   if (input.workPhotoCount === 0) gaps.push("at least one work photo");
   if (input.categoryIds.length === 0) gaps.push("a category");
   if (input.services.length === 0) gaps.push("at least one service");

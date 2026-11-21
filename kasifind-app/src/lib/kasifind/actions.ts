@@ -302,7 +302,7 @@ export async function kfSaveListingProfileFromWizard(formData: FormData) {
   if (!existing && !hasNewCoords) {
     return {
       error:
-        "Go to the Location step and set your area on the map (or use My location) before adding your business photo.",
+        "Go to the Location step and set your area on the map (or use My location) before adding your logo or profile photo.",
     };
   }
 
@@ -356,7 +356,7 @@ export async function kfSetListingProfileImage(formData: FormData) {
 
   const kf = getKasiFindPrisma();
   const listing = await kf.kfProviderListing.findUnique({ where: { userId: auth.user.id } });
-  if (!listing) return { error: "Save a draft of your listing first, then add your business photo." };
+  if (!listing) return { error: "Save a draft of your listing first, then add your logo or profile photo." };
 
   if (listing.profileImageUrl && listing.profileImageUrl !== url) {
     await deleteLocalUpload(listing.profileImageUrl);
