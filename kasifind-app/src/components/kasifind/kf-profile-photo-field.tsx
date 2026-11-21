@@ -92,7 +92,7 @@ export function KfProfilePhotoField({
               : await kfSetListingProfileImage(fd);
           if ("error" in result && result.error) toast.error(result.error);
           else {
-            toast.success("Business photo updated.");
+            toast.success("Logo or profile photo updated.");
             setLocalPreviewUrl(null);
             router.refresh();
           }
@@ -118,7 +118,7 @@ export function KfProfilePhotoField({
           setLocalPreviewUrl(null);
           return;
         }
-        toast.success("Business photo saved.");
+        toast.success("Logo or profile photo saved.");
         router.refresh();
       });
     } finally {
@@ -142,7 +142,7 @@ export function KfProfilePhotoField({
               <button
                 type="button"
                 className="kf-profile-photo-remove"
-                aria-label="Remove business photo"
+                aria-label="Remove company logo or profile photo"
                 disabled={busy}
                 onClick={() => {
                   startTransition(async () => {
@@ -156,7 +156,7 @@ export function KfProfilePhotoField({
                         : await kfClearListingProfileImage();
                     if ("error" in result && result.error) toast.error(result.error);
                     else {
-                      toast.success("Business photo removed.");
+                      toast.success("Logo or profile photo removed.");
                       setLocalPreviewUrl(null);
                       router.refresh();
                     }
@@ -175,10 +175,10 @@ export function KfProfilePhotoField({
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="kf-label mb-1">Business photo</p>
+        <p className="kf-label mb-1">Company logo / profile photo</p>
         <p className="text-xs leading-relaxed text-[var(--kf-muted)]">
-          Shown at the top of your public listing — your logo, storefront, or a clear photo of you
-          at work. Square or portrait works best.
+          Shown at the top of your public listing — upload your logo, storefront, or a clear photo of
+          you at work. Square or portrait works best.
           {!listingId ? (
             <>
               {" "}
@@ -202,7 +202,11 @@ export function KfProfilePhotoField({
                 }
               }}
             />
-            {uploading ? `Uploading… ${uploadProgress}%` : shownUrl ? "Replace photo" : "Add business photo"}
+            {uploading
+              ? `Uploading… ${uploadProgress}%`
+              : shownUrl
+                ? "Replace logo or profile photo"
+                : "Add logo or profile photo"}
           </span>
         </label>
         {uploading ? (
@@ -212,7 +216,7 @@ export function KfProfilePhotoField({
             aria-valuenow={uploadProgress}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label="Business photo upload progress"
+            aria-label="Logo or profile photo upload progress"
           >
             <span
               className="kf-work-photo-upload-bar-fill"

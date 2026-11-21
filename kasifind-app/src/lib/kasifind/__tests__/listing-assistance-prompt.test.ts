@@ -24,15 +24,15 @@ describe("listing assistance prompt completeness", () => {
       services: [],
     });
     assert.ok(gaps.includes("at least one work photo"));
-    assert.ok(gaps.includes("a business photo"));
+    assert.ok(gaps.includes("a company logo or profile photo"));
     assert.ok(gaps.includes("at least one service"));
   });
 
   it("formats gap lists for dialog copy", () => {
     assert.equal(formatCompletenessGapsSentence(["a category"]), "a category");
     assert.equal(
-      formatCompletenessGapsSentence(["a category", "a business photo"]),
-      "a category and a business photo"
+      formatCompletenessGapsSentence(["a category", "a company logo or profile photo"]),
+      "a category and a company logo or profile photo"
     );
   });
 });

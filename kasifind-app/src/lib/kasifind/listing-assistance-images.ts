@@ -64,7 +64,7 @@ export async function getAssistanceListingImagesBundle(
     const ext = extensionFromUrl(request.listing.profileImageUrl);
     images.push({
       imageKey: "profile",
-      label: "Profile photo",
+      label: "Company logo / profile photo",
       url: request.listing.profileImageUrl,
       zipName: `${base}-profile${ext}`,
     });
