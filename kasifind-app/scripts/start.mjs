@@ -26,10 +26,18 @@ if (!secret) {
   process.exit(1);
 }
 
+const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
 const railwayDomain = process.env.RAILWAY_PUBLIC_DOMAIN?.trim();
-if (!process.env.AUTH_URL?.trim() && railwayDomain) {
-  process.env.AUTH_URL = `https://${railwayDomain}`;
-  console.log(`→ AUTH_URL set to ${process.env.AUTH_URL}`);
+if (!process.env.AUTH_URL?.trim()) {
+  if (publicSiteUrl) {
+    process.env.AUTH_URL = publicSiteUrl.startsWith("http")
+      ? new URL(publicSiteUrl).origin
+      : `https://${publicSiteUrl}`;
+    console.log(`→ AUTH_URL set from NEXT_PUBLIC_SITE_URL: ${process.env.AUTH_URL}`);
+  } else if (railwayDomain) {
+    process.env.AUTH_URL = `https://${railwayDomain}`;
+    console.log(`→ AUTH_URL set to ${process.env.AUTH_URL}`);
+  }
 }
 
 const uploadDir = process.env.UPLOAD_DIR?.trim() || path.join(process.cwd(), "public", "uploads");

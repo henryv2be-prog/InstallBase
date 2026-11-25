@@ -4,7 +4,8 @@ import { getKasiFindPrisma, isKasiFindDbConfigured } from "@/lib/kasifind/prisma
 import { listKfCategorySlugsForSitemap } from "@/lib/kasifind/categories";
 import { SEO_LOCATION_HUBS } from "@/lib/kasifind/location-seo-hubs";
 import { buildSitemapEntries } from "@/lib/kasifind/seo-sitemap-core";
-import { getConfiguredSiteOrigin } from "@/lib/kasifind/site-config";
+import { resolvePublicSiteOrigin } from "@/lib/kasifind/site-config";
+import { headers } from "next/headers";
 
 export type { SitemapListingRow } from "@/lib/kasifind/seo-sitemap-core";
 export { buildSitemapEntries, isListingSitemapEligible } from "@/lib/kasifind/seo-sitemap-core";
@@ -24,7 +25,8 @@ async function fetchSitemapListingRows() {
 }
 
 export async function buildKasiFindSitemap(): Promise<MetadataRoute.Sitemap> {
-  const origin = getConfiguredSiteOrigin();
+  const headerStore = await headers();
+  const origin = resolvePublicSiteOrigin(headerStore);
   if (!origin) return [];
 
   const [listings, categories] = await Promise.all([
