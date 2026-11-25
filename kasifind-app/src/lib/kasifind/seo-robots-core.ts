@@ -6,12 +6,15 @@ export type RobotsDirectives = {
   host: string | undefined;
 };
 
+/** Public GET APIs needed to render the homepage discovery grid for crawlers. */
+export const ROBOTS_ALLOWED_PUBLIC_API_PREFIXES = ["/api/search", "/api/categories"] as const;
+
 export function buildKasiFindRobotsDirectives(origin: string | null): RobotsDirectives {
   const disallow = ["/admin", "/account", "/login", "/register", "/api/"];
   const rules: NonNullable<MetadataRoute.Robots["rules"]> = [
     {
       userAgent: "*",
-      allow: "/",
+      allow: ["/", ...ROBOTS_ALLOWED_PUBLIC_API_PREFIXES],
       disallow,
     },
   ];

@@ -97,10 +97,14 @@ type LandingVeilPhase = "pending" | "fading" | "off";
 export function KfHomeClient({
   dbConfigured,
   providerListCta = null,
+  initialBrowseResults = [],
 }: {
   dbConfigured: boolean;
   providerListCta?: KfProviderListCta | null;
+  /** Server-rendered nationwide browse (SEO + first paint). */
+  initialBrowseResults?: KfSearchResult[];
 }) {
+  const hasInitialBrowse = initialBrowseResults.length > 0;
   const [location, setLocation] = useState<LocationState>({
     mode: "browse",
     label: BROWSE_LOCATION_LABEL,
@@ -111,7 +115,7 @@ export function KfHomeClient({
   const [radiusMode, setRadiusMode] = useState<KfRadiusMode>("auto");
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [categories, setCategories] = useState<KfCategory[]>([]);
-  const [results, setResults] = useState<KfSearchResult[]>([]);
+  const [results, setResults] = useState<KfSearchResult[]>(initialBrowseResults);
   const [searchMeta, setSearchMeta] = useState<{
     expanded: boolean;
     radiusKm: number;
@@ -119,7 +123,9 @@ export function KfHomeClient({
     unboundedDistance?: boolean;
     includesSurroundingAreas?: boolean;
     coverageExhausted?: boolean;
-  } | null>(null);
+  } | null>(
+    hasInitialBrowse ? { browse: true, expanded: false, radiusKm: 0 } : null
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
@@ -154,7 +160,8 @@ export function KfHomeClient({
   const searchBarPin = useHomeSearchBarPin(searchPinAnchorRef, searchBarRef, {
     suppressHideRef: suppressSearchBarHideRef,
   });
-  const [searchHasRun, setSearchHasRun] = useState(false);
+  const [searchHasRun, setSearchHasRun] = useState(hasInitialBrowse);
+  const skipSeededBrowseFetchRef = useRef(hasInitialBrowse);
   const [landingVeil, setLandingVeil] = useState<LandingVeilPhase>("off");
 
   useLayoutEffect(() => {
@@ -456,6 +463,16 @@ export function KfHomeClient({
 
   useEffect(() => {
     if (!dbConfigured || !filtersHydrated) return;
+    if (
+      skipSeededBrowseFetchRef.current &&
+      location.mode === "browse" &&
+      !query.trim() &&
+      !categorySlug
+    ) {
+      skipSeededBrowseFetchRef.current = false;
+      setSearchHasRun(true);
+      return;
+    }
     void runSearch({ scrollToTop: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when location source changes
   }, [dbConfigured, filtersHydrated, location]);

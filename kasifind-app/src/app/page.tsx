@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { KfHomeClient } from "@/components/kasifind/kf-home-client";
+import type { KfSearchResult } from "@/components/kasifind/types";
+import { BROWSE_LISTING_LIMIT } from "@/lib/kasifind/discovery-config";
 import { getListingForUser } from "@/lib/kasifind/provider-listing";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
+import { searchProvidersBrowse } from "@/lib/kasifind/search";
 import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +37,7 @@ export default async function KasiFindHomePage() {
     displayName?: string | null;
     shareEnabled?: boolean;
   } | null = null;
+  let initialBrowseResults: KfSearchResult[] = [];
   if (dbConfigured) {
     const user = await getKasiFindSessionUser().catch(() => null);
     if (user) {
@@ -55,9 +59,20 @@ export default async function KasiFindHomePage() {
         hint: "Reach neighbours searching for your trade on KasiFind.",
       };
     }
+
+    try {
+      const browse = await searchProvidersBrowse({ query: "", limit: BROWSE_LISTING_LIMIT });
+      initialBrowseResults = browse.results;
+    } catch {
+      initialBrowseResults = [];
+    }
   }
 
   return (
-    <KfHomeClient dbConfigured={dbConfigured} providerListCta={providerListCta} />
+    <KfHomeClient
+      dbConfigured={dbConfigured}
+      providerListCta={providerListCta}
+      initialBrowseResults={initialBrowseResults}
+    />
   );
 }
