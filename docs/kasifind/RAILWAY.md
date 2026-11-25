@@ -22,7 +22,8 @@ Do **not** change InstallBase production service variables, domain, or root dire
 | `DATABASE_URL` | Yes | Reference from this service’s Postgres (`postgresql://…`) |
 | `KASIFIND_DATABASE_URL` | No | Optional alias; if set, used instead of `DATABASE_URL` |
 | `AUTH_SECRET` | Yes | 32+ random bytes (e.g. `openssl rand -base64 32`) |
-| `AUTH_URL` | Yes | Public URL, e.g. `https://your-kasifind.up.railway.app` |
+| `AUTH_URL` | Yes | Public origin, e.g. `https://kasifind.com` (must match your custom domain when you use one) |
+| `NEXT_PUBLIC_SITE_URL` | Recommended | Same as `AUTH_URL` on custom domains — canonical URLs, sitemap, and SEO metadata |
 | `UPLOAD_DIR` | Recommended | e.g. `/data/uploads` with a Railway volume mounted |
 | `KASIFIND_ADMIN_EMAIL` | For admin | Bootstrap admin on deploy seed |
 | `KASIFIND_ADMIN_PASSWORD` | For admin | Rotate via env + redeploy |

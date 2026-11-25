@@ -12,7 +12,12 @@ import {
   isListingSitemapEligible,
   type SitemapListingRow,
 } from "@/lib/kasifind/seo-sitemap-core";
-import { getConfiguredSiteOrigin, PUBLIC_SITEMAP_STATIC_PATHS } from "@/lib/kasifind/site-config";
+import {
+  getConfiguredSiteOrigin,
+  PUBLIC_SITEMAP_STATIC_PATHS,
+  resolvePublicSiteOrigin,
+  siteOriginFromHeaders,
+} from "@/lib/kasifind/site-config";
 import type { PublicListingView } from "@/lib/kasifind/listing-public";
 
 const appRoot = path.join(process.cwd(), "src/app");
@@ -56,6 +61,27 @@ function mockListing(overrides: Partial<PublicListingView> = {}): PublicListingV
     ...overrides,
   };
 }
+
+test("resolvePublicSiteOrigin prefers request host over configured Railway domain", () => {
+  const prevNext = process.env.NEXT_PUBLIC_SITE_URL;
+  const prevAuth = process.env.AUTH_URL;
+  process.env.NEXT_PUBLIC_SITE_URL = "https://kasifind.up.railway.app";
+  process.env.AUTH_URL = "https://kasifind.up.railway.app";
+  try {
+    const headers = new Headers({
+      host: "kasifind.com",
+      "x-forwarded-host": "kasifind.com",
+      "x-forwarded-proto": "https",
+    });
+    assert.equal(resolvePublicSiteOrigin(headers), "https://kasifind.com");
+    assert.equal(siteOriginFromHeaders(headers), "https://kasifind.com");
+  } finally {
+    if (prevNext === undefined) delete process.env.NEXT_PUBLIC_SITE_URL;
+    else process.env.NEXT_PUBLIC_SITE_URL = prevNext;
+    if (prevAuth === undefined) delete process.env.AUTH_URL;
+    else process.env.AUTH_URL = prevAuth;
+  }
+});
 
 test("getConfiguredSiteOrigin prefers NEXT_PUBLIC_SITE_URL", () => {
   const prevNext = process.env.NEXT_PUBLIC_SITE_URL;
@@ -174,10 +200,11 @@ test("private routes export noindex metadata", () => {
   assert.doesNotMatch(provider, /KF_PRIVATE_ROUTE_ROBOTS/);
 });
 
-test("root layout sets metadataBase from site config", () => {
+test("root layout sets metadataBase from public site origin", () => {
   const layout = fs.readFileSync(path.join(appRoot, "layout.tsx"), "utf8");
   assert.match(layout, /metadataBase/);
-  assert.match(layout, /getConfiguredSiteOrigin/);
+  assert.match(layout, /resolvePublicSiteOrigin/);
+  assert.match(layout, /generateMetadata/);
   assert.match(layout, /openGraph/);
 });
 

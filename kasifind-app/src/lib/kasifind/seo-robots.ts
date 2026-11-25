@@ -4,13 +4,15 @@ import {
   buildKasiFindRobotsDirectives,
   type RobotsDirectives,
 } from "@/lib/kasifind/seo-robots-core";
-import { getConfiguredSiteOrigin } from "@/lib/kasifind/site-config";
+import { resolvePublicSiteOrigin } from "@/lib/kasifind/site-config";
+import { headers } from "next/headers";
 
 export type { RobotsDirectives } from "@/lib/kasifind/seo-robots-core";
 export { buildKasiFindRobotsDirectives, formatRobotsForTest } from "@/lib/kasifind/seo-robots-core";
 
-export function buildKasiFindRobots(): MetadataRoute.Robots {
-  const origin = getConfiguredSiteOrigin();
+export async function buildKasiFindRobots(): Promise<MetadataRoute.Robots> {
+  const headerStore = await headers();
+  const origin = resolvePublicSiteOrigin(headerStore);
   const { rules, sitemap, host } = buildKasiFindRobotsDirectives(origin);
   return { rules, sitemap, host };
 }

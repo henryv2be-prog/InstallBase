@@ -22,7 +22,7 @@ import { KfListingCategoryStrip } from "@/components/kasifind/kf-listing-categor
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { buildListingJsonLd } from "@/lib/kasifind/listing-json-ld";
 import { buildListingOgDescription, pickListingOpenGraphImagePath } from "@/lib/kasifind/listing-og";
-import { getConfiguredSiteOrigin } from "@/lib/kasifind/site-config";
+import { resolvePublicSiteOrigin } from "@/lib/kasifind/site-config";
 import { listingPublicPath, listingPublicUrl } from "@/lib/kasifind/share-provider-listing";
 import { KfListingJsonLd } from "@/components/kasifind/kf-listing-json-ld";
 
@@ -110,14 +110,9 @@ export default async function KasiFindProviderPage({ params }: Props) {
         )
       : [];
   const primaryCategory = listing.categories[0];
-  const configuredOrigin = getConfiguredSiteOrigin();
-  const jsonLdOrigin = siteOrigin ?? configuredOrigin;
+  const jsonLdOrigin = resolvePublicSiteOrigin(headerStore);
   const canonicalForJson =
-    siteOrigin != null
-      ? listingPublicUrl(listing.id, siteOrigin)
-      : configuredOrigin != null
-        ? listingPublicUrl(listing.id, configuredOrigin)
-        : listingPublicPath(listing.id);
+    jsonLdOrigin != null ? listingPublicUrl(listing.id, jsonLdOrigin) : listingPublicPath(listing.id);
   const listingJsonLd =
     !ownerPreview && jsonLdOrigin
       ? buildListingJsonLd({
