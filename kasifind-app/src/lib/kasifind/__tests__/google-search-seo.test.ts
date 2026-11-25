@@ -6,6 +6,7 @@ import { buildListingJsonLd } from "@/lib/kasifind/listing-json-ld";
 import {
   buildKasiFindRobotsDirectives,
   formatRobotsForTest,
+  ROBOTS_ALLOWED_PUBLIC_API_PREFIXES,
 } from "@/lib/kasifind/seo-robots-core";
 import {
   buildSitemapEntries,
@@ -142,6 +143,9 @@ test("sitemap listing lastModified follows updatedAt", () => {
 test("robots.txt allows public paths and blocks private areas", () => {
   const text = formatRobotsForTest(buildKasiFindRobotsDirectives(origin));
   assert.match(text, /Allow: \//);
+  for (const path of ROBOTS_ALLOWED_PUBLIC_API_PREFIXES) {
+    assert.match(text, new RegExp(`Allow: ${path.replace("/", "\\/")}`));
+  }
   assert.match(text, /Disallow: \/admin/);
   assert.match(text, /Disallow: \/account/);
   assert.match(text, /Disallow: \/login/);
@@ -212,4 +216,10 @@ test("homepage metadata includes canonical", () => {
   const home = fs.readFileSync(path.join(appRoot, "page.tsx"), "utf8");
   assert.match(home, /alternates/);
   assert.match(home, /canonical:\s*["']\/["']/);
+});
+
+test("homepage server-seeds nationwide browse for crawlers", () => {
+  const home = fs.readFileSync(path.join(appRoot, "page.tsx"), "utf8");
+  assert.match(home, /searchProvidersBrowse/);
+  assert.match(home, /initialBrowseResults/);
 });
