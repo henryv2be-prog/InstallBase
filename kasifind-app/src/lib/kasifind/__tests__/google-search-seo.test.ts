@@ -222,4 +222,6 @@ test("homepage server-seeds nationwide browse for crawlers", () => {
   const home = fs.readFileSync(path.join(appRoot, "page.tsx"), "utf8");
   assert.match(home, /searchProvidersBrowse/);
   assert.match(home, /initialBrowseResults/);
+  assert.match(home, /KfHomeBrowseSeoIndex/);
+  assert.match(home, /buildHomeBrowseItemListJsonLd/);
 });
