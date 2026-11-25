@@ -11,6 +11,22 @@ import {
 const SLIDE_MS = 3000;
 const FADE_MS = 550;
 
+/** Pure helper for slideshow prefetch: active slide plus at most one ahead. */
+export function mergeCardGalleryLoadedIndices(
+  prev: Set<number>,
+  safeIndex: number,
+  slideshow: boolean,
+  inView: boolean,
+  photoCount: number
+): Set<number> {
+  const next = new Set(prev);
+  next.add(safeIndex);
+  if (slideshow && inView && photoCount > 1) {
+    next.add((safeIndex + 1) % photoCount);
+  }
+  return next;
+}
+
 type Props = {
   photos: readonly string[];
   priority?: boolean;
@@ -35,6 +51,8 @@ export function KfProviderCardGallery({
   const [inView, setInView] = useState(priority);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [failedUrls, setFailedUrls] = useState<Set<string>>(() => new Set());
+  /** Gallery photo indices allowed to issue a network request (active slide + at most one ahead). */
+  const [loadedIndices, setLoadedIndices] = useState<Set<number>>(() => new Set([0]));
 
   const visiblePhotos = useMemo(
     () => photos.filter((p) => !failedUrls.has(p)),
@@ -46,6 +64,7 @@ export function KfProviderCardGallery({
   useEffect(() => {
     setActiveIndex(0);
     setFailedUrls(new Set());
+    setLoadedIndices(new Set([0]));
   }, [photos]);
 
   useEffect(() => {
@@ -87,15 +106,13 @@ export function KfProviderCardGallery({
     return () => window.clearInterval(id);
   }, [slideshow, inView, visiblePhotos.length]);
 
+  const safeIndex = Math.min(activeIndex, Math.max(visiblePhotos.length - 1, 0));
+
   useEffect(() => {
-    if (!slideshow || !inView || visiblePhotos.length < 2) return;
-    const nextIndex = (activeIndex + 1) % visiblePhotos.length;
-    const nextUrl = visiblePhotos[nextIndex];
-    if (!nextUrl) return;
-    const img = new window.Image();
-    img.decoding = "async";
-    img.src = resolvedSrc(nextUrl);
-  }, [activeIndex, inView, slideshow, visiblePhotos]);
+    setLoadedIndices((prev) =>
+      mergeCardGalleryLoadedIndices(prev, safeIndex, slideshow, inView, visiblePhotos.length)
+    );
+  }, [safeIndex, slideshow, inView, visiblePhotos.length]);
 
   const onImgError = useCallback(
     (originalUrl: string, currentSrc: string, retried: boolean) => {
@@ -135,7 +152,6 @@ export function KfProviderCardGallery({
     );
   }
 
-  const safeIndex = Math.min(activeIndex, visiblePhotos.length - 1);
   const altBase = displayName.trim() || "Provider";
 
   return (
@@ -144,16 +160,18 @@ export function KfProviderCardGallery({
       className="kf-provider-card-gallery"
       data-slideshow={slideshow ? "on" : "off"}
     >
-      {visiblePhotos.map((originalUrl, index) => (
-        <GalleryLayer
-          key={originalUrl}
-          originalUrl={originalUrl}
-          alt={`${altBase} — photo ${index + 1} of ${visiblePhotos.length}`}
-          active={index === safeIndex}
-          priority={priority && index === 0}
-          onFailed={(currentSrc, retried) => onImgError(originalUrl, currentSrc, retried)}
-        />
-      ))}
+      {visiblePhotos.map((originalUrl, index) =>
+        loadedIndices.has(index) ? (
+          <GalleryLayer
+            key={originalUrl}
+            originalUrl={originalUrl}
+            alt={`${altBase} — photo ${index + 1} of ${visiblePhotos.length}`}
+            active={index === safeIndex}
+            priority={priority && index === 0}
+            onFailed={(currentSrc, retried) => onImgError(originalUrl, currentSrc, retried)}
+          />
+        ) : null
+      )}
 
       {slideshow ? (
         <GalleryIndicator

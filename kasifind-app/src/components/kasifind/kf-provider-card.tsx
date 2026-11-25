@@ -67,6 +67,8 @@ export function KfProviderCard({
   const hasRating = p.reviewCount > 0 && p.averageRating !== null;
   const showDistance = hasValidDistanceKm(p.distanceKm);
   const profileSrc = p.profileImageUrl?.trim() || cardPhotos[0] || null;
+  const profileMatchesGalleryCover =
+    Boolean(profileSrc) && cardPhotos.length > 0 && profileSrc === cardPhotos[0];
   const hasListingMedia = cardPhotos.length > 0;
 
   return (
@@ -114,7 +116,7 @@ export function KfProviderCard({
                   src={profileSrc}
                   alt=""
                   className="kf-provider-card-avatar-img"
-                  priority={index < 4}
+                  priority={index < 4 && !profileMatchesGalleryCover}
                 />
               ) : (
                 <Building2 className="h-6 w-6 text-[var(--kf-muted)]" />
