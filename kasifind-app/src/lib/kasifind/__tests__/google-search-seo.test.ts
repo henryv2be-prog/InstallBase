@@ -216,6 +216,8 @@ test("homepage metadata includes canonical", () => {
   const home = fs.readFileSync(path.join(appRoot, "page.tsx"), "utf8");
   assert.match(home, /alternates/);
   assert.match(home, /canonical:\s*["']\/["']/);
+  assert.match(home, /KasiFind — Find local\. Support local\. Grow local\./);
+  assert.doesNotMatch(home, /providerListCta/);
 });
 
 test("homepage server-seeds nationwide browse for crawlers", () => {
@@ -224,6 +226,20 @@ test("homepage server-seeds nationwide browse for crawlers", () => {
   assert.match(home, /initialBrowseResults/);
   assert.match(home, /KfHomeBrowseSeoIndex/);
   assert.match(home, /buildHomeBrowseItemListJsonLd/);
+});
+
+test("list-your-business page is public SEO with canonical", () => {
+  const page = fs.readFileSync(
+    path.join(appRoot, "list-your-business", "page.tsx"),
+    "utf8"
+  );
+  assert.match(page, /alternates:\s*\{\s*canonical:\s*"\/list-your-business"/);
+  assert.doesNotMatch(page, /KF_PRIVATE_ROUTE_ROBOTS/);
+  assert.match(page, /listYourBusinessCtaHref/);
+});
+
+test("sitemap includes list-your-business", () => {
+  assert.ok(PUBLIC_SITEMAP_STATIC_PATHS.includes("/list-your-business"));
 });
 
 test("homepage progressive grid keeps full browse seed for SEO", () => {

@@ -7,6 +7,7 @@ import { Map, Menu, PlusCircle, X } from "lucide-react";
 import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
 import { kfSignOutProvider } from "@/lib/kasifind/actions";
 import { KfMobileNavMenu } from "@/components/kasifind/kf-mobile-nav-menu";
+import { resolveProviderNavLink } from "@/lib/kasifind/provider-nav";
 
 function BrandMark() {
   return (
@@ -28,9 +29,11 @@ function formatListingCount(count: number): string {
 
 export function KfHeader({
   user,
+  hasListing = false,
   publishedListingCount = null,
 }: {
   user: KfHeaderUser | null;
+  hasListing?: boolean;
   publishedListingCount?: number | null;
 }) {
   const pathname = usePathname();
@@ -65,8 +68,8 @@ export function KfHeader({
     pathname.startsWith("/activity-map") ||
     publishedListingCount === null;
 
-  const listingCtaHref = signedIn ? "/account" : "/register";
-  const listingCtaLabel = signedIn ? "My business" : "List your business";
+  const providerNav = resolveProviderNavLink({ signedIn, hasListing });
+  const isRecruitmentPage = pathname.startsWith("/list-your-business");
 
   return (
     <header className="kf-header">
@@ -99,9 +102,13 @@ export function KfHeader({
               Admin
             </Link>
           ) : null}
-          <Link href={listingCtaHref} className="kf-btn kf-btn-primary text-sm">
+          <Link
+            href={providerNav.href}
+            className="kf-btn kf-btn-primary text-sm"
+            aria-current={isRecruitmentPage && !hasListing ? "page" : undefined}
+          >
             <PlusCircle className="h-4 w-4" aria-hidden />
-            {listingCtaLabel}
+            {providerNav.label}
           </Link>
         </nav>
 
@@ -131,6 +138,7 @@ export function KfHeader({
         >
           <KfMobileNavMenu
             signedIn={signedIn}
+            hasListing={hasListing}
             isAdmin={isAdmin}
             onSignOut={handleSignOut}
             signingOut={signingOut}

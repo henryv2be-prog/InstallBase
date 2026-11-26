@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Loader2, Search, SlidersHorizontal, Store, X } from "lucide-react";
-import { KfProviderListingActions } from "@/components/kasifind/kf-provider-listing-actions";
 import type { KfCategory, KfSearchResult } from "@/components/kasifind/types";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
 import { KfProviderCard } from "@/components/kasifind/kf-provider-card";
@@ -90,24 +89,13 @@ function ResultSkeletons() {
   );
 }
 
-export type KfProviderListCta = {
-  href: string;
-  label: string;
-  hint: string | null;
-  listingId?: string | null;
-  displayName?: string | null;
-  shareEnabled?: boolean;
-};
-
 type LandingVeilPhase = "pending" | "fading" | "off";
 
 export function KfHomeClient({
   dbConfigured,
-  providerListCta = null,
   initialBrowseResults = [],
 }: {
   dbConfigured: boolean;
-  providerListCta?: KfProviderListCta | null;
   /** Server-rendered nationwide browse (SEO + first paint). */
   initialBrowseResults?: KfSearchResult[];
 }) {
@@ -776,23 +764,6 @@ export function KfHomeClient({
         </div>
       ) : null}
 
-      {providerListCta ? (
-        <div className="kf-home-provider-cta kf-animate-in">
-          <KfProviderListingActions
-            manageHref={providerListCta.href}
-            manageLabel={providerListCta.label}
-            listingId={providerListCta.listingId ?? null}
-            displayName={providerListCta.displayName ?? null}
-            shareEnabled={Boolean(providerListCta.shareEnabled)}
-            layout="inline"
-            hint={providerListCta.listingId ? providerListCta.hint : null}
-          />
-          {!providerListCta.listingId ? (
-            <p className="kf-home-provider-hint">{providerListCta.hint}</p>
-          ) : null}
-        </div>
-      ) : null}
-
       {categories.length > 0 ? (
         <section className="kf-home-categories kf-animate-in">
           <h2 className="kf-section-title">Browse by category</h2>
@@ -914,7 +885,7 @@ export function KfHomeClient({
                       Browse nationwide
                     </button>
                   )}
-                  <Link href="/account/listing" className="kf-btn kf-btn-outline">
+                  <Link href="/list-your-business" className="kf-btn kf-btn-outline">
                     List your business
                   </Link>
                 </div>
