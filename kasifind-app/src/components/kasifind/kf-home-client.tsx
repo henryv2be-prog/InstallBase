@@ -27,6 +27,13 @@ import {
 } from "@/lib/kasifind/discovery-display";
 import { BROWSE_LISTING_LIMIT } from "@/lib/kasifind/discovery-config";
 import {
+  homeBrowseRemainingCount,
+  initialHomeBrowseVisibleCount,
+  nextHomeBrowseVisibleCount,
+  visibleCountForListingIndex,
+} from "@/lib/kasifind/home-browse-visible";
+import { readDiscoveryScroll } from "@/lib/kasifind/discovery-scroll";
+import {
   KfDiscoveryScopeSwitch,
   type DiscoverySearchScope,
 } from "@/components/kasifind/kf-discovery-scope-switch";
@@ -116,6 +123,9 @@ export function KfHomeClient({
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [categories, setCategories] = useState<KfCategory[]>([]);
   const [results, setResults] = useState<KfSearchResult[]>(initialBrowseResults);
+  const [visibleResultCount, setVisibleResultCount] = useState(() =>
+    initialHomeBrowseVisibleCount(initialBrowseResults.length)
+  );
   const [searchMeta, setSearchMeta] = useState<{
     expanded: boolean;
     radiusKm: number;
@@ -213,6 +223,16 @@ export function KfHomeClient({
     hasSearchRun: searchHasRun,
   });
 
+  useLayoutEffect(() => {
+    if (!filtersHydrated || results.length === 0) return;
+    const bookmark = readDiscoveryScroll();
+    if (!bookmark) return;
+    const index = results.findIndex((r) => r.id === bookmark.listingId);
+    if (index < 0) return;
+    const need = visibleCountForListingIndex(index, results.length);
+    setVisibleResultCount((prev) => Math.max(prev, need));
+  }, [filtersHydrated, results]);
+
   useEffect(() => {
     if (!filtersHydrated) return;
     writeDiscoveryState({ query, radiusKm, radiusMode, categorySlug, location });
@@ -246,8 +266,13 @@ export function KfHomeClient({
     ].join("|");
   }, [query, categorySlug, searchMeta, radiusKm, location, results]);
 
-  const resultListingIds = useMemo(() => results.map((r) => r.id), [results]);
-  const contactCtaLabels = useListingContactCtaLabels(resultListingIds, impressionScopeKey);
+  const visibleResults = useMemo(
+    () => results.slice(0, visibleResultCount),
+    [results, visibleResultCount]
+  );
+  const browseRemaining = homeBrowseRemainingCount(visibleResultCount, results.length);
+  const visibleListingIds = useMemo(() => visibleResults.map((r) => r.id), [visibleResults]);
+  const contactCtaLabels = useListingContactCtaLabels(visibleListingIds, impressionScopeKey);
 
   const switchToBrowseMode = useCallback(() => {
     setLocation({ mode: "browse", label: BROWSE_LOCATION_LABEL });
@@ -414,9 +439,12 @@ export function KfHomeClient({
         if (!res.ok) {
           setError(data.error ?? "Search failed.");
           setResults([]);
+          setVisibleResultCount(0);
           return;
         }
-        setResults(data.results ?? []);
+        const nextResults = data.results ?? [];
+        setResults(nextResults);
+        setVisibleResultCount(initialHomeBrowseVisibleCount(nextResults.length));
         if (data.browse) {
           setSearchMeta({ browse: true, expanded: false, radiusKm: 0 });
         } else {
@@ -893,19 +921,37 @@ export function KfHomeClient({
               }
             />
           ) : (
-            <ul className="grid gap-4 sm:grid-cols-2">
-              {results.map((p, i) => (
-                <KfProviderCard
-                  key={p.id}
-                  provider={p}
-                  serviceHint={p.services[0]?.name ?? query}
-                  index={i}
-                  impressionScopeKey={impressionScopeKey}
-                  contactCtaLabel={contactCtaLabels.get(p.id)}
-                  preserveDiscoveryScroll
-                />
-              ))}
-            </ul>
+            <>
+              <ul className="grid gap-4 sm:grid-cols-2">
+                {visibleResults.map((p, i) => (
+                  <KfProviderCard
+                    key={p.id}
+                    provider={p}
+                    serviceHint={p.services[0]?.name ?? query}
+                    index={i}
+                    impressionScopeKey={impressionScopeKey}
+                    contactCtaLabel={contactCtaLabels.get(p.id)}
+                    preserveDiscoveryScroll
+                  />
+                ))}
+              </ul>
+              {browseRemaining > 0 ? (
+                <div className="mt-4 flex flex-col items-center gap-1 sm:mt-5">
+                  <button
+                    type="button"
+                    className="kf-btn kf-btn-outline"
+                    onClick={() =>
+                      setVisibleResultCount((n) => nextHomeBrowseVisibleCount(n, results.length))
+                    }
+                  >
+                    Load more providers
+                  </button>
+                  <p className="text-xs text-[var(--kf-muted-fg)]" aria-live="polite">
+                    {browseRemaining} more to explore
+                  </p>
+                </div>
+              ) : null}
+            </>
           )}
         </div>
       </section>
