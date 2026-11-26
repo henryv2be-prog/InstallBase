@@ -6350,38 +6350,6 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   opacity: 0.95;
 }
 
-.kf-provider-distance-badge-main {
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.kf-crow-flies-badge-mark {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  padding-left: 0.15rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.22);
-}
-
-.kf-crow-flies-icon {
-  flex-shrink: 0;
-  display: block;
-}
-
-.kf-crow-flies-icon--badge {
-  width: 1.125rem;
-  height: 1rem;
-  color: #fff;
-  opacity: 0.92;
-}
-
-.kf-crow-flies-icon--inline {
-  width: 0.85rem;
-  height: auto;
-  color: var(--kf-charcoal);
-  opacity: 0.9;
-}
-
 .kf-provider-card-body-wrap {
   position: relative;
   padding: 1.65rem 1rem 1.05rem;
