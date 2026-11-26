@@ -6350,6 +6350,25 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   opacity: 0.95;
 }
 
+.kf-crow-flies-icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+.kf-provider-distance-badge .kf-crow-flies-icon {
+  width: 0.82rem;
+  height: auto;
+  color: #fff;
+  opacity: 0.92;
+}
+
+.kf-crow-flies-distance--inline .kf-crow-flies-icon {
+  width: 0.72rem;
+  height: auto;
+  color: var(--kf-charcoal);
+  opacity: 0.85;
+}
+
 .kf-provider-card-body-wrap {
   position: relative;
   padding: 1.65rem 1rem 1.05rem;

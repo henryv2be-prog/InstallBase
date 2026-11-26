@@ -2,16 +2,14 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { Building2, MapPin, Navigation } from "lucide-react";
+import { Building2, MapPin } from "lucide-react";
 import { KfListingRatingDisplay } from "@/components/kasifind/kf-listing-rating-display";
 import type { KfSearchResult } from "@/components/kasifind/types";
 import { KfProviderCardGallery } from "@/components/kasifind/kf-provider-card-gallery";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { collectListingCardPhotoUrls } from "@/lib/kasifind/listing-card-photos";
-import {
-  formatDistanceKmClient,
-  hasValidDistanceKm,
-} from "@/components/kasifind/format-distance";
+import { hasValidDistanceKm } from "@/components/kasifind/format-distance";
+import { KfCrowFliesDistance } from "@/components/kasifind/kf-crow-flies-distance";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { useKfListingImpression } from "@/components/kasifind/use-kf-listing-impression";
 import { KfListingContactFooter } from "@/components/kasifind/kf-listing-contact-footer";
@@ -95,12 +93,7 @@ export function KfProviderCard({
             categoryName={primaryCategory}
             priority={index < 4}
           />
-          {showDistance ? (
-            <span className="kf-provider-distance-badge" title="Distance from your search area">
-              <Navigation className="kf-provider-distance-badge-icon" aria-hidden />
-              {formatDistanceKmClient(p.distanceKm)}
-            </span>
-          ) : null}
+          {showDistance ? <KfCrowFliesDistance km={p.distanceKm} variant="badge" /> : null}
         </div>
 
         <div
