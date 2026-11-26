@@ -35,6 +35,45 @@ export const ALL_CONTACT_CTA_PHRASES: readonly string[] = [
 
 export type ContactCtaRandom = () => number;
 
+/** Seed string for identical SSR + first client render (no Math.random). */
+export function contactCtaHydrationSeed(
+  scopeKey: string,
+  listingIds: readonly string[]
+): string {
+  return `hydration:${scopeKey}:${listingIds.join(",")}`;
+}
+
+/** Mulberry32 PRNG — stable across server and browser for the same seed. */
+export function createDeterministicContactCtaRandom(seed: string): ContactCtaRandom {
+  let state = hashSeedString(seed);
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function hashSeedString(value: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+export function assignListingContactCtaPhrasesForHydration(
+  listingIds: readonly string[],
+  scopeKey: string
+): Map<string, string> {
+  return assignListingContactCtaPhrases(
+    listingIds,
+    createDeterministicContactCtaRandom(contactCtaHydrationSeed(scopeKey, listingIds))
+  );
+}
+
 function shuffleInPlace<T>(items: T[], random: ContactCtaRandom): void {
   for (let i = items.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
