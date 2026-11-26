@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   diffListingSnapshots,
+  parseListingServiceLines,
   parseListingUpsertFormData,
   type ListingUpsertSnapshot,
 } from "@/lib/kasifind/listing-upsert-shared";
@@ -28,7 +29,29 @@ function baseSnapshot(overrides: Partial<ListingUpsertSnapshot> = {}): ListingUp
   };
 }
 
+describe("parseListingServiceLines", () => {
+  it("trims blank lines", () => {
+    assert.deepEqual(parseListingServiceLines(" gates \n\n welding  \n"), ["gates", "welding"]);
+  });
+});
+
 describe("parseListingUpsertFormData", () => {
+  it("requires at least one service", () => {
+    const fd = new FormData();
+    fd.set("displayName", "Test Biz");
+    fd.set("phone", "0821234567");
+    fd.set("locationLabel", "Alex");
+    fd.set("latitude", "-26.1076");
+    fd.set("longitude", "28.0567");
+    fd.set("locationConfirmed", "true");
+    fd.set("categoryId", "cat1");
+    fd.set("services", "  \n  ");
+    const result = parseListingUpsertFormData(fd);
+    assert.equal("error" in result, true);
+    if (!("error" in result)) return;
+    assert.match(result.error, /at least one service/i);
+  });
+
   it("requires validated location coordinates", () => {
     const fd = new FormData();
     fd.set("displayName", "Test Biz");

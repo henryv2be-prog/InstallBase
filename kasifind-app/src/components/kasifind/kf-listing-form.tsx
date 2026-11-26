@@ -47,6 +47,7 @@ import { KfGuestListingPhotosPanel } from "@/components/kasifind/kf-guest-listin
 import type { GuestPendingPhotos } from "@/lib/kasifind/guest-listing-pending-photos";
 import { useKfToast } from "@/components/kasifind/kf-toast";
 import type { KfCategory } from "@/components/kasifind/types";
+import { parseListingServiceLines } from "@/lib/kasifind/listing-upsert-shared";
 
 type ListingData = {
   displayName: string;
@@ -122,6 +123,13 @@ function validateWizardStep(form: HTMLFormElement, step: number, toastError: (ms
       toastError("Select at least one category.");
       return false;
     }
+    const servicesField = form.querySelector('textarea[name="services"]') as HTMLTextAreaElement | null;
+    const serviceLines = parseListingServiceLines(servicesField?.value ?? "");
+    if (serviceLines.length === 0) {
+      toastError("Add at least one service — one per line.");
+      servicesField?.focus();
+      return false;
+    }
   }
 
   return true;
@@ -181,7 +189,7 @@ export function KfListingForm({
   const [activeStep, setActiveStep] = useState(0);
   const stepIsHidden = (step: number) => !adminMobileUnfold && activeStep !== step;
 
-  const defaultServices = listing?.services.join("\n") ?? "Steel gates\nWelding\nSecurity gates";
+  const defaultServices = listing?.services.join("\n") ?? "";
   const formBusy = pending || locatingPublish || savingDraft;
   const currentStepMeta = LISTING_FORM_STEPS[activeStep];
   const photoCount =
@@ -587,11 +595,13 @@ export function KfListingForm({
               </div>
             </fieldset>
             <label className="kf-label kf-wizard-services-field">
-              Services <span className="font-normal text-[var(--kf-muted)]">(one per line)</span>
+              Services <span className="font-normal text-[var(--kf-muted)]">(one per line, at least one)</span>
               <textarea
                 name="services"
-                rows={3}
+                rows={4}
+                required
                 defaultValue={defaultServices}
+                placeholder={"e.g. Gate installation\nBurglar bars\nWelding repairs"}
                 className="kf-input kf-input-compact kf-listing-flow-textarea mt-1 text-sm"
               />
             </label>

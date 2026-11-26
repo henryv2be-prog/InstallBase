@@ -38,6 +38,14 @@ export type ListingUpsertSnapshot = {
   photoUrls: string[];
 };
 
+export function parseListingServiceLines(servicesRaw: string): string[] {
+  return servicesRaw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(0, 20);
+}
+
 export function parseListingUpsertFormData(
   formData: FormData
 ): { error: string } | { data: ParsedListingUpsert } {
@@ -77,11 +85,10 @@ export function parseListingUpsertFormData(
     finalDescription = `${displayName} — local services around ${locationLabel}. WhatsApp or call for prices and availability.`;
   }
 
-  const serviceLines = servicesRaw
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .slice(0, 20);
+  const serviceLines = parseListingServiceLines(servicesRaw);
+  if (serviceLines.length === 0) {
+    return { error: "Add at least one service (one per line on the Services step)." };
+  }
 
   const profileImageUrlRaw = (formData.get("profileImageUrl") as string | null)?.trim() || null;
   const profileImageUrl =
