@@ -45,6 +45,7 @@ export function resolvePublicSiteOrigin(headerStore?: Headers | null): string | 
 /** Paths included in the public sitemap (no trailing slashes). */
 export const PUBLIC_SITEMAP_STATIC_PATHS = [
   "/",
+  "/list-your-business",
   "/categories",
   "/locations",
   "/about",

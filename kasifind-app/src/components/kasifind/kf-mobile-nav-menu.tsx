@@ -12,6 +12,7 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { KF_ADMIN_NAV_LINKS } from "@/lib/kasifind/admin-nav-links";
+import { resolveProviderNavLink } from "@/lib/kasifind/provider-nav";
 
 function mobileNavClass(active?: boolean) {
   return `kf-mobile-nav-link${active ? " kf-mobile-nav-link--active" : ""}`;
@@ -45,12 +46,14 @@ function NavButton({
 
 export function KfMobileNavMenu({
   signedIn,
+  hasListing,
   isAdmin,
   onSignOut,
   signingOut,
   onClose,
 }: {
   signedIn: boolean;
+  hasListing: boolean;
   isAdmin: boolean;
   onSignOut: () => void;
   signingOut: boolean;
@@ -59,33 +62,28 @@ export function KfMobileNavMenu({
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isHub = pathname === "/account" || pathname.startsWith("/account/");
+  const isRecruitment = pathname.startsWith("/list-your-business");
   const onAdmin = pathname.startsWith("/admin");
+  const providerNav = resolveProviderNavLink({ signedIn, hasListing });
+  const providerNavActive =
+    providerNav.href === "/account" ? isHub : isRecruitment;
 
   return (
     <div className="flex flex-col gap-3">
       <NavButton href="/" label="Home" icon={Home} active={isHome} onNavigate={onClose} />
 
-      {signedIn ? (
-        <section className="kf-mobile-nav-section" aria-label="Your business">
-          <NavButton
-            href="/account/insights"
-            label="Business hub"
-            icon={BarChart3}
-            active={isHub}
-            onNavigate={onClose}
-          />
-        </section>
-      ) : (
-        <section className="kf-mobile-nav-section">
-          <NavButton
-            href="/account/listing"
-            label="List your business"
-            icon={PlusCircle}
-            onNavigate={onClose}
-          />
+      <section className="kf-mobile-nav-section" aria-label="Your business">
+        <NavButton
+          href={providerNav.href}
+          label={providerNav.label}
+          icon={signedIn && hasListing ? BarChart3 : PlusCircle}
+          active={providerNavActive}
+          onNavigate={onClose}
+        />
+        {!signedIn ? (
           <NavButton href="/login" label="Provider sign in" icon={LogIn} onNavigate={onClose} />
-        </section>
-      )}
+        ) : null}
+      </section>
 
       {isAdmin ? (
         <section className="kf-mobile-nav-section" aria-label="Admin">
