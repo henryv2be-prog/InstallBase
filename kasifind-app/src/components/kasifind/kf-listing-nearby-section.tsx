@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Building2, ChevronRight, MapPin } from "lucide-react";
 import type { KfSearchResult } from "@/components/kasifind/types";
-import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
+import { KfCrowFliesDistance } from "@/components/kasifind/kf-crow-flies-distance";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
 import { KfListingImage } from "@/components/kasifind/kf-listing-image";
 import { buildNearbyListingSearchUrl } from "@/lib/kasifind/listing-nearby-search";
@@ -135,8 +135,9 @@ export function KfListingNearbySection({ listingId, categorySlug }: Props) {
                       <MapPin className="h-3 w-3 shrink-0" aria-hidden />
                       <span className="truncate">{p.locationLabel}</span>
                       {showDistance && Number.isFinite(p.distanceKm) ? (
-                        <span className="shrink-0 font-semibold text-[var(--kf-charcoal)]">
-                          · {formatDistanceKmClient(p.distanceKm)}
+                        <span className="inline-flex shrink-0 items-center gap-0.5 font-semibold text-[var(--kf-charcoal)]">
+                          <span aria-hidden>·</span>
+                          <KfCrowFliesDistance km={p.distanceKm} variant="inline" />
                         </span>
                       ) : null}
                     </p>
