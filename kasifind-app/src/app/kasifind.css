@@ -6328,9 +6328,9 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
 .kf-provider-distance-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
   max-width: calc(100% - 1.3rem);
-  padding: 0.32rem 0.6rem;
+  padding: 0.32rem 0.55rem 0.32rem 0.6rem;
   font-size: 0.72rem;
   font-weight: 700;
   line-height: 1.2;
@@ -6350,23 +6350,37 @@ body.kf-listing-flow-active .kf-classic-wizard-body {
   opacity: 0.95;
 }
 
+.kf-provider-distance-badge-main {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.kf-crow-flies-badge-mark {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  padding-left: 0.15rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.22);
+}
+
 .kf-crow-flies-icon {
   flex-shrink: 0;
   display: block;
 }
 
-.kf-provider-distance-badge .kf-crow-flies-icon {
-  width: 0.82rem;
+.kf-crow-flies-icon--badge {
+  width: 1.125rem;
   height: auto;
-  color: #fff;
-  opacity: 0.92;
+  color: #0a0a0a;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.35));
 }
 
-.kf-crow-flies-distance--inline .kf-crow-flies-icon {
-  width: 0.72rem;
+.kf-crow-flies-icon--inline {
+  width: 0.85rem;
   height: auto;
   color: var(--kf-charcoal);
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .kf-provider-card-body-wrap {

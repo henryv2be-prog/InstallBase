@@ -1,3 +1,4 @@
+import { Navigation } from "lucide-react";
 import {
   formatDistanceKmClient,
   hasValidDistanceKm,
@@ -5,6 +6,7 @@ import {
 import { KfCrowFliesIcon } from "@/components/kasifind/kf-crow-flies-icon";
 
 const CROW_FLIES_TITLE = "As the crow flies – straight-line distance";
+const DISTANCE_FROM_SEARCH_TITLE = "Distance from your search area";
 
 type Props = {
   km: number;
@@ -20,9 +22,17 @@ export function KfCrowFliesDistance({ km, variant = "badge", className = "" }: P
 
   if (variant === "badge") {
     return (
-      <span className={`kf-provider-distance-badge${className ? ` ${className}` : ""}`} title={CROW_FLIES_TITLE}>
-        <KfCrowFliesIcon className="kf-crow-flies-icon kf-provider-distance-badge-icon" />
-        {text}
+      <span className={`kf-provider-distance-badge${className ? ` ${className}` : ""}`}>
+        <span
+          className="kf-provider-distance-badge-main inline-flex min-w-0 items-center gap-[0.3rem]"
+          title={DISTANCE_FROM_SEARCH_TITLE}
+        >
+          <Navigation className="kf-provider-distance-badge-icon" aria-hidden />
+          <span className="truncate">{text}</span>
+        </span>
+        <span className="kf-crow-flies-badge-mark" title={CROW_FLIES_TITLE}>
+          <KfCrowFliesIcon className="kf-crow-flies-icon kf-crow-flies-icon--badge" />
+        </span>
       </span>
     );
   }
@@ -32,7 +42,7 @@ export function KfCrowFliesDistance({ km, variant = "badge", className = "" }: P
       className={`kf-crow-flies-distance kf-crow-flies-distance--inline inline-flex items-center gap-0.5${className ? ` ${className}` : ""}`}
       title={CROW_FLIES_TITLE}
     >
-      <KfCrowFliesIcon className="kf-crow-flies-icon" />
+      <KfCrowFliesIcon className="kf-crow-flies-icon kf-crow-flies-icon--inline" />
       <span>{text}</span>
     </span>
   );
