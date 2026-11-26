@@ -12,5 +12,9 @@ export const DISCOVERY_MAX_RADIUS_KM =
 /** Nationwide browse — show more listings than geo-local search (still capped for UI performance). */
 export const BROWSE_LISTING_LIMIT = 150;
 
+/** Interactive homepage grid: first paint + each Load more step. SEO index still uses full browse set. */
+export const BROWSE_INITIAL_VISIBLE_COUNT = 12;
+export const BROWSE_LOAD_MORE_BATCH = 12;
+
 /** Default cap for GPS / manual area searches (API may not exceed this). */
 export const GEO_SEARCH_RESULT_LIMIT = 60;

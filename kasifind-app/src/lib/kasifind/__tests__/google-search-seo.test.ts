@@ -225,3 +225,15 @@ test("homepage server-seeds nationwide browse for crawlers", () => {
   assert.match(home, /KfHomeBrowseSeoIndex/);
   assert.match(home, /buildHomeBrowseItemListJsonLd/);
 });
+
+test("homepage progressive grid keeps full browse seed for SEO", () => {
+  const homeClient = fs.readFileSync(
+    path.join(process.cwd(), "src/components/kasifind/kf-home-client.tsx"),
+    "utf8"
+  );
+  assert.match(homeClient, /initialHomeBrowseVisibleCount/);
+  assert.match(homeClient, /visibleResults/);
+  const page = fs.readFileSync(path.join(appRoot, "page.tsx"), "utf8");
+  assert.doesNotMatch(page, /initialHomeBrowseVisibleCount/);
+  assert.match(page, /KfHomeBrowseSeoIndex results=\{initialBrowseResults\}/);
+});
