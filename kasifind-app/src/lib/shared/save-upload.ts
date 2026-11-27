@@ -1,8 +1,11 @@
 import "server-only";
+import "server-only";
 import fs from "fs/promises";
 import path from "path";
+import { generateListingImageVariants } from "@/lib/shared/generate-listing-image-variants";
 import { getUploadDir, uploadPublicPath } from "@/lib/shared/uploads";
 import { formatUploadLimit, maxBytesForUpload } from "@/lib/shared/upload-limits";
+import { listingImageVariantsEnabled } from "@/lib/kasifind/listing-image-variants";
 
 const ALLOWED_TYPES = /^(image\/(jpeg|jpg|png|gif|webp)|video\/(mp4|webm|quicktime))$/i;
 
@@ -36,5 +39,9 @@ export async function saveUploadedFile(
   }
 
   const isVideo = file.type.startsWith("video/");
+  if (!isVideo && listingImageVariantsEnabled()) {
+    await generateListingImageVariants(uploadDir, filename);
+  }
+
   return { url: uploadPublicPath(filename), type: isVideo ? "video" : "image" };
 }
