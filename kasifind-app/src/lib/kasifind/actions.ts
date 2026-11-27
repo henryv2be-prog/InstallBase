@@ -18,6 +18,7 @@ import {
   parseListingUpsertFormData,
 } from "@/lib/kasifind/listing-upsert-shared";
 import { validatePassword } from "@/lib/shared/auth-validation";
+import { safeRecordPlatformEvent } from "@/lib/kasifind/platform-events";
 
 function dbGuard() {
   if (!isKasiFindDbConfigured()) {
@@ -48,6 +49,13 @@ export async function kfRegisterProvider(formData: FormData) {
   });
 
   await setKasiFindSession(user.id);
+  safeRecordPlatformEvent({
+    eventType: "provider.registered",
+    entityType: "user",
+    entityId: user.id,
+    metadata: { userId: user.id },
+    idempotencyKey: `provider.registered:${user.id}`,
+  });
   return { success: true };
 }
 
@@ -107,6 +115,21 @@ export async function kfRegisterProviderWithListing(formData: FormData) {
   revalidatePath("/account/listing");
   revalidatePath(`/providers/${created.id}`);
 
+  safeRecordPlatformEvent({
+    eventType: "provider.registered",
+    entityType: "user",
+    entityId: user.id,
+    metadata: { userId: user.id },
+    idempotencyKey: `provider.registered:${user.id}`,
+  });
+  safeRecordPlatformEvent({
+    eventType: "listing.created",
+    entityType: "listing",
+    entityId: created.id,
+    metadata: { listingId: created.id, listingName: created.displayName },
+    idempotencyKey: `listing.created:${created.id}`,
+  });
+
   return { success: true, listingId: created.id };
 }
 
@@ -126,6 +149,14 @@ export async function kfSignInProvider(formData: FormData) {
   if (!valid) return { error: "Invalid email or password." };
 
   await setKasiFindSession(user.id);
+  if (user.role === "ADMIN") {
+    safeRecordPlatformEvent({
+      eventType: "admin.login",
+      entityType: "admin",
+      entityId: user.id,
+      metadata: { userId: user.id },
+    });
+  }
   return { success: true };
 }
 
@@ -185,6 +216,32 @@ export async function kfUpsertListing(formData: FormData) {
   revalidatePath("/");
   revalidatePath(`/providers/${listingId}`);
   revalidatePath("/account/listing");
+
+  if (!existing) {
+    safeRecordPlatformEvent({
+      eventType: "listing.created",
+      entityType: "listing",
+      entityId: listingId,
+      metadata: { listingId, listingName: parsed.data.displayName },
+      idempotencyKey: `listing.created:${listingId}`,
+    });
+  } else {
+    safeRecordPlatformEvent({
+      eventType: "listing.edited",
+      entityType: "listing",
+      entityId: listingId,
+      metadata: { listingId, listingName: parsed.data.displayName },
+    });
+  }
+  if (parsed.data.publish) {
+    safeRecordPlatformEvent({
+      eventType: "listing.submitted_for_approval",
+      entityType: "listing",
+      entityId: listingId,
+      metadata: { listingId, listingName: parsed.data.displayName },
+      idempotencyKey: `listing.submitted:${listingId}`,
+    });
+  }
 
   return { success: true, listingId };
 }

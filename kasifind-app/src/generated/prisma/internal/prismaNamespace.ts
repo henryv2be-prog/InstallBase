@@ -409,7 +409,12 @@ export const ModelName = {
   KfListingAssistanceStatusEvent: 'KfListingAssistanceStatusEvent',
   KfListingAssistanceAuditEntry: 'KfListingAssistanceAuditEntry',
   KfAdminAudit: 'KfAdminAudit',
-  KfAnalyticsEvent: 'KfAnalyticsEvent'
+  KfAnalyticsEvent: 'KfAnalyticsEvent',
+  KfPlatformEvent: 'KfPlatformEvent',
+  KfAdminPushSubscription: 'KfAdminPushSubscription',
+  KfAdminNotificationPreference: 'KfAdminNotificationPreference',
+  KfAdminNotificationSettings: 'KfAdminNotificationSettings',
+  KfAdminNotification: 'KfAdminNotification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -425,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "kfUser" | "kfCategory" | "kfProviderListing" | "kfListingCategory" | "kfProviderService" | "kfProviderPhoto" | "kfReview" | "kfReport" | "kfListingAssistanceRequest" | "kfListingAssistanceStatusEvent" | "kfListingAssistanceAuditEntry" | "kfAdminAudit" | "kfAnalyticsEvent"
+    modelProps: "kfUser" | "kfCategory" | "kfProviderListing" | "kfListingCategory" | "kfProviderService" | "kfProviderPhoto" | "kfReview" | "kfReport" | "kfListingAssistanceRequest" | "kfListingAssistanceStatusEvent" | "kfListingAssistanceAuditEntry" | "kfAdminAudit" | "kfAnalyticsEvent" | "kfPlatformEvent" | "kfAdminPushSubscription" | "kfAdminNotificationPreference" | "kfAdminNotificationSettings" | "kfAdminNotification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1391,6 +1396,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    KfPlatformEvent: {
+      payload: Prisma.$KfPlatformEventPayload<ExtArgs>
+      fields: Prisma.KfPlatformEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KfPlatformEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KfPlatformEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload>
+        }
+        findFirst: {
+          args: Prisma.KfPlatformEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KfPlatformEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload>
+        }
+        findMany: {
+          args: Prisma.KfPlatformEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload>[]
+        }
+        create: {
+          args: Prisma.KfPlatformEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload>
+        }
+        createMany: {
+          args: Prisma.KfPlatformEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KfPlatformEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload>[]
+        }
+        delete: {
+          args: Prisma.KfPlatformEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload>
+        }
+        update: {
+          args: Prisma.KfPlatformEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.KfPlatformEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KfPlatformEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KfPlatformEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.KfPlatformEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfPlatformEventPayload>
+        }
+        aggregate: {
+          args: Prisma.KfPlatformEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKfPlatformEvent>
+        }
+        groupBy: {
+          args: Prisma.KfPlatformEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfPlatformEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KfPlatformEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfPlatformEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    KfAdminPushSubscription: {
+      payload: Prisma.$KfAdminPushSubscriptionPayload<ExtArgs>
+      fields: Prisma.KfAdminPushSubscriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KfAdminPushSubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KfAdminPushSubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.KfAdminPushSubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KfAdminPushSubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload>
+        }
+        findMany: {
+          args: Prisma.KfAdminPushSubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload>[]
+        }
+        create: {
+          args: Prisma.KfAdminPushSubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload>
+        }
+        createMany: {
+          args: Prisma.KfAdminPushSubscriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KfAdminPushSubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.KfAdminPushSubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload>
+        }
+        update: {
+          args: Prisma.KfAdminPushSubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.KfAdminPushSubscriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KfAdminPushSubscriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KfAdminPushSubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.KfAdminPushSubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminPushSubscriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.KfAdminPushSubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKfAdminPushSubscription>
+        }
+        groupBy: {
+          args: Prisma.KfAdminPushSubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfAdminPushSubscriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KfAdminPushSubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfAdminPushSubscriptionCountAggregateOutputType> | number
+        }
+      }
+    }
+    KfAdminNotificationPreference: {
+      payload: Prisma.$KfAdminNotificationPreferencePayload<ExtArgs>
+      fields: Prisma.KfAdminNotificationPreferenceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KfAdminNotificationPreferenceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KfAdminNotificationPreferenceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload>
+        }
+        findFirst: {
+          args: Prisma.KfAdminNotificationPreferenceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KfAdminNotificationPreferenceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload>
+        }
+        findMany: {
+          args: Prisma.KfAdminNotificationPreferenceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload>[]
+        }
+        create: {
+          args: Prisma.KfAdminNotificationPreferenceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload>
+        }
+        createMany: {
+          args: Prisma.KfAdminNotificationPreferenceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KfAdminNotificationPreferenceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload>[]
+        }
+        delete: {
+          args: Prisma.KfAdminNotificationPreferenceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload>
+        }
+        update: {
+          args: Prisma.KfAdminNotificationPreferenceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload>
+        }
+        deleteMany: {
+          args: Prisma.KfAdminNotificationPreferenceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KfAdminNotificationPreferenceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KfAdminNotificationPreferenceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload>[]
+        }
+        upsert: {
+          args: Prisma.KfAdminNotificationPreferenceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPreferencePayload>
+        }
+        aggregate: {
+          args: Prisma.KfAdminNotificationPreferenceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKfAdminNotificationPreference>
+        }
+        groupBy: {
+          args: Prisma.KfAdminNotificationPreferenceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfAdminNotificationPreferenceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KfAdminNotificationPreferenceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfAdminNotificationPreferenceCountAggregateOutputType> | number
+        }
+      }
+    }
+    KfAdminNotificationSettings: {
+      payload: Prisma.$KfAdminNotificationSettingsPayload<ExtArgs>
+      fields: Prisma.KfAdminNotificationSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KfAdminNotificationSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KfAdminNotificationSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.KfAdminNotificationSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KfAdminNotificationSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.KfAdminNotificationSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.KfAdminNotificationSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.KfAdminNotificationSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KfAdminNotificationSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.KfAdminNotificationSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload>
+        }
+        update: {
+          args: Prisma.KfAdminNotificationSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.KfAdminNotificationSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KfAdminNotificationSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KfAdminNotificationSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.KfAdminNotificationSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.KfAdminNotificationSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKfAdminNotificationSettings>
+        }
+        groupBy: {
+          args: Prisma.KfAdminNotificationSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfAdminNotificationSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KfAdminNotificationSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfAdminNotificationSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
+    KfAdminNotification: {
+      payload: Prisma.$KfAdminNotificationPayload<ExtArgs>
+      fields: Prisma.KfAdminNotificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KfAdminNotificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KfAdminNotificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload>
+        }
+        findFirst: {
+          args: Prisma.KfAdminNotificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KfAdminNotificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload>
+        }
+        findMany: {
+          args: Prisma.KfAdminNotificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload>[]
+        }
+        create: {
+          args: Prisma.KfAdminNotificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload>
+        }
+        createMany: {
+          args: Prisma.KfAdminNotificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KfAdminNotificationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload>[]
+        }
+        delete: {
+          args: Prisma.KfAdminNotificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload>
+        }
+        update: {
+          args: Prisma.KfAdminNotificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.KfAdminNotificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KfAdminNotificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KfAdminNotificationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload>[]
+        }
+        upsert: {
+          args: Prisma.KfAdminNotificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KfAdminNotificationPayload>
+        }
+        aggregate: {
+          args: Prisma.KfAdminNotificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKfAdminNotification>
+        }
+        groupBy: {
+          args: Prisma.KfAdminNotificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfAdminNotificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KfAdminNotificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KfAdminNotificationCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1610,12 +1985,90 @@ export const KfAnalyticsEventScalarFieldEnum = {
 export type KfAnalyticsEventScalarFieldEnum = (typeof KfAnalyticsEventScalarFieldEnum)[keyof typeof KfAnalyticsEventScalarFieldEnum]
 
 
+export const KfPlatformEventScalarFieldEnum = {
+  id: 'id',
+  eventType: 'eventType',
+  category: 'category',
+  priority: 'priority',
+  metadata: 'metadata',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt'
+} as const
+
+export type KfPlatformEventScalarFieldEnum = (typeof KfPlatformEventScalarFieldEnum)[keyof typeof KfPlatformEventScalarFieldEnum]
+
+
+export const KfAdminPushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  userAgent: 'userAgent',
+  deviceLabel: 'deviceLabel',
+  active: 'active',
+  failureCount: 'failureCount',
+  lastSuccessAt: 'lastSuccessAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KfAdminPushSubscriptionScalarFieldEnum = (typeof KfAdminPushSubscriptionScalarFieldEnum)[keyof typeof KfAdminPushSubscriptionScalarFieldEnum]
+
+
+export const KfAdminNotificationPreferenceScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  eventType: 'eventType',
+  pushEnabled: 'pushEnabled',
+  inAppEnabled: 'inAppEnabled'
+} as const
+
+export type KfAdminNotificationPreferenceScalarFieldEnum = (typeof KfAdminNotificationPreferenceScalarFieldEnum)[keyof typeof KfAdminNotificationPreferenceScalarFieldEnum]
+
+
+export const KfAdminNotificationSettingsScalarFieldEnum = {
+  adminId: 'adminId',
+  pushMasterEnabled: 'pushMasterEnabled'
+} as const
+
+export type KfAdminNotificationSettingsScalarFieldEnum = (typeof KfAdminNotificationSettingsScalarFieldEnum)[keyof typeof KfAdminNotificationSettingsScalarFieldEnum]
+
+
+export const KfAdminNotificationScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  adminId: 'adminId',
+  title: 'title',
+  body: 'body',
+  deepLink: 'deepLink',
+  priority: 'priority',
+  category: 'category',
+  readAt: 'readAt',
+  deliveryStatus: 'deliveryStatus',
+  pushAttemptedAt: 'pushAttemptedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type KfAdminNotificationScalarFieldEnum = (typeof KfAdminNotificationScalarFieldEnum)[keyof typeof KfAdminNotificationScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1632,6 +2085,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1770,6 +2232,48 @@ export type EnumKfAnalyticsEventTypeFieldRefInput<$PrismaModel> = FieldRefInputT
  * Reference to a field of type 'KfAnalyticsEventType[]'
  */
 export type ListEnumKfAnalyticsEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfAnalyticsEventType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'KfNotificationPriority'
+ */
+export type EnumKfNotificationPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfNotificationPriority'>
+    
+
+
+/**
+ * Reference to a field of type 'KfNotificationPriority[]'
+ */
+export type ListEnumKfNotificationPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfNotificationPriority[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'KfAdminNotificationDeliveryStatus'
+ */
+export type EnumKfAdminNotificationDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfAdminNotificationDeliveryStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'KfAdminNotificationDeliveryStatus[]'
+ */
+export type ListEnumKfAdminNotificationDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KfAdminNotificationDeliveryStatus[]'>
     
 
 /**
@@ -1936,6 +2440,11 @@ export type GlobalOmitConfig = {
   kfListingAssistanceAuditEntry?: Prisma.KfListingAssistanceAuditEntryOmit
   kfAdminAudit?: Prisma.KfAdminAuditOmit
   kfAnalyticsEvent?: Prisma.KfAnalyticsEventOmit
+  kfPlatformEvent?: Prisma.KfPlatformEventOmit
+  kfAdminPushSubscription?: Prisma.KfAdminPushSubscriptionOmit
+  kfAdminNotificationPreference?: Prisma.KfAdminNotificationPreferenceOmit
+  kfAdminNotificationSettings?: Prisma.KfAdminNotificationSettingsOmit
+  kfAdminNotification?: Prisma.KfAdminNotificationOmit
 }
 
 /* Types for Logging */

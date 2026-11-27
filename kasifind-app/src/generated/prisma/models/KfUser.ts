@@ -221,6 +221,10 @@ export type KfUserWhereInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestListRelationFilter
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventListRelationFilter
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryListRelationFilter
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionListRelationFilter
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceListRelationFilter
+  notificationSettings?: Prisma.XOR<Prisma.KfAdminNotificationSettingsNullableScalarRelationFilter, Prisma.KfAdminNotificationSettingsWhereInput> | null
+  adminNotifications?: Prisma.KfAdminNotificationListRelationFilter
 }
 
 export type KfUserOrderByWithRelationInput = {
@@ -240,6 +244,10 @@ export type KfUserOrderByWithRelationInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestOrderByRelationAggregateInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventOrderByRelationAggregateInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryOrderByRelationAggregateInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionOrderByRelationAggregateInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceOrderByRelationAggregateInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsOrderByWithRelationInput
+  adminNotifications?: Prisma.KfAdminNotificationOrderByRelationAggregateInput
 }
 
 export type KfUserWhereUniqueInput = Prisma.AtLeast<{
@@ -262,6 +270,10 @@ export type KfUserWhereUniqueInput = Prisma.AtLeast<{
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestListRelationFilter
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventListRelationFilter
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryListRelationFilter
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionListRelationFilter
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceListRelationFilter
+  notificationSettings?: Prisma.XOR<Prisma.KfAdminNotificationSettingsNullableScalarRelationFilter, Prisma.KfAdminNotificationSettingsWhereInput> | null
+  adminNotifications?: Prisma.KfAdminNotificationListRelationFilter
 }, "id" | "email">
 
 export type KfUserOrderByWithAggregationInput = {
@@ -311,6 +323,10 @@ export type KfUserCreateInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserUncheckedCreateInput = {
@@ -330,6 +346,10 @@ export type KfUserUncheckedCreateInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserUpdateInput = {
@@ -349,6 +369,10 @@ export type KfUserUpdateInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserUncheckedUpdateInput = {
@@ -368,6 +392,10 @@ export type KfUserUncheckedUpdateInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserCreateManyInput = {
@@ -580,6 +608,62 @@ export type KfUserUpdateOneWithoutAnalyticsEventsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.KfUserUpdateToOneWithWhereWithoutAnalyticsEventsInput, Prisma.KfUserUpdateWithoutAnalyticsEventsInput>, Prisma.KfUserUncheckedUpdateWithoutAnalyticsEventsInput>
 }
 
+export type KfUserCreateNestedOneWithoutAdminPushSubscriptionsInput = {
+  create?: Prisma.XOR<Prisma.KfUserCreateWithoutAdminPushSubscriptionsInput, Prisma.KfUserUncheckedCreateWithoutAdminPushSubscriptionsInput>
+  connectOrCreate?: Prisma.KfUserCreateOrConnectWithoutAdminPushSubscriptionsInput
+  connect?: Prisma.KfUserWhereUniqueInput
+}
+
+export type KfUserUpdateOneRequiredWithoutAdminPushSubscriptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.KfUserCreateWithoutAdminPushSubscriptionsInput, Prisma.KfUserUncheckedCreateWithoutAdminPushSubscriptionsInput>
+  connectOrCreate?: Prisma.KfUserCreateOrConnectWithoutAdminPushSubscriptionsInput
+  upsert?: Prisma.KfUserUpsertWithoutAdminPushSubscriptionsInput
+  connect?: Prisma.KfUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.KfUserUpdateToOneWithWhereWithoutAdminPushSubscriptionsInput, Prisma.KfUserUpdateWithoutAdminPushSubscriptionsInput>, Prisma.KfUserUncheckedUpdateWithoutAdminPushSubscriptionsInput>
+}
+
+export type KfUserCreateNestedOneWithoutNotificationPreferencesInput = {
+  create?: Prisma.XOR<Prisma.KfUserCreateWithoutNotificationPreferencesInput, Prisma.KfUserUncheckedCreateWithoutNotificationPreferencesInput>
+  connectOrCreate?: Prisma.KfUserCreateOrConnectWithoutNotificationPreferencesInput
+  connect?: Prisma.KfUserWhereUniqueInput
+}
+
+export type KfUserUpdateOneRequiredWithoutNotificationPreferencesNestedInput = {
+  create?: Prisma.XOR<Prisma.KfUserCreateWithoutNotificationPreferencesInput, Prisma.KfUserUncheckedCreateWithoutNotificationPreferencesInput>
+  connectOrCreate?: Prisma.KfUserCreateOrConnectWithoutNotificationPreferencesInput
+  upsert?: Prisma.KfUserUpsertWithoutNotificationPreferencesInput
+  connect?: Prisma.KfUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.KfUserUpdateToOneWithWhereWithoutNotificationPreferencesInput, Prisma.KfUserUpdateWithoutNotificationPreferencesInput>, Prisma.KfUserUncheckedUpdateWithoutNotificationPreferencesInput>
+}
+
+export type KfUserCreateNestedOneWithoutNotificationSettingsInput = {
+  create?: Prisma.XOR<Prisma.KfUserCreateWithoutNotificationSettingsInput, Prisma.KfUserUncheckedCreateWithoutNotificationSettingsInput>
+  connectOrCreate?: Prisma.KfUserCreateOrConnectWithoutNotificationSettingsInput
+  connect?: Prisma.KfUserWhereUniqueInput
+}
+
+export type KfUserUpdateOneRequiredWithoutNotificationSettingsNestedInput = {
+  create?: Prisma.XOR<Prisma.KfUserCreateWithoutNotificationSettingsInput, Prisma.KfUserUncheckedCreateWithoutNotificationSettingsInput>
+  connectOrCreate?: Prisma.KfUserCreateOrConnectWithoutNotificationSettingsInput
+  upsert?: Prisma.KfUserUpsertWithoutNotificationSettingsInput
+  connect?: Prisma.KfUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.KfUserUpdateToOneWithWhereWithoutNotificationSettingsInput, Prisma.KfUserUpdateWithoutNotificationSettingsInput>, Prisma.KfUserUncheckedUpdateWithoutNotificationSettingsInput>
+}
+
+export type KfUserCreateNestedOneWithoutAdminNotificationsInput = {
+  create?: Prisma.XOR<Prisma.KfUserCreateWithoutAdminNotificationsInput, Prisma.KfUserUncheckedCreateWithoutAdminNotificationsInput>
+  connectOrCreate?: Prisma.KfUserCreateOrConnectWithoutAdminNotificationsInput
+  connect?: Prisma.KfUserWhereUniqueInput
+}
+
+export type KfUserUpdateOneRequiredWithoutAdminNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.KfUserCreateWithoutAdminNotificationsInput, Prisma.KfUserUncheckedCreateWithoutAdminNotificationsInput>
+  connectOrCreate?: Prisma.KfUserCreateOrConnectWithoutAdminNotificationsInput
+  upsert?: Prisma.KfUserUpsertWithoutAdminNotificationsInput
+  connect?: Prisma.KfUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.KfUserUpdateToOneWithWhereWithoutAdminNotificationsInput, Prisma.KfUserUpdateWithoutAdminNotificationsInput>, Prisma.KfUserUncheckedUpdateWithoutAdminNotificationsInput>
+}
+
 export type KfUserCreateWithoutListingInput = {
   id?: string
   email: string
@@ -596,6 +680,10 @@ export type KfUserCreateWithoutListingInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserUncheckedCreateWithoutListingInput = {
@@ -614,6 +702,10 @@ export type KfUserUncheckedCreateWithoutListingInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserCreateOrConnectWithoutListingInput = {
@@ -648,6 +740,10 @@ export type KfUserUpdateWithoutListingInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserUncheckedUpdateWithoutListingInput = {
@@ -666,6 +762,10 @@ export type KfUserUncheckedUpdateWithoutListingInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserCreateWithoutReviewsInput = {
@@ -684,6 +784,10 @@ export type KfUserCreateWithoutReviewsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserUncheckedCreateWithoutReviewsInput = {
@@ -702,6 +806,10 @@ export type KfUserUncheckedCreateWithoutReviewsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserCreateOrConnectWithoutReviewsInput = {
@@ -736,6 +844,10 @@ export type KfUserUpdateWithoutReviewsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserUncheckedUpdateWithoutReviewsInput = {
@@ -754,6 +866,10 @@ export type KfUserUncheckedUpdateWithoutReviewsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserCreateWithoutReportsInput = {
@@ -772,6 +888,10 @@ export type KfUserCreateWithoutReportsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserUncheckedCreateWithoutReportsInput = {
@@ -790,6 +910,10 @@ export type KfUserUncheckedCreateWithoutReportsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserCreateOrConnectWithoutReportsInput = {
@@ -824,6 +948,10 @@ export type KfUserUpdateWithoutReportsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserUncheckedUpdateWithoutReportsInput = {
@@ -842,6 +970,10 @@ export type KfUserUncheckedUpdateWithoutReportsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserCreateWithoutListingAssistanceRequestsInput = {
@@ -860,6 +992,10 @@ export type KfUserCreateWithoutListingAssistanceRequestsInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserUncheckedCreateWithoutListingAssistanceRequestsInput = {
@@ -878,6 +1014,10 @@ export type KfUserUncheckedCreateWithoutListingAssistanceRequestsInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserCreateOrConnectWithoutListingAssistanceRequestsInput = {
@@ -912,6 +1052,10 @@ export type KfUserUpdateWithoutListingAssistanceRequestsInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserUncheckedUpdateWithoutListingAssistanceRequestsInput = {
@@ -930,6 +1074,10 @@ export type KfUserUncheckedUpdateWithoutListingAssistanceRequestsInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserCreateWithoutListingAssistanceStatusEventsInput = {
@@ -948,6 +1096,10 @@ export type KfUserCreateWithoutListingAssistanceStatusEventsInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserUncheckedCreateWithoutListingAssistanceStatusEventsInput = {
@@ -966,6 +1118,10 @@ export type KfUserUncheckedCreateWithoutListingAssistanceStatusEventsInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserCreateOrConnectWithoutListingAssistanceStatusEventsInput = {
@@ -1000,6 +1156,10 @@ export type KfUserUpdateWithoutListingAssistanceStatusEventsInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserUncheckedUpdateWithoutListingAssistanceStatusEventsInput = {
@@ -1018,6 +1178,10 @@ export type KfUserUncheckedUpdateWithoutListingAssistanceStatusEventsInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserCreateWithoutListingAssistanceAuditEntriesInput = {
@@ -1036,6 +1200,10 @@ export type KfUserCreateWithoutListingAssistanceAuditEntriesInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserUncheckedCreateWithoutListingAssistanceAuditEntriesInput = {
@@ -1054,6 +1222,10 @@ export type KfUserUncheckedCreateWithoutListingAssistanceAuditEntriesInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserCreateOrConnectWithoutListingAssistanceAuditEntriesInput = {
@@ -1088,6 +1260,10 @@ export type KfUserUpdateWithoutListingAssistanceAuditEntriesInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserUncheckedUpdateWithoutListingAssistanceAuditEntriesInput = {
@@ -1106,6 +1282,10 @@ export type KfUserUncheckedUpdateWithoutListingAssistanceAuditEntriesInput = {
   analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserCreateWithoutAnalyticsEventsInput = {
@@ -1124,6 +1304,10 @@ export type KfUserCreateWithoutAnalyticsEventsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserUncheckedCreateWithoutAnalyticsEventsInput = {
@@ -1142,6 +1326,10 @@ export type KfUserUncheckedCreateWithoutAnalyticsEventsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
 }
 
 export type KfUserCreateOrConnectWithoutAnalyticsEventsInput = {
@@ -1176,6 +1364,10 @@ export type KfUserUpdateWithoutAnalyticsEventsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
 }
 
 export type KfUserUncheckedUpdateWithoutAnalyticsEventsInput = {
@@ -1194,6 +1386,426 @@ export type KfUserUncheckedUpdateWithoutAnalyticsEventsInput = {
   listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
   listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
   listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
+}
+
+export type KfUserCreateWithoutAdminPushSubscriptionsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  role?: $Enums.KfUserRole
+  suspended?: boolean
+  lastSeenAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  listing?: Prisma.KfProviderListingCreateNestedOneWithoutUserInput
+  reviews?: Prisma.KfReviewCreateNestedManyWithoutUserInput
+  reports?: Prisma.KfReportCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
+}
+
+export type KfUserUncheckedCreateWithoutAdminPushSubscriptionsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  role?: $Enums.KfUserRole
+  suspended?: boolean
+  lastSeenAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  listing?: Prisma.KfProviderListingUncheckedCreateNestedOneWithoutUserInput
+  reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutUserInput
+  reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
+}
+
+export type KfUserCreateOrConnectWithoutAdminPushSubscriptionsInput = {
+  where: Prisma.KfUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.KfUserCreateWithoutAdminPushSubscriptionsInput, Prisma.KfUserUncheckedCreateWithoutAdminPushSubscriptionsInput>
+}
+
+export type KfUserUpsertWithoutAdminPushSubscriptionsInput = {
+  update: Prisma.XOR<Prisma.KfUserUpdateWithoutAdminPushSubscriptionsInput, Prisma.KfUserUncheckedUpdateWithoutAdminPushSubscriptionsInput>
+  create: Prisma.XOR<Prisma.KfUserCreateWithoutAdminPushSubscriptionsInput, Prisma.KfUserUncheckedCreateWithoutAdminPushSubscriptionsInput>
+  where?: Prisma.KfUserWhereInput
+}
+
+export type KfUserUpdateToOneWithWhereWithoutAdminPushSubscriptionsInput = {
+  where?: Prisma.KfUserWhereInput
+  data: Prisma.XOR<Prisma.KfUserUpdateWithoutAdminPushSubscriptionsInput, Prisma.KfUserUncheckedUpdateWithoutAdminPushSubscriptionsInput>
+}
+
+export type KfUserUpdateWithoutAdminPushSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  listing?: Prisma.KfProviderListingUpdateOneWithoutUserNestedInput
+  reviews?: Prisma.KfReviewUpdateManyWithoutUserNestedInput
+  reports?: Prisma.KfReportUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
+}
+
+export type KfUserUncheckedUpdateWithoutAdminPushSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  listing?: Prisma.KfProviderListingUncheckedUpdateOneWithoutUserNestedInput
+  reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutUserNestedInput
+  reports?: Prisma.KfReportUncheckedUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
+}
+
+export type KfUserCreateWithoutNotificationPreferencesInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  role?: $Enums.KfUserRole
+  suspended?: boolean
+  lastSeenAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  listing?: Prisma.KfProviderListingCreateNestedOneWithoutUserInput
+  reviews?: Prisma.KfReviewCreateNestedManyWithoutUserInput
+  reports?: Prisma.KfReportCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
+}
+
+export type KfUserUncheckedCreateWithoutNotificationPreferencesInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  role?: $Enums.KfUserRole
+  suspended?: boolean
+  lastSeenAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  listing?: Prisma.KfProviderListingUncheckedCreateNestedOneWithoutUserInput
+  reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutUserInput
+  reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
+}
+
+export type KfUserCreateOrConnectWithoutNotificationPreferencesInput = {
+  where: Prisma.KfUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.KfUserCreateWithoutNotificationPreferencesInput, Prisma.KfUserUncheckedCreateWithoutNotificationPreferencesInput>
+}
+
+export type KfUserUpsertWithoutNotificationPreferencesInput = {
+  update: Prisma.XOR<Prisma.KfUserUpdateWithoutNotificationPreferencesInput, Prisma.KfUserUncheckedUpdateWithoutNotificationPreferencesInput>
+  create: Prisma.XOR<Prisma.KfUserCreateWithoutNotificationPreferencesInput, Prisma.KfUserUncheckedCreateWithoutNotificationPreferencesInput>
+  where?: Prisma.KfUserWhereInput
+}
+
+export type KfUserUpdateToOneWithWhereWithoutNotificationPreferencesInput = {
+  where?: Prisma.KfUserWhereInput
+  data: Prisma.XOR<Prisma.KfUserUpdateWithoutNotificationPreferencesInput, Prisma.KfUserUncheckedUpdateWithoutNotificationPreferencesInput>
+}
+
+export type KfUserUpdateWithoutNotificationPreferencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  listing?: Prisma.KfProviderListingUpdateOneWithoutUserNestedInput
+  reviews?: Prisma.KfReviewUpdateManyWithoutUserNestedInput
+  reports?: Prisma.KfReportUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
+}
+
+export type KfUserUncheckedUpdateWithoutNotificationPreferencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  listing?: Prisma.KfProviderListingUncheckedUpdateOneWithoutUserNestedInput
+  reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutUserNestedInput
+  reports?: Prisma.KfReportUncheckedUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
+}
+
+export type KfUserCreateWithoutNotificationSettingsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  role?: $Enums.KfUserRole
+  suspended?: boolean
+  lastSeenAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  listing?: Prisma.KfProviderListingCreateNestedOneWithoutUserInput
+  reviews?: Prisma.KfReviewCreateNestedManyWithoutUserInput
+  reports?: Prisma.KfReportCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationCreateNestedManyWithoutAdminInput
+}
+
+export type KfUserUncheckedCreateWithoutNotificationSettingsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  role?: $Enums.KfUserRole
+  suspended?: boolean
+  lastSeenAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  listing?: Prisma.KfProviderListingUncheckedCreateNestedOneWithoutUserInput
+  reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutUserInput
+  reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedCreateNestedManyWithoutAdminInput
+}
+
+export type KfUserCreateOrConnectWithoutNotificationSettingsInput = {
+  where: Prisma.KfUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.KfUserCreateWithoutNotificationSettingsInput, Prisma.KfUserUncheckedCreateWithoutNotificationSettingsInput>
+}
+
+export type KfUserUpsertWithoutNotificationSettingsInput = {
+  update: Prisma.XOR<Prisma.KfUserUpdateWithoutNotificationSettingsInput, Prisma.KfUserUncheckedUpdateWithoutNotificationSettingsInput>
+  create: Prisma.XOR<Prisma.KfUserCreateWithoutNotificationSettingsInput, Prisma.KfUserUncheckedCreateWithoutNotificationSettingsInput>
+  where?: Prisma.KfUserWhereInput
+}
+
+export type KfUserUpdateToOneWithWhereWithoutNotificationSettingsInput = {
+  where?: Prisma.KfUserWhereInput
+  data: Prisma.XOR<Prisma.KfUserUpdateWithoutNotificationSettingsInput, Prisma.KfUserUncheckedUpdateWithoutNotificationSettingsInput>
+}
+
+export type KfUserUpdateWithoutNotificationSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  listing?: Prisma.KfProviderListingUpdateOneWithoutUserNestedInput
+  reviews?: Prisma.KfReviewUpdateManyWithoutUserNestedInput
+  reports?: Prisma.KfReportUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUpdateManyWithoutAdminNestedInput
+}
+
+export type KfUserUncheckedUpdateWithoutNotificationSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  listing?: Prisma.KfProviderListingUncheckedUpdateOneWithoutUserNestedInput
+  reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutUserNestedInput
+  reports?: Prisma.KfReportUncheckedUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  adminNotifications?: Prisma.KfAdminNotificationUncheckedUpdateManyWithoutAdminNestedInput
+}
+
+export type KfUserCreateWithoutAdminNotificationsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  role?: $Enums.KfUserRole
+  suspended?: boolean
+  lastSeenAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  listing?: Prisma.KfProviderListingCreateNestedOneWithoutUserInput
+  reviews?: Prisma.KfReviewCreateNestedManyWithoutUserInput
+  reports?: Prisma.KfReportCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventCreateNestedManyWithoutUserInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestCreateNestedManyWithoutUserInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventCreateNestedManyWithoutAdminInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsCreateNestedOneWithoutAdminInput
+}
+
+export type KfUserUncheckedCreateWithoutAdminNotificationsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  role?: $Enums.KfUserRole
+  suspended?: boolean
+  lastSeenAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  listing?: Prisma.KfProviderListingUncheckedCreateNestedOneWithoutUserInput
+  reviews?: Prisma.KfReviewUncheckedCreateNestedManyWithoutUserInput
+  reports?: Prisma.KfReportUncheckedCreateNestedManyWithoutReporterInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedCreateNestedManyWithoutUserInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedCreateNestedManyWithoutUserInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedCreateNestedManyWithoutAdminInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedCreateNestedManyWithoutAdminInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedCreateNestedManyWithoutAdminInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedCreateNestedManyWithoutAdminInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedCreateNestedOneWithoutAdminInput
+}
+
+export type KfUserCreateOrConnectWithoutAdminNotificationsInput = {
+  where: Prisma.KfUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.KfUserCreateWithoutAdminNotificationsInput, Prisma.KfUserUncheckedCreateWithoutAdminNotificationsInput>
+}
+
+export type KfUserUpsertWithoutAdminNotificationsInput = {
+  update: Prisma.XOR<Prisma.KfUserUpdateWithoutAdminNotificationsInput, Prisma.KfUserUncheckedUpdateWithoutAdminNotificationsInput>
+  create: Prisma.XOR<Prisma.KfUserCreateWithoutAdminNotificationsInput, Prisma.KfUserUncheckedCreateWithoutAdminNotificationsInput>
+  where?: Prisma.KfUserWhereInput
+}
+
+export type KfUserUpdateToOneWithWhereWithoutAdminNotificationsInput = {
+  where?: Prisma.KfUserWhereInput
+  data: Prisma.XOR<Prisma.KfUserUpdateWithoutAdminNotificationsInput, Prisma.KfUserUncheckedUpdateWithoutAdminNotificationsInput>
+}
+
+export type KfUserUpdateWithoutAdminNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  listing?: Prisma.KfProviderListingUpdateOneWithoutUserNestedInput
+  reviews?: Prisma.KfReviewUpdateManyWithoutUserNestedInput
+  reports?: Prisma.KfReportUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUpdateManyWithoutUserNestedInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUpdateManyWithoutUserNestedInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUpdateManyWithoutAdminNestedInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUpdateOneWithoutAdminNestedInput
+}
+
+export type KfUserUncheckedUpdateWithoutAdminNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumKfUserRoleFieldUpdateOperationsInput | $Enums.KfUserRole
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  listing?: Prisma.KfProviderListingUncheckedUpdateOneWithoutUserNestedInput
+  reviews?: Prisma.KfReviewUncheckedUpdateManyWithoutUserNestedInput
+  reports?: Prisma.KfReportUncheckedUpdateManyWithoutReporterNestedInput
+  analyticsEvents?: Prisma.KfAnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
+  listingAssistanceRequests?: Prisma.KfListingAssistanceRequestUncheckedUpdateManyWithoutUserNestedInput
+  listingAssistanceStatusEvents?: Prisma.KfListingAssistanceStatusEventUncheckedUpdateManyWithoutAdminNestedInput
+  listingAssistanceAuditEntries?: Prisma.KfListingAssistanceAuditEntryUncheckedUpdateManyWithoutAdminNestedInput
+  adminPushSubscriptions?: Prisma.KfAdminPushSubscriptionUncheckedUpdateManyWithoutAdminNestedInput
+  notificationPreferences?: Prisma.KfAdminNotificationPreferenceUncheckedUpdateManyWithoutAdminNestedInput
+  notificationSettings?: Prisma.KfAdminNotificationSettingsUncheckedUpdateOneWithoutAdminNestedInput
 }
 
 
@@ -1208,6 +1820,9 @@ export type KfUserCountOutputType = {
   listingAssistanceRequests: number
   listingAssistanceStatusEvents: number
   listingAssistanceAuditEntries: number
+  adminPushSubscriptions: number
+  notificationPreferences: number
+  adminNotifications: number
 }
 
 export type KfUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1217,6 +1832,9 @@ export type KfUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   listingAssistanceRequests?: boolean | KfUserCountOutputTypeCountListingAssistanceRequestsArgs
   listingAssistanceStatusEvents?: boolean | KfUserCountOutputTypeCountListingAssistanceStatusEventsArgs
   listingAssistanceAuditEntries?: boolean | KfUserCountOutputTypeCountListingAssistanceAuditEntriesArgs
+  adminPushSubscriptions?: boolean | KfUserCountOutputTypeCountAdminPushSubscriptionsArgs
+  notificationPreferences?: boolean | KfUserCountOutputTypeCountNotificationPreferencesArgs
+  adminNotifications?: boolean | KfUserCountOutputTypeCountAdminNotificationsArgs
 }
 
 /**
@@ -1271,6 +1889,27 @@ export type KfUserCountOutputTypeCountListingAssistanceAuditEntriesArgs<ExtArgs 
   where?: Prisma.KfListingAssistanceAuditEntryWhereInput
 }
 
+/**
+ * KfUserCountOutputType without action
+ */
+export type KfUserCountOutputTypeCountAdminPushSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.KfAdminPushSubscriptionWhereInput
+}
+
+/**
+ * KfUserCountOutputType without action
+ */
+export type KfUserCountOutputTypeCountNotificationPreferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.KfAdminNotificationPreferenceWhereInput
+}
+
+/**
+ * KfUserCountOutputType without action
+ */
+export type KfUserCountOutputTypeCountAdminNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.KfAdminNotificationWhereInput
+}
+
 
 export type KfUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1289,6 +1928,10 @@ export type KfUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   listingAssistanceRequests?: boolean | Prisma.KfUser$listingAssistanceRequestsArgs<ExtArgs>
   listingAssistanceStatusEvents?: boolean | Prisma.KfUser$listingAssistanceStatusEventsArgs<ExtArgs>
   listingAssistanceAuditEntries?: boolean | Prisma.KfUser$listingAssistanceAuditEntriesArgs<ExtArgs>
+  adminPushSubscriptions?: boolean | Prisma.KfUser$adminPushSubscriptionsArgs<ExtArgs>
+  notificationPreferences?: boolean | Prisma.KfUser$notificationPreferencesArgs<ExtArgs>
+  notificationSettings?: boolean | Prisma.KfUser$notificationSettingsArgs<ExtArgs>
+  adminNotifications?: boolean | Prisma.KfUser$adminNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.KfUserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["kfUser"]>
 
@@ -1337,6 +1980,10 @@ export type KfUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   listingAssistanceRequests?: boolean | Prisma.KfUser$listingAssistanceRequestsArgs<ExtArgs>
   listingAssistanceStatusEvents?: boolean | Prisma.KfUser$listingAssistanceStatusEventsArgs<ExtArgs>
   listingAssistanceAuditEntries?: boolean | Prisma.KfUser$listingAssistanceAuditEntriesArgs<ExtArgs>
+  adminPushSubscriptions?: boolean | Prisma.KfUser$adminPushSubscriptionsArgs<ExtArgs>
+  notificationPreferences?: boolean | Prisma.KfUser$notificationPreferencesArgs<ExtArgs>
+  notificationSettings?: boolean | Prisma.KfUser$notificationSettingsArgs<ExtArgs>
+  adminNotifications?: boolean | Prisma.KfUser$adminNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.KfUserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type KfUserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1352,6 +1999,10 @@ export type $KfUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     listingAssistanceRequests: Prisma.$KfListingAssistanceRequestPayload<ExtArgs>[]
     listingAssistanceStatusEvents: Prisma.$KfListingAssistanceStatusEventPayload<ExtArgs>[]
     listingAssistanceAuditEntries: Prisma.$KfListingAssistanceAuditEntryPayload<ExtArgs>[]
+    adminPushSubscriptions: Prisma.$KfAdminPushSubscriptionPayload<ExtArgs>[]
+    notificationPreferences: Prisma.$KfAdminNotificationPreferencePayload<ExtArgs>[]
+    notificationSettings: Prisma.$KfAdminNotificationSettingsPayload<ExtArgs> | null
+    adminNotifications: Prisma.$KfAdminNotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1764,6 +2415,10 @@ export interface Prisma__KfUserClient<T, Null = never, ExtArgs extends runtime.T
   listingAssistanceRequests<T extends Prisma.KfUser$listingAssistanceRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$listingAssistanceRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfListingAssistanceRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   listingAssistanceStatusEvents<T extends Prisma.KfUser$listingAssistanceStatusEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$listingAssistanceStatusEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfListingAssistanceStatusEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   listingAssistanceAuditEntries<T extends Prisma.KfUser$listingAssistanceAuditEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$listingAssistanceAuditEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfListingAssistanceAuditEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  adminPushSubscriptions<T extends Prisma.KfUser$adminPushSubscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$adminPushSubscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfAdminPushSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationPreferences<T extends Prisma.KfUser$notificationPreferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$notificationPreferencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfAdminNotificationPreferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationSettings<T extends Prisma.KfUser$notificationSettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$notificationSettingsArgs<ExtArgs>>): Prisma.Prisma__KfAdminNotificationSettingsClient<runtime.Types.Result.GetResult<Prisma.$KfAdminNotificationSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  adminNotifications<T extends Prisma.KfUser$adminNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KfUser$adminNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KfAdminNotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2355,6 +3010,97 @@ export type KfUser$listingAssistanceAuditEntriesArgs<ExtArgs extends runtime.Typ
   take?: number
   skip?: number
   distinct?: Prisma.KfListingAssistanceAuditEntryScalarFieldEnum | Prisma.KfListingAssistanceAuditEntryScalarFieldEnum[]
+}
+
+/**
+ * KfUser.adminPushSubscriptions
+ */
+export type KfUser$adminPushSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KfAdminPushSubscription
+   */
+  select?: Prisma.KfAdminPushSubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KfAdminPushSubscription
+   */
+  omit?: Prisma.KfAdminPushSubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KfAdminPushSubscriptionInclude<ExtArgs> | null
+  where?: Prisma.KfAdminPushSubscriptionWhereInput
+  orderBy?: Prisma.KfAdminPushSubscriptionOrderByWithRelationInput | Prisma.KfAdminPushSubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.KfAdminPushSubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.KfAdminPushSubscriptionScalarFieldEnum | Prisma.KfAdminPushSubscriptionScalarFieldEnum[]
+}
+
+/**
+ * KfUser.notificationPreferences
+ */
+export type KfUser$notificationPreferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KfAdminNotificationPreference
+   */
+  select?: Prisma.KfAdminNotificationPreferenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KfAdminNotificationPreference
+   */
+  omit?: Prisma.KfAdminNotificationPreferenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KfAdminNotificationPreferenceInclude<ExtArgs> | null
+  where?: Prisma.KfAdminNotificationPreferenceWhereInput
+  orderBy?: Prisma.KfAdminNotificationPreferenceOrderByWithRelationInput | Prisma.KfAdminNotificationPreferenceOrderByWithRelationInput[]
+  cursor?: Prisma.KfAdminNotificationPreferenceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.KfAdminNotificationPreferenceScalarFieldEnum | Prisma.KfAdminNotificationPreferenceScalarFieldEnum[]
+}
+
+/**
+ * KfUser.notificationSettings
+ */
+export type KfUser$notificationSettingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KfAdminNotificationSettings
+   */
+  select?: Prisma.KfAdminNotificationSettingsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KfAdminNotificationSettings
+   */
+  omit?: Prisma.KfAdminNotificationSettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KfAdminNotificationSettingsInclude<ExtArgs> | null
+  where?: Prisma.KfAdminNotificationSettingsWhereInput
+}
+
+/**
+ * KfUser.adminNotifications
+ */
+export type KfUser$adminNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KfAdminNotification
+   */
+  select?: Prisma.KfAdminNotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KfAdminNotification
+   */
+  omit?: Prisma.KfAdminNotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KfAdminNotificationInclude<ExtArgs> | null
+  where?: Prisma.KfAdminNotificationWhereInput
+  orderBy?: Prisma.KfAdminNotificationOrderByWithRelationInput | Prisma.KfAdminNotificationOrderByWithRelationInput[]
+  cursor?: Prisma.KfAdminNotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.KfAdminNotificationScalarFieldEnum | Prisma.KfAdminNotificationScalarFieldEnum[]
 }
 
 /**

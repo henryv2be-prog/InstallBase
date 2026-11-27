@@ -6,10 +6,12 @@ import {
   Flag,
   HandHelping,
   Inbox,
+  Bell,
   LayoutGrid,
   LineChart,
   ListChecks,
   Map,
+  Settings,
   Users,
 } from "lucide-react";
 
@@ -104,6 +106,26 @@ export const KF_ADMIN_NAV_GROUPS: KfAdminNavGroup[] = [
         icon: BarChart3,
         matchPrefix: "/admin/provider-performance",
         description: "Shareable provider reports",
+      },
+    ],
+  },
+  {
+    id: "notifications",
+    label: "Notifications",
+    items: [
+      {
+        href: "/admin/notifications",
+        label: "Centre",
+        icon: Bell,
+        exact: true,
+        description: "In-app notification history",
+      },
+      {
+        href: "/admin/notifications/settings",
+        label: "Settings",
+        icon: Settings,
+        matchPrefix: "/admin/notifications/settings",
+        description: "Push devices and event rules",
       },
     ],
   },
