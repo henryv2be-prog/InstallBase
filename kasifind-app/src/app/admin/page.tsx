@@ -6,18 +6,21 @@ import {
 } from "@/lib/kasifind/admin-inbox";
 import { getAdminDashboardStats } from "@/lib/kasifind/admin-stats";
 import { getUploadStorageStatus } from "@/lib/kasifind/upload-storage-status";
+import { getListingImageVariantHealth } from "@/lib/kasifind/listing-image-backfill";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminInboxPage() {
-  const [stats, queues, growth, adminFeed, completed, uploadHealth] = await Promise.all([
-    getAdminDashboardStats(),
-    getAdminInboxQueueCounts(),
-    getAdminInboxGrowthKpis(),
-    getAdminAuditFeed(15),
-    getAdminInboxRecentlyCompleted(8),
-    getUploadStorageStatus().catch(() => null),
-  ]);
+  const [stats, queues, growth, adminFeed, completed, uploadHealth, imageVariantHealth] =
+    await Promise.all([
+      getAdminDashboardStats(),
+      getAdminInboxQueueCounts(),
+      getAdminInboxGrowthKpis(),
+      getAdminAuditFeed(15),
+      getAdminInboxRecentlyCompleted(8),
+      getUploadStorageStatus().catch(() => null),
+      getListingImageVariantHealth().catch(() => null),
+    ]);
 
   return (
     <KfAdminInboxView
@@ -29,6 +32,7 @@ export default async function AdminInboxPage() {
       completed={completed}
       platformFeed={stats.recentActivity}
       uploadHealth={uploadHealth}
+      imageVariantHealth={imageVariantHealth}
     />
   );
 }
