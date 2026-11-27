@@ -13,6 +13,11 @@ export type ListingImageWidthIntent = "card" | "avatar" | "thumb" | "gallery" | 
 
 const LIGHTBOX_VARIANT_WIDTHS: readonly ListingImageVariantWidth[] = [800, 1400];
 const THUMB_VARIANT_WIDTHS: readonly ListingImageVariantWidth[] = [400, 800];
+/** Search cards — never advertise 1400w (crawlers and mobile do not need it). */
+const CARD_VARIANT_WIDTHS: readonly ListingImageVariantWidth[] = [400, 800];
+const AVATAR_VARIANT_WIDTHS: readonly ListingImageVariantWidth[] = [400];
+const HERO_VARIANT_WIDTHS: readonly ListingImageVariantWidth[] = [800, 1400];
+const GALLERY_VARIANT_WIDTHS: readonly ListingImageVariantWidth[] = [400, 800];
 
 const VARIANT_PATH_RE = /\.w\d+\.webp$/i;
 
@@ -47,9 +52,22 @@ const INTENT_SIZES: Record<ListingImageWidthIntent, string> = {
 };
 
 function variantWidthsForIntent(intent: ListingImageWidthIntent): readonly ListingImageVariantWidth[] {
-  if (intent === "full") return LIGHTBOX_VARIANT_WIDTHS;
-  if (intent === "thumb") return THUMB_VARIANT_WIDTHS;
-  return LISTING_IMAGE_VARIANT_WIDTHS;
+  switch (intent) {
+    case "full":
+      return LIGHTBOX_VARIANT_WIDTHS;
+    case "thumb":
+      return THUMB_VARIANT_WIDTHS;
+    case "card":
+      return CARD_VARIANT_WIDTHS;
+    case "avatar":
+      return AVATAR_VARIANT_WIDTHS;
+    case "hero":
+      return HERO_VARIANT_WIDTHS;
+    case "gallery":
+      return GALLERY_VARIANT_WIDTHS;
+    default:
+      return LISTING_IMAGE_VARIANT_WIDTHS;
+  }
 }
 
 export type ListingImageDelivery = {

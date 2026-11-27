@@ -25,8 +25,10 @@ describe("listing image delivery helpers", () => {
     const delivery = buildListingImageDelivery("/uploads/photo.jpeg", "card", "https://kasifind.com");
     assert.equal(delivery.canonicalOriginal, "/uploads/photo.jpeg");
     assert.match(delivery.src, /photo\.w400\.webp$/);
-    assert.match(delivery.srcSet ?? "", /photo\.w400\.webp 400w/);
-    assert.match(delivery.srcSet ?? "", /photo\.w1400\.webp 1400w/);
+    const srcSet = delivery.srcSet ?? "";
+    assert.match(srcSet, /photo\.w400\.webp 400w/);
+    assert.match(srcSet, /photo\.w800\.webp 800w/);
+    assert.ok(!srcSet.includes("1400w"));
     assert.equal(delivery.sizes, "(max-width: 480px) 100vw, 420px");
   });
 
@@ -59,7 +61,7 @@ describe("listing image delivery helpers", () => {
     const delivery = buildListingImageDelivery("/uploads/work.jpg", "thumb", null);
     assert.match(delivery.src, /w400\.webp/);
     const srcSet = delivery.srcSet ?? "";
-    assert.ok(!/\b400w\b/.test(srcSet));
+    assert.ok(/\b400w\b/.test(srcSet));
     assert.ok(srcSet.includes("800w"));
   });
 

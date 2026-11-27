@@ -30,10 +30,15 @@ export async function GET(
     const buffer = await fs.readFile(filePath);
     const ext = path.extname(safeName).toLowerCase();
 
+    const isSizedWebpVariant = /\.w\d+\.webp$/i.test(safeName);
+    const cacheControl = isSizedWebpVariant
+      ? "public, max-age=31536000, immutable"
+      : "public, max-age=86400, stale-while-revalidate=604800";
+
     return new Response(buffer, {
       headers: {
         "Content-Type": MIME[ext] ?? "application/octet-stream",
-        "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+        "Cache-Control": cacheControl,
         "X-Content-Type-Options": "nosniff",
       },
     });
