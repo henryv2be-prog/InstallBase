@@ -31,6 +31,7 @@ import { resolvePublicSiteOrigin } from "@/lib/kasifind/site-config";
 import { listingPublicPath, listingPublicUrl } from "@/lib/kasifind/share-provider-listing";
 import { KfListingJsonLd } from "@/components/kasifind/kf-listing-json-ld";
 import { KfListingPersistentContactBar } from "@/components/kasifind/kf-listing-persistent-contact-bar";
+import { KfListingLcpPreload } from "@/components/kasifind/kf-listing-lcp-preload";
 
 export const dynamic = "force-dynamic";
 
@@ -139,6 +140,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
     <article
       className={`pb-8${showPersistentContactBar ? " kf-listing-page-public--sticky-contact" : ""}`}
     >
+      <KfListingLcpPreload profileImageUrl={listing.profileImageUrl} siteOrigin={siteOrigin} />
       {listingJsonLd ? <KfListingJsonLd data={listingJsonLd} /> : null}
       <KfListingPageScrollTop listingId={listing.id} />
       <KfTrackListingView listingId={listing.id} />
@@ -166,10 +168,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
           </span>
         </div>
         {listing.profileImageUrl ? (
-          <KfListingProfileHero
-            src={publicAssetUrl(listing.profileImageUrl, siteOrigin)}
-            alt={listing.displayName}
-          />
+          <KfListingProfileHero src={listing.profileImageUrl} alt={listing.displayName} />
         ) : null}
         <div className="kf-listing-hero-identity relative bg-[var(--kf-stone)]">
           {!listing.profileImageUrl ? (
@@ -239,7 +238,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
         categories={listing.categories}
         services={listing.services}
         photos={listing.photos.map((url, i) => ({
-          src: publicAssetUrl(url, siteOrigin),
+          src: url,
           alt: `Work sample ${i + 1} from ${listing.displayName}`,
         }))}
         reviews={listing.reviews.map((r) => ({

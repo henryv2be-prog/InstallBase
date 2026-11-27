@@ -4,7 +4,9 @@ import {
   buildListingImageDelivery,
   canUseListingImageVariants,
   isListingImageVariantPath,
+  pickListingPageLcpImagePath,
 } from "@/lib/kasifind/listing-image-delivery";
+import { normalizeListingImageStoredPath } from "@/lib/kasifind/listing-upload-path";
 
 describe("listing image delivery helpers", () => {
   it("detects variant paths", () => {
@@ -32,5 +34,24 @@ describe("listing image delivery helpers", () => {
     const delivery = buildListingImageDelivery("/uploads/x.png", "full", null);
     assert.match(delivery.src, /\/uploads\/x\.w1400\.webp$/);
     assert.equal(delivery.sizes, "100vw");
+  });
+
+  it("resolves variants from absolute upload URLs", () => {
+    assert.equal(
+      normalizeListingImageStoredPath("https://kasifind.com/uploads/a.jpeg"),
+      "/uploads/a.jpeg"
+    );
+    const delivery = buildListingImageDelivery(
+      "https://kasifind.com/uploads/a.jpeg",
+      "hero",
+      "https://kasifind.com"
+    );
+    assert.match(delivery.src, /a\.w800\.webp/);
+    assert.equal(delivery.canonicalOriginal, "/uploads/a.jpeg");
+  });
+
+  it("picks profile path for LCP preload", () => {
+    assert.equal(pickListingPageLcpImagePath(null), null);
+    assert.equal(pickListingPageLcpImagePath("/uploads/logo.jpg"), "/uploads/logo.jpg");
   });
 });
