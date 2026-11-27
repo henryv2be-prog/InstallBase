@@ -200,11 +200,7 @@ export function KfListingDetailTabs({
             Tap a photo to enlarge{photos.length > 1 ? " and swipe between shots" : ""}.
           </p>
           {photos.length > 0 ? (
-            <KfWorkPhotoGallery
-              className="mt-4"
-              priorityFirst
-              photos={photos}
-            />
+            <KfWorkPhotoGallery className="mt-4" photos={photos} />
           ) : (
             <div className="mt-4">
               <KfEmptyState

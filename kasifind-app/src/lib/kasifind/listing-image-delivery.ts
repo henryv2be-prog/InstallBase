@@ -1,4 +1,7 @@
-import { uploadPathToFilename } from "@/lib/kasifind/listing-upload-path";
+import {
+  normalizeListingImageStoredPath,
+  uploadPathToFilename,
+} from "@/lib/kasifind/listing-upload-path";
 import {
   LISTING_IMAGE_VARIANT_WIDTHS,
   listingImageVariantPublicPath,
@@ -16,10 +19,10 @@ export function isListingImageVariantPath(path: string): boolean {
 
 /** True when `src` is a local listing upload eligible for phase-1 WebP variants. */
 export function canUseListingImageVariants(src: string): boolean {
-  const trimmed = src.trim();
-  if (!trimmed.startsWith("/uploads/")) return false;
-  if (isListingImageVariantPath(trimmed)) return false;
-  return uploadPathToFilename(trimmed) != null;
+  const stored = normalizeListingImageStoredPath(src.trim());
+  if (!stored.startsWith("/uploads/")) return false;
+  if (isListingImageVariantPath(stored)) return false;
+  return uploadPathToFilename(stored) != null;
 }
 
 const INTENT_DEFAULT_WIDTH: Record<ListingImageWidthIntent, ListingImageVariantWidth> = {
@@ -52,12 +55,13 @@ export function buildListingImageDelivery(
   origin?: string | null
 ): ListingImageDelivery {
   const trimmed = originalSrc.trim();
+  const storedPath = normalizeListingImageStoredPath(trimmed);
   const resolved = resolveListingImageSrc(trimmed, origin);
   if (!canUseListingImageVariants(trimmed)) {
-    return { src: resolved, canonicalOriginal: trimmed };
+    return { src: resolved, canonicalOriginal: storedPath };
   }
 
-  const filename = uploadPathToFilename(trimmed)!;
+  const filename = uploadPathToFilename(storedPath)!;
   const srcSet = LISTING_IMAGE_VARIANT_WIDTHS.map((w) => {
     const variantPath = listingImageVariantPublicPath(filename, w);
     return `${resolveListingImageSrc(variantPath, origin)} ${w}w`;
@@ -70,7 +74,7 @@ export function buildListingImageDelivery(
     src: resolveListingImageSrc(defaultPath, origin),
     srcSet,
     sizes: INTENT_SIZES[intent],
-    canonicalOriginal: trimmed,
+    canonicalOriginal: storedPath,
   };
 }
 
@@ -78,9 +82,17 @@ export function listingImageOriginalDelivery(
   canonicalOriginal: string,
   origin?: string | null
 ): Pick<ListingImageDelivery, "src" | "canonicalOriginal"> {
-  const trimmed = canonicalOriginal.trim();
+  const storedPath = normalizeListingImageStoredPath(canonicalOriginal.trim());
   return {
-    src: resolveListingImageSrc(trimmed, origin),
-    canonicalOriginal: trimmed,
+    src: resolveListingImageSrc(storedPath, origin),
+    canonicalOriginal: storedPath,
   };
+}
+
+/** Profile hero is the listing page LCP when present (stored `/uploads/...` path). */
+export function pickListingPageLcpImagePath(profileImageUrl: string | null | undefined): string | null {
+  const profile = profileImageUrl?.trim();
+  if (!profile) return null;
+  const stored = normalizeListingImageStoredPath(profile);
+  return stored.startsWith("/uploads/") ? stored : null;
 }
