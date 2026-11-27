@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { KfLegalPageShell } from "@/components/kasifind/kf-legal-page-shell";
 import {
@@ -6,12 +7,29 @@ import {
   KF_SUPPORT_WHATSAPP_DISPLAY,
   kfSupportMailtoUrl,
 } from "@/lib/kasifind/support-contact";
+import {
+  buildCanonicalAlternates,
+  buildCanonicalUrl,
+  buildPublicOpenGraph,
+  buildPublicTwitter,
+} from "@/lib/kasifind/seo-canonical";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description:
-    "How KasiFind collects, uses and protects personal information on this South African local business discovery platform (POPIA-aware).",
-};
+const PRIVACY_TITLE = "Privacy Policy";
+const PRIVACY_DESCRIPTION =
+  "How KasiFind collects, uses and protects personal information on this South African local business discovery platform (POPIA-aware).";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headerStore = await headers();
+  const canonical = buildCanonicalUrl("/privacy", headerStore);
+  const ogTitle = `${PRIVACY_TITLE} | KasiFind`;
+  return {
+    title: PRIVACY_TITLE,
+    description: PRIVACY_DESCRIPTION,
+    alternates: buildCanonicalAlternates("/privacy", headerStore),
+    openGraph: buildPublicOpenGraph({ title: ogTitle, description: PRIVACY_DESCRIPTION, canonical }),
+    twitter: buildPublicTwitter(ogTitle, PRIVACY_DESCRIPTION),
+  };
+}
 
 export default function PrivacyPage() {
   return (

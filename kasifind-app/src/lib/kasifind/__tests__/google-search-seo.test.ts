@@ -212,10 +212,10 @@ test("root layout sets metadataBase from public site origin", () => {
   assert.match(layout, /openGraph/);
 });
 
-test("homepage metadata includes canonical", () => {
+test("homepage metadata includes absolute canonical", () => {
   const home = fs.readFileSync(path.join(appRoot, "page.tsx"), "utf8");
-  assert.match(home, /alternates/);
-  assert.match(home, /canonical:\s*["']\/["']/);
+  assert.match(home, /generateMetadata/);
+  assert.match(home, /buildCanonicalAlternates\("\/",/);
   assert.match(home, /KasiFind — Find local\. Support local\. Grow local\./);
   assert.doesNotMatch(home, /providerListCta/);
 });
@@ -233,7 +233,7 @@ test("list-your-business page is public SEO with canonical", () => {
     path.join(appRoot, "list-your-business", "page.tsx"),
     "utf8"
   );
-  assert.match(page, /alternates:\s*\{\s*canonical:\s*"\/list-your-business"/);
+  assert.match(page, /buildCanonicalAlternates\("\/list-your-business"/);
   assert.doesNotMatch(page, /KF_PRIVATE_ROUTE_ROBOTS/);
   assert.match(page, /listYourBusinessCtaHref/);
 });

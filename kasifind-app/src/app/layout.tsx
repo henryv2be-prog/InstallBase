@@ -6,7 +6,8 @@ import { KfAppShell } from "@/components/kasifind/kf-app-shell";
 import { KfHeaderAsync } from "@/components/kasifind/kf-header-async";
 import { KfHeaderLoaderFallback } from "@/components/kasifind/kf-page-loader";
 import { KfSiteFooter } from "@/components/kasifind/kf-site-footer";
-import { resolvePublicSiteOrigin } from "@/lib/kasifind/site-config";
+import { KASIFIND_PRODUCTION_ORIGIN } from "@/lib/kasifind/seo-canonical";
+import { getConfiguredSiteOrigin, resolvePublicSiteOrigin } from "@/lib/kasifind/site-config";
 import "./globals.css";
 import "./kasifind.css";
 
@@ -23,9 +24,12 @@ const rootTitle = "KasiFind — Find local. Support local. Grow local.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const headerStore = await headers();
-  const siteOrigin = resolvePublicSiteOrigin(headerStore);
+  const siteOrigin =
+    resolvePublicSiteOrigin(headerStore) ??
+    getConfiguredSiteOrigin() ??
+    KASIFIND_PRODUCTION_ORIGIN;
   return {
-    metadataBase: siteOrigin ? new URL(siteOrigin) : undefined,
+    metadataBase: new URL(siteOrigin),
     title: {
       default: rootTitle,
       template: "%s | KasiFind",
@@ -36,16 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: "en_ZA",
       siteName: "KasiFind",
-      title: rootTitle,
-      description: defaultDescription,
-      url: "/",
       images: [{ url: "/icons/icon-512.png", width: 512, height: 512, alt: "KasiFind" }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: rootTitle,
-      description: defaultDescription,
-      images: ["/icons/icon-512.png"],
     },
     icons: {
       icon: [

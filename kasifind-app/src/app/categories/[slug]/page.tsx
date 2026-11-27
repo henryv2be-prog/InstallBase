@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
@@ -7,6 +8,12 @@ import { getKfCategoryBySlug } from "@/lib/kasifind/categories";
 import { categoryBrowseDescription, categoryPublicPath } from "@/lib/kasifind/category-public-path";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { searchProvidersBrowse } from "@/lib/kasifind/search";
+import {
+  buildCanonicalAlternates,
+  buildCanonicalUrl,
+  buildPublicOpenGraph,
+  buildPublicTwitter,
+} from "@/lib/kasifind/seo-canonical";
 
 export const dynamic = "force-dynamic";
 
@@ -21,19 +28,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!category) {
     return { title: "Category not found" };
   }
+  const headerStore = await headers();
+  const path = categoryPublicPath(slug);
+  const canonical = buildCanonicalUrl(path, headerStore);
   const title = `${category.name} | KasiFind`;
   const description = categoryBrowseDescription(category.name);
   return {
     title: category.name,
     description,
-    alternates: { canonical: categoryPublicPath(slug) },
-    openGraph: {
-      title,
-      description,
-      url: categoryPublicPath(slug),
-      type: "website",
-      locale: "en_ZA",
-    },
+    alternates: buildCanonicalAlternates(path, headerStore),
+    openGraph: buildPublicOpenGraph({ title, description, canonical }),
+    twitter: buildPublicTwitter(title, description),
   };
 }
 

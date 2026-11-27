@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin } from "lucide-react";
@@ -10,6 +11,12 @@ import {
 } from "@/lib/kasifind/location-seo-hubs";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { searchProvidersBrowseByLocationLabel } from "@/lib/kasifind/search";
+import {
+  buildCanonicalAlternates,
+  buildCanonicalUrl,
+  buildPublicOpenGraph,
+  buildPublicTwitter,
+} from "@/lib/kasifind/seo-canonical";
 
 export const dynamic = "force-dynamic";
 
@@ -21,19 +28,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!hub) {
     return { title: "Area not found" };
   }
+  const headerStore = await headers();
+  const path = locationPublicPath(slug);
+  const canonical = buildCanonicalUrl(path, headerStore);
   const title = `${hub.name} local businesses | KasiFind`;
   const description = locationHubBrowseDescription(hub);
   return {
     title: `${hub.name} area`,
     description,
-    alternates: { canonical: locationPublicPath(slug) },
-    openGraph: {
-      title,
-      description,
-      url: locationPublicPath(slug),
-      type: "website",
-      locale: "en_ZA",
-    },
+    alternates: buildCanonicalAlternates(path, headerStore),
+    openGraph: buildPublicOpenGraph({ title, description, canonical }),
+    twitter: buildPublicTwitter(title, description),
   };
 }
 

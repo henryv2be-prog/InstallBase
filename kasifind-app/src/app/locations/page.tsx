@@ -1,17 +1,38 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { locationPublicPath } from "@/lib/kasifind/location-public-path";
 import { SEO_LOCATION_HUBS, type SeoLocationHub } from "@/lib/kasifind/location-seo-hubs";
+import {
+  buildCanonicalAlternates,
+  buildCanonicalUrl,
+  buildPublicOpenGraph,
+  buildPublicTwitter,
+} from "@/lib/kasifind/seo-canonical";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Browse by area",
-  description:
-    "Find local businesses by area on KasiFind — explore published listings in major South African cities and towns.",
-  alternates: { canonical: "/locations" },
-};
+const LOCATIONS_TITLE = "Browse by area";
+const LOCATIONS_DESCRIPTION =
+  "Find local businesses by area on KasiFind — explore published listings in major South African cities and towns.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headerStore = await headers();
+  const canonical = buildCanonicalUrl("/locations", headerStore);
+  const ogTitle = `${LOCATIONS_TITLE} | KasiFind`;
+  return {
+    title: LOCATIONS_TITLE,
+    description: LOCATIONS_DESCRIPTION,
+    alternates: buildCanonicalAlternates("/locations", headerStore),
+    openGraph: buildPublicOpenGraph({
+      title: ogTitle,
+      description: LOCATIONS_DESCRIPTION,
+      canonical,
+    }),
+    twitter: buildPublicTwitter(ogTitle, LOCATIONS_DESCRIPTION),
+  };
+}
 
 export default function LocationsIndexPage() {
   const byProvince = new Map<string, SeoLocationHub[]>();

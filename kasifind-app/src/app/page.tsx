@@ -8,6 +8,12 @@ import { BROWSE_LISTING_LIMIT } from "@/lib/kasifind/discovery-config";
 import { buildHomeBrowseItemListJsonLd } from "@/lib/kasifind/home-browse-json-ld";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { searchProvidersBrowse } from "@/lib/kasifind/search";
+import {
+  buildCanonicalAlternates,
+  buildCanonicalUrl,
+  buildPublicOpenGraph,
+  buildPublicTwitter,
+} from "@/lib/kasifind/seo-canonical";
 import { resolvePublicSiteOrigin } from "@/lib/kasifind/site-config";
 
 export const dynamic = "force-dynamic";
@@ -16,18 +22,17 @@ const homeTitle = "KasiFind — Find local. Support local. Grow local.";
 const homeDescription =
   "Discover trusted local services, skilled artisans and businesses across South Africa.";
 
-export const metadata: Metadata = {
-  title: homeTitle,
-  description: homeDescription,
-  alternates: { canonical: "/" },
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const headerStore = await headers();
+  const canonical = buildCanonicalUrl("/", headerStore);
+  return {
     title: homeTitle,
     description: homeDescription,
-    url: "/",
-    type: "website",
-    locale: "en_ZA",
-  },
-};
+    alternates: buildCanonicalAlternates("/", headerStore),
+    openGraph: buildPublicOpenGraph({ title: homeTitle, description: homeDescription, canonical }),
+    twitter: buildPublicTwitter(homeTitle, homeDescription),
+  };
+}
 
 export default async function KasiFindHomePage() {
   const dbConfigured = isKasiFindDbConfigured();
