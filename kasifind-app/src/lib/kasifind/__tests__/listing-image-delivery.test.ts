@@ -69,8 +69,8 @@ describe("listing image delivery helpers", () => {
     const delivery = buildListingImageDelivery("/uploads/work.jpg", "full", null);
     assert.match(delivery.src, /w1400\.webp/);
     const srcSet = delivery.srcSet ?? "";
-    assert.ok(!srcSet.includes("400w"));
+    assert.ok(!/\b400w\b/.test(srcSet));
     assert.ok(srcSet.includes("800w"));
-    assert.ok(srcSet.includes("1400w"));
+    assert.ok(/\b1400w\b/.test(srcSet));
   });
 });

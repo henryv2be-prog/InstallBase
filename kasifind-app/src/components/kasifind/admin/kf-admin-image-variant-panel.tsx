@@ -75,7 +75,8 @@ export function KfAdminImageVariantPanel({ initialHealth, disabled }: Props) {
           Listing image variants
         </h3>
         <p className="kf-admin-inbox-section__hint">
-          Legacy uploads before WebP variants — run batches until complete.
+          Legacy uploads before WebP variants — run batches until complete. After app updates
+          that change variant rules, run batches again to fill in missing .w800.webp files.
         </p>
       </div>
       <div className="kf-admin-inbox-alert" role="status">

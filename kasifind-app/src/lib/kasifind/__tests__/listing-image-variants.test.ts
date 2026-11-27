@@ -85,7 +85,7 @@ describe("generateListingImageVariants", () => {
     assert.equal(w400.width, 400);
   });
 
-  it("skips oversized tiers for a narrow source", async () => {
+  it("always creates w400 and w800; skips w1400 for narrow sources", async () => {
     const original = "fixture-narrow.jpg";
     const sourcePath = path.join(tmpDir, original);
     await sharp({
@@ -101,12 +101,12 @@ describe("generateListingImageVariants", () => {
 
     const result = await generateListingImageVariants(tmpDir, original);
     assert.equal(result.errors.length, 0);
-    assert.deepEqual(result.generated, ["fixture-narrow.w400.webp"]);
-    assert.equal(new Set(result.skipped).size, 2);
-    assert.ok(result.skipped.includes("fixture-narrow.w800.webp"));
+    assert.deepEqual(result.generated.sort(), ["fixture-narrow.w400.webp", "fixture-narrow.w800.webp"]);
     assert.ok(result.skipped.includes("fixture-narrow.w1400.webp"));
 
     const w400 = await sharp(path.join(tmpDir, "fixture-narrow.w400.webp")).metadata();
+    const w800 = await sharp(path.join(tmpDir, "fixture-narrow.w800.webp")).metadata();
     assert.equal(w400.width, 320);
+    assert.equal(w800.width, 320);
   });
 });
