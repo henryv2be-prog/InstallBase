@@ -13,15 +13,11 @@ import {
   buildCanonicalUrl,
   buildPublicTwitter,
 } from "@/lib/kasifind/seo-canonical";
-import {
-  buildListingTelHref,
-  buildListingWhatsAppUrlFromWhatsappField,
-} from "@/lib/kasifind/listing-contact-links";
+import { publicListingShowsContactBar } from "@/lib/kasifind/listing-contact-links";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { KfListingProfileHero } from "@/components/kasifind/kf-listing-profile-hero";
 import { KfListingDetailTabs } from "@/components/kasifind/kf-listing-detail-tabs";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
-import { KfListingContactFooter } from "@/components/kasifind/kf-listing-contact-footer";
 import { KfTrackListingView } from "@/components/kasifind/kf-track-listing-view";
 import { KfListingPageScrollTop } from "@/components/kasifind/kf-listing-page-scroll-top";
 import { KfProviderLocationMap } from "@/components/kasifind/kf-provider-location-map";
@@ -103,13 +99,6 @@ export default async function KasiFindProviderPage({ params }: Props) {
     waPhone.replace(/\D/g, "").length >= 9
       ? buildWhatsAppUrl(waPhone, defaultEnquiryMessage(listing.displayName, serviceHint))
       : null;
-  const stickyWaUrl = buildListingWhatsAppUrlFromWhatsappField(
-    listing.whatsapp,
-    listing.displayName,
-    serviceHint
-  );
-  const stickyTelHref = buildListingTelHref(listing.phone);
-  const showPersistentContactBar = Boolean(stickyWaUrl || stickyTelHref);
   const headerStore = await headers();
   const userAgent = headerStore.get("user-agent");
   const siteOrigin = siteOriginFromHeaders(headerStore);
@@ -118,6 +107,12 @@ export default async function KasiFindProviderPage({ params }: Props) {
     listing.map.longitude,
     listing.locationLabel,
     userAgent
+  );
+  const showPersistentContactBar = publicListingShowsContactBar(
+    waUrl,
+    listing.phone,
+    directionsUrl,
+    listing.id
   );
   const browseCategories =
     !ownerPreview && isKasiFindDbConfigured()
@@ -259,16 +254,6 @@ export default async function KasiFindProviderPage({ params }: Props) {
         <KfProviderLocationMap locationLabel={listing.locationLabel} map={listing.map} />
       </div>
 
-      <div className="kf-card mt-8 overflow-hidden kf-animate-in">
-        <KfListingContactFooter
-          listingId={listing.id}
-          displayName={listing.displayName}
-          waUrl={waUrl}
-          callPhone={listing.phone}
-          directionsUrl={directionsUrl}
-        />
-      </div>
-
       {!ownerPreview ? (
         <KfListingNearbySection listingId={listing.id} categorySlug={primaryCategory?.slug ?? null} />
       ) : null}
@@ -284,8 +269,10 @@ export default async function KasiFindProviderPage({ params }: Props) {
       {showPersistentContactBar ? (
         <KfListingPersistentContactBar
           listingId={listing.id}
-          waUrl={stickyWaUrl}
-          telHref={stickyTelHref}
+          displayName={listing.displayName}
+          waUrl={waUrl}
+          callPhone={listing.phone}
+          directionsUrl={directionsUrl}
         />
       ) : null}
     </article>

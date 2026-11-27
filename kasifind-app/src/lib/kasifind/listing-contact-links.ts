@@ -23,3 +23,15 @@ export function buildListingTelHref(phone: string | null | undefined): string | 
   if (!isValidListingPhoneNumber(raw)) return null;
   return `tel:${raw.replace(/\s/g, "")}`;
 }
+
+export function publicListingShowsContactBar(
+  waUrl: string | null,
+  callPhone: string,
+  directionsUrl: string | null,
+  listingId: string
+): boolean {
+  const canWhatsApp = Boolean(waUrl);
+  const canCall = isValidListingPhoneNumber(callPhone);
+  const canDirections = Boolean(directionsUrl);
+  return canWhatsApp || canCall || canDirections || Boolean(listingId);
+}
