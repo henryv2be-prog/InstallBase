@@ -1,14 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
+import { uploadPathToFilename } from "@/lib/kasifind/listing-upload-path";
 import { getUploadDir } from "@/lib/shared/uploads";
 
-/** Safe filename for a KasiFind `/uploads/<file>` path. */
-export function uploadPathToFilename(url: string): string | null {
-  if (!url.startsWith("/uploads/")) return null;
-  const rest = url.slice("/uploads/".length);
-  if (!rest || rest.includes("/") || rest.includes("..")) return null;
-  return path.basename(rest);
-}
+export { uploadPathToFilename } from "@/lib/kasifind/listing-upload-path";
 
 /** True when the file is missing on disk (local uploads only). External URLs are assumed OK. */
 export async function localUploadExists(url: string): Promise<boolean> {

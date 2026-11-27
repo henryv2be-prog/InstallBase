@@ -80,6 +80,7 @@ export function KfPhotoLightboxZoomImage({ src, alt, resetKey }: Props) {
         <KfListingImage
           src={src}
           alt={alt}
+          widthIntent="full"
           className="kf-photo-lightbox-image"
           priority
         />

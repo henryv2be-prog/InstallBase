@@ -114,7 +114,12 @@ export function KfListingNearbySection({ listingId, categorySlug }: Props) {
                 >
                   <div aria-hidden className="kf-listing-nearby-thumb">
                     {thumb ? (
-                      <KfListingImage src={thumb} alt="" className="h-full w-full object-cover" />
+                      <KfListingImage
+                        src={thumb}
+                        alt=""
+                        widthIntent="card"
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <span className="kf-listing-nearby-thumb-placeholder">
                         <Building2 className="h-6 w-6 opacity-70" />
