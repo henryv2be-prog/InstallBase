@@ -4,7 +4,7 @@ import path from "path";
 import { getKasiFindPrisma } from "@/lib/kasifind/prisma";
 import {
   listingImageVariantFilenames,
-  minimumVariantFilename,
+  requiredVariantFilenames,
   uniqueListingUploadPaths,
 } from "@/lib/kasifind/listing-image-variant-inventory";
 import { uploadPathToFilename } from "@/lib/kasifind/listing-upload-path";
@@ -18,7 +18,7 @@ export type ListingImageVariantHealth = {
   referencedOriginals: number;
   originalsOnDisk: number;
   originalsMissing: number;
-  withAnyVariant: number;
+  withRequiredVariants: number;
   withoutVariants: number;
 };
 
@@ -57,15 +57,27 @@ async function originalFileExists(uploadDir: string, storedPath: string): Promis
   }
 }
 
-async function hasMinimumVariant(uploadDir: string, storedPath: string): Promise<boolean> {
+async function hasRequiredVariants(uploadDir: string, storedPath: string): Promise<boolean> {
   const filename = uploadPathToFilename(storedPath);
   if (!filename) return false;
-  try {
-    await fs.access(path.join(uploadDir, minimumVariantFilename(filename)));
-    return true;
-  } catch {
-    return false;
+  for (const variant of requiredVariantFilenames(filename)) {
+    try {
+      await fs.access(path.join(uploadDir, variant));
+    } catch {
+      return false;
+    }
   }
+  return true;
+}
+
+async function listPathsNeedingVariants(uploadDir: string, paths: string[]): Promise<string[]> {
+  const needing: string[] = [];
+  for (const storedPath of paths) {
+    if (!(await originalFileExists(uploadDir, storedPath))) continue;
+    if (await hasRequiredVariants(uploadDir, storedPath)) continue;
+    needing.push(storedPath);
+  }
+  return needing;
 }
 
 export async function getListingImageVariantHealth(): Promise<ListingImageVariantHealth> {
@@ -73,16 +85,16 @@ export async function getListingImageVariantHealth(): Promise<ListingImageVarian
   const paths = await listListingImageUploadPaths();
   let originalsOnDisk = 0;
   let originalsMissing = 0;
-  let withAnyVariant = 0;
+  let withRequiredVariants = 0;
 
   for (const storedPath of paths) {
     const onDisk = await originalFileExists(uploadDir, storedPath);
     if (onDisk) originalsOnDisk += 1;
     else originalsMissing += 1;
-    if (onDisk && (await hasMinimumVariant(uploadDir, storedPath))) withAnyVariant += 1;
+    if (onDisk && (await hasRequiredVariants(uploadDir, storedPath))) withRequiredVariants += 1;
   }
 
-  const withoutVariants = Math.max(0, originalsOnDisk - withAnyVariant);
+  const withoutVariants = Math.max(0, originalsOnDisk - withRequiredVariants);
 
   return {
     variantsEnabled: listingImageVariantsEnabled(),
@@ -90,7 +102,7 @@ export async function getListingImageVariantHealth(): Promise<ListingImageVarian
     referencedOriginals: paths.length,
     originalsOnDisk,
     originalsMissing,
-    withAnyVariant,
+    withRequiredVariants,
     withoutVariants,
   };
 }
@@ -114,10 +126,11 @@ export async function runListingImageVariantBackfillBatch(input: {
   const limit = Math.min(100, Math.max(1, Math.floor(input.limit)));
   const uploadDir = getUploadDir();
   const all = await listListingImageUploadPaths();
+  const queue = await listPathsNeedingVariants(uploadDir, all);
   const start = input.afterPath
-    ? Math.max(0, all.findIndex((p) => p === input.afterPath) + 1)
+    ? Math.max(0, queue.findIndex((p) => p === input.afterPath) + 1)
     : 0;
-  const batch = all.slice(start, start + limit);
+  const batch = queue.slice(start, start + limit);
 
   let generatedVariantFiles = 0;
   let skippedVariantFiles = 0;
@@ -157,7 +170,7 @@ export async function runListingImageVariantBackfillBatch(input: {
     skippedVariantFiles,
     errors,
     lastPath,
-    hasMore: nextIndex < all.length,
+    hasMore: nextIndex < queue.length,
     errorSamples,
   };
 }
