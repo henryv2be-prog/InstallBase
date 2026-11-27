@@ -36,7 +36,7 @@ describe("parseListingServiceLines", () => {
 });
 
 describe("parseListingUpsertFormData", () => {
-  it("requires at least one service", () => {
+  it("requires at least one service when publishing", () => {
     const fd = new FormData();
     fd.set("displayName", "Test Biz");
     fd.set("phone", "0821234567");
@@ -46,10 +46,27 @@ describe("parseListingUpsertFormData", () => {
     fd.set("locationConfirmed", "true");
     fd.set("categoryId", "cat1");
     fd.set("services", "  \n  ");
+    fd.set("publish", "true");
     const result = parseListingUpsertFormData(fd);
     assert.equal("error" in result, true);
     if (!("error" in result)) return;
     assert.match(result.error, /at least one service/i);
+  });
+
+  it("allows empty services when saving a wizard draft", () => {
+    const fd = new FormData();
+    fd.set("displayName", "Test Biz");
+    fd.set("phone", "0821234567");
+    fd.set("locationLabel", "Alex");
+    fd.set("latitude", "-26.1076");
+    fd.set("longitude", "28.0567");
+    fd.set("locationConfirmed", "true");
+    fd.set("services", "");
+    fd.set("publish", "false");
+    const result = parseListingUpsertFormData(fd);
+    assert.equal("error" in result, false);
+    if ("error" in result) return;
+    assert.deepEqual(result.data.serviceLines, []);
   });
 
   it("requires validated location coordinates", () => {
