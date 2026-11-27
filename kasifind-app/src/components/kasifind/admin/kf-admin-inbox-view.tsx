@@ -17,6 +17,8 @@ import type { AdminAuditFeedRow, AdminInboxCompletedItem } from "@/lib/kasifind/
 import type { getAdminInboxGrowthKpis, getAdminInboxQueueCounts } from "@/lib/kasifind/admin-inbox";
 import { formatKfDateTime } from "@/lib/kasifind/format-datetime";
 import type { getUploadStorageStatus } from "@/lib/kasifind/upload-storage-status";
+import type { ListingImageVariantHealth } from "@/lib/kasifind/listing-image-backfill";
+import { KfAdminImageVariantPanel } from "@/components/kasifind/admin/kf-admin-image-variant-panel";
 
 type UploadStorageStatus = Awaited<ReturnType<typeof getUploadStorageStatus>>;
 
@@ -32,6 +34,7 @@ type Props = {
   completed: AdminInboxCompletedItem[];
   platformFeed: AdminDashboardStats["recentActivity"];
   uploadHealth: UploadStorageStatus | null;
+  imageVariantHealth: ListingImageVariantHealth | null;
 };
 
 function WowHint({ changePercent }: { changePercent: number | null }) {
@@ -111,6 +114,7 @@ export function KfAdminInboxView({
   completed,
   platformFeed,
   uploadHealth,
+  imageVariantHealth,
 }: Props) {
   const updatedLabel = formatKfDateTime(generatedAt);
   const outstandingTotal =
@@ -136,6 +140,8 @@ export function KfAdminInboxView({
           <p>{uploadHealth.warnings.join(" ")}</p>
         </div>
       ) : null}
+
+      <KfAdminImageVariantPanel initialHealth={imageVariantHealth} />
 
       <section className="kf-admin-inbox-section" aria-labelledby="inbox-needs-attention">
         <div className="kf-admin-inbox-section__head">

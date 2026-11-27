@@ -18,9 +18,15 @@ export type GenerateListingImageVariantsResult = {
  * Create WebP derivatives beside the original file in the upload directory.
  * Safe to call on failure paths: does not remove the original.
  */
+export type GenerateListingImageVariantsOptions = {
+  /** When true, keep existing variant files and record them as skipped. */
+  skipExisting?: boolean;
+};
+
 export async function generateListingImageVariants(
   uploadDir: string,
-  originalFilename: string
+  originalFilename: string,
+  options?: GenerateListingImageVariantsOptions
 ): Promise<GenerateListingImageVariantsResult> {
   const sourcePath = path.join(uploadDir, originalFilename);
   const generated: string[] = [];
@@ -41,6 +47,16 @@ export async function generateListingImageVariants(
   for (const width of LISTING_IMAGE_VARIANT_WIDTHS) {
     const variantName = listingImageVariantFilename(originalFilename, width);
     const destPath = path.join(uploadDir, variantName);
+
+    if (options?.skipExisting) {
+      try {
+        await fs.access(destPath);
+        skipped.push(variantName);
+        continue;
+      } catch {
+        /* create */
+      }
+    }
 
     const smallest = LISTING_IMAGE_VARIANT_WIDTHS[0];
     if (naturalWidth > 0 && naturalWidth < width && width > smallest) {
