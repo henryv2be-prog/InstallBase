@@ -116,6 +116,7 @@ export function KfProviderCard({
                   src={profileSrc}
                   alt=""
                   className="kf-provider-card-avatar-img"
+                  widthIntent="avatar"
                   priority={index < 4 && !profileMatchesGalleryCover}
                 />
               ) : (

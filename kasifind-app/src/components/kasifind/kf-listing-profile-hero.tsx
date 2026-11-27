@@ -27,6 +27,7 @@ export function KfListingProfileHero({ src, alt }: Props) {
       <KfListingImage
         src={src}
         alt=""
+        widthIntent="hero"
         priority
         className="kf-listing-profile-hero-img"
         onLoad={onImageLoad}

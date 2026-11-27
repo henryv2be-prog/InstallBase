@@ -1,6 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
+import {
+  buildListingImageDelivery,
+  listingImageOriginalDelivery,
+  type ListingImageWidthIntent,
+} from "@/lib/kasifind/listing-image-delivery";
 import {
   alternateListingImageSrc,
   resolveListingImageSrc,
@@ -12,6 +17,8 @@ type Props = {
   className?: string;
   /** Load immediately (search cards, hero photos). */
   priority?: boolean;
+  /** Chooses default variant width and `sizes` for responsive WebP delivery. */
+  widthIntent?: ListingImageWidthIntent;
   onLoad?: (event: SyntheticEvent<HTMLImageElement>) => void;
 };
 
@@ -53,39 +60,65 @@ function useShouldLoadImage(priority: boolean) {
   return { ref, shouldLoad };
 }
 
-export function KfListingImage({ src, alt, className, priority = false, onLoad }: Props) {
+export function KfListingImage({
+  src,
+  alt,
+  className,
+  priority = false,
+  widthIntent = "gallery",
+  onLoad,
+}: Props) {
   const originalSrc = src.trim();
+  const origin = typeof window !== "undefined" ? window.location.origin : null;
   const { ref, shouldLoad } = useShouldLoadImage(priority);
-  const [currentSrc, setCurrentSrc] = useState(() =>
-    resolveListingImageSrc(originalSrc, typeof window !== "undefined" ? window.location.origin : null)
-  );
-  const [failed, setFailed] = useState(false);
+  const [useResponsive, setUseResponsive] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
+  const [failed, setFailed] = useState(false);
+
+  const responsiveDelivery = useMemo(
+    () => buildListingImageDelivery(originalSrc, widthIntent, origin),
+    [originalSrc, widthIntent, origin]
+  );
+
+  const [currentSrc, setCurrentSrc] = useState(responsiveDelivery.src);
+  const [srcSet, setSrcSet] = useState<string | undefined>(responsiveDelivery.srcSet);
+  const [sizes, setSizes] = useState<string | undefined>(responsiveDelivery.sizes);
 
   useEffect(() => {
-    setCurrentSrc(
-      resolveListingImageSrc(originalSrc, typeof window !== "undefined" ? window.location.origin : null)
-    );
-    setFailed(false);
+    setUseResponsive(true);
     setRetryCount(0);
-  }, [originalSrc]);
+    setFailed(false);
+    const delivery = buildListingImageDelivery(originalSrc, widthIntent, origin);
+    setCurrentSrc(delivery.src);
+    setSrcSet(delivery.srcSet);
+    setSizes(delivery.sizes);
+  }, [originalSrc, widthIntent, origin]);
 
   const onError = useCallback(() => {
-    if (retryCount === 0) {
+    if (useResponsive && responsiveDelivery.srcSet) {
+      setUseResponsive(false);
+      const fallback = listingImageOriginalDelivery(responsiveDelivery.canonicalOriginal, origin);
+      setCurrentSrc(fallback.src);
+      setSrcSet(undefined);
+      setSizes(undefined);
+      setRetryCount(1);
+      return;
+    }
+    if (retryCount <= 1) {
       const altSrc = alternateListingImageSrc(currentSrc, originalSrc);
       if (altSrc) {
-        setRetryCount(1);
+        setRetryCount((c) => c + 1);
         setCurrentSrc(altSrc);
         return;
       }
     }
-    if (retryCount === 1) {
-      setRetryCount(2);
+    if (retryCount <= 2) {
+      setRetryCount(3);
       setCurrentSrc(withCacheBust(currentSrc));
       return;
     }
     setFailed(true);
-  }, [currentSrc, originalSrc, retryCount]);
+  }, [currentSrc, originalSrc, responsiveDelivery, retryCount, useResponsive, origin]);
 
   if (!originalSrc) {
     return null;
@@ -116,9 +149,11 @@ export function KfListingImage({ src, alt, className, priority = false, onLoad }
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={currentSrc}
+        srcSet={useResponsive ? srcSet : undefined}
+        sizes={useResponsive ? sizes : undefined}
         alt={alt}
         className={className}
-        loading="eager"
+        loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
         decoding="async"
         referrerPolicy="same-origin"

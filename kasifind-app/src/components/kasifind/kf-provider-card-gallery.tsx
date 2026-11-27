@@ -4,6 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ImageIcon } from "lucide-react";
 import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
 import {
+  buildListingImageDelivery,
+  listingImageOriginalDelivery,
+} from "@/lib/kasifind/listing-image-delivery";
+import {
   alternateListingImageSrc,
   resolveListingImageSrc,
 } from "@/lib/kasifind/resolve-listing-image-src";
@@ -197,15 +201,30 @@ function GalleryLayer({
   priority: boolean;
   onFailed: (currentSrc: string, retried: boolean) => string | null;
 }) {
-  const [src, setSrc] = useState(() => resolvedSrc(originalUrl));
+  const origin = typeof window !== "undefined" ? window.location.origin : null;
+  const initialDelivery = buildListingImageDelivery(originalUrl, "card", origin);
+  const [src, setSrc] = useState(initialDelivery.src);
+  const [srcSet, setSrcSet] = useState<string | undefined>(initialDelivery.srcSet);
+  const [sizes, setSizes] = useState<string | undefined>(initialDelivery.sizes);
   const [retry, setRetry] = useState(0);
 
   useEffect(() => {
-    setSrc(resolvedSrc(originalUrl));
+    const delivery = buildListingImageDelivery(originalUrl, "card", origin);
+    setSrc(delivery.src);
+    setSrcSet(delivery.srcSet);
+    setSizes(delivery.sizes);
     setRetry(0);
-  }, [originalUrl]);
+  }, [originalUrl, origin]);
 
   const handleError = () => {
+    if (srcSet && retry === 0) {
+      const fallback = listingImageOriginalDelivery(originalUrl, origin);
+      setSrc(fallback.src);
+      setSrcSet(undefined);
+      setSizes(undefined);
+      setRetry(1);
+      return;
+    }
     const next = onFailed(src, retry > 0);
     if (next) {
       setRetry((r) => r + 1);
@@ -217,6 +236,8 @@ function GalleryLayer({
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
+      srcSet={srcSet}
+      sizes={sizes}
       alt={alt}
       className={`kf-provider-thumb kf-provider-card-gallery__img${active ? " is-active" : ""}`}
       style={{ transitionDuration: `${FADE_MS}ms` }}

@@ -135,6 +135,7 @@ export function KfProfilePhotoField({
             <KfListingImage
               src={shownUrl}
               alt=""
+              widthIntent="gallery"
               className="h-28 w-28 rounded-xl object-cover ring-2 ring-white shadow-sm"
               priority
             />
