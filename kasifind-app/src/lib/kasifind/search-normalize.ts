@@ -31,8 +31,15 @@ export function pluralVariants(token: string): string[] {
   if (base.endsWith("ies") && base.length > 4) {
     variants.add(`${base.slice(0, -3)}y`);
   } else if (base.endsWith("es") && base.length > 3) {
-    variants.add(base.slice(0, -2));
-    variants.add(base.slice(0, -1));
+    const minusTwo = base.slice(0, -2);
+    const minusOne = base.slice(0, -1);
+    // gate(s): singular is …e+s — do not also emit "gat" from stripping "es".
+    if (minusOne.endsWith("e") && `${minusTwo}e` === minusOne) {
+      variants.add(minusOne);
+    } else {
+      if (minusTwo.length >= 3) variants.add(minusTwo);
+      if (minusOne.length >= 3 && minusOne !== minusTwo) variants.add(minusOne);
+    }
   } else if (base.endsWith("s") && !base.endsWith("ss") && base.length > 3) {
     variants.add(base.slice(0, -1));
   } else if (!base.endsWith("s")) {
@@ -58,14 +65,22 @@ export function tokenizeSearchQuery(query: string): string[] {
 }
 
 /** All substring needles to try for one token (normalisation + plurals). */
+const MIN_SUBSTRING_NEEDLE_LEN = 4;
+
 export function searchNeedlesForToken(token: string): string[] {
+  const tokenLen = token.trim().length;
+  const minLen =
+    tokenLen <= MIN_SUBSTRING_NEEDLE_LEN
+      ? 1
+      : Math.min(MIN_SUBSTRING_NEEDLE_LEN, tokenLen - 1);
   const needles = new Set<string>();
   for (const variant of pluralVariants(token)) {
+    if (variant.length < minLen) continue;
     const folded = foldSearchText(variant);
-    if (folded.length >= 1) needles.add(folded);
+    if (folded.length >= minLen) needles.add(folded);
     needles.add(variant);
   }
-  return [...needles].filter((n) => n.length >= 1);
+  return [...needles].filter((n) => n.length >= minLen);
 }
 
 export function foldedFieldIncludes(field: string, needle: string): boolean {

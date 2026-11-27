@@ -72,6 +72,24 @@ test("plural handling gates / gate", () => {
   assert.ok(pluralVariants("gate").includes("gates"));
   assert.equal(listingMatchesSearchTokens(johnsWelding, ["gate"]), true);
   assert.equal(listingMatchesSearchTokens(johnsWelding, ["gates"]), true);
+  const needles = searchNeedlesForToken("gates");
+  assert.ok(needles.includes("gate"));
+  assert.ok(!needles.includes("gat"), "gat must not match inside Negative");
+});
+
+test("gates query does not match credit listing via Negative substring", () => {
+  const sjeCredit = {
+    displayName: "SJE CREDIT SOLUTIONS PTY",
+    description:
+      "Debt review, red flag removal, prescribed debt and judgement assistance on credit profiles.",
+    locationLabel: "Queensburgh, Durban",
+    services: [
+      { name: "Negative Listing Disputes", keywords: "negative listing disputes" },
+      { name: "Judgement Removal Assistance", keywords: "judgement removal assistance" },
+    ],
+    categories: [{ name: "Professional and business services" }],
+  };
+  assert.equal(listingMatchesSearchTokens(sjeCredit, ["gates"]), false);
 });
 
 test("service-only matches for John's Welding", () => {
