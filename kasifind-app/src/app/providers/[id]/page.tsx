@@ -13,6 +13,10 @@ import {
   buildCanonicalUrl,
   buildPublicTwitter,
 } from "@/lib/kasifind/seo-canonical";
+import {
+  buildListingTelHref,
+  buildListingWhatsAppUrlFromWhatsappField,
+} from "@/lib/kasifind/listing-contact-links";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { KfListingProfileHero } from "@/components/kasifind/kf-listing-profile-hero";
 import { KfListingDetailTabs } from "@/components/kasifind/kf-listing-detail-tabs";
@@ -30,6 +34,7 @@ import { buildListingOgDescription, pickListingOpenGraphImagePath } from "@/lib/
 import { resolvePublicSiteOrigin } from "@/lib/kasifind/site-config";
 import { listingPublicPath, listingPublicUrl } from "@/lib/kasifind/share-provider-listing";
 import { KfListingJsonLd } from "@/components/kasifind/kf-listing-json-ld";
+import { KfListingPersistentContactBar } from "@/components/kasifind/kf-listing-persistent-contact-bar";
 
 export const dynamic = "force-dynamic";
 
@@ -98,6 +103,13 @@ export default async function KasiFindProviderPage({ params }: Props) {
     waPhone.replace(/\D/g, "").length >= 9
       ? buildWhatsAppUrl(waPhone, defaultEnquiryMessage(listing.displayName, serviceHint))
       : null;
+  const stickyWaUrl = buildListingWhatsAppUrlFromWhatsappField(
+    listing.whatsapp,
+    listing.displayName,
+    serviceHint
+  );
+  const stickyTelHref = buildListingTelHref(listing.phone);
+  const showPersistentContactBar = Boolean(stickyWaUrl || stickyTelHref);
   const headerStore = await headers();
   const userAgent = headerStore.get("user-agent");
   const siteOrigin = siteOriginFromHeaders(headerStore);
@@ -129,7 +141,9 @@ export default async function KasiFindProviderPage({ params }: Props) {
       : null;
 
   return (
-    <article className="pb-8">
+    <article
+      className={`pb-8${showPersistentContactBar ? " kf-listing-page-public--sticky-contact" : ""}`}
+    >
       {listingJsonLd ? <KfListingJsonLd data={listingJsonLd} /> : null}
       <KfListingPageScrollTop listingId={listing.id} />
       <KfTrackListingView listingId={listing.id} />
@@ -266,6 +280,14 @@ export default async function KasiFindProviderPage({ params }: Props) {
       <div className="mt-6">
         <KfReportForm listingId={listing.id} />
       </div>
+
+      {showPersistentContactBar ? (
+        <KfListingPersistentContactBar
+          listingId={listing.id}
+          waUrl={stickyWaUrl}
+          telHref={stickyTelHref}
+        />
+      ) : null}
     </article>
   );
 }
