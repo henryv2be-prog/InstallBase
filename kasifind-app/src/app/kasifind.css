@@ -7314,6 +7314,14 @@ html.kf-photo-lightbox-open body {
   overflow: hidden;
 }
 
+.kf-photo-lightbox-image-wrap--zoomable.is-zoomed {
+  cursor: grab;
+}
+
+.kf-photo-lightbox-image-wrap--zoomable.is-panning {
+  cursor: grabbing;
+}
+
 .kf-photo-lightbox-image-scaler {
   display: flex;
   align-items: center;
