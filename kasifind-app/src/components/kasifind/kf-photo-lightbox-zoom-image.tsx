@@ -83,6 +83,7 @@ export function KfPhotoLightboxZoomImage({ src, alt, resetKey }: Props) {
           widthIntent="full"
           className="kf-photo-lightbox-image"
           priority
+          highFetchPriority={false}
         />
       </div>
     </div>

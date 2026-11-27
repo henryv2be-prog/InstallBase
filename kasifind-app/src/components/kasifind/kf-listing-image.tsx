@@ -17,6 +17,8 @@ type Props = {
   className?: string;
   /** Load immediately (search cards, hero photos). */
   priority?: boolean;
+  /** When `priority`, set false to avoid competing with the page LCP (e.g. lightbox). */
+  highFetchPriority?: boolean;
   /** Chooses default variant width and `sizes` for responsive WebP delivery. */
   widthIntent?: ListingImageWidthIntent;
   onLoad?: (event: SyntheticEvent<HTMLImageElement>) => void;
@@ -65,6 +67,7 @@ export function KfListingImage({
   alt,
   className,
   priority = false,
+  highFetchPriority = true,
   widthIntent = "gallery",
   onLoad,
 }: Props) {
@@ -154,7 +157,7 @@ export function KfListingImage({
         alt={alt}
         className={className}
         loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : "auto"}
+        fetchPriority={priority && highFetchPriority ? "high" : "auto"}
         decoding="async"
         referrerPolicy="same-origin"
         onError={onError}
