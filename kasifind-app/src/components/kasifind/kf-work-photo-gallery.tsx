@@ -87,7 +87,7 @@ export function KfWorkPhotoGallery({
               <KfListingImage
                 src={photo.src}
                 alt={photo.alt ?? ""}
-                widthIntent="gallery"
+                widthIntent="thumb"
                 className="aspect-square w-full object-cover"
                 priority={priorityFirst && index === 0}
               />
