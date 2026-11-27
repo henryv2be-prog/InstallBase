@@ -263,7 +263,7 @@ export function KfListingForm({
       "true";
     if (!confirmed) return true;
 
-    for (let step = 0; step <= Math.min(activeStep, 2); step += 1) {
+    for (let step = 0; step <= activeStep; step += 1) {
       if (!validateWizardStep(form, step, toast.error)) {
         goToStep(step);
         return false;

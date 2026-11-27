@@ -86,7 +86,7 @@ export function parseListingUpsertFormData(
   }
 
   const serviceLines = parseListingServiceLines(servicesRaw);
-  if (serviceLines.length === 0) {
+  if (publish && serviceLines.length === 0) {
     return { error: "Add at least one service (one per line on the Services step)." };
   }
 
