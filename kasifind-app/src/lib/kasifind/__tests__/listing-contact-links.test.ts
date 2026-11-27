@@ -4,6 +4,7 @@ import {
   buildListingTelHref,
   buildListingWhatsAppUrlFromWhatsappField,
   isValidListingPhoneNumber,
+  publicListingShowsContactBar,
 } from "@/lib/kasifind/listing-contact-links";
 
 describe("listing-contact-links", () => {
@@ -23,5 +24,10 @@ describe("listing-contact-links", () => {
   test("builds tel href from phone field", () => {
     assert.equal(buildListingTelHref("082 123 4567"), "tel:0821234567");
     assert.equal(buildListingTelHref(""), null);
+  });
+
+  test("shows contact bar when share-only listing id present", () => {
+    assert.equal(publicListingShowsContactBar(null, "", null, "lst_1"), true);
+    assert.equal(publicListingShowsContactBar(null, "", null, ""), false);
   });
 });
