@@ -1,11 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { KfInlineContactActions } from "@/components/kasifind/kf-inline-contact-actions";
-import {
-  assignListingContactCtaPhrases,
-  assignListingContactCtaPhrasesForHydration,
-} from "@/lib/kasifind/contact-cta-phrases";
+import { useListingPageContactCtaLabel } from "@/components/kasifind/use-listing-page-contact-cta-label";
 
 type Props = {
   listingId: string;
@@ -51,22 +47,7 @@ export function KfListingContactFooter({
   contactCtaLabel,
   className = "",
 }: Props) {
-  const hydrationLabel = useMemo(
-    () =>
-      assignListingContactCtaPhrasesForHydration([listingId], `listing:${listingId}`).get(listingId) ??
-      "",
-    [listingId]
-  );
-  const [randomFallback, setRandomFallback] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (contactCtaLabel) return;
-    setRandomFallback(
-      assignListingContactCtaPhrases([listingId], Math.random).get(listingId) ?? hydrationLabel
-    );
-  }, [contactCtaLabel, listingId, hydrationLabel]);
-
-  const label = contactCtaLabel ?? randomFallback ?? hydrationLabel;
+  const label = useListingPageContactCtaLabel(listingId, contactCtaLabel);
 
   if (!shouldShowFooter(waUrl, callPhone, directionsUrl, listingId)) return null;
 
