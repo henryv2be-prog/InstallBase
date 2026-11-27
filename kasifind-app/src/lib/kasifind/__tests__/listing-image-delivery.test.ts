@@ -33,7 +33,7 @@ describe("listing image delivery helpers", () => {
   it("uses 1400 default for full intent", () => {
     const delivery = buildListingImageDelivery("/uploads/x.png", "full", null);
     assert.match(delivery.src, /\/uploads\/x\.w1400\.webp$/);
-    assert.equal(delivery.sizes, "100vw");
+    assert.match(delivery.sizes ?? "", /1400px/);
   });
 
   it("resolves variants from absolute upload URLs", () => {
@@ -53,5 +53,23 @@ describe("listing image delivery helpers", () => {
   it("picks profile path for LCP preload", () => {
     assert.equal(pickListingPageLcpImagePath(null), null);
     assert.equal(pickListingPageLcpImagePath("/uploads/logo.jpg"), "/uploads/logo.jpg");
+  });
+
+  it("limits thumb srcset to 400 and 800", () => {
+    const delivery = buildListingImageDelivery("/uploads/work.jpg", "thumb", null);
+    assert.match(delivery.src, /w400\.webp/);
+    const srcSet = delivery.srcSet ?? "";
+    assert.ok(/\b400w\b/.test(srcSet));
+    assert.ok(srcSet.includes("800w"));
+    assert.ok(!srcSet.includes("1400w"));
+  });
+
+  it("limits lightbox srcset to 800 and 1400", () => {
+    const delivery = buildListingImageDelivery("/uploads/work.jpg", "full", null);
+    assert.match(delivery.src, /w1400\.webp/);
+    const srcSet = delivery.srcSet ?? "";
+    assert.ok(!/\b400w\b/.test(srcSet));
+    assert.ok(srcSet.includes("800w"));
+    assert.ok(srcSet.includes("1400w"));
   });
 });

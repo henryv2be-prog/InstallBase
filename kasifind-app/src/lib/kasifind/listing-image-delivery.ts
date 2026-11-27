@@ -9,7 +9,10 @@ import {
 } from "@/lib/kasifind/listing-image-variants";
 import { resolveListingImageSrc } from "@/lib/kasifind/resolve-listing-image-src";
 
-export type ListingImageWidthIntent = "card" | "avatar" | "gallery" | "hero" | "full";
+export type ListingImageWidthIntent = "card" | "avatar" | "thumb" | "gallery" | "hero" | "full";
+
+const LIGHTBOX_VARIANT_WIDTHS: readonly ListingImageVariantWidth[] = [800, 1400];
+const THUMB_VARIANT_WIDTHS: readonly ListingImageVariantWidth[] = [400, 800];
 
 const VARIANT_PATH_RE = /\.w\d+\.webp$/i;
 
@@ -28,6 +31,7 @@ export function canUseListingImageVariants(src: string): boolean {
 const INTENT_DEFAULT_WIDTH: Record<ListingImageWidthIntent, ListingImageVariantWidth> = {
   avatar: 400,
   card: 400,
+  thumb: 400,
   gallery: 800,
   hero: 800,
   full: 1400,
@@ -36,10 +40,17 @@ const INTENT_DEFAULT_WIDTH: Record<ListingImageWidthIntent, ListingImageVariantW
 const INTENT_SIZES: Record<ListingImageWidthIntent, string> = {
   avatar: "56px",
   card: "(max-width: 480px) 100vw, 420px",
+  thumb: "(max-width: 640px) 33vw, 160px",
   gallery: "(max-width: 640px) 45vw, 280px",
   hero: "(max-width: 768px) 100vw, 800px",
-  full: "100vw",
+  full: "(max-width: 1024px) 100vw, 1400px",
 };
+
+function variantWidthsForIntent(intent: ListingImageWidthIntent): readonly ListingImageVariantWidth[] {
+  if (intent === "full") return LIGHTBOX_VARIANT_WIDTHS;
+  if (intent === "thumb") return THUMB_VARIANT_WIDTHS;
+  return LISTING_IMAGE_VARIANT_WIDTHS;
+}
 
 export type ListingImageDelivery = {
   src: string;
@@ -62,10 +73,13 @@ export function buildListingImageDelivery(
   }
 
   const filename = uploadPathToFilename(storedPath)!;
-  const srcSet = LISTING_IMAGE_VARIANT_WIDTHS.map((w) => {
-    const variantPath = listingImageVariantPublicPath(filename, w);
-    return `${resolveListingImageSrc(variantPath, origin)} ${w}w`;
-  }).join(", ");
+  const widths = variantWidthsForIntent(intent);
+  const srcSet = widths
+    .map((w) => {
+      const variantPath = listingImageVariantPublicPath(filename, w);
+      return `${resolveListingImageSrc(variantPath, origin)} ${w}w`;
+    })
+    .join(", ");
 
   const defaultW = INTENT_DEFAULT_WIDTH[intent];
   const defaultPath = listingImageVariantPublicPath(filename, defaultW);
