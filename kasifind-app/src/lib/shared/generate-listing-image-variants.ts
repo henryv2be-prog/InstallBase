@@ -58,8 +58,9 @@ export async function generateListingImageVariants(
       }
     }
 
-    const smallest = LISTING_IMAGE_VARIANT_WIDTHS[0];
-    if (naturalWidth > 0 && naturalWidth < width && width > smallest) {
+    // Always write w400 + w800 (w800 uses native width when smaller) so srcset never 404s.
+    // Skip w1400 only when the source is not wider than the 800px tier.
+    if (width === 1400 && naturalWidth > 0 && naturalWidth <= 800) {
       skipped.push(variantName);
       continue;
     }
