@@ -64,7 +64,7 @@ export function KfAdminImageVariantPanel({ initialHealth, disabled }: Props) {
 
   const pct =
     health.originalsOnDisk > 0
-      ? Math.round((health.withAnyVariant / health.originalsOnDisk) * 100)
+      ? Math.round((health.withRequiredVariants / health.originalsOnDisk) * 100)
       : 100;
 
   return (
@@ -75,15 +75,15 @@ export function KfAdminImageVariantPanel({ initialHealth, disabled }: Props) {
           Listing image variants
         </h3>
         <p className="kf-admin-inbox-section__hint">
-          Legacy uploads before WebP variants — run batches until complete. After app updates
-          that change variant rules, run batches again to fill in missing .w800.webp files.
+          Each listing photo needs <strong>.w400.webp</strong> and <strong>.w800.webp</strong> on disk.
+          Run batches until &quot;need variants&quot; is zero (includes missing .w800 after rule updates).
         </p>
       </div>
       <div className="kf-admin-inbox-alert" role="status">
         <div className="grid gap-1 text-sm">
           <p>
-            <strong>{health.withAnyVariant}</strong> of <strong>{health.originalsOnDisk}</strong> on-disk
-            originals have variants ({pct}%).
+            <strong>{health.withRequiredVariants}</strong> of <strong>{health.originalsOnDisk}</strong> on-disk
+            originals have w400 + w800 ({pct}%).
           </p>
           <p className="text-[var(--kf-muted)]">
             {health.referencedOriginals} unique paths in the database · {health.withoutVariants} need

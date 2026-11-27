@@ -4,8 +4,17 @@ import os from "node:os";
 import path from "node:path";
 import { after, before, describe, it } from "node:test";
 import sharp from "sharp";
-import { uniqueListingUploadPaths } from "@/lib/kasifind/listing-image-variant-inventory";
+import {
+  requiredVariantFilenames,
+  uniqueListingUploadPaths,
+} from "@/lib/kasifind/listing-image-variant-inventory";
 import { generateListingImageVariants } from "@/lib/shared/generate-listing-image-variants";
+
+describe("requiredVariantFilenames", () => {
+  it("requires w400 and w800 for srcset", () => {
+    assert.deepEqual(requiredVariantFilenames("photo.jpeg"), ["photo.w400.webp", "photo.w800.webp"]);
+  });
+});
 
 describe("uniqueListingUploadPaths", () => {
   it("dedupes and ignores variant paths", () => {

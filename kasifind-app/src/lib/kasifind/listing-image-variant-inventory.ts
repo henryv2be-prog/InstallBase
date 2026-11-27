@@ -32,3 +32,10 @@ export function listingImageVariantFilenames(originalFilename: string): string[]
 export function minimumVariantFilename(originalFilename: string): string {
   return listingImageVariantFilename(originalFilename, LISTING_IMAGE_VARIANT_WIDTHS[0] as ListingImageVariantWidth);
 }
+
+/** Variants that must exist on disk (advertised in card/gallery srcset). */
+export const REQUIRED_LISTING_VARIANT_WIDTHS: readonly ListingImageVariantWidth[] = [400, 800];
+
+export function requiredVariantFilenames(originalFilename: string): string[] {
+  return REQUIRED_LISTING_VARIANT_WIDTHS.map((w) => listingImageVariantFilename(originalFilename, w));
+}
