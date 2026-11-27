@@ -59,3 +59,23 @@ export const KfAnalyticsEventType = {
 } as const
 
 export type KfAnalyticsEventType = (typeof KfAnalyticsEventType)[keyof typeof KfAnalyticsEventType]
+
+
+export const KfNotificationPriority = {
+  INFO: 'INFO',
+  IMPORTANT: 'IMPORTANT',
+  CRITICAL: 'CRITICAL'
+} as const
+
+export type KfNotificationPriority = (typeof KfNotificationPriority)[keyof typeof KfNotificationPriority]
+
+
+export const KfAdminNotificationDeliveryStatus = {
+  PENDING: 'PENDING',
+  IN_APP_ONLY: 'IN_APP_ONLY',
+  PUSH_SENT: 'PUSH_SENT',
+  PUSH_FAILED: 'PUSH_FAILED',
+  PUSH_SKIPPED: 'PUSH_SKIPPED'
+} as const
+
+export type KfAdminNotificationDeliveryStatus = (typeof KfAdminNotificationDeliveryStatus)[keyof typeof KfAdminNotificationDeliveryStatus]

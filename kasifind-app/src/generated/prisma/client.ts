@@ -106,3 +106,28 @@ export type KfAdminAudit = Prisma.KfAdminAuditModel
  * 
  */
 export type KfAnalyticsEvent = Prisma.KfAnalyticsEventModel
+/**
+ * Model KfPlatformEvent
+ * 
+ */
+export type KfPlatformEvent = Prisma.KfPlatformEventModel
+/**
+ * Model KfAdminPushSubscription
+ * 
+ */
+export type KfAdminPushSubscription = Prisma.KfAdminPushSubscriptionModel
+/**
+ * Model KfAdminNotificationPreference
+ * 
+ */
+export type KfAdminNotificationPreference = Prisma.KfAdminNotificationPreferenceModel
+/**
+ * Model KfAdminNotificationSettings
+ * 
+ */
+export type KfAdminNotificationSettings = Prisma.KfAdminNotificationSettingsModel
+/**
+ * Model KfAdminNotification
+ * 
+ */
+export type KfAdminNotification = Prisma.KfAdminNotificationModel

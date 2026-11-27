@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getKasiFindPrisma, isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { requireKasiFindAdmin } from "@/lib/kasifind/session";
+import { safeRecordPlatformEvent } from "@/lib/kasifind/platform-events";
 
 function dbGuard() {
   if (!isKasiFindDbConfigured()) {
@@ -45,6 +46,35 @@ export async function kfAdminModerateListing(formData: FormData) {
 
   await kf.kfProviderListing.update({ where: { id: listingId }, data });
   await audit(auth.user.id, `listing.${decision.toLowerCase()}`, listingId);
+
+  const eventType =
+    decision === "APPROVED"
+      ? "listing.approved"
+      : decision === "REJECTED"
+        ? "listing.rejected"
+        : "listing.unpublished";
+  safeRecordPlatformEvent({
+    eventType,
+    entityType: "listing",
+    entityId: listingId,
+    metadata: { listingId, listingName: listing.displayName },
+    idempotencyKey: `${eventType}:${listingId}`,
+  });
+  safeRecordPlatformEvent({
+    eventType: "admin.listing_moderated",
+    entityType: "listing",
+    entityId: listingId,
+    metadata: { listingId, decision },
+  });
+  if (decision === "APPROVED" && data.status === "PUBLISHED") {
+    safeRecordPlatformEvent({
+      eventType: "listing.published",
+      entityType: "listing",
+      entityId: listingId,
+      metadata: { listingId, listingName: listing.displayName },
+      idempotencyKey: `listing.published:${listingId}`,
+    });
+  }
 
   revalidatePath("/admin");
   revalidatePath("/admin/listings");
@@ -117,6 +147,13 @@ export async function kfAdminDeleteListing(formData: FormData) {
   const kf = getKasiFindPrisma();
   await kf.kfProviderListing.delete({ where: { id: listingId } });
   await audit(auth.user.id, "listing.deleted", listingId);
+  safeRecordPlatformEvent({
+    eventType: "listing.deleted",
+    entityType: "listing",
+    entityId: listingId,
+    metadata: { listingId },
+    idempotencyKey: `listing.deleted:${listingId}`,
+  });
   revalidatePath("/admin/listings");
   revalidatePath("/");
   return { success: true };
@@ -151,6 +188,20 @@ export async function kfAdminUpdateUser(formData: FormData) {
 
   await kf.kfUser.update({ where: { id: userId }, data });
   await audit(auth.user.id, "user.updated", userId, JSON.stringify(data));
+  if (data.suspended === true) {
+    safeRecordPlatformEvent({
+      eventType: "user.suspended",
+      entityType: "user",
+      entityId: userId,
+      metadata: { userId },
+    });
+  }
+  safeRecordPlatformEvent({
+    eventType: "admin.user_changed",
+    entityType: "user",
+    entityId: userId,
+    metadata: { userId },
+  });
   revalidatePath("/admin/users");
   revalidatePath(`/admin/users/${userId}`);
   return { success: true };
@@ -173,6 +224,13 @@ export async function kfAdminDeleteUser(formData: FormData) {
   const kf = getKasiFindPrisma();
   await kf.kfUser.delete({ where: { id: userId } });
   await audit(auth.user.id, "user.deleted", userId);
+  safeRecordPlatformEvent({
+    eventType: "user.deleted",
+    entityType: "user",
+    entityId: userId,
+    metadata: { userId },
+    idempotencyKey: `user.deleted:${userId}`,
+  });
   revalidatePath("/admin/users");
   return { success: true };
 }
@@ -201,11 +259,17 @@ export async function kfAdminUpsertCategory(formData: FormData) {
       data: { name, slug, sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0 },
     });
     await audit(auth.user.id, "category.updated", id);
+    safeRecordPlatformEvent({ eventType: "admin.category_changed", entityType: "category", entityId: id });
   } else {
     const created = await kf.kfCategory.create({
       data: { name, slug, sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0 },
     });
     await audit(auth.user.id, "category.created", created.id);
+    safeRecordPlatformEvent({
+      eventType: "admin.category_changed",
+      entityType: "category",
+      entityId: created.id,
+    });
   }
 
   revalidatePath("/admin/categories");
@@ -283,8 +347,19 @@ export async function kfReportListing(formData: FormData) {
   const listing = await kf.kfProviderListing.findUnique({ where: { id: listingId } });
   if (!listing) return { error: "Listing not found." };
 
-  await kf.kfReport.create({
+  const report = await kf.kfReport.create({
     data: { listingId, reason, details },
+  });
+  safeRecordPlatformEvent({
+    eventType: "customer.listing_reported",
+    entityType: "report",
+    entityId: report.id,
+    metadata: {
+      reportId: report.id,
+      listingId,
+      listingName: listing.displayName,
+    },
+    idempotencyKey: `report:${report.id}`,
   });
   return { success: true };
 }

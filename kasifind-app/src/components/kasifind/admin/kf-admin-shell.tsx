@@ -7,9 +7,10 @@ import { KfAdminNav } from "@/components/kasifind/admin/kf-admin-nav";
 
 type Props = {
   children: ReactNode;
+  unreadNotificationCount?: number;
 };
 
-export function KfAdminShell({ children }: Props) {
+export function KfAdminShell({ children, unreadNotificationCount = 0 }: Props) {
   return (
     <div className="kf-admin-shell">
       <header className="kf-admin-shell__header kf-admin-hero kf-admin-hero--compact-mobile">
@@ -20,9 +21,19 @@ export function KfAdminShell({ children }: Props) {
             Manage providers, listings, and community activity.
           </p>
         </div>
-        <Link href="/" className="kf-btn kf-btn-outline text-sm shrink-0">
-          Public site
-        </Link>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <Link href="/admin/notifications" className="kf-btn kf-btn-outline relative text-sm">
+            Alerts
+            {unreadNotificationCount > 0 ? (
+              <span className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[var(--kf-accent)] px-1.5 py-0 text-xs font-semibold text-white">
+                {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
+              </span>
+            ) : null}
+          </Link>
+          <Link href="/" className="kf-btn kf-btn-outline text-sm">
+            Public site
+          </Link>
+        </div>
       </header>
 
       <div className="kf-admin-shell__frame">

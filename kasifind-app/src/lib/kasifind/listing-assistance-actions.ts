@@ -17,6 +17,7 @@ import {
   requireKasiFindProvider,
 } from "@/lib/kasifind/session";
 import { getUploadDir } from "@/lib/shared/uploads";
+import { safeRecordPlatformEvent } from "@/lib/kasifind/platform-events";
 
 function dbGuard() {
   if (!isKasiFindDbConfigured()) {
@@ -63,13 +64,25 @@ export async function kfSubmitListingAssistanceRequest(formData: FormData) {
     return { error: "You already have an open assistance request for this listing." };
   }
 
-  await kf.kfListingAssistanceRequest.create({
+  const created = await kf.kfListingAssistanceRequest.create({
     data: {
       listingId: listing.id,
       userId: auth.user.id,
       providerMessage: message,
       status: "PENDING",
     },
+  });
+
+  safeRecordPlatformEvent({
+    eventType: "provider.listing_assistance_requested",
+    entityType: "listing_assistance",
+    entityId: created.id,
+    metadata: {
+      assistanceRequestId: created.id,
+      listingId: listing.id,
+      listingName: listing.displayName,
+    },
+    idempotencyKey: `assistance.requested:${created.id}`,
   });
 
   revalidatePath("/account/listing");
@@ -123,6 +136,16 @@ export async function kfAdminUpdateAssistanceStatus(formData: FormData) {
       },
     }),
   ]);
+
+  safeRecordPlatformEvent({
+    eventType:
+      toStatus === "COMPLETED"
+        ? "provider.listing_assistance_completed"
+        : "provider.listing_assistance_updated",
+    entityType: "listing_assistance",
+    entityId: requestId,
+    metadata: { assistanceRequestId: requestId, status: toStatus },
+  });
 
   revalidatePath("/admin/listing-assistance");
   revalidatePath(`/admin/listing-assistance/${requestId}`);

@@ -63,7 +63,12 @@ export const ModelName = {
   KfListingAssistanceStatusEvent: 'KfListingAssistanceStatusEvent',
   KfListingAssistanceAuditEntry: 'KfListingAssistanceAuditEntry',
   KfAdminAudit: 'KfAdminAudit',
-  KfAnalyticsEvent: 'KfAnalyticsEvent'
+  KfAnalyticsEvent: 'KfAnalyticsEvent',
+  KfPlatformEvent: 'KfPlatformEvent',
+  KfAdminPushSubscription: 'KfAdminPushSubscription',
+  KfAdminNotificationPreference: 'KfAdminNotificationPreference',
+  KfAdminNotificationSettings: 'KfAdminNotificationSettings',
+  KfAdminNotification: 'KfAdminNotification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -262,12 +267,90 @@ export const KfAnalyticsEventScalarFieldEnum = {
 export type KfAnalyticsEventScalarFieldEnum = (typeof KfAnalyticsEventScalarFieldEnum)[keyof typeof KfAnalyticsEventScalarFieldEnum]
 
 
+export const KfPlatformEventScalarFieldEnum = {
+  id: 'id',
+  eventType: 'eventType',
+  category: 'category',
+  priority: 'priority',
+  metadata: 'metadata',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt'
+} as const
+
+export type KfPlatformEventScalarFieldEnum = (typeof KfPlatformEventScalarFieldEnum)[keyof typeof KfPlatformEventScalarFieldEnum]
+
+
+export const KfAdminPushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  userAgent: 'userAgent',
+  deviceLabel: 'deviceLabel',
+  active: 'active',
+  failureCount: 'failureCount',
+  lastSuccessAt: 'lastSuccessAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KfAdminPushSubscriptionScalarFieldEnum = (typeof KfAdminPushSubscriptionScalarFieldEnum)[keyof typeof KfAdminPushSubscriptionScalarFieldEnum]
+
+
+export const KfAdminNotificationPreferenceScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  eventType: 'eventType',
+  pushEnabled: 'pushEnabled',
+  inAppEnabled: 'inAppEnabled'
+} as const
+
+export type KfAdminNotificationPreferenceScalarFieldEnum = (typeof KfAdminNotificationPreferenceScalarFieldEnum)[keyof typeof KfAdminNotificationPreferenceScalarFieldEnum]
+
+
+export const KfAdminNotificationSettingsScalarFieldEnum = {
+  adminId: 'adminId',
+  pushMasterEnabled: 'pushMasterEnabled'
+} as const
+
+export type KfAdminNotificationSettingsScalarFieldEnum = (typeof KfAdminNotificationSettingsScalarFieldEnum)[keyof typeof KfAdminNotificationSettingsScalarFieldEnum]
+
+
+export const KfAdminNotificationScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  adminId: 'adminId',
+  title: 'title',
+  body: 'body',
+  deepLink: 'deepLink',
+  priority: 'priority',
+  category: 'category',
+  readAt: 'readAt',
+  deliveryStatus: 'deliveryStatus',
+  pushAttemptedAt: 'pushAttemptedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type KfAdminNotificationScalarFieldEnum = (typeof KfAdminNotificationScalarFieldEnum)[keyof typeof KfAdminNotificationScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -284,4 +367,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

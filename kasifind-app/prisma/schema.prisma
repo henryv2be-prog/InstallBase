@@ -62,6 +62,10 @@ model KfUser {
   listingAssistanceRequests KfListingAssistanceRequest[]
   listingAssistanceStatusEvents KfListingAssistanceStatusEvent[] @relation("AssistanceStatusAdmin")
   listingAssistanceAuditEntries KfListingAssistanceAuditEntry[] @relation("AssistanceAuditAdmin")
+  adminPushSubscriptions      KfAdminPushSubscription[]
+  notificationPreferences     KfAdminNotificationPreference[]
+  notificationSettings        KfAdminNotificationSettings?
+  adminNotifications          KfAdminNotification[]
 }
 
 model KfCategory {
@@ -261,4 +265,98 @@ model KfAnalyticsEvent {
   @@index([visitorId])
   @@index([createdAt])
   @@index([categoryId])
+}
+
+enum KfNotificationPriority {
+  INFO
+  IMPORTANT
+  CRITICAL
+}
+
+enum KfAdminNotificationDeliveryStatus {
+  PENDING
+  IN_APP_ONLY
+  PUSH_SENT
+  PUSH_FAILED
+  PUSH_SKIPPED
+}
+
+model KfPlatformEvent {
+  id             String                 @id @default(cuid())
+  eventType      String
+  category       String
+  priority       KfNotificationPriority
+  metadata       Json?
+  entityType     String?
+  entityId       String?
+  idempotencyKey String?                @unique
+  createdAt      DateTime               @default(now())
+
+  notifications KfAdminNotification[]
+
+  @@index([eventType, createdAt])
+  @@index([category, createdAt])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model KfAdminPushSubscription {
+  id            String    @id @default(cuid())
+  adminId       String
+  endpoint      String    @unique
+  p256dh        String
+  auth          String
+  userAgent     String?
+  deviceLabel   String?
+  active        Boolean   @default(true)
+  failureCount  Int       @default(0)
+  lastSuccessAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  admin KfUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId, active])
+}
+
+model KfAdminNotificationPreference {
+  id           String  @id @default(cuid())
+  adminId      String
+  eventType    String
+  pushEnabled  Boolean @default(false)
+  inAppEnabled Boolean @default(true)
+
+  admin KfUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@unique([adminId, eventType])
+  @@index([adminId])
+}
+
+model KfAdminNotificationSettings {
+  adminId           String  @id
+  pushMasterEnabled Boolean @default(false)
+
+  admin KfUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}
+
+model KfAdminNotification {
+  id              String                           @id @default(cuid())
+  eventId         String
+  adminId         String
+  title           String
+  body            String
+  deepLink        String
+  priority        KfNotificationPriority
+  category        String
+  readAt          DateTime?
+  deliveryStatus  KfAdminNotificationDeliveryStatus @default(PENDING)
+  pushAttemptedAt DateTime?
+  createdAt       DateTime                         @default(now())
+
+  event KfPlatformEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  admin KfUser        @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, adminId])
+  @@index([adminId, readAt, createdAt])
+  @@index([adminId, createdAt])
 }
