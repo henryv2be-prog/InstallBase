@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { CheckCircle2, MapPin, MessageCircle, PlusCircle, Smartphone, Users } from "lucide-react";
 import { KfListYourBusinessExamples } from "@/components/kasifind/kf-list-your-business-examples";
@@ -7,6 +8,12 @@ import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
 import { searchProvidersBrowse } from "@/lib/kasifind/search";
 import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 import { listYourBusinessCtaHref } from "@/lib/kasifind/provider-nav";
+import {
+  buildCanonicalAlternates,
+  buildCanonicalUrl,
+  buildPublicOpenGraph,
+  buildPublicTwitter,
+} from "@/lib/kasifind/seo-canonical";
 
 const PAGE_TITLE = "List Your Business Free on KasiFind";
 const PAGE_DESCRIPTION =
@@ -14,20 +21,23 @@ const PAGE_DESCRIPTION =
 
 const EXAMPLE_LISTING_LIMIT = 8;
 
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-  description: PAGE_DESCRIPTION,
-  alternates: { canonical: "/list-your-business" },
-  openGraph: {
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headerStore = await headers();
+  const canonical = buildCanonicalUrl("/list-your-business", headerStore);
+  return {
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
-    url: "/list-your-business",
-    type: "website",
-    locale: "en_ZA",
-  },
-};
-
-export const dynamic = "force-dynamic";
+    alternates: buildCanonicalAlternates("/list-your-business", headerStore),
+    openGraph: buildPublicOpenGraph({
+      title: PAGE_TITLE,
+      description: PAGE_DESCRIPTION,
+      canonical,
+    }),
+    twitter: buildPublicTwitter(PAGE_TITLE, PAGE_DESCRIPTION),
+  };
+}
 
 export default async function ListYourBusinessPage() {
   const dbConfigured = isKasiFindDbConfigured();

@@ -8,6 +8,11 @@ import { resolveProviderListingPage } from "@/lib/kasifind/listing-public";
 import { getKasiFindSessionUser } from "@/lib/kasifind/session";
 import { pickDirectionsUrl } from "@/lib/kasifind/navigation-urls";
 import { publicAssetUrl, siteOriginFromHeaders } from "@/lib/kasifind/public-asset-url";
+import {
+  buildCanonicalAlternates,
+  buildCanonicalUrl,
+  buildPublicTwitter,
+} from "@/lib/kasifind/seo-canonical";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { KfListingProfileHero } from "@/components/kasifind/kf-listing-profile-hero";
 import { KfListingDetailTabs } from "@/components/kasifind/kf-listing-detail-tabs";
@@ -42,7 +47,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { listing } = resolved;
   const headerStore = await headers();
   const siteOrigin = siteOriginFromHeaders(headerStore);
-  const canonical = siteOrigin ? listingPublicUrl(listing.id, siteOrigin) : listingPublicPath(listing.id);
+  const listingPath = listingPublicPath(listing.id);
+  const canonical = buildCanonicalUrl(listingPath, headerStore);
   const description = buildListingOgDescription(listing.description, listing.locationLabel);
   const rawImage = pickListingOpenGraphImagePath({
     photoUrls: listing.photos,
@@ -54,20 +60,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: listing.displayName,
     description,
-    alternates: canonical.startsWith("http") ? { canonical } : undefined,
+    alternates: buildCanonicalAlternates(listingPath, headerStore),
     openGraph: {
       title,
       description,
-      url: canonical.startsWith("http") ? canonical : undefined,
+      url: canonical,
       siteName: "KasiFind",
       locale: "en_ZA",
       type: "website",
       images: [{ url: imageUrl, alt: listing.displayName }],
     },
     twitter: {
-      card: "summary_large_image",
-      title,
-      description,
+      ...buildPublicTwitter(title, description),
       images: [imageUrl],
     },
   };

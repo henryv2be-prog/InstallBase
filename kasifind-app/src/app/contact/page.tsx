@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Mail, MessageCircle } from "lucide-react";
 import { KfLegalPageShell } from "@/components/kasifind/kf-legal-page-shell";
 import {
@@ -7,12 +8,29 @@ import {
   kfSupportMailtoUrl,
   kfSupportWhatsAppUrl,
 } from "@/lib/kasifind/support-contact";
+import {
+  buildCanonicalAlternates,
+  buildCanonicalUrl,
+  buildPublicOpenGraph,
+  buildPublicTwitter,
+} from "@/lib/kasifind/seo-canonical";
 
-export const metadata: Metadata = {
-  title: "Contact & Support",
-  description:
-    "Get help with KasiFind — email or WhatsApp the team behind this South African local business discovery platform.",
-};
+const CONTACT_TITLE = "Contact & Support";
+const CONTACT_DESCRIPTION =
+  "Get help with KasiFind — email or WhatsApp the team behind this South African local business discovery platform.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headerStore = await headers();
+  const canonical = buildCanonicalUrl("/contact", headerStore);
+  const ogTitle = `${CONTACT_TITLE} | KasiFind`;
+  return {
+    title: CONTACT_TITLE,
+    description: CONTACT_DESCRIPTION,
+    alternates: buildCanonicalAlternates("/contact", headerStore),
+    openGraph: buildPublicOpenGraph({ title: ogTitle, description: CONTACT_DESCRIPTION, canonical }),
+    twitter: buildPublicTwitter(ogTitle, CONTACT_DESCRIPTION),
+  };
+}
 
 export default function ContactPage() {
   return (

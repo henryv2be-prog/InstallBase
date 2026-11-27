@@ -1,18 +1,39 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
 import { categoryPublicPath } from "@/lib/kasifind/category-public-path";
 import { listKfCategories } from "@/lib/kasifind/categories";
 import { isKasiFindDbConfigured } from "@/lib/kasifind/prisma";
+import {
+  buildCanonicalAlternates,
+  buildCanonicalUrl,
+  buildPublicOpenGraph,
+  buildPublicTwitter,
+} from "@/lib/kasifind/seo-canonical";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Browse categories",
-  description:
-    "Explore local business categories on KasiFind — plumbing, electrical, automotive, and more across South Africa.",
-  alternates: { canonical: "/categories" },
-};
+const CATEGORIES_TITLE = "Browse categories";
+const CATEGORIES_DESCRIPTION =
+  "Explore local business categories on KasiFind — plumbing, electrical, automotive, and more across South Africa.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headerStore = await headers();
+  const canonical = buildCanonicalUrl("/categories", headerStore);
+  const ogTitle = `${CATEGORIES_TITLE} | KasiFind`;
+  return {
+    title: CATEGORIES_TITLE,
+    description: CATEGORIES_DESCRIPTION,
+    alternates: buildCanonicalAlternates("/categories", headerStore),
+    openGraph: buildPublicOpenGraph({
+      title: ogTitle,
+      description: CATEGORIES_DESCRIPTION,
+      canonical,
+    }),
+    twitter: buildPublicTwitter(ogTitle, CATEGORIES_DESCRIPTION),
+  };
+}
 
 export default async function CategoriesIndexPage() {
   if (!isKasiFindDbConfigured()) {

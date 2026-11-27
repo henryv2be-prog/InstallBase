@@ -1,11 +1,29 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { KfLegalPageShell } from "@/components/kasifind/kf-legal-page-shell";
+import {
+  buildCanonicalAlternates,
+  buildCanonicalUrl,
+  buildPublicOpenGraph,
+  buildPublicTwitter,
+} from "@/lib/kasifind/seo-canonical";
 
-export const metadata: Metadata = {
-  title: "About KasiFind",
-  description:
-    "Learn what KasiFind is, who operates this South African local business discovery platform, and why it exists.",
-};
+const ABOUT_TITLE = "About KasiFind";
+const ABOUT_DESCRIPTION =
+  "Learn what KasiFind is, who operates this South African local business discovery platform, and why it exists.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headerStore = await headers();
+  const canonical = buildCanonicalUrl("/about", headerStore);
+  const ogTitle = `${ABOUT_TITLE} | KasiFind`;
+  return {
+    title: ABOUT_TITLE,
+    description: ABOUT_DESCRIPTION,
+    alternates: buildCanonicalAlternates("/about", headerStore),
+    openGraph: buildPublicOpenGraph({ title: ogTitle, description: ABOUT_DESCRIPTION, canonical }),
+    twitter: buildPublicTwitter(ogTitle, ABOUT_DESCRIPTION),
+  };
+}
 
 export default function AboutPage() {
   return (
