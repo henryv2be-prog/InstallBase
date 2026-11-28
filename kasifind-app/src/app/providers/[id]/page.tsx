@@ -16,6 +16,7 @@ import {
 import { publicListingShowsContactBar } from "@/lib/kasifind/listing-contact-links";
 import { buildWhatsAppUrl, defaultEnquiryMessage } from "@/lib/kasifind/whatsapp";
 import { KfListingProfileHero } from "@/components/kasifind/kf-listing-profile-hero";
+import { KfListingNoPhotoPlaceholder } from "@/components/kasifind/kf-listing-no-photo-placeholder";
 import { KfListingDetailTabs } from "@/components/kasifind/kf-listing-detail-tabs";
 import { KfReportForm } from "@/components/kasifind/kf-report-form";
 import { KfTrackListingView } from "@/components/kasifind/kf-track-listing-view";
@@ -169,9 +170,15 @@ export default async function KasiFindProviderPage({ params }: Props) {
         </div>
         {listing.profileImageUrl ? (
           <KfListingProfileHero src={listing.profileImageUrl} alt={listing.displayName} />
+        ) : listing.photos.length === 0 ? (
+          <KfListingNoPhotoPlaceholder
+            displayName={listing.displayName}
+            className="kf-listing-hero-no-photo kf-listing-no-photo-art"
+            priority
+          />
         ) : null}
         <div className="kf-listing-hero-identity relative bg-[var(--kf-stone)]">
-          {!listing.profileImageUrl ? (
+          {!listing.profileImageUrl && listing.photos.length > 0 ? (
             <div className="kf-business-avatar-placeholder mx-auto sm:mx-0" aria-hidden>
               <Building2 className="h-8 w-8 opacity-80" />
               <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-[var(--kf-muted)]">
@@ -181,7 +188,9 @@ export default async function KasiFindProviderPage({ params }: Props) {
           ) : null}
           <div
             className={`kf-listing-hero-meta min-w-0 flex-1 text-center sm:text-left${
-              !listing.profileImageUrl ? " kf-listing-hero-meta--with-placeholder" : ""
+              !listing.profileImageUrl && listing.photos.length > 0
+                ? " kf-listing-hero-meta--with-placeholder"
+                : ""
             }`}
           >
             <h1 className="kf-listing-hero-title">{listing.displayName}</h1>
@@ -233,6 +242,7 @@ export default async function KasiFindProviderPage({ params }: Props) {
 
       <KfListingDetailTabs
         listingId={listing.id}
+        displayName={listing.displayName}
         ownerPreview={ownerPreview}
         description={listing.description}
         categories={listing.categories}

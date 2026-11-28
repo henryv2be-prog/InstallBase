@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ImageIcon } from "lucide-react";
-import { KfBrandLogo } from "@/components/kasifind/kf-brand-logo";
+import { KfListingNoPhotoPlaceholder } from "@/components/kasifind/kf-listing-no-photo-placeholder";
 import {
   buildListingImageDelivery,
   listingImageOriginalDelivery,
@@ -137,22 +136,11 @@ export function KfProviderCardGallery({
   if (visiblePhotos.length === 0) {
     const label = displayName.trim() || "Local provider";
     return (
-      <div
-        className="kf-provider-thumb-placeholder"
-        role="img"
-        aria-label={`${label} — photos yet to come`}
-      >
-        <div className="kf-provider-thumb-placeholder__brand" aria-hidden>
-          <span className="kf-provider-thumb-placeholder__brand-mark">
-            <KfBrandLogo />
-          </span>
-          <span className="kf-provider-thumb-placeholder__wordmark">KasiFind</span>
-        </div>
-        <div className="kf-provider-thumb-placeholder__icon-wrap" aria-hidden>
-          <ImageIcon className="kf-provider-thumb-placeholder__icon" />
-        </div>
-        <p className="kf-provider-thumb-placeholder__label">Photos yet to come</p>
-      </div>
+      <KfListingNoPhotoPlaceholder
+        displayName={label}
+        priority={priority}
+        className="kf-provider-thumb-placeholder kf-listing-no-photo-art"
+      />
     );
   }
 

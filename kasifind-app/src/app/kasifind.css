@@ -1390,35 +1390,37 @@
   transform: scale(1.15);
 }
 
+.kf-listing-no-photo-art {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+  object-position: 58% center;
+  background: var(--kf-stone);
+}
+
 .kf-provider-thumb-placeholder {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
   aspect-ratio: 4 / 3;
   width: 100%;
-  padding: 0.85rem 1rem;
-  text-align: center;
-  overflow: hidden;
-  color: var(--kf-muted);
-  background-color: color-mix(in srgb, var(--kf-stone) 68%, var(--kf-ivory));
-  background-image:
-    linear-gradient(var(--kf-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--kf-grid) 1px, transparent 1px),
-    radial-gradient(
-      ellipse 85% 70% at 50% 0%,
-      color-mix(in srgb, var(--kf-forest-soft) 95%, transparent) 0%,
-      transparent 58%
-    );
-  background-size:
-    22px 22px,
-    22px 22px,
-    auto;
   border-bottom: 1px solid color-mix(in srgb, var(--kf-border) 75%, transparent);
 }
 
+.kf-listing-hero-no-photo {
+  max-height: 12.5rem;
+  object-position: 52% 42%;
+}
+
+.kf-listing-no-photo-panel {
+  border-radius: var(--kf-radius-lg);
+  aspect-ratio: 16 / 10;
+  max-height: 17.5rem;
+  border: 1px solid color-mix(in srgb, var(--kf-border) 80%, transparent);
+}
+
+.kf-listing-nearby-thumb-placeholder.kf-listing-no-photo-art {
+  object-position: 70% center;
+}
+
+/* Legacy placeholder chrome (unused after branded artwork) */
 .kf-provider-thumb-placeholder__brand {
   position: relative;
   z-index: 1;
