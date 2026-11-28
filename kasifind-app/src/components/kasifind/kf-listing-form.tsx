@@ -638,8 +638,7 @@ export function KfListingForm({
           hidden={stepIsHidden(3)}
         >
           <p className="kf-wizard-step-lead">
-            Add your company logo or profile photo and examples of your work — customers decide with
-            their eyes.
+            Add your logo or profile photo and photos of your work — customers choose with their eyes.
           </p>
           {guestMode && !listing?.listingId ? (
             <KfGuestListingPhotosPanel pending={guestPendingPhotos} onChange={setGuestPendingPhotos} />
@@ -647,7 +646,7 @@ export function KfListingForm({
             <>
           {listing?.listingId ? (
             <>
-              <div className="kf-profile-photo-field--flow mb-4">
+              <div className="kf-profile-photo-field--flow mb-2">
                 <KfProfilePhotoField
                   listingId={listing.listingId}
                   profileImageUrl={listing.profileImageUrl ?? null}
@@ -683,13 +682,7 @@ export function KfListingForm({
                     });
                   }}
                 />
-              ) : (
-                <KfEmptyState
-                  icon={<Camera className="h-6 w-6" aria-hidden />}
-                  title="No work photos yet"
-                  description="Add at least one clear photo of your work. Customers often message before they visit — photos help them choose you with confidence."
-                />
-              )}
+              ) : null}
               <KfWorkPhotoUploadField
                 existingPhotoCount={photoCount}
                 disabled={pending}
@@ -701,9 +694,10 @@ export function KfListingForm({
             </>
           ) : (
             <KfEmptyState
-              icon={<Camera className="h-6 w-6" aria-hidden />}
+              compact
+              icon={<Camera className="h-5 w-5" aria-hidden />}
               title="Complete location first"
-              description="Go back to Location and set your area on the map, then tap Next — we will save a draft automatically so you can upload photos here."
+              description="Set your area on the map on the Location step, then return here to upload photos."
             />
           )}
             </>

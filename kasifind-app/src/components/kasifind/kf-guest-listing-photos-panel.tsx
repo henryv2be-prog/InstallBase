@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef } from "react";
-import { Building2, Camera, X } from "lucide-react";
-import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
+import { Building2, X } from "lucide-react";
 import {
   MAX_LISTING_WORK_PHOTOS,
   planWorkPhotoUploads,
@@ -84,12 +83,12 @@ export function KfGuestListingPhotosPanel({
   };
 
   return (
-    <div className="space-y-6">
-      <p className="text-xs leading-relaxed text-[var(--kf-muted)]">
-        Pick photos now — we save them to your listing right after you create your free account on
-        the last step.
+    <div className="kf-guest-listing-photos--wizard space-y-3">
+      <p className="text-xs leading-snug text-[var(--kf-muted)]">
+        Photos are saved when you create your free account on the last step.
       </p>
 
+      <div className="kf-profile-photo-field--flow">
       <div className="kf-profile-photo-field">
         <div className="kf-profile-photo-preview">
           {profilePreviewUrl ? (
@@ -136,6 +135,7 @@ export function KfGuestListingPhotosPanel({
           />
         </div>
       </div>
+      </div>
 
       {workCount > 0 ? (
         <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -159,16 +159,10 @@ export function KfGuestListingPhotosPanel({
             </li>
           ))}
         </ul>
-      ) : (
-        <KfEmptyState
-          icon={<Camera className="h-6 w-6" aria-hidden />}
-          title="No work photos yet"
-          description="Add at least one clear photo of your work. Customers often message before they visit — photos help them choose you with confidence."
-        />
-      )}
+      ) : null}
 
       <div className="kf-work-photo-upload">
-        <label htmlFor={workInputId} className="relative mt-4 block">
+        <label htmlFor={workInputId} className="relative mt-2 block">
           <span className="kf-file-input">
             <input
               id={workInputId}
