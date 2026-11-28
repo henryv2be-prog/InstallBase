@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Building2, ChevronRight, MapPin } from "lucide-react";
+import { ChevronRight, MapPin } from "lucide-react";
+import { KfListingNoPhotoPlaceholder } from "@/components/kasifind/kf-listing-no-photo-placeholder";
 import type { KfSearchResult } from "@/components/kasifind/types";
 import { formatDistanceKmClient } from "@/components/kasifind/format-distance";
 import { categoryIconForSlug } from "@/components/kasifind/category-icons";
@@ -121,9 +122,10 @@ export function KfListingNearbySection({ listingId, categorySlug }: Props) {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="kf-listing-nearby-thumb-placeholder">
-                        <Building2 className="h-6 w-6 opacity-70" />
-                      </span>
+                      <KfListingNoPhotoPlaceholder
+                        displayName={p.displayName}
+                        className="kf-listing-nearby-thumb-placeholder kf-listing-no-photo-art"
+                      />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">

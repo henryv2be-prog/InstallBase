@@ -5,6 +5,7 @@ import { MessageSquare, Star } from "lucide-react";
 import { KfEmptyState } from "@/components/kasifind/kf-empty-state";
 import { KfReviewForm } from "@/components/kasifind/kf-review-form";
 import { KfWorkPhotoGallery } from "@/components/kasifind/kf-work-photo-gallery";
+import { KfListingNoPhotoPlaceholder } from "@/components/kasifind/kf-listing-no-photo-placeholder";
 
 export type KfListingDetailTab = "about" | "services" | "photos" | "reviews";
 
@@ -22,6 +23,7 @@ type PhotoRow = {
 
 type Props = {
   listingId: string;
+  displayName: string;
   ownerPreview: boolean;
   description: string;
   categories: { slug: string; name: string }[];
@@ -60,6 +62,7 @@ function hashForTab(tab: KfListingDetailTab): string {
 
 export function KfListingDetailTabs({
   listingId,
+  displayName,
   ownerPreview,
   description,
   categories,
@@ -197,16 +200,22 @@ export function KfListingDetailTabs({
           className="kf-listing-tab-panel"
         >
           <p className="kf-section-sub">
-            Tap a photo to enlarge{photos.length > 1 ? " and swipe between shots" : ""}.
+            {photos.length > 0
+              ? `Tap a photo to enlarge${photos.length > 1 ? " and swipe between shots" : ""}.`
+              : "Gallery photos will appear here when the provider uploads them."}
           </p>
           {photos.length > 0 ? (
             <KfWorkPhotoGallery className="mt-4" photos={photos} />
           ) : (
             <div className="mt-4">
-              <KfEmptyState
-                title="No work photos yet"
-                description="This provider has not uploaded gallery photos. You can still message them to ask for examples of past jobs."
+              <KfListingNoPhotoPlaceholder
+                displayName={displayName}
+                className="kf-listing-no-photo-panel kf-listing-no-photo-art"
               />
+              <p className="mt-3 text-sm text-[var(--kf-muted)]">
+                This listing is still getting its photos ready. You can still message the provider to
+                ask for examples of past jobs.
+              </p>
             </div>
           )}
         </div>
