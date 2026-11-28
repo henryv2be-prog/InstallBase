@@ -98,7 +98,7 @@ export function KfGuestListingPhotosPanel({
               <img
                 src={profilePreviewUrl}
                 alt=""
-                className="h-28 w-28 rounded-xl object-cover ring-2 ring-white shadow-sm"
+                className="kf-profile-photo-thumb"
               />
               <button
                 type="button"
