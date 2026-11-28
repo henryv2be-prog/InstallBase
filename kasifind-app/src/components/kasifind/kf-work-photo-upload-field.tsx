@@ -161,7 +161,7 @@ export function KfWorkPhotoUploadField({
 
   return (
     <div className="kf-work-photo-upload">
-      <label className="relative mt-4 block">
+      <label className="relative mt-2 block">
         <span className="kf-file-input">
           <input
             type="file"
