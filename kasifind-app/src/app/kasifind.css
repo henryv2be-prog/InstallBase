@@ -2597,19 +2597,44 @@
 .kf-profile-photo-preview {
   position: relative;
   flex-shrink: 0;
+  width: 7rem;
+  height: 7rem;
+}
+
+.kf-profile-photo-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--kf-radius-lg);
+  object-fit: cover;
+  background: var(--kf-stone);
+  box-shadow:
+    0 0 0 2px #fff,
+    0 1px 4px rgba(31, 41, 55, 0.12);
 }
 
 .kf-profile-photo-placeholder {
   display: flex;
-  height: 7rem;
-  width: 7rem;
+  width: 100%;
+  height: 100%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--kf-space-1);
+  gap: 0.35rem;
   border-radius: var(--kf-radius-lg);
-  border: 2px dashed var(--kf-sage);
-  background: var(--kf-surface);
+  border: 2px dashed color-mix(in srgb, var(--kf-sage) 65%, var(--kf-border));
+  background: linear-gradient(
+    165deg,
+    var(--kf-surface) 0%,
+    color-mix(in srgb, var(--kf-stone) 42%, var(--kf-surface)) 100%
+  );
+  box-shadow: inset 0 1px 2px rgba(31, 41, 55, 0.05);
+}
+
+.kf-profile-photo-placeholder span {
+  max-width: 5.5rem;
+  text-align: center;
+  line-height: 1.25;
 }
 
 .kf-profile-photo-remove {
@@ -6115,11 +6140,44 @@ body.kf-listing-flow-active
   gap: var(--kf-space-3);
 }
 
-.kf-profile-photo-field--flow .kf-profile-photo-placeholder,
-.kf-profile-photo-field--flow .kf-profile-photo-preview img,
-.kf-profile-photo-field--flow .kf-profile-photo-preview .kf-listing-image-wrap {
-  height: 4.5rem;
+.kf-profile-photo-field--flow .kf-profile-photo-preview {
   width: 4.5rem;
+  height: 4.5rem;
+}
+
+.kf-profile-photo-field--flow .kf-profile-photo-placeholder span {
+  display: none;
+}
+
+.kf-profile-photo-field--flow .kf-profile-photo-placeholder {
+  gap: 0;
+}
+
+.kf-profile-photo-field--flow .kf-profile-photo-placeholder svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.kf-profile-photo-preview .kf-listing-image-wrap {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--kf-radius-lg);
+  box-shadow:
+    0 0 0 2px #fff,
+    0 1px 4px rgba(31, 41, 55, 0.12);
+}
+
+.kf-profile-photo-preview .kf-listing-image-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: var(--kf-radius-lg);
+}
+
+.kf-profile-photo-preview .kf-profile-photo-thumb {
+  box-shadow: none;
 }
 
 .kf-profile-photo-field--flow .kf-label {
